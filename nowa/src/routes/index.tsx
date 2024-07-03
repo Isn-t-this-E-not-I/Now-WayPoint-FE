@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 
-function App() {
+const App: React.FC = () => {
   return (
     <>
       <BrowserRouter>
@@ -10,7 +10,7 @@ function App() {
           <Route path="/" element={<></>} />
           <Route path="/login" element={<></>} />
           <Route path="/register" element={<></>} />
-          <Route path="/find" element={<></>} />
+          <Route path="/memberfind" element={<></>} />
           <Route path="/mypage" element={<></>} />
           <Route path="/contentUpload" element={<></>} />
           <Route path="/contentDetail" element={<></>} />
