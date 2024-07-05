@@ -1,8 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
+import Routers from './routes'
 
 const App: React.FC = () => {
-  return <></>
+  return (
+    <>
+      <Routers />
+    </>
+  )
 }
 
 const rootElement = document.getElementById('root')
