@@ -1,13 +1,13 @@
 import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Main from '../pages/index'
 
-const App: React.FC = () => {
+const Routers: React.FC = () => {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<></>} />
+          <Route path="/" element={<Main />} />
           <Route path="/login" element={<></>} />
           <Route path="/register" element={<></>} />
           <Route path="/memberfind" element={<></>} />
@@ -24,4 +24,4 @@ const App: React.FC = () => {
   )
 }
 
-export default App
+export default Routers
