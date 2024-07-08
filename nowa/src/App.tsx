@@ -7,6 +7,7 @@ const App: React.FC = () => {
   return (
     <>
       <Routers />
+      <button className="btn btn-primary">Primary</button>
     </>
   )
 }

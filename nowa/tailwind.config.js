@@ -1,6 +1,5 @@
-/** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'], // 프로젝트의 실제 경로로 변경
   theme: {
     extend: {},
   },
