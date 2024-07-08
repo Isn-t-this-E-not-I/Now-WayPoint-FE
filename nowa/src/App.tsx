@@ -1,6 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import Routers from './routes'
+import '@/styles/tailwind.css'
 
 const App: React.FC = () => {
   return (
