@@ -16,6 +16,7 @@ const App: React.FC = () => {
     <>
       <Routers />
       <Theme />
+      <TextArea />
     </>
   )
 }

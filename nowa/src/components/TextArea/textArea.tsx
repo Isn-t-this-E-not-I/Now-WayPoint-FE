@@ -7,6 +7,7 @@ const textArea = () => {
         className="textarea textarea-bordered resize-none"
         placeholder="Bio"
       />
+      {/* ddddd */}
     </div>
   )
 }
