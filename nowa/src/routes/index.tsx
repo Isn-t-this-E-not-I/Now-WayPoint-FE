@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Main from '@/pages/index'
+import DetailContent from '@/pages/DetailContent/DetailContent'
 
 const Routers: React.FC = () => {
   return (
@@ -12,9 +13,9 @@ const Routers: React.FC = () => {
           <Route path="/register" element={<></>} />
           <Route path="/memberfind" element={<></>} />
           <Route path="/mypage" element={<></>} />
-          <Route path="/contentUpload" element={<></>} />
-          <Route path="/contentDetail" element={<></>} />
-          <Route path="/contentEdit" element={<></>} />
+          <Route path="/UploadContent" element={<></>} />
+          <Route path="/detailContent" element={<DetailContent />} />
+          <Route path="/EditContent" element={<></>} />
           <Route path="/profileEdit" element={<></>} />
           <Route path="/chat" element={<></>} />
           <Route path="/notification" element={<></>} />
