@@ -1,6 +1,7 @@
-import React from 'react'
-import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Main from '@/pages/index'
+import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Main from '@/pages/index';
+import LoginPage from '@/pages/LoginPage';
 
 const Routers: React.FC = () => {
   return (
@@ -8,7 +9,7 @@ const Routers: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Main />} />
-          <Route path="/login" element={<></>} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<></>} />
           <Route path="/memberfind" element={<></>} />
           <Route path="/mypage" element={<></>} />
@@ -22,7 +23,7 @@ const Routers: React.FC = () => {
         </Routes>
       </BrowserRouter>
     </>
-  )
+  );
 }
 
-export default Routers
+export default Routers;

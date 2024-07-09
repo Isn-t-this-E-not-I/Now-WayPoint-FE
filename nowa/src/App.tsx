@@ -7,7 +7,7 @@ import Button from './components/Button/button'
 import TextArea from './components/TextArea/textArea'
 import IconLogin from '@/components/IconLogin/iconLogin'
 import Search from './components/Search/search'
-import TextInput from './components/TextInput/textInput'
+import TextInput from './components/TextInput/TextInput'
 import FileInput from './components/FileInput/fileInput'
 import Tap from './components/Tap/tap'
 
