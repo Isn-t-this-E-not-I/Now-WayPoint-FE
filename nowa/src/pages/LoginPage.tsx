@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { login, loginWithKakao } from '../api/userApi';
 import TextInput from '../components/TextInput/TextInput';
-import ThemeController from '../components/ThemeController/ThemeController';
+// import ThemeController from '../components/ThemeController/ThemeController';
+import { useNavigate } from 'react-router-dom';
 
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -27,6 +29,10 @@ const LoginPage: React.FC = () => {
     }
   };
 
+  const goToRegister = () => {  // 회원가입 페이지로 이동하는 함수
+    navigate('/register');
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
       <div className="card w-96 shadow-xl p-5 bg-gray-50">
@@ -39,7 +45,7 @@ const LoginPage: React.FC = () => {
         </div>
         <button className="btn btn-primary mt-4 mb-2">로그인</button>
         <button className="btn btn-warning mt-4" onClick={handleKakaoLogin}>카카오 간편 로그인</button>
-        <button className="btn btn-outline mt-4">회원가입</button> {/* 회원가입 버튼 스타일 수정 */}
+        <button className="btn btn-outline mt-4" onClick={goToRegister}>회원가입</button> 
       </div>
     </div>
   );
