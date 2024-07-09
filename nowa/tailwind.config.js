@@ -1,7 +1,25 @@
+// tailwind.config.js
+const defaultTheme = require('./node_modules/daisyui/src/theming/themes')
+
 export default {
-  content: ['./src/**/*.{js,jsx,ts,tsx}'], // 프로젝트의 실제 경로로 변경
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     extend: {},
   },
   plugins: [require('daisyui')],
+
+  daisyui: {
+    themes: [
+      {
+        light: {
+          ...defaultTheme['[data-theme=light]'],
+          'base-100': '#F5F5F5',
+        },
+        dark: {
+          ...defaultTheme['[data-theme=dark]'],
+          'base-100': '#121212',
+        },
+      },
+    ],
+  },
 }

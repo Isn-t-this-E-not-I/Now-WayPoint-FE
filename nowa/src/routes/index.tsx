@@ -1,6 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Main from '../pages/index'
+import Main from '@/pages/index'
 
 const Routers: React.FC = () => {
   return (
@@ -18,6 +18,7 @@ const Routers: React.FC = () => {
           <Route path="/profileEdit" element={<></>} />
           <Route path="/chat" element={<></>} />
           <Route path="/notification" element={<></>} />
+          <Route path="/test1" element={<></>} />
         </Routes>
       </BrowserRouter>
     </>
