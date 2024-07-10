@@ -1,13 +1,17 @@
 import React from 'react'
 
-const textArea = () => {
+interface TextArea {
+  id: string
+}
+
+const textArea: React.FC<TextArea> = ({ id }) => {
   return (
     <div>
       <textarea
+        id={id}
         className="textarea textarea-bordered resize-none"
         placeholder="Bio"
       />
-      {/* ddddd */}
     </div>
   )
 }
