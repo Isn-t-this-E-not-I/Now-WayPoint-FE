@@ -1,6 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Main from '@/pages/index'
+import MakeContent from '@/pages/MakeContent/makeContent'
 
 const Routers: React.FC = () => {
   return (
@@ -12,7 +13,7 @@ const Routers: React.FC = () => {
           <Route path="/register" element={<></>} />
           <Route path="/memberfind" element={<></>} />
           <Route path="/mypage" element={<></>} />
-          <Route path="/contentUpload" element={<></>} />
+          <Route path="/MakeContent" element={<MakeContent />} />
           <Route path="/contentDetail" element={<></>} />
           <Route path="/contentEdit" element={<></>} />
           <Route path="/profileEdit" element={<></>} />
