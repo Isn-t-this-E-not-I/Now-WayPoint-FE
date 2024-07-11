@@ -15,6 +15,7 @@ const LoginPage: React.FC = () => {
     try {
       const data = await login({ email, password });
       console.log('Login success:', data);
+      navigate('/main');
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -43,7 +44,7 @@ const LoginPage: React.FC = () => {
           <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} className="checkbox checkbox-primary" />
           <span className="label-text">아이디 저장</span>
         </div>
-        <button className="btn btn-primary mt-4 mb-2">로그인</button>
+        <button className="btn btn-primary mt-4 mb-2" onClick={handleLogin}>로그인</button>
         <button className="btn btn-warning mt-4" onClick={handleKakaoLogin}>카카오 간편 로그인</button>
         <button className="btn btn-outline mt-4" onClick={goToRegister}>회원가입</button> 
       </div>

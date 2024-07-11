@@ -11,6 +11,7 @@ const Routers: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Main />} />
+          <Route path="/main" element={<Main />} /> 
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/memberfind" element={<></>} />
