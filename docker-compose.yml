@@ -2,7 +2,7 @@ version: "3.8"
 services:
   now-waypoint-mysql:
     build: ./now-waypoint-mysql
-    image: now-waypoint-mysql:5.0.0-compose
+    image: immyeong/now-waypoint-mysql:2f0840bcec757a681ace533d779c6348d527fa69
     ports:
       - "3306:3306"
     volumes:
@@ -28,7 +28,7 @@ services:
 
   now-waypoint-core:
     build: ./now-waypoint-core
-    image: now-waypoint-core:5.0.0-compose
+    image: immyeong/now-waypoint-core:7b6d31038d2cb14736887eee6edca6571b520210
     ports:
       - "8080:8080"
     environment:
