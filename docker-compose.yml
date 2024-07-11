@@ -7,7 +7,6 @@ services:
       - "3306:3306"
     volumes:
       - mydata:/var/lib/mysql
-      - ./now-waypoint-mysql/init:/docker-entrypoint-initdb.d
     deploy:
       resources:
         limits:
