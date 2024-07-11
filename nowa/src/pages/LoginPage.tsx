@@ -9,6 +9,7 @@ const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
   const handleLogin = async () => {
@@ -18,6 +19,7 @@ const LoginPage: React.FC = () => {
       navigate('/main');
     } catch (error) {
       console.error('Login failed:', error);
+      setError('로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인하세요.');
     }
   };
 
@@ -40,10 +42,11 @@ const LoginPage: React.FC = () => {
         <h2 className="text-lg font-bold mb-4">로그인</h2>
         <TextInput type="email" placeholder="이메일" onChange={e => setEmail(e.target.value)} value={email} className="mb-4" />
         <TextInput type="password" placeholder="비밀번호" onChange={e => setPassword(e.target.value)} value={password} className="mb-4" />
-        <div className="form-control flex items-center space-x-2">
+        <label className="flex items-center space-x-2">
           <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} className="checkbox checkbox-primary" />
           <span className="label-text">아이디 저장</span>
-        </div>
+        </label>
+        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         <button className="btn btn-primary mt-4 mb-2" onClick={handleLogin}>로그인</button>
         <button className="btn btn-warning mt-4" onClick={handleKakaoLogin}>카카오 간편 로그인</button>
         <button className="btn btn-outline mt-4" onClick={goToRegister}>회원가입</button> 
