@@ -16,7 +16,8 @@
 
 /* 게시글 이미지 */
 #detail_picture_item1 img {
-  height: 100%;
+  height: 70%;
+  margin-top: 125px;
 }
 
 /* 오른쪽 내용 크기 조정 */
