@@ -1,9 +1,15 @@
 import React from 'react'
 
-const button: React.FC = () => {
+interface ButtonProps {
+  id: string
+}
+
+const button: React.FC<ButtonProps> = ({ id }) => {
   return (
     <div>
-      <button className="btn">Button</button>
+      <button id={id} className="btn">
+        Button
+      </button>
     </div>
   )
 }

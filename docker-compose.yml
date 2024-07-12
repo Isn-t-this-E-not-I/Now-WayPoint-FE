@@ -1,0 +1,53 @@
+version: "3.8"
+services:
+  now-waypoint-mysql:
+    build: ./now-waypoint-mysql
+    image: immyeong/now-waypoint-mysql:2f0840bcec757a681ace533d779c6348d527fa69
+    ports:
+      - "3306:3306"
+    volumes:
+      - mydata:/var/lib/mysql
+      - ./now-waypoint-mysql/init:/docker-entrypoint-initdb.d
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 256M
+    restart: always
+
+  now-waypoint-redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+    restart: always 
+
+  now-waypoint-core:
+    build: ./now-waypoint-core
+    image: immyeong/now-waypoint-core:7b6d31038d2cb14736887eee6edca6571b520210
+    ports:
+      - "8080:8080"
+    environment:
+      - DB_URL=now-waypoint-mysql
+      - DB_PORT=3306
+      - DB_NAME=nwpdb
+      - DB_USERNAME=myuser
+      - DB_PASSWORD=mypassword
+      - REDIS_HOST=now-waypoint-redis
+      - REDIS_PORT=6379
+    depends_on:
+      - now-waypoint-mysql
+      - now-waypoint-redis
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 512M
+    restart: on-failure
+
+volumes:
+  mydata:
