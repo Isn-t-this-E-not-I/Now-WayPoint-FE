@@ -1,13 +1,14 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Main from '@/pages/index'
+import MainTest from '@/pages/Main/main'
 
 const Routers: React.FC = () => {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Main />} />
+          <Route path="/maintest" element={<MainTest />} />
           <Route path="/login" element={<></>} />
           <Route path="/register" element={<></>} />
           <Route path="/memberfind" element={<></>} />
