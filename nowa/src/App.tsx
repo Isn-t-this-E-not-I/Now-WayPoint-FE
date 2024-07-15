@@ -3,10 +3,12 @@ import ReactDOM from 'react-dom/client'
 import Routers from './routes'
 import '@/styles/tailwind.css'
 import Custom_Theme from '@/hooks/defaultTheme'
+import Sidebar from './components/Sidebar/sidebar.tsx'
 
 const App: React.FC = () => {
   return (
     <>
+      <Sidebar theme={'light'} />
       <Custom_Theme />
       <Routers />
     </>
