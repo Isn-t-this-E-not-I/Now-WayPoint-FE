@@ -1,16 +1,25 @@
-import axios from 'axios'
+import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/map'
+const API_BASE_URL = 'http://localhost:8080/api';
 
-export const getMapData = async (): Promise<any> => {
+export const getKakaoApiData = async (address: string): Promise<any> => {
   try {
-    const response = await axios.get(`${API_BASE_URL}`)
-    return response.data
+    const response = await axios.get(`${API_BASE_URL}/map`, {
+      params: { address }
+    });
+    return response.data;
   } catch (error) {
-    console.error('왜 실패한거지:', error)
-    throw new Error('Failed to fetch map data')
-    /** 테스트중 */
+    console.error('Failed to fetch map data:', error);
+    throw new Error('Failed to fetch map data');
   }
+};
 
-  
-}
+export const extractCoordinates = async (payload: any): Promise<any> => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/maintest`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Failed to extract coordinates:', error);
+    throw new Error('Failed to extract coordinates');
+  }
+};
