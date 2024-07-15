@@ -106,6 +106,10 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     }
   }
 
+  const shouldShowSearch = () => {
+    return activePage !== 'notifications' && activePage !== 'chat'
+  }
+
   return (
     <Wrapper>
       <LeftSidebar>
@@ -139,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
-          <Search />
+          {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
