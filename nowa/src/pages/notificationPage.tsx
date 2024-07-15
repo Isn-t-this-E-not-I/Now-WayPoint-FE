@@ -31,6 +31,16 @@ const NotificationContent = styled.div`
   flex-direction: column;
   text-align: left;
   margin-right: auto;
+  position: relative;
+  padding-bottom: 20px; /* Adjusted to prevent overlap */
+`
+
+const TimeAgo = styled.span`
+  color: #129fe1;
+  position: absolute;
+  bottom: 0;
+  right: 5;
+  font-size: 12px;
 `
 
 const CloseButton = styled.button`
@@ -40,8 +50,8 @@ const CloseButton = styled.button`
   cursor: pointer;
   color: black;
   position: absolute;
-  top: 1px;
-  right: 10px;
+  top: -3px;
+  right: 6px;
 `
 
 const NotificationPage: React.FC = () => {
@@ -123,7 +133,7 @@ const NotificationPage: React.FC = () => {
           <ProfilePic src={notification.profilePic} alt="Profile" />
           <NotificationContent>
             <span>{notification.content}</span>
-            <span>{notification.timeAgo}</span>
+            <TimeAgo>{notification.timeAgo}</TimeAgo>
           </NotificationContent>
           <CloseButton onClick={() => handleDelete(notification.id)}>
             x
