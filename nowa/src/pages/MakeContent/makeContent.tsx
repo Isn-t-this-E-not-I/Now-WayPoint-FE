@@ -6,15 +6,12 @@ const makeContent = () => {
     <div>
       <div id="upload_content">
         <div id="upload_image">
-          <div>
-            <input type="file" />
-          </div>
-          <div id="upload_image_detail">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj0EV4XUuhv_DB98RKbayxPX0RSeZ20sv7rw&usqp=CAU"
-              alt="이미지 업로드"
-            ></img>
-          </div>
+          <div id="content_title">컨텐츠 작성</div>
+          <p>이미지 추가</p>
+          <hr></hr>
+          <input id="img_upload_input" type="file" />
+
+          <div id="upload_image_detail">dada</div>
         </div>
 
         <div id="upload_content_detail">
