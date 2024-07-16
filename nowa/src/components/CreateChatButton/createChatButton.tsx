@@ -5,6 +5,12 @@ import useModal from '@/hooks/modal'
 
 interface CreateChatButtonProps {
   theme: 'light' | 'dark'
+  onCreateChat: (newChatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => void
 }
 
 const Button = styled.button`
@@ -78,7 +84,15 @@ const RemoveButton = styled.button`
   }
 `
 
-const ModalContent: React.FC<{ close: () => void }> = ({ close }) => {
+const ModalContent: React.FC<{
+  close: () => void
+  onCreateChat: (newChatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => void
+}> = ({ close, onCreateChat }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedMembers, setSelectedMembers] = useState<string[]>([])
   const [error, setError] = useState<string>('')
@@ -105,7 +119,13 @@ const ModalContent: React.FC<{ close: () => void }> = ({ close }) => {
     if (selectedMembers.length === 0) {
       setError('1명 이상 선택해야 합니다.')
     } else {
-      console.log('Create chat with members:', selectedMembers)
+      const newChatRoom = {
+        id: Date.now(), // 임시 ID 생성
+        profilePic: 'https://via.placeholder.com/40',
+        name: selectedMembers.join(', '),
+        lastMessage: '새 채팅방이 생성되었습니다.',
+      }
+      onCreateChat(newChatRoom)
       close()
     }
   }
@@ -154,7 +174,10 @@ const ModalContent: React.FC<{ close: () => void }> = ({ close }) => {
   )
 }
 
-const CreateChatButton: React.FC<CreateChatButtonProps> = ({ theme }) => {
+const CreateChatButton: React.FC<CreateChatButtonProps> = ({
+  theme,
+  onCreateChat,
+}) => {
   const { isOpen, open, close } = useModal()
 
   return (
@@ -164,7 +187,7 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({ theme }) => {
       </Button>
       {isOpen && (
         <dialog open={isOpen} className="modal">
-          <ModalContent close={close} />
+          <ModalContent close={close} onCreateChat={onCreateChat} />
         </dialog>
       )}
     </>

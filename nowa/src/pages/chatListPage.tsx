@@ -24,36 +24,28 @@ const ChatContent = styled.div`
   flex-direction: column;
 `
 
-const ChatListPage: React.FC = () => {
-  const chatRooms = [
-    {
-      id: 1,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'John Doe',
-      lastMessage: 'Hey, how are you?',
-    },
-    {
-      id: 2,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'Jane Smith',
-      lastMessage: 'Are we still on for tomorrow?',
-    },
-  ]
+interface ChatListPageProps {
+  chatRooms: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }[]
+}
 
+const ChatListPage: React.FC<ChatListPageProps> = ({ chatRooms }) => {
   return (
-    <>
-      <ChatListWrapper>
-        {chatRooms.map((chat) => (
-          <ChatItem key={chat.id}>
-            <ChatProfilePic src={chat.profilePic} alt="Profile" />
-            <ChatContent>
-              <span>{chat.name}</span>
-              <span>{chat.lastMessage}</span>
-            </ChatContent>
-          </ChatItem>
-        ))}
-      </ChatListWrapper>
-    </>
+    <ChatListWrapper>
+      {chatRooms.map((chat) => (
+        <ChatItem key={chat.id}>
+          <ChatProfilePic src={chat.profilePic} alt="Profile" />
+          <ChatContent>
+            <span>{chat.name}</span>
+            <span>{chat.lastMessage}</span>
+          </ChatContent>
+        </ChatItem>
+      ))}
+    </ChatListWrapper>
   )
 }
 

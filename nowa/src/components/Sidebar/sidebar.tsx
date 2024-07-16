@@ -106,13 +106,36 @@ const PageTitle = styled.div`
 
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
+  const [chatRooms, setChatRooms] = useState([
+    {
+      id: 1,
+      profilePic: 'https://via.placeholder.com/40',
+      name: 'John Doe',
+      lastMessage: 'Hey, how are you?',
+    },
+    {
+      id: 2,
+      profilePic: 'https://via.placeholder.com/40',
+      name: 'Jane Smith',
+      lastMessage: 'Are we still on for tomorrow?',
+    },
+  ])
+
+  const handleCreateChat = (newChatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => {
+    setChatRooms([...chatRooms, newChatRoom])
+  }
 
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
         return <NotificationPage />
       case 'chat':
-        return <ChatListPage />
+        return <ChatListPage chatRooms={chatRooms} />
       case 'contents':
         return <div>Contents Page</div>
       case 'followContents':
@@ -139,11 +162,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       default:
         return ''
     }
-  }
-
-  const handleCreateChat = () => {
-    // Add logic to handle chat creation
-    console.log('Create new chat')
   }
 
   return (
@@ -181,7 +199,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <ContentDiv>
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
-            {activePage === 'chat' && <CreateChatButton theme={theme} />}
+            {activePage === 'chat' && (
+              <CreateChatButton theme={theme} onCreateChat={handleCreateChat} />
+            )}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
