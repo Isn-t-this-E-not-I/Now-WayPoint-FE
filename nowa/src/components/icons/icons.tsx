@@ -17,6 +17,10 @@ const NowaWrapper = styled.div`
   margin-top: -15px;
 `
 
+const CreateChatButtonIconWrapper = styled.div`
+  margin-bottom: 7px;
+`
+
 export const ChatIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
   <IconWrapper>
     <svg
@@ -271,16 +275,30 @@ export const NowaIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
   </NowaWrapper>
 )
 
-// export const SearchIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
-//   <IconWrapper>
-//     <svg
-//       xmlns="http://www.w3.org/2000/svg"
-//       height="24px"
-//       viewBox="0 -960 960 960"
-//       width="24px"
-//       fill={getColor(theme)}
-//     >
-//       <path d="M784-120 532-372q-30 24-69 38t-83 14q-109 0-184.5-75.5T120-580q0-109 75.5-184.5T380-840q109 0 184.5 75.5T640-580q0 44-14 83t-38 69l252 252-56 56ZM380-400q75 0 127.5-52.5T560-580q0-75-52.5-127.5T380-760q-75 0-127.5 52.5T200-580q0 75 52.5 127.5T380-400Z" />
-//     </svg>
-//   </IconWrapper>
-// )
+export const CreateChatButtonIcon = ({
+  theme,
+}: {
+  theme: 'light' | 'dark'
+}) => (
+  <CreateChatButtonIconWrapper>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="30px"
+      height="30px"
+      viewBox="0 -960 960 960"
+      fill={getColor(theme)}
+    >
+      <defs>
+        <style>
+          {`
+          .cls-1 {
+            stroke-width: 0px;
+            fill: ${getColor(theme)};
+          }
+          `}
+        </style>
+      </defs>
+      <path d="m40-40 78-268q-19-41-28.5-84T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80q-45 0-88-9.5T308-118L40-40Zm118-118 128-38q14-4 28.5-3t27.5 7q32 16 67 24t71 8q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 36 8 71t24 67q7 13 7.5 27.5T196-286l-38 128Zm282-162h80v-120h120v-80H520v-120h-80v120H320v80h120v120Zm39-159Z" />
+    </svg>
+  </CreateChatButtonIconWrapper>
+)

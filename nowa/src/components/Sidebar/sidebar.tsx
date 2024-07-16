@@ -9,6 +9,7 @@ import {
   NewCreateIcon,
   NotificationsIcon,
   NowaIcon,
+  CreateChatButtonIcon, // import the new icon
 } from '../icons/icons'
 import styled from 'styled-components'
 import ThemeController from '../ThemeController/ThemeController'
@@ -89,6 +90,13 @@ const ContentPage = styled.div`
   background-color: purple;
 `
 
+const PageTitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+`
+
 const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
@@ -133,6 +141,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     }
   }
 
+  const handleCreateChat = () => {
+    // Add logic to handle chat creation
+    console.log('Create new chat')
+  }
+
   return (
     <Wrapper>
       <LeftSidebar>
@@ -166,7 +179,14 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
-          <PageTitle>{getPageTitle()}</PageTitle>
+          <PageTitleWrapper>
+            <PageTitle>{getPageTitle()}</PageTitle>
+            {activePage === 'chat' && (
+              <IconButton onClick={handleCreateChat}>
+                <CreateChatButtonIcon theme={theme} />
+              </IconButton>
+            )}
+          </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
