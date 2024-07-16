@@ -9,13 +9,13 @@ import {
   NewCreateIcon,
   NotificationsIcon,
   NowaIcon,
-  CreateChatButtonIcon, // import the new icon
 } from '../icons/icons'
 import styled from 'styled-components'
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import ChatListPage from '../../pages/chatListPage'
+import CreateChatButton from '../CreateChatButton/createChatButton'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -182,9 +182,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && (
-              <IconButton onClick={handleCreateChat}>
-                <CreateChatButtonIcon theme={theme} />
-              </IconButton>
+              <CreateChatButton theme={theme} onClick={handleCreateChat} />
             )}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
