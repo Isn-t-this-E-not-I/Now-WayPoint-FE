@@ -181,9 +181,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <ContentDiv>
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
-            {activePage === 'chat' && (
-              <CreateChatButton theme={theme} onClick={handleCreateChat} />
-            )}
+            {activePage === 'chat' && <CreateChatButton theme={theme} />}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
