@@ -6,10 +6,15 @@ const makeContent = () => {
     <div>
       <div id="upload_content">
         <div id="upload_image">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj0EV4XUuhv_DB98RKbayxPX0RSeZ20sv7rw&usqp=CAU"
-            alt="이미지 업로드"
-          ></img>
+          <div>
+            <input type="file" />
+          </div>
+          <div id="upload_image_detail">
+            <img
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRj0EV4XUuhv_DB98RKbayxPX0RSeZ20sv7rw&usqp=CAU"
+              alt="이미지 업로드"
+            ></img>
+          </div>
         </div>
 
         <div id="upload_content_detail">
@@ -20,14 +25,6 @@ const makeContent = () => {
             ></img>
           </div>
 
-          <div id="upload_button_list">
-            <button id="upload_btn_1" className="upload_btn">
-              임시 저장
-            </button>
-            <button id="upload_btn_2" className="upload_btn">
-              게시 하기
-            </button>
-          </div>
           <div>
             <input
               className="upload_input"
@@ -44,15 +41,14 @@ const makeContent = () => {
               type="text"
               value={'공개 범위 설정'}
             />
-            <input className="upload_input" type="text" value={''} />
-            <div id="upload_set">
-              <table>
-                <th>
-                  <td>item1</td>
-                  <td>item2</td>
-                  <td>item3</td>
-                </th>
-              </table>
+
+            <div id="upload_button_list">
+              <button id="upload_btn_1" className="upload_btn">
+                임시 저장
+              </button>
+              <button id="upload_btn_2" className="upload_btn">
+                게시 하기
+              </button>
             </div>
           </div>
         </div>
