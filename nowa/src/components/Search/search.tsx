@@ -9,6 +9,7 @@ const SearchWrapper = styled.div`
     width: 283px;
     height: 40px;
     margin-bottom: 10px;
+    top: -20px;
   }
 
   .input input {

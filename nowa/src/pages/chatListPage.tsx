@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 const ChatListWrapper = styled.div`
   padding: 10px;
-  margin: 10px;
+  text-align: left;
 `
 
 const ChatItem = styled.div`
@@ -41,17 +41,19 @@ const ChatListPage: React.FC = () => {
   ]
 
   return (
-    <ChatListWrapper>
-      {chatRooms.map((chat) => (
-        <ChatItem key={chat.id}>
-          <ChatProfilePic src={chat.profilePic} alt="Profile" />
-          <ChatContent>
-            <span>{chat.name}</span>
-            <span>{chat.lastMessage}</span>
-          </ChatContent>
-        </ChatItem>
-      ))}
-    </ChatListWrapper>
+    <>
+      <ChatListWrapper>
+        {chatRooms.map((chat) => (
+          <ChatItem key={chat.id}>
+            <ChatProfilePic src={chat.profilePic} alt="Profile" />
+            <ChatContent>
+              <span>{chat.name}</span>
+              <span>{chat.lastMessage}</span>
+            </ChatContent>
+          </ChatItem>
+        ))}
+      </ChatListWrapper>
+    </>
   )
 }
 

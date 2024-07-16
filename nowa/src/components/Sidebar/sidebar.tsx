@@ -69,13 +69,14 @@ const IconButton = styled.button`
 const ContentDiv = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start; /* Left align the items */
+  justify-content: flex-start;
   height: 100%;
   width: 100%;
   padding: 10px;
   margin-top: 5px;
   background-color: green;
+  position: relative;
 `
 
 const ContentPage = styled.div`
@@ -86,6 +87,13 @@ const ContentPage = styled.div`
   height: 100%;
   width: 100%;
   background-color: purple;
+`
+
+const PageTitle = styled.div`
+  font-size: 25px;
+  font-weight: bold;
+  margin-bottom: 10px; /* Add margin below the PageTitle */
+  align-self: flex-start; /* Make sure the title is aligned to the left */
 `
 
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
@@ -108,6 +116,21 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   const shouldShowSearch = () => {
     return activePage !== 'notifications' && activePage !== 'chat'
+  }
+
+  const getPageTitle = () => {
+    switch (activePage) {
+      case 'notifications':
+        return '알림'
+      case 'chat':
+        return '메시지'
+      case 'contents':
+        return '콘텐츠'
+      case 'followContents':
+        return '팔로우 컨텐츠'
+      default:
+        return ''
+    }
   }
 
   return (
@@ -143,6 +166,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
+          <PageTitle>{getPageTitle()}</PageTitle>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>

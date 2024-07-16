@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import styled from 'styled-components'
 
 const NotificationWrapper = styled.div`
-  margin-top: 5px;
+  text-align: left;
 `
 
 const NotificationItem = styled.div`
@@ -127,20 +127,22 @@ const NotificationPage: React.FC = () => {
   }
 
   return (
-    <NotificationWrapper>
-      {notifications.map((notification) => (
-        <NotificationItem key={notification.id}>
-          <ProfilePic src={notification.profilePic} alt="Profile" />
-          <NotificationContent>
-            <span>{notification.content}</span>
-            <TimeAgo>{notification.timeAgo}</TimeAgo>
-          </NotificationContent>
-          <CloseButton onClick={() => handleDelete(notification.id)}>
-            x
-          </CloseButton>
-        </NotificationItem>
-      ))}
-    </NotificationWrapper>
+    <>
+      <NotificationWrapper>
+        {notifications.map((notification) => (
+          <NotificationItem key={notification.id}>
+            <ProfilePic src={notification.profilePic} alt="Profile" />
+            <NotificationContent>
+              <span>{notification.content}</span>
+              <TimeAgo>{notification.timeAgo}</TimeAgo>
+            </NotificationContent>
+            <CloseButton onClick={() => handleDelete(notification.id)}>
+              x
+            </CloseButton>
+          </NotificationItem>
+        ))}
+      </NotificationWrapper>
+    </>
   )
 }
 
