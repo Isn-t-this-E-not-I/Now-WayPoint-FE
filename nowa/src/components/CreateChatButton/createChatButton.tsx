@@ -21,9 +21,67 @@ const Button = styled.button`
   }
 `
 
+const CloseButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  &:focus {
+    outline: none;
+  }
+`
+
+const ModalContentWrapper = styled.div`
+  position: relative;
+  padding: 20px;
+  width: 100%;
+  max-width: 500px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+`
+
+const ErrorMessage = styled.p`
+  color: red;
+  margin-top: 10px;
+`
+
+const SelectedMembersContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  margin-top: 10px;
+  margin-bottom: 10px;
+`
+
+const SelectedMember = styled.div`
+  display: flex;
+  align-items: center;
+  margin: 5px;
+  padding: 5px 10px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+`
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  font-size: 16px;
+  margin-left: 5px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+  }
+`
+
 const ModalContent: React.FC<{ close: () => void }> = ({ close }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedMembers, setSelectedMembers] = useState<string[]>([])
+  const [error, setError] = useState<string>('')
 
   const members = ['Alice', 'Bob', 'Charlie', 'David'] // 예시 멤버 리스트
 
@@ -39,21 +97,40 @@ const ModalContent: React.FC<{ close: () => void }> = ({ close }) => {
     )
   }
 
+  const removeMember = (member: string) => {
+    setSelectedMembers((prevState) => prevState.filter((m) => m !== member))
+  }
+
   const handleCreateChat = () => {
-    console.log('Create chat with members:', selectedMembers)
-    close()
+    if (selectedMembers.length === 0) {
+      setError('1명 이상 선택해야 합니다.')
+    } else {
+      console.log('Create chat with members:', selectedMembers)
+      close()
+    }
   }
 
   return (
-    <div className="modal-box">
-      <h3 className="font-bold text-lg">새 채팅방 만들기</h3>
+    <ModalContentWrapper>
+      <h3 className="font-bold text-lg">새 채팅방 생성</h3>
+      <SelectedMembersContainer>
+        {selectedMembers.map((member) => (
+          <SelectedMember key={member}>
+            {member}
+            <RemoveButton onClick={() => removeMember(member)}>
+              &times;
+            </RemoveButton>
+          </SelectedMember>
+        ))}
+      </SelectedMembersContainer>
       <input
         type="text"
-        placeholder="멤버 검색"
+        placeholder="친구 검색"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="input input-bordered w-full my-2"
       />
+      {error && <ErrorMessage>{error}</ErrorMessage>}
       <ul>
         {filteredMembers.map((member) => (
           <li key={member} className="flex justify-between items-center my-2">
@@ -67,15 +144,13 @@ const ModalContent: React.FC<{ close: () => void }> = ({ close }) => {
           </li>
         ))}
       </ul>
-      <div className="modal-action">
+      <div className="modal-action flex justify-end">
         <button className="btn" onClick={handleCreateChat}>
           채팅방 생성
         </button>
-        <button className="btn" onClick={close}>
-          Close
-        </button>
       </div>
-    </div>
+      <CloseButton onClick={close}>&times;</CloseButton>
+    </ModalContentWrapper>
   )
 }
 
