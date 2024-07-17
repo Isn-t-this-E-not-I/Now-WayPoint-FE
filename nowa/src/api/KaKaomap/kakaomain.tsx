@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { getKakaoApiData, extractCoordinates } from '@/api/KaKaomap/kakaomap';
 
 declare global {
@@ -34,16 +34,12 @@ const MainPage: React.FC = () => {
 
   const handleSearch = async () => {
     try {
-      // Kakao API에서 데이터를 가져옴
       const mapData = await getKakaoApiData(address);
-
-      // 받은 데이터를 extractCoordinates에 전달하여 좌표 추출
       const coordinates = await extractCoordinates(mapData);
 
       const latitude = parseFloat(coordinates.latitude);
       const longitude = parseFloat(coordinates.longitude);
 
-      // 카카오 맵 초기화
       initializeMap(latitude, longitude);
     } catch (error) {
       console.error('Failed to initialize map:', error);
