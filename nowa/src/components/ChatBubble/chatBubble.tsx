@@ -53,7 +53,7 @@ const Time = styled.time`
 
 const Bubble = styled.div<{ alignment: 'start' | 'end' }>`
   background-color: ${({ alignment }) =>
-    alignment === 'start' ? '#f1f0f0' : '#007bff'};
+    alignment === 'start' ? '#f1f0f0' : '#c779f1'};
   color: ${({ alignment }) => (alignment === 'start' ? '#000' : '#fff')};
   border-radius: 15px;
   padding: 10px;
@@ -73,7 +73,7 @@ const Bubble = styled.div<{ alignment: 'start' | 'end' }>`
     border-color: ${({ alignment }) =>
       alignment === 'start'
         ? '#f1f0f0 transparent transparent transparent'
-        : '#007bff transparent transparent transparent'};
+        : '#c779f1 transparent transparent transparent'};
     transform: ${({ alignment }) =>
       alignment === 'start' ? 'rotate(-45deg)' : 'rotate(45deg)'};
   }

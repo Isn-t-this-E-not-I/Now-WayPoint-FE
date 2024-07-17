@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import styled from 'styled-components'
 import {
   ChatIcon,
   ContentsIcon,
@@ -10,14 +11,19 @@ import {
   NotificationsIcon,
   NowaIcon,
 } from '../icons/icons'
-import styled from 'styled-components'
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
-import ChatListPage from '../../pages/chatListPage'
+import ChatListPage from '../../pages/Chat/chatListPage'
 import CreateChatButton from '../CreateChatButton/createChatButton'
 
 interface SidebarProps {
+  chatRooms: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }[]
   theme: 'light' | 'dark'
   onChatItemClick: (chatRoom: {
     id: number
@@ -26,6 +32,13 @@ interface SidebarProps {
     lastMessage: string
   }) => void
   setSelectedPage: (page: string) => void
+  onExitChatRoom: (id: number) => void
+  onCreateChat: (newChatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => void
 }
 
 const Wrapper = styled.div`
@@ -54,7 +67,7 @@ const RightSidebar = styled.div`
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
-  margin-left: 2.5rem; /* LeftSidebar의 너비만큼 이동 */
+  margin-left: 2.5rem;
 `
 
 const Blank = styled.div`
@@ -115,40 +128,14 @@ const PageTitle = styled.div`
 `
 
 const Sidebar: React.FC<SidebarProps> = ({
+  chatRooms,
   theme,
   onChatItemClick,
   setSelectedPage,
+  onExitChatRoom,
+  onCreateChat,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
-
-  const [chatRooms, setChatRooms] = useState([
-    {
-      id: 1,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'John Doe',
-      lastMessage: 'Hey, how are you?',
-    },
-    {
-      id: 2,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'Jane Smith',
-      lastMessage: 'Are we still on for tomorrow?',
-    },
-  ])
-
-  const handleCreateChat = (newChatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-  }) => {
-    setChatRooms([...chatRooms, newChatRoom])
-  }
-
-  const handleExitChatRoom = (id: number) => {
-    setChatRooms(chatRooms.filter((room) => room.id !== id))
-    setSelectedPage('chat')
-  }
 
   const renderContentPage = () => {
     switch (activePage) {
@@ -159,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <ChatListPage
             chatRooms={chatRooms}
             onChatItemClick={onChatItemClick}
-            onExitChatRoom={handleExitChatRoom}
+            onExitChatRoom={onExitChatRoom}
           />
         )
       case 'contents':
@@ -226,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && (
-              <CreateChatButton theme={theme} onCreateChat={handleCreateChat} />
+              <CreateChatButton theme={theme} onCreateChat={onCreateChat} />
             )}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}

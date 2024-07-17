@@ -5,8 +5,8 @@ import {
 } from '@/components/icons/icons'
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
-import Modal from '../components/Modal/modal'
-import ChatBubble from '../components/ChatBubble/chatBubble'
+import Modal from '../../components/Modal/modal'
+import ChatBubble from '../../components/ChatBubble/chatBubble'
 
 const Wrapper = styled.div`
   display: flex;
@@ -168,9 +168,13 @@ interface ChattingPageProps {
     name: string
     lastMessage: string
   }
+  onChatRoomNameChange: (id: number, newName: string) => void
 }
 
-const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom }) => {
+const ChattingPage: React.FC<ChattingPageProps> = ({
+  chatRoom,
+  onChatRoomNameChange,
+}) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
@@ -197,6 +201,11 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom }) => {
     }
   }, [])
 
+  useEffect(() => {
+    setCurrentChatName(chatRoom.name)
+    setNewChatName(chatRoom.name)
+  }, [chatRoom])
+
   const openEditModal = () => setIsEditModalOpen(true)
   const closeEditModal = () => setIsEditModalOpen(false)
 
@@ -217,6 +226,7 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom }) => {
   const handleEditChatName = (e: React.FormEvent) => {
     e.preventDefault()
     setCurrentChatName(newChatName)
+    onChatRoomNameChange(chatRoom.id, newChatName)
     closeEditModal()
   }
 
