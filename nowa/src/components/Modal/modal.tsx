@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import useModal from '@/hooks/modal'
 import styled from 'styled-components'
 
@@ -36,6 +36,18 @@ const Modal: React.FC<ModalProps> = ({
   showCloseButton = true,
 }) => {
   const { isOpen: isOpenHook, open, close } = useModal()
+
+  useEffect(() => {
+    if (isOpen || isOpenHook) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto'
+    }
+  }, [isOpen, isOpenHook])
 
   if (!isOpen && !isOpenHook) return null
 

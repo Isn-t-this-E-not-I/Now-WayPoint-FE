@@ -7,6 +7,8 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Modal from '../../components/Modal/modal'
 import ChatBubble from '../../components/ChatBubble/chatBubble'
+import ReusableModalContent from '../../components/ReusableModalContent/reusableModalContent'
+import useModal from '@/hooks/modal'
 
 const Wrapper = styled.div`
   display: flex;
@@ -176,7 +178,11 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
   onChatRoomNameChange,
 }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-  const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false)
+  const {
+    isOpen: isAddMemberModalOpen,
+    open: openAddMemberModal,
+    close: closeAddMemberModal,
+  } = useModal()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [currentChatName, setCurrentChatName] = useState(chatRoom.name)
   const [newChatName, setNewChatName] = useState(chatRoom.name)
@@ -209,9 +215,6 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
   const openEditModal = () => setIsEditModalOpen(true)
   const closeEditModal = () => setIsEditModalOpen(false)
 
-  const openAddMemberModal = () => setIsAddMemberModalOpen(true)
-  const closeAddMemberModal = () => setIsAddMemberModalOpen(false)
-
   const openConfirmModal = () => setIsConfirmOpen(true)
   const closeConfirmModal = () => setIsConfirmOpen(false)
 
@@ -230,9 +233,10 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
     closeEditModal()
   }
 
-  const handleAddMember = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log(`Add member ${newMemberEmail} to chat room ${chatRoom.id}`)
+  const handleAddMember = (selectedMembers: string[]) => {
+    console.log(
+      `Add members ${selectedMembers.join(', ')} to chat room ${chatRoom.id}`
+    )
     closeAddMemberModal()
   }
 
@@ -344,29 +348,11 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
             onClose={closeAddMemberModal}
             showCloseButton={false}
           >
-            <div>
-              <CloseButton
-                onClick={closeAddMemberModal}
-                color={closeButtonColor}
-              >
-                &times;
-              </CloseButton>
-              <h3 className="font-bold text-lg">멤버 초대</h3>
-              <Form onSubmit={handleAddMember}>
-                <Input
-                  type="email"
-                  value={newMemberEmail}
-                  onChange={handleMemberEmailChange}
-                  placeholder="새 멤버 이메일 입력"
-                />
-                <Button
-                  type="submit"
-                  themeMode={theme === 'dark' ? 'dark' : 'light'}
-                >
-                  초대
-                </Button>
-              </Form>
-            </div>
+            <ReusableModalContent
+              close={closeAddMemberModal}
+              title="멤버 초대"
+              onConfirm={handleAddMember}
+            />
           </Modal>
         )}
 

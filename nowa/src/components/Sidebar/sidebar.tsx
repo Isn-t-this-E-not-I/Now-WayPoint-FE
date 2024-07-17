@@ -33,6 +33,16 @@ interface SidebarProps {
   }) => void
   setSelectedPage: (page: string) => void
   onExitChatRoom: (id: number) => void
+  setChatRooms: React.Dispatch<
+    React.SetStateAction<
+      {
+        id: number
+        profilePic: string
+        name: string
+        lastMessage: string
+      }[]
+    >
+  >
   onCreateChat: (newChatRoom: {
     id: number
     profilePic: string
@@ -133,9 +143,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   onChatItemClick,
   setSelectedPage,
   onExitChatRoom,
+  setChatRooms,
   onCreateChat,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
+
+  const handleCreateChat = (newChatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => {
+    setChatRooms([...chatRooms, newChatRoom])
+    onCreateChat(newChatRoom)
+  }
 
   const renderContentPage = () => {
     switch (activePage) {
@@ -213,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && (
-              <CreateChatButton theme={theme} onCreateChat={onCreateChat} />
+              <CreateChatButton theme={theme} onCreateChat={handleCreateChat} />
             )}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}

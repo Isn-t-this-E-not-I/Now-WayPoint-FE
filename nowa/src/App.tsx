@@ -92,18 +92,7 @@ const App: React.FC = () => {
           setChatRooms(chatRooms.filter((chatRoom) => chatRoom.id !== id))
         }
         onCreateChat={handleCreateChat}
-        setChatRooms={function (
-          value: React.SetStateAction<
-            {
-              id: number
-              profilePic: string
-              name: string
-              lastMessage: string
-            }[]
-          >
-        ): void {
-          throw new Error('Function not implemented.')
-        }}
+        setChatRooms={setChatRooms}
       />
       <div style={{ flex: 1 }}>{renderContent()}</div>
       <Custom_Theme />
