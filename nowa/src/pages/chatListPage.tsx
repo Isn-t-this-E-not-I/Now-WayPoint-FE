@@ -10,6 +10,7 @@ const ChatItem = styled.div`
   display: flex;
   align-items: center;
   margin-bottom: 10px;
+  cursor: pointer;
 `
 
 const ChatProfilePic = styled.img`
@@ -31,13 +32,24 @@ interface ChatListPageProps {
     name: string
     lastMessage: string
   }[]
+  onChatItemClick: (chatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => void
+  onExitChatRoom: (id: number) => void
 }
 
-const ChatListPage: React.FC<ChatListPageProps> = ({ chatRooms }) => {
+const ChatListPage: React.FC<ChatListPageProps> = ({
+  chatRooms,
+  onChatItemClick,
+  onExitChatRoom,
+}) => {
   return (
     <ChatListWrapper>
       {chatRooms.map((chat) => (
-        <ChatItem key={chat.id}>
+        <ChatItem key={chat.id} onClick={() => onChatItemClick(chat)}>
           <ChatProfilePic src={chat.profilePic} alt="Profile" />
           <ChatContent>
             <span>{chat.name}</span>

@@ -86,7 +86,7 @@ export const NewCreateIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
       width="34px"
       fill={getColor(theme)}
     >
-      <path d="M440-280h80v-160h160v-80H520v-160h-80v160H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
+      <path d="M440-280h80v-160h160v-80H520v-160h-80v120H280v80h160v160Zm40 200q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z" />
     </svg>
   </IconWrapper>
 )
@@ -195,7 +195,7 @@ export const LogoIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
   <LogoWrapper>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 32.63 12.96"
+      viewBox="0 0 32.63 5"
       height="34px"
       width="34px"
       fill={getColor(theme)}
@@ -240,7 +240,7 @@ export const NowaIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
   <NowaWrapper>
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 34 34"
+      viewBox="0 0 34 30"
       height="80px"
       width="80px"
       fill={getColor(theme)}
@@ -301,4 +301,46 @@ export const CreateChatButtonIcon = ({
       <path d="m40-40 78-268q-19-41-28.5-84T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80q-45 0-88-9.5T308-118L40-40Zm118-118 128-38q14-4 28.5-3t27.5 7q32 16 67 24t71 8q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 36 8 71t24 67q7 13 7.5 27.5T196-286l-38 128Zm282-162h80v-120h120v-80H520v-120h-80v120H320v80h120v120Zm39-159Z" />
     </svg>
   </CreateChatButtonIconWrapper>
+)
+
+export const ExitIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
+  <IconWrapper>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+      fill={getColor(theme)}
+    >
+      <path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h280v80H200v560h280v80H200Zm440-160-55-58 102-102H360v-80h327L585-622l55-58 200 200-200 200Z" />
+    </svg>
+  </IconWrapper>
+)
+
+export const EditChatNameIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
+  <IconWrapper>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+      fill={getColor(theme)}
+    >
+      <path d="M200-200h57l391-391-57-57-391 391v57Zm-80 80v-170l528-527q12-11 26.5-17t30.5-6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16-5.5 30.5T817-647L290-120H120Zm640-584-56-56 56 56Zm-141 85-28-29 57 57-29-28Z" />
+    </svg>
+  </IconWrapper>
+)
+
+export const AddMemberIcon = ({ theme }: { theme: 'light' | 'dark' }) => (
+  <IconWrapper>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+      fill={getColor(theme)}
+    >
+      <path d="M500-482q29-32 44.5-73t15.5-85q0-44-15.5-85T500-798q60 8 100 53t40 105q0 60-40 105t-100 53Zm220 322v-120q0-36-16-68.5T662-406q51 18 94.5 46.5T800-280v120h-80Zm80-280v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Zm-480-40q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM0-160v-112q0-34 17.5-62.5T64-378q62-31 126-46.5T320-440q66 0 130 15.5T576-378q29 15 46.5 43.5T640-272v112H0Zm320-400q33 0 56.5-23.5T400-640q0-33-23.5-56.5T320-720q-33 0-56.5 23.5T240-640q0 33 23.5 56.5T320-560ZM80-240h480v-32q0-11-5.5-20T540-306q-54-27-109-40.5T320-360q-56 0-111 13.5T100-306q-9 5-14.5 14T80-272v32Zm240-400Zm0 400Z" />
+    </svg>
+  </IconWrapper>
 )

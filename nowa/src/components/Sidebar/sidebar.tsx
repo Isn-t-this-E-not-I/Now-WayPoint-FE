@@ -19,6 +19,13 @@ import CreateChatButton from '../CreateChatButton/createChatButton'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
+  onChatItemClick: (chatRoom: {
+    id: number
+    profilePic: string
+    name: string
+    lastMessage: string
+  }) => void
+  setSelectedPage: (page: string) => void
 }
 
 const Wrapper = styled.div`
@@ -34,6 +41,7 @@ const LeftSidebar = styled.div`
   background-color: yellow;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
+  position: fixed;
 `
 
 const RightSidebar = styled.div`
@@ -45,6 +53,8 @@ const RightSidebar = styled.div`
   background-color: red;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
+  position: relative;
+  margin-left: 2.5rem; /* LeftSidebar의 너비만큼 이동 */
 `
 
 const Blank = styled.div`
@@ -70,7 +80,7 @@ const IconButton = styled.button`
 const ContentDiv = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Left align the items */
+  align-items: flex-start;
   justify-content: flex-start;
   height: 100%;
   width: 100%;
@@ -100,12 +110,17 @@ const PageTitleWrapper = styled.div`
 const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
-  margin-bottom: 10px; /* Add margin below the PageTitle */
-  align-self: flex-start; /* Make sure the title is aligned to the left */
+  margin-bottom: 10px;
+  align-self: flex-start;
 `
 
-const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
+const Sidebar: React.FC<SidebarProps> = ({
+  theme,
+  onChatItemClick,
+  setSelectedPage,
+}) => {
   const [activePage, setActivePage] = useState<string>('')
+
   const [chatRooms, setChatRooms] = useState([
     {
       id: 1,
@@ -130,12 +145,23 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     setChatRooms([...chatRooms, newChatRoom])
   }
 
+  const handleExitChatRoom = (id: number) => {
+    setChatRooms(chatRooms.filter((room) => room.id !== id))
+    setSelectedPage('chat')
+  }
+
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
         return <NotificationPage />
       case 'chat':
-        return <ChatListPage chatRooms={chatRooms} />
+        return (
+          <ChatListPage
+            chatRooms={chatRooms}
+            onChatItemClick={onChatItemClick}
+            onExitChatRoom={handleExitChatRoom}
+          />
+        )
       case 'contents':
         return <div>Contents Page</div>
       case 'followContents':
@@ -167,13 +193,13 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   return (
     <Wrapper>
       <LeftSidebar>
-        <IconButton>
+        <IconButton onClick={() => setSelectedPage('main')}>
           <LogoIcon theme={theme} />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => setSelectedPage('main')}>
           <MainIcon theme={theme} />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => setSelectedPage('create')}>
           <NewCreateIcon theme={theme} />
         </IconButton>
         <IconButton onClick={() => setActivePage('notifications')}>
@@ -188,7 +214,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButton onClick={() => setActivePage('followContents')}>
           <FollowContentsIcon theme={theme} />
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => setSelectedPage('myPage')}>
           <MyPageIcon theme={theme} />
         </IconButton>
         <Blank />
