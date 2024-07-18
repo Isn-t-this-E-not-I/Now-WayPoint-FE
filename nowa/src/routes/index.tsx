@@ -1,7 +1,6 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import Main from '@/pages/index'
-import MainTest from '@/pages/Main/main'
+import Main from '@/pages/Main/main'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 
@@ -11,7 +10,6 @@ const Routers: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Main />} />
-          <Route path="/maintest" element={<MainTest />} />
           <Route path="/main" element={<Main />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
