@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react'
+import { getLocationData } from '@/api/KaKaomap/kakaomap'
 
 declare global {
   interface Window {
@@ -33,9 +34,15 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const { latitude, longitude } = position.coords
           initializeMap(latitude, longitude)
+          try {
+            const data = await getLocationData(latitude, longitude)
+            console.log('Location data:', data)
+          } catch (error) {
+            console.error('Error fetching location data:', error)
+          }
         },
         (error) => {
           console.error('Error getting geolocation:', error)
