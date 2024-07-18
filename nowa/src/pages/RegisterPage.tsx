@@ -4,7 +4,7 @@ import TextInput from '../components/TextInput/textInput' // 올바른 경로로
 import { register } from '../api/userApi'
 
 const RegisterPage: React.FC = () => {
-  const [email, setEmail] = useState('')
+  const [loginId, setLoginId] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [nickname, setNickname] = useState('')
@@ -12,11 +12,17 @@ const RegisterPage: React.FC = () => {
 
   const handleRegister = async () => {
     try {
-      const response = await register({ email, password, name, nickname })
-      if (response.success) {
+      const response = await register({ loginId, password, name, nickname })
+      if (response.data === 'ok') {
         navigate('/login') // 회원가입 성공 시 로그인 페이지로 리디렉션
       } else {
-        alert('회원가입 실패: ' + response.message)
+        if (response.data === 'idNo') {
+          alert('아이디가 중복되었습니다.')
+        } else if (response.data === 'nicknameNo') {
+          alert('닉네임이 중복되었습니다.')
+        } else if (response.data === 'idNicknameNo') {
+          console.log(response.message)
+        }
       }
     } catch (error) {
       console.error('Registration error:', error)
@@ -36,8 +42,8 @@ const RegisterPage: React.FC = () => {
         <TextInput
           type="email"
           placeholder="이메일"
-          onChange={(e) => setEmail(e.target.value)}
-          value={email}
+          onChange={(e) => setLoginId(e.target.value)}
+          value={loginId}
           className="mb-4"
         />
         <TextInput

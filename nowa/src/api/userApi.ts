@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const API_BASE_URL = 'http://localhost:8080/api'
-
+// process.env.REACT_APP_API_URL ||
 interface LoginPayload {
   email: string
   password: string
@@ -14,9 +14,9 @@ interface RegisterPayload {
   nickname: string
 }
 
-export const login = async (payload: LoginPayload) => {
+export const login = async (payload: { password: string; loginId: string }) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/login`, payload)
+    const response = await axios.post(`${API_BASE_URL}/user/login`, payload)
     return response.data
   } catch (error) {
     throw error
@@ -25,16 +25,21 @@ export const login = async (payload: LoginPayload) => {
 
 export const loginWithKakao = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/login/kakao`)
+    const response = await axios.get(`${API_BASE_URL}/user/login/kakao`)
     return response.data
   } catch (error) {
     throw error
   }
 }
 
-export const register = async (payload: RegisterPayload) => {
+export const register = async (payload: {
+  password: string
+  loginId: string
+  name: string
+  nickname: string
+}) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/register`, payload)
+    const response = await axios.post(`${API_BASE_URL}/user/register`, payload)
     return response.data // 응답 데이터 반환
   } catch (error) {
     throw error

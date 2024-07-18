@@ -1,63 +1,68 @@
-import React, { useRef, useState } from 'react';
-import { getKakaoApiData, extractCoordinates } from '@/api/KaKaomap/kakaomap';
+import React, { useEffect, useRef } from 'react'
+import { getLocationData } from '@/api/KaKaomap/kakaomap'
 
 declare global {
   interface Window {
-    kakao: any;
+    kakao: any
   }
 }
 
 const MainPage: React.FC = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const [address, setAddress] = useState('');
+  const mapContainer = useRef<HTMLDivElement>(null)
 
   const initializeMap = (latitude: number, longitude: number) => {
-    const script = document.createElement('script');
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&autoload=false`;
+    const script = document.createElement('script')
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&autoload=false`
     script.onload = () => {
       window.kakao.maps.load(() => {
         const mapOption = {
           center: new window.kakao.maps.LatLng(latitude, longitude),
           level: 3,
-        };
+        }
 
-        const map = new window.kakao.maps.Map(mapContainer.current, mapOption);
+        const map = new window.kakao.maps.Map(mapContainer.current, mapOption)
 
         new window.kakao.maps.Marker({
           map,
           position: new window.kakao.maps.LatLng(latitude, longitude),
-        });
-      });
-    };
-    document.head.appendChild(script);
-  };
-
-  const handleSearch = async () => {
-    try {
-      const mapData = await getKakaoApiData(address);
-      const coordinates = await extractCoordinates(mapData);
-
-      const latitude = parseFloat(coordinates.latitude);
-      const longitude = parseFloat(coordinates.longitude);
-
-      initializeMap(latitude, longitude);
-    } catch (error) {
-      console.error('Failed to initialize map:', error);
+        })
+      })
     }
-  };
+    document.head.appendChild(script)
+  }
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords
+          initializeMap(latitude, longitude)
+          try {
+            const data = await getLocationData(latitude, longitude)
+            console.log('Location data:', data)
+          } catch (error) {
+            console.error('Error fetching location data:', error)
+          }
+        },
+        (error) => {
+          console.error('Error getting geolocation:', error)
+        },
+        {
+          enableHighAccuracy: true, // 정확도 설정
+          timeout: 5000, // 5초안에 위치정보 못가져오면 에러 호출
+          maximumAge: 0, // 늘 위치정보 요청
+        }
+      )
+    } else {
+      console.error('Geolocation not supported')
+    }
+  }, [])
 
   return (
     <div>
-      <input
-        type="text"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        placeholder="Enter address"
-      />
-      <button onClick={handleSearch}>Search</button>
-      <div ref={mapContainer} style={{ width: '100%', height: '400px' }} />
+      <div ref={mapContainer} style={{ width: '100%', height: '100vh' }} />
     </div>
-  );
-};
+  )
+}
 
-export default MainPage;
+export default MainPage
