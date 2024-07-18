@@ -1,34 +1,68 @@
-import axios from 'axios'
+import React, { useEffect, useRef } from 'react'
+import { getLocationData } from '@/api/KaKaomap/kakaomap'
 
-const API_BASE_URL = 'http://localhost:8080/api'
-
-const getCookieValue = (name: string): string | null => {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
-  return null
-}
-
-export const getLocationData = async (
-  latitude: number,
-  longitude: number
-): Promise<any> => {
-  const token = getCookieValue('Authorization')
-
-  if (!token) {
-    throw new Error('Authorization token not found')
-  }
-
-  try {
-    const response = await axios.get(`${API_BASE_URL}/location`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params: { latitude, longitude },
-    })
-    return response.data
-  } catch (error) {
-    console.error('Failed to fetch location data:', error)
-    throw new Error('Failed to fetch location data')
+declare global {
+  interface Window {
+    kakao: any
   }
 }
+
+const MainPage: React.FC = () => {
+  const mapContainer = useRef<HTMLDivElement>(null)
+
+  const initializeMap = (latitude: number, longitude: number) => {
+    const script = document.createElement('script')
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&autoload=false`
+    script.onload = () => {
+      window.kakao.maps.load(() => {
+        const mapOption = {
+          center: new window.kakao.maps.LatLng(latitude, longitude),
+          level: 3,
+        }
+
+        const map = new window.kakao.maps.Map(mapContainer.current, mapOption)
+
+        new window.kakao.maps.Marker({
+          map,
+          position: new window.kakao.maps.LatLng(latitude, longitude),
+        })
+      })
+    }
+    document.head.appendChild(script)
+  }
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords
+          initializeMap(latitude, longitude)
+          try {
+            const data = await getLocationData(latitude, longitude)
+            console.log('Location data:', data)
+          } catch (error) {
+            console.error('Error fetching location data:', error)
+          }
+        },
+        (error) => {
+          console.error('Error getting geolocation:', error)
+        },
+        {
+          enableHighAccuracy: true, // 높은 정확도 설정
+          timeout: 5000, // 타임아웃 설정
+          maximumAge: 0, // 캐시된 위치 정보 사용 안함
+        }
+      )
+    } else {
+      console.error('Geolocation not supported')
+    }
+  }, [])
+
+  return (
+    <div>
+      <div ref={mapContainer} style={{ width: '100%', height: '400px' }} />
+    </div>
+  )
+}
+
+export default MainPage

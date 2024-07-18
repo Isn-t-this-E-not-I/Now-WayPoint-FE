@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react'
-import { getLocationData } from '@/api/KaKaomap/kakaomap'
 
 declare global {
   interface Window {
@@ -34,23 +33,17 @@ const MainPage: React.FC = () => {
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        async (position) => {
+        (position) => {
           const { latitude, longitude } = position.coords
           initializeMap(latitude, longitude)
-          try {
-            const data = await getLocationData(latitude, longitude)
-            console.log('Location data:', data)
-          } catch (error) {
-            console.error('Error fetching location data:', error)
-          }
         },
         (error) => {
           console.error('Error getting geolocation:', error)
         },
         {
-          enableHighAccuracy: true, // 정확도 설정
-          timeout: 5000, // 5초안에 위치정보 못가져오면 에러 호출
-          maximumAge: 0, // 늘 위치정보 요청
+          enableHighAccuracy: true, // 높은 정확도 설정
+          timeout: 5000, // 타임아웃 설정
+          maximumAge: 0, // 캐시된 위치 정보 사용 안함
         }
       )
     } else {
@@ -60,7 +53,7 @@ const MainPage: React.FC = () => {
 
   return (
     <div>
-      <div ref={mapContainer} style={{ width: '100%', height: '100vh' }} />
+      <div ref={mapContainer} style={{ width: '100%', height: '400px' }} />
     </div>
   )
 }
