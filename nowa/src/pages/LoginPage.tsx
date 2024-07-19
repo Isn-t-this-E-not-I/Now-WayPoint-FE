@@ -26,7 +26,7 @@ const LoginPage: React.FC = () => {
   const handleKakaoLogin = async () => {
     try {
       // const data = await loginWithKakao();
-      window.location.href = 'http://localhost:8080/api/user/login/kakao'; // 카카오 로그인 페이지로 리디렉트 data.url
+      window.location.href = 'http://localhost:8080/api/user/login/kakao';
     } catch (error) {
       console.error('Kakao login failed:', error);
     }

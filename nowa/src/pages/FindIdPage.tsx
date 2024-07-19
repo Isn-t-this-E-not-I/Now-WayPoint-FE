@@ -13,6 +13,8 @@ const FindIdPage = () => {
     try {
       const data = await findIdByNickname(nickname);
       setFoundId(data.id); // 예상. 테스트하고 수정
+      console.log(data);
+      // (이메일) 아이디 반환
       setError('');
     } catch (error) {
       setError('아이디 찾기 실패. 다시 시도해주세요.');

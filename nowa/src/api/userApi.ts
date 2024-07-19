@@ -44,7 +44,7 @@ export const register = async (payload: { password: string; loginId: string; nam
 
   export const findIdByNickname = async (nickname: string) => { // 아이디 찾기
     try {
-      const response = await axios.post(`${API_BASE_URL}/user/find/id`, { nickname });
+      const response = await axios.post(`${API_BASE_URL}/user/userId`, { nickname });
       return response.data;
     } catch (error) {
       throw error;
@@ -60,11 +60,11 @@ export const register = async (payload: { password: string; loginId: string; nam
     }
   };
 
-  export const resetPassword = async (userId: string, newPassword: string) => {
+  export const resetPassword = async (loginId: string, password: string) => {
     try {
-      const response = await axios.put(`${API_BASE_URL}/user/password`, {
-        userId,
-        newPassword
+      const response = await axios.put(`${API_BASE_URL}/user/find/password`, {
+        loginId,
+        password
       });
       return response.data;
     } catch (error) {
