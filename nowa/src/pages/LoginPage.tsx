@@ -32,9 +32,10 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const goToRegister = () => {  // 회원가입 페이지로 이동하는 함수
-    navigate('/register');
-  };
+  const goToRegister = () => navigate('/register');
+  const goToFindId = () => navigate('/find-id');
+  const goToFindPassword = () => navigate('/find-password');
+  const goToResetPassword = () => navigate('/reset-password');
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
@@ -50,6 +51,9 @@ const LoginPage: React.FC = () => {
         <button className="btn btn-primary mt-4 mb-2" onClick={handleLogin}>로그인</button>
         <button className="btn btn-warning mt-4" onClick={handleKakaoLogin}>카카오 간편 로그인</button>
         <button className="btn btn-outline mt-4" onClick={goToRegister}>회원가입</button> 
+        <button className="btn btn-outline mt-2" onClick={goToFindId}>아이디 찾기</button>
+        <button className="btn btn-outline mt-2" onClick={goToFindPassword}>비밀번호 찾기</button>
+        <button className="btn btn-outline mt-2" onClick={goToResetPassword}>비밀번호 재설정</button>
       </div>
     </div>
   );

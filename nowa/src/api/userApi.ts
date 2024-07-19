@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 const API_BASE_URL = 'http://localhost:8080/api';
-// process.env.REACT_APP_API_URL ||
+// const API_BASE_URL = process.env.REACT_APP_API_URL; 
+
 interface LoginPayload {
   email: string;
   password: string;
@@ -36,6 +37,15 @@ export const register = async (payload: { password: string; loginId: string; nam
     try {
       const response = await axios.post(`${API_BASE_URL}/user/register`, payload);
       return response.data; // 응답 데이터 반환
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  export const findIdByNickname = async (nickname: string) => { // 아이디 찾기
+    try {
+      const response = await axios.post(`${API_BASE_URL}/user/find/id`, { nickname });
+      return response.data;
     } catch (error) {
       throw error;
     }
