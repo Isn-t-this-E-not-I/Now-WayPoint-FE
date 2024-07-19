@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { login, loginWithKakao } from '../api/userApi';
-import TextInput from '../components/TextInput/textInput';
+import TextInput from '../components/TextInput/TextInput';
 // import ThemeController from '../components/ThemeController/ThemeController';
 import { useNavigate } from 'react-router-dom';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TextInput from '../components/TextInput/textInput';  // 올바른 경로로 수정
+import TextInput from '../components/TextInput/TextInput';  // 올바른 경로로 수정
 import { register } from '../api/userApi';
 
 const RegisterPage: React.FC = () => {
