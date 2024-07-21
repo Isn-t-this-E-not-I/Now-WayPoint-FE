@@ -52,9 +52,9 @@ export const register = async (payload: { loginId: string; email: string; passwo
     }
   };
 
-  export const findPassword = async (nickname: string, email: string) => {
+  export const findPassword = async (loginId: string, email: string) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/user/find/password`, { nickname, email });
+      const response = await axios.post(`${API_BASE_URL}/user/find/password`, { loginId, email });
       return response.data;
     } catch (error) {
       throw error;
