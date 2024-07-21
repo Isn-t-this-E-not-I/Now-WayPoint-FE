@@ -52,20 +52,30 @@ export const register = async (payload: { loginId: string; email: string; passwo
     }
   };
 
-  export const findPasswordByEmail = async (email: string) => {
+  export const findPassword = async (nickname: string, email: string) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/user/find/password`, { email });
+      const response = await axios.post(`${API_BASE_URL}/user/find/password`, { nickname, email });
       return response.data;
     } catch (error) {
       throw error;
     }
   };
 
-  export const resetPassword = async (loginId: string, password: string) => {
+  export const sendVerificationCode = async (email: string) => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/user/sendVerificationCode`, { email });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  export const resetPassword = async (email: string, code: string, newPassword: string) => {
     try {
       const response = await axios.put(`${API_BASE_URL}/user/find/password`, {
-        loginId,
-        password
+        email,
+        code,
+        newPassword
       });
       return response.data;
     } catch (error) {
