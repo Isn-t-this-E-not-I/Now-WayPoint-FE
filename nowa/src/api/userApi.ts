@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'http://15.165.236.244:8080/api';
 // const API_BASE_URL = process.env.REACT_APP_API_URL; 
 
 interface LoginPayload {
@@ -52,23 +52,42 @@ export const register = async (payload: { loginId: string; email: string; passwo
     }
   };
 
-  export const findPassword = async (loginId: string, email: string) => {
+  export const findPassword = async (loginId: string, email: string ) => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/user/find/password`, { loginId, email });
+      const response = await axios.post(`${API_BASE_URL}/user/password/find`, { loginId, email });
       return response.data;
     } catch (error) {
       throw error;
     }
   };
 
-  export const sendVerificationCode = async (email: string) => {
+  export const sendVerificationCode_Id = async (email: string, state: '아이디찾기') => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/user/sendVerificationCode`, { email });
+      const response = await axios.post(`${API_BASE_URL}/mail/send`, { email, state });
       return response.data;
     } catch (error) {
       throw error;
     }
   };
+
+  export const sendVerificationCode_Password = async (email: string, state: '비밀번호찾기') => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/mail/send`, { email, state });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  export const sendVerificationCode_Register = async (email: string, state: '회원가입') => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/mail/send`, { email, state });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  };
+  
 
   export const resetPassword = async (email: string, code: string, newPassword: string) => {
     try {

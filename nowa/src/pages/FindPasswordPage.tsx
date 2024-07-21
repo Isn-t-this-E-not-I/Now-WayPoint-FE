@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { findPassword, sendVerificationCode } from '../api/userApi';
+import { findPassword, sendVerificationCode_Password } from '../api/userApi';
 import TextInput from '../components/TextInput/TextInput';
 import { useNavigate } from 'react-router-dom';
 
 const FindPasswordPage = () => {
-  const [email, setEmail] = useState('');
   const [userId, setUserId] = useState('');
+  const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
@@ -13,7 +13,7 @@ const FindPasswordPage = () => {
     try {
       const userValid = await findPassword(userId, email);
       if (userValid.exists) {
-        const verification = await sendVerificationCode(email);
+        const verification = await sendVerificationCode_Password(email, state);
         setMessage(verification.message);
       } else {
         setMessage('일치하는 계정을 찾을 수 없습니다');
