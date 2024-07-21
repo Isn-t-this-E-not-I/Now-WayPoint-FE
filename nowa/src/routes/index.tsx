@@ -5,7 +5,7 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import FindIdPage from '@/pages/FindIdPage'; 
 import FindPasswordPage from '@/pages/FindPasswordPage';
-import ResetPasswordPage from '@/pages/ResetPasswordPage';
+// import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 
 
@@ -20,7 +20,7 @@ const Routers: React.FC = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/find-id" element={<FindIdPage />} />
           <Route path="/find-password" element={<FindPasswordPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          {/* <Route path="/reset-password" element={<ResetPasswordPage />} /> */}
           <Route path="/memberfind" element={<></>} />
           <Route path="/mypage" element={<></>} />
           <Route path="/contentUpload" element={<></>} />
