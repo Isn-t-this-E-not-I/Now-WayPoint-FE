@@ -34,3 +34,4 @@ const ResetPasswordPage = () => {
 };
 
 export default ResetPasswordPage;
+//  마이페이지 하위 기능으로 병합 예정
