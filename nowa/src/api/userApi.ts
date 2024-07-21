@@ -34,7 +34,7 @@ export const loginWithKakao = async () => {
   }
 };
 
-export const register = async (payload: { loginId: string; email: string; password: string; name: string; nickname: string }) => {
+export const register = async (payload: RegisterPayload) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/user/register`, payload);
       return response.data; // 응답 데이터 반환
@@ -61,37 +61,19 @@ export const register = async (payload: { loginId: string; email: string; passwo
     }
   };
 
-  export const sendVerificationCode_Id = async (email: string, state: '아이디찾기') => {
+  export const sendVerificationCode = async (email: string, state: string) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/mail/send`, { email, state });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  export const sendVerificationCode_Password = async (email: string, state: '비밀번호찾기') => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/mail/send`, { email, state });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  export const sendVerificationCode_Register = async (email: string, state: '회원가입') => {
-    try {
-      const response = await axios.post(`${API_BASE_URL}/mail/send`, { email, state });
-      return response.data;
+      return response.data; // 이메일 발송 성공 여부 반환
     } catch (error) {
       throw error;
     }
   };
   
 
-  export const resetPassword = async (email: string, code: string, newPassword: string) => {
+  export const resetPassword = async (email: string, code: string, newPassword: string) => {  //  새 비밀번호 발급
     try {
-      const response = await axios.put(`${API_BASE_URL}/user/find/password`, {
+      const response = await axios.put(`${API_BASE_URL}/user/password/find`, {
         email,
         code,
         newPassword
