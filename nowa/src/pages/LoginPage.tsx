@@ -27,22 +27,12 @@ const LoginPage: React.FC = () => {
   const handleKakaoLogin = async () => {
     try {
       // const data = await loginWithKakao();
-      window.location.href = 'http://localhost:8080/api/user/login/kakao';
+      window.location.href = 'http://15.165.236.244:8080/api/user/login/kakao';
     } catch (error) {
       console.error('Kakao login failed:', error);
     }
   };
 
-  // const connectWebSocket = () => {
-  //   const sock = new SockJS('wss://15.165.236.244:8080/main');
-  //   const stompClient = Stomp.over(sock);
-  //   stompClient.connect({}, function(frame) {
-  //     console.log('Connected: ' + frame);
-  //     stompClient.subscribe('/topic/messages', function(messageOutput) {
-  //       console.log(messageOutput.body);
-  //     });
-  //   });
-  // };
 
   const goToRegister = () => navigate('/register');
   const goToFindId = () => navigate('/find-id');
