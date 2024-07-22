@@ -10,12 +10,13 @@ import Search from './components/Search/search'
 import TextInput from './components/TextInput/TextInput'
 import FileInput from './components/FileInput/fileInput'
 import Tap from './components/Tap/tap'
+import Custom_Theme from '@/hooks/defaultTheme'
 
 const App: React.FC = () => {
   return (
     <>
+      {/* <Custom_Theme /> */}
       <Routers />
-      <Theme />
     </>
   )
 }
