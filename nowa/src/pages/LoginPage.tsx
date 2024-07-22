@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
 import { login, loginWithKakao } from '../api/userApi';
 import TextInput from '../components/TextInput/TextInput';
-// import ThemeController from '../components/ThemeController/ThemeController';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -15,11 +16,10 @@ const LoginPage: React.FC = () => {
   const handleLogin = async () => {
     try {
       const data = await login({ loginId, password });
-      console.log('Login success:', data);
-      navigate('/main');
-      
+      console.log('로그인 성공:', data.token);
+      navigate('/main', { replace: true, state: { token: data.token } });
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('로그인 실패:', error);
       setError('로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인하세요.');
     }
   };
@@ -32,6 +32,17 @@ const LoginPage: React.FC = () => {
       console.error('Kakao login failed:', error);
     }
   };
+
+  // const connectWebSocket = () => {
+  //   const sock = new SockJS('wss://15.165.236.244:8080/main');
+  //   const stompClient = Stomp.over(sock);
+  //   stompClient.connect({}, function(frame) {
+  //     console.log('Connected: ' + frame);
+  //     stompClient.subscribe('/topic/messages', function(messageOutput) {
+  //       console.log(messageOutput.body);
+  //     });
+  //   });
+  // };
 
   const goToRegister = () => navigate('/register');
   const goToFindId = () => navigate('/find-id');

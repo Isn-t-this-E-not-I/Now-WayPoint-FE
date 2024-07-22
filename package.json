@@ -5,6 +5,8 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
+    "@types/sockjs-client": "^1.5.4",
+    "@types/stompjs": "^2.3.9",
     "@types/uuid": "^10.0.0"
   }
 }

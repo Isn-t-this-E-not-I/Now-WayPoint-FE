@@ -1,5 +1,9 @@
 import React from 'react'
 
+if (typeof window !== 'undefined') {
+  window.global = window;
+}
+
 const index: React.FC = () => {
   return <div></div>
 }
