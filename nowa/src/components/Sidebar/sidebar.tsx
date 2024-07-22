@@ -39,7 +39,7 @@ const LeftSidebar = styled.div`
   flex-direction: column;
   align-items: center;
   width: 2.5rem;
-  background-color: yellow;
+  height: 100%;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
   position: fixed;
@@ -51,7 +51,6 @@ const RightSidebar = styled.div`
   align-items: center;
   justify-content: center;
   width: 19rem;
-  background-color: red;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
@@ -61,7 +60,6 @@ const RightSidebar = styled.div`
 const Blank = styled.div`
   height: 45.5vh;
   width: 2.5rem;
-  background-color: blue;
 `
 
 const IconButton = styled.button`
@@ -87,7 +85,6 @@ const ContentDiv = styled.div`
   width: 100%;
   padding: 10px;
   margin-top: 5px;
-  background-color: green;
   position: relative;
 `
 
@@ -98,7 +95,6 @@ const ContentPage = styled.div`
   justify-content: center;
   height: 100%;
   width: 100%;
-  background-color: purple;
 `
 
 const PageTitleWrapper = styled.div`
@@ -112,6 +108,7 @@ const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 10px;
+  margin-left: 3px;
   align-self: flex-start;
 `
 

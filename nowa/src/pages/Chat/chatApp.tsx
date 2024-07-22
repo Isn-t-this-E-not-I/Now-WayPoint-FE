@@ -8,6 +8,7 @@ import {
   disconnect,
   leaveChatRoom as websocketLeaveChatRoom,
 } from '../../websocket/chatWebSocket'
+import { ChatRoom } from '../../types'
 
 const AppWrapper = styled.div`
   display: flex;
@@ -19,30 +20,23 @@ const AppWrapper = styled.div`
 `
 
 const ChatApp: React.FC = () => {
-  const [chatRooms, setChatRooms] = useState([
-    {
-      id: 1,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'Chat Room 1',
-      lastMessage: 'Last message in chat room 1',
-      memberCount: 5,
-    },
-    {
-      id: 2,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'Chat Room 2',
-      lastMessage: 'Last message in chat room 2',
-      memberCount: 3,
-    },
-  ])
-
-  const [selectedChatRoom, setSelectedChatRoom] = useState(chatRooms[0])
+  const [chatRooms, setChatRooms] = useState<ChatRoom[]>([])
+  const [selectedChatRoom, setSelectedChatRoom] = useState<ChatRoom | null>(
+    null
+  )
   const [token, setToken] = useState('')
 
   useEffect(() => {
     const loadChatRooms = async () => {
       const fetchedChatRooms = await fetchChatRooms()
-      setChatRooms(fetchedChatRooms)
+      const chatRoomsWithMessages = fetchedChatRooms.map((room: ChatRoom) => ({
+        ...room,
+        messages: [],
+      }))
+      setChatRooms(chatRoomsWithMessages)
+      if (chatRoomsWithMessages.length > 0) {
+        setSelectedChatRoom(chatRoomsWithMessages[0])
+      }
     }
 
     loadChatRooms()
@@ -55,13 +49,23 @@ const ChatApp: React.FC = () => {
         console.log('Received message: ', message.body)
         const parsedMessage = JSON.parse(message.body)
         if (parsedMessage.type === 'CHAT') {
-          // 메시지 처리 로직 추가
+          // 메시지 처리 로직
           setChatRooms((prevChatRooms) =>
-            prevChatRooms.map((room) =>
-              room.id === parsedMessage.chatRoomId
-                ? { ...room, lastMessage: parsedMessage.content }
-                : room
-            )
+            prevChatRooms.map((room) => {
+              if (room.id === parsedMessage.chatRoomId) {
+                const updatedRoom = {
+                  ...room,
+                  lastMessage: parsedMessage.content,
+                  messages: [...room.messages, parsedMessage],
+                }
+                // 현재 선택된 채팅방의 메시지를 업데이트
+                if (selectedChatRoom && selectedChatRoom.id === room.id) {
+                  setSelectedChatRoom(updatedRoom)
+                }
+                return updatedRoom
+              }
+              return room
+            })
           )
         }
       },
@@ -73,15 +77,9 @@ const ChatApp: React.FC = () => {
     return () => {
       disconnect()
     }
-  }, [token])
+  }, [token, selectedChatRoom])
 
-  const handleChatItemClick = (chatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-    memberCount: number
-  }) => {
+  const handleChatItemClick = (chatRoom: ChatRoom) => {
     setSelectedChatRoom(chatRoom)
   }
 
@@ -90,7 +88,16 @@ const ChatApp: React.FC = () => {
     setChatRooms((prevChatRooms) =>
       prevChatRooms.filter((room) => room.id !== id)
     )
-    setSelectedChatRoom(chatRooms[0])
+    if (chatRooms.length > 0) {
+      setSelectedChatRoom(chatRooms[0])
+    } else {
+      setSelectedChatRoom(null)
+    }
+  }
+
+  const handleCreateChat = (newChatRoom: ChatRoom) => {
+    setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom])
+    setSelectedChatRoom(newChatRoom)
   }
 
   return (
