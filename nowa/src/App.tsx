@@ -7,59 +7,10 @@ import Sidebar from './components/Sidebar/sidebar.tsx'
 import MainPage from '../src/pages'
 import CreatePage from '../src/pages'
 import MyPage from '../src/pages'
-import ChattingPage from './pages/Chat/chattingPage.tsx'
+import ChatApp from './pages/Chat/chatApp.tsx'
 
 const App: React.FC = () => {
   const [selectedPage, setSelectedPage] = useState<string>('main')
-  const [chatRooms, setChatRooms] = useState([
-    {
-      id: 1,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'Chat Room 1',
-      lastMessage: 'Last message in chat room 1',
-    },
-    {
-      id: 2,
-      profilePic: 'https://via.placeholder.com/40',
-      name: 'Chat Room 2',
-      lastMessage: 'Last message in chat room 2',
-    },
-  ])
-  const [selectedChatRoom, setSelectedChatRoom] = useState<null | {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-  }>(null)
-
-  const handleChatItemClick = (chatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-  }) => {
-    setSelectedChatRoom(chatRoom)
-    setSelectedPage('chatting')
-  }
-
-  const handleChatRoomNameChange = (id: number, newName: string) => {
-    const updatedChatRooms = chatRooms.map((chatRoom) =>
-      chatRoom.id === id ? { ...chatRoom, name: newName } : chatRoom
-    )
-    setChatRooms(updatedChatRooms)
-    if (selectedChatRoom && selectedChatRoom.id === id) {
-      setSelectedChatRoom({ ...selectedChatRoom, name: newName })
-    }
-  }
-
-  const handleCreateChat = (newChatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-  }) => {
-    setChatRooms([...chatRooms, newChatRoom])
-  }
 
   const renderContent = () => {
     switch (selectedPage) {
@@ -70,12 +21,7 @@ const App: React.FC = () => {
       case 'myPage':
         return <MyPage />
       case 'chatting':
-        return selectedChatRoom ? (
-          <ChattingPage
-            chatRoom={selectedChatRoom}
-            onChatRoomNameChange={handleChatRoomNameChange}
-          />
-        ) : null
+        return <ChatApp />
       default:
         return null
     }
@@ -85,14 +31,13 @@ const App: React.FC = () => {
     <div style={{ display: 'flex', height: '100vh' }}>
       <Sidebar
         theme={'light'}
-        chatRooms={chatRooms}
-        onChatItemClick={handleChatItemClick}
         setSelectedPage={setSelectedPage}
-        onExitChatRoom={(id: number) =>
-          setChatRooms(chatRooms.filter((chatRoom) => chatRoom.id !== id))
-        }
-        onCreateChat={handleCreateChat}
-        setChatRooms={setChatRooms}
+        chatRooms={[]}
+        onChatItemClick={() => {}}
+        onExitChatRoom={() => {}}
+        setChatRooms={() => {}}
+        onCreateChat={() => {}}
+        token={''}
       />
       <div style={{ flex: 1 }}>{renderContent()}</div>
       <Custom_Theme />

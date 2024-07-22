@@ -16,6 +16,12 @@ import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import ChatListPage from '../../pages/Chat/chatListPage'
 import CreateChatButton from '../CreateChatButton/createChatButton'
+import {
+  connect,
+  disconnect,
+  createChatRoom as websocketCreateChatRoom,
+} from '../../websocket/chatWebSocket' // 경로 수정
+import Modal from '../Modal/modal' // 모달 컴포넌트 가져오기
 
 interface SidebarProps {
   chatRooms: {
@@ -23,6 +29,7 @@ interface SidebarProps {
     profilePic: string
     name: string
     lastMessage: string
+    memberCount: number
   }[]
   theme: 'light' | 'dark'
   onChatItemClick: (chatRoom: {
@@ -30,6 +37,7 @@ interface SidebarProps {
     profilePic: string
     name: string
     lastMessage: string
+    memberCount: number
   }) => void
   setSelectedPage: (page: string) => void
   onExitChatRoom: (id: number) => void
@@ -40,6 +48,7 @@ interface SidebarProps {
         profilePic: string
         name: string
         lastMessage: string
+        memberCount: number
       }[]
     >
   >
@@ -48,7 +57,9 @@ interface SidebarProps {
     profilePic: string
     name: string
     lastMessage: string
+    memberCount: number
   }) => void
+  token: string
 }
 
 const Wrapper = styled.div`
@@ -145,17 +156,14 @@ const Sidebar: React.FC<SidebarProps> = ({
   onExitChatRoom,
   setChatRooms,
   onCreateChat,
+  token,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
+  const [isModalOpen, setIsModalOpen] = useState(false) // 모달 상태 추가
 
-  const handleCreateChat = (newChatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-  }) => {
-    setChatRooms([...chatRooms, newChatRoom])
-    onCreateChat(newChatRoom)
+  const handleCreateChat = (nicknames: string[]) => {
+    websocketCreateChatRoom(token, nicknames)
+    setIsModalOpen(false) // 모달 닫기
   }
 
   const renderContentPage = () => {
@@ -234,13 +242,35 @@ const Sidebar: React.FC<SidebarProps> = ({
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && (
-              <CreateChatButton theme={theme} onCreateChat={handleCreateChat} />
+              <>
+                <CreateChatButton
+                  theme={theme}
+                  onCreateChat={() => setIsModalOpen(true)} // 모달 열기
+                />
+              </>
             )}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
+      {isModalOpen && (
+        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+          <div>
+            <h3 className="font-bold text-lg">새 채팅방 만들기</h3>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                const nicknames = (e.target as any).nicknames.value.split(',')
+                handleCreateChat(nicknames)
+              }}
+            >
+              <input type="text" name="nicknames" placeholder="닉네임(들)" />
+              <button type="submit">생성</button>
+            </form>
+          </div>
+        </Modal>
+      )}
     </Wrapper>
   )
 }

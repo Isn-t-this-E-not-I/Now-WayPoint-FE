@@ -31,12 +31,14 @@ interface ChatListPageProps {
     profilePic: string
     name: string
     lastMessage: string
+    memberCount: number
   }[]
   onChatItemClick: (chatRoom: {
     id: number
     profilePic: string
     name: string
     lastMessage: string
+    memberCount: number
   }) => void
   onExitChatRoom: (id: number) => void
 }
@@ -52,7 +54,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
         <ChatItem key={chat.id} onClick={() => onChatItemClick(chat)}>
           <ChatProfilePic src={chat.profilePic} alt="Profile" />
           <ChatContent>
-            <span>{chat.name}</span>
+            <span>{chat.name} ({chat.memberCount})</span>
             <span>{chat.lastMessage}</span>
           </ChatContent>
         </ChatItem>

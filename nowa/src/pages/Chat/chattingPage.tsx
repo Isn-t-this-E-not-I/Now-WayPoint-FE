@@ -9,6 +9,14 @@ import Modal from '../../components/Modal/modal'
 import ChatBubble from '../../components/ChatBubble/chatBubble'
 import ReusableModalContent from '../../components/ReusableModalContent/reusableModalContent'
 import useModal from '@/hooks/modal'
+import {
+  enterChatRoom,
+  sendMessage,
+  updateChatRoomName,
+  inviteToChatRoom,
+  leaveChatRoom,
+  fetchChatMessages,
+} from '../../websocket/chatWebSocket'
 
 const Wrapper = styled.div`
   display: flex;
@@ -19,6 +27,7 @@ const Wrapper = styled.div`
   height: 100vh;
   background-color: #f7f7f7;
   padding-top: 70px;
+  margin-left: 10px;
 `
 
 const HeaderWrapper = styled.div`
@@ -169,14 +178,12 @@ interface ChattingPageProps {
     profilePic: string
     name: string
     lastMessage: string
+    memberCount: number
   }
-  onChatRoomNameChange: (id: number, newName: string) => void
+  token: string
 }
 
-const ChattingPage: React.FC<ChattingPageProps> = ({
-  chatRoom,
-  onChatRoomNameChange,
-}) => {
+const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const {
     isOpen: isAddMemberModalOpen,
@@ -212,6 +219,13 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
     setNewChatName(chatRoom.name)
   }, [chatRoom])
 
+  useEffect(() => {
+    enterChatRoom(token, chatRoom.id, (message) => {
+      const parsedMessage = JSON.parse(message.body)
+      setMessages((prevMessages) => [...prevMessages, parsedMessage])
+    })
+  }, [chatRoom, token])
+
   const openEditModal = () => setIsEditModalOpen(true)
   const closeEditModal = () => setIsEditModalOpen(false)
 
@@ -226,32 +240,13 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
     setNewMemberEmail(e.target.value)
   }
 
-  const handleEditChatName = (e: React.FormEvent) => {
-    e.preventDefault()
-    setCurrentChatName(newChatName)
-    onChatRoomNameChange(chatRoom.id, newChatName)
-    closeEditModal()
-  }
-
-  const handleAddMember = (selectedMembers: string[]) => {
-    console.log(
-      `Add members ${selectedMembers.join(', ')} to chat room ${chatRoom.id}`
-    )
-    closeAddMemberModal()
-  }
-
-  const handleExitChatRoom = () => {
-    console.log(`Exit chat room ${chatRoom.id}`)
-    // 여기에 실제 채팅방 나가기 로직을 추가하세요.
-    closeConfirmModal()
-  }
-
   const handleNewMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value)
   }
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault()
+    sendMessage(token, chatRoom.id, newMessage)
     const newMessageObject = {
       avatarSrc: chatRoom.profilePic,
       header: currentChatName,
@@ -264,6 +259,23 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
     setNewMessage('')
   }
 
+  const handleEditChatName = (e: React.FormEvent) => {
+    e.preventDefault()
+    updateChatRoomName(token, chatRoom.id, newChatName)
+    setCurrentChatName(newChatName)
+    closeEditModal()
+  }
+
+  const handleAddMember = (selectedMembers: string[]) => {
+    inviteToChatRoom(token, chatRoom.id, selectedMembers)
+    closeAddMemberModal()
+  }
+
+  const handleExitChatRoom = () => {
+    leaveChatRoom(token, chatRoom.id)
+    closeConfirmModal()
+  }
+
   const closeButtonColor = theme === 'dark' ? '#f7f7f7' : '#2d2e2f'
 
   return (
@@ -272,7 +284,9 @@ const ChattingPage: React.FC<ChattingPageProps> = ({
         <HeaderWrapper>
           <HeaderMember>
             <ProfilePic src={chatRoom.profilePic} alt="profile" />
-            <h1>{currentChatName}</h1>
+            <h1>
+              {currentChatName} ({chatRoom.memberCount})
+            </h1>
           </HeaderMember>
           <HeaderButtonWrapper>
             <HeaderEditAddButton>
