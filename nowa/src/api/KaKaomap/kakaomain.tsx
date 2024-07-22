@@ -1,5 +1,5 @@
-import React, { useRef, useState } from 'react'
-import { getKakaoApiData, extractCoordinates } from '@/api/KaKaomap/kakaomap'
+import React, { useRef, useEffect } from 'react'
+import { getKakaoApiData } from '@/api/KaKaomap/kakaomap'
 
 declare global {
   interface Window {
@@ -9,7 +9,6 @@ declare global {
 
 const MainPage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null)
-  const [address, setAddress] = useState('')
 
   const initializeMap = (latitude: number, longitude: number) => {
     const script = document.createElement('script')
@@ -29,32 +28,40 @@ const MainPage: React.FC = () => {
         })
       })
     }
+
     document.head.appendChild(script)
   }
 
-  const handleSearch = async () => {
-    try {
-      const mapData = await getKakaoApiData(address)
-      const coordinates = await extractCoordinates(mapData)
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const latitude = position.coords.latitude
+          const longitude = position.coords.longitude
 
-      const latitude = parseFloat(coordinates.latitude)
-      const longitude = parseFloat(coordinates.longitude)
+          console.log(latitude, longitude)
 
-      initializeMap(latitude, longitude)
-    } catch (error) {
-      console.error('Failed to initialize map:', error)
+          try {
+            // const mapData =
+            await getKakaoApiData(`${latitude},${longitude}`)
+            // const coordinates = await extractCoordinates(mapData)
+
+            initializeMap(latitude, longitude)
+          } catch (error) {
+            console.error('지도 초기화 실패:', error)
+          }
+        },
+        (error) => {
+          console.error('위치 정보를 가져오는데 실패했습니다:', error)
+        }
+      )
+    } else {
+      console.error('Geolocation을 지원하지 않는 브라우저입니다.')
     }
-  }
+  }, [])
 
   return (
     <div>
-      <input
-        type="text"
-        value={address}
-        onChange={(e) => setAddress(e.target.value)}
-        placeholder="Enter address"
-      />
-      <button onClick={handleSearch}>Search</button>
       <div ref={mapContainer} style={{ width: '100%', height: '400px' }} />
     </div>
   )
