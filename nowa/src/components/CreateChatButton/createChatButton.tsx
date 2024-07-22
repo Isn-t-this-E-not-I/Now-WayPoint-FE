@@ -49,7 +49,6 @@ const Input = styled.input`
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  margin-top: 5px;
 `
 
 const SubmitButton = styled.button<{ themeMode: string }>`
@@ -68,8 +67,8 @@ const SubmitButton = styled.button<{ themeMode: string }>`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: -15px;
-  right: -5px;
+  top: 10px;
+  right: 10px;
   background: none;
   border: none;
   font-size: 18px;
@@ -125,7 +124,7 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
                 type="text"
                 value={selectedMembers}
                 onChange={(e) => setSelectedMembers(e.target.value)}
-                placeholder="초대할 유저 닉네임"
+                placeholder="닉네임(들)"
               />
               <SubmitButton type="submit" themeMode={theme}>
                 생성
