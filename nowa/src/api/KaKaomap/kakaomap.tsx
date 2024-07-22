@@ -1,14 +1,13 @@
-import axios from 'axios'
+import axios from 'axios';
 
-const API_BASE_URL = 'http://15.165.236.244:8080/api'
+const API_BASE_URL = 'http://localhost:8080/api';
 
 const getCookieValue = (name: string): string | null => {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
-  return null
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null;
+  return null;
 }
-
 
 export const getKakaoApiData = async (address: string): Promise<any> => {
   const token = getCookieValue('Authorization');
@@ -21,14 +20,14 @@ export const getKakaoApiData = async (address: string): Promise<any> => {
       headers: {
         'Authorization': `Bearer ${token}`
       },
-      params: { address },
-    })
-    return response.data
+      params: { address }
+    });
+    return response.data;
   } catch (error) {
-    console.error('Failed to fetch map data:', error)
-    throw new Error('Failed to fetch map data')
+    console.error('Failed to fetch map data:', error);
+    throw new Error('Failed to fetch map data');
   }
-}
+};
 
 export const extractCoordinates = async (payload: any): Promise<any> => {
   const token = getCookieValue('Authorization');
@@ -47,4 +46,4 @@ export const extractCoordinates = async (payload: any): Promise<any> => {
     console.error('Failed to extract coordinates:', error);
     throw new Error('Failed to extract coordinates');
   }
-}
+};
