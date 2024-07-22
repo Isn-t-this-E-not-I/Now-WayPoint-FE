@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import TextInput from '../components/TextInput/textInput' // 올바른 경로로 수정
+import TextInput from '../components/TextInput/textInput'
 import { register } from '../api/userApi'
 
 const RegisterPage: React.FC = () => {
   const [loginId, setLoginId] = useState('')
+  const [email, setEmail] = useState('') // 이메일 필드 추가
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [nickname, setNickname] = useState('')
@@ -12,7 +13,13 @@ const RegisterPage: React.FC = () => {
 
   const handleRegister = async () => {
     try {
-      const response = await register({ loginId, password, name, nickname })
+      const response = await register({
+        loginId,
+        email,
+        password,
+        name,
+        nickname,
+      })
       if (response.data === 'ok') {
         navigate('/login') // 회원가입 성공 시 로그인 페이지로 리디렉션
       } else {
@@ -31,7 +38,6 @@ const RegisterPage: React.FC = () => {
   }
 
   const goToLogin = () => {
-    // 로그인 페이지로 이동하는 함수
     navigate('/login')
   }
 
@@ -40,8 +46,8 @@ const RegisterPage: React.FC = () => {
       <div className="card w-96 shadow-xl p-5">
         <h2 className="text-lg font-bold mb-4">회원가입</h2>
         <TextInput
-          type="email"
-          placeholder="이메일"
+          type="text"
+          placeholder="이메일 아이디"
           onChange={(e) => setLoginId(e.target.value)}
           value={loginId}
           className="mb-4"
@@ -51,6 +57,13 @@ const RegisterPage: React.FC = () => {
           placeholder="비밀번호"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
+          className="mb-4"
+        />
+        <TextInput
+          type="email"
+          placeholder="이메일"
+          onChange={(e) => setEmail(e.target.value)}
+          value={email}
           className="mb-4"
         />
         <TextInput

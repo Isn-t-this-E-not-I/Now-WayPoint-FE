@@ -39,11 +39,8 @@ const MainPage: React.FC = () => {
           const latitude = position.coords.latitude
           const longitude = position.coords.longitude
 
-          console.log(latitude, longitude)
-
           try {
-            // const mapData =
-            await getKakaoApiData(`${latitude},${longitude}`)
+            const mapData = await getKakaoApiData(`${latitude},${longitude}`)
             // const coordinates = await extractCoordinates(mapData)
 
             initializeMap(latitude, longitude)
@@ -62,7 +59,7 @@ const MainPage: React.FC = () => {
 
   return (
     <div>
-      <div ref={mapContainer} style={{ width: '100%', height: '400px' }} />
+      <div ref={mapContainer} style={{ width: '100%', height: '100vh' }} />
     </div>
   )
 }

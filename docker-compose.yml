@@ -1,13 +1,11 @@
 version: "3.8"
 services:
   now-waypoint-mysql:
-    build: ./now-waypoint-mysql
-    image: immyeong/now-waypoint-mysql:2f0840bcec757a681ace533d779c6348d527fa69
+    image: immyeong/now-waypoint-mysql:4e73679bf3734836ac85208de79d27f4e4a5f8ea
     ports:
       - "3306:3306"
     volumes:
       - mydata:/var/lib/mysql
-      - ./now-waypoint-mysql/init:/docker-entrypoint-initdb.d
     deploy:
       resources:
         limits:
@@ -24,11 +22,10 @@ services:
         limits:
           cpus: "0.5"
           memory: 256M
-    restart: always 
+    restart: always
 
   now-waypoint-core:
-    build: ./now-waypoint-core
-    image: immyeong/now-waypoint-core:7b6d31038d2cb14736887eee6edca6571b520210
+    image: immyeong/now-waypoint-core:5a92df0c4e34c407b2a66f65d07ae8f2333c9111
     ports:
       - "8080:8080"
     environment:
