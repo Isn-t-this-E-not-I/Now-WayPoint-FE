@@ -288,9 +288,9 @@ const makeContent = () => {
             /> */}
 
             <div id="upload_button_list">
-              <button id="upload_btn_1" className="upload_btn">
+              {/* <button id="upload_btn_1" className="upload_btn">
                 임시 저장
-              </button>
+              </button> */}
               <button id="upload_btn_2" className="upload_btn">
                 게시 하기
               </button>
