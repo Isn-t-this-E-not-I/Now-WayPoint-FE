@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { findPassword, sendVerificationCode, resetPassword } from '../api/userApi';
-import TextInput from '../components/TextInput/TextInput';
+import TextInput from '../components/TextInput/textInput';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 

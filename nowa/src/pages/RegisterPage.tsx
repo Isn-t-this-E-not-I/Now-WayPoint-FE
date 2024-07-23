@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TextInput from '../components/TextInput/TextInput';
+import TextInput from '../components/TextInput/textInput';
 import { register, sendVerificationCode } from '../api/userApi';
 // import { RegistrationErrorResponse } from '../api/userApi';
 

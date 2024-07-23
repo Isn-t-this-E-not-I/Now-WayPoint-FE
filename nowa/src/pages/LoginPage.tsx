@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import { login, loginWithKakao } from '../api/userApi';
-import TextInput from '../components/TextInput/TextInput';
+import TextInput from '../components/TextInput/textInput';
 import { useNavigate } from 'react-router-dom';
 
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { findId, sendVerificationCode, verifyUserCode } from '../api/userApi';
-import TextInput from '../components/TextInput/TextInput';
+import TextInput from '../components/TextInput/textInput';
 import { useNavigate } from 'react-router-dom';
 
 const FindIdPage = () => {
