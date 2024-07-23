@@ -1,6 +1,6 @@
 import { Client, IMessage } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { ChatRoom } from '../types/index'
+import { ChatRoom } from '../types'
 
 const SOCKET_URL = 'http://localhost:8080/ws' // 웹소켓 서버 URL
 

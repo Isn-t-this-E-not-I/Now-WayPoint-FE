@@ -33,7 +33,7 @@ const ChatApp: React.FC = () => {
 
   useEffect(() => {
     const loadChatRooms = async () => {
-      const fetchedChatRooms = await fetchChatRooms()
+      const fetchedChatRooms = await fetchChatRooms(token)
       const chatRoomsWithMessages = fetchedChatRooms.map((room: ChatRoom) => ({
         ...room,
         messages: [],
@@ -45,7 +45,7 @@ const ChatApp: React.FC = () => {
     }
 
     loadChatRooms()
-  }, [])
+  }, [token])
 
   useEffect(() => {
     if (token) {

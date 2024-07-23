@@ -26,7 +26,8 @@
     "styled-components": "^6.1.11",
     "theme-change": "^2.5.0",
     "v6": "^0.0.0",
-    "vite-tsconfig-paths": "^4.3.2"
+    "vite-tsconfig-paths": "^4.3.2",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

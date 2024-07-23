@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import {
   ChatIcon,
@@ -17,6 +17,12 @@ import NotificationPage from '../../pages/notificationPage'
 import ChatListPage from '../../pages/Chat/chatListPage'
 import CreateChatButton from '../CreateChatButton/createChatButton'
 import { ChatRoom } from '../../types'
+import {
+  connect,
+  disconnect,
+  getChatRoomUpdate,
+} from '../../websocket/chatWebSocket'
+import { fetchChatRooms } from '../../api/chatApi'
 
 interface SidebarProps {
   chatRooms: ChatRoom[]
@@ -123,6 +129,42 @@ const Sidebar: React.FC<SidebarProps> = ({
   token,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
+
+  useEffect(() => {
+    if (token) {
+      connect(
+        token,
+        (message) => {
+          const parsedMessage = JSON.parse(message.body)
+          switch (parsedMessage.messageType) {
+            case 'CREATE':
+              fetchChatRooms(token).then((data) => setChatRooms(data.chatRooms))
+              break
+            case 'CHAT':
+              getChatRoomUpdate(token, parsedMessage.chatRoomId).then(
+                (data) => {
+                  setChatRooms((prevRooms) =>
+                    prevRooms.map((room) =>
+                      room.id === parsedMessage.chatRoomId ? data : room
+                    )
+                  )
+                }
+              )
+              break
+            default:
+              break
+          }
+        },
+        () => {
+          console.log('WebSocket connected')
+        }
+      )
+    }
+
+    return () => {
+      disconnect()
+    }
+  }, [token, setChatRooms])
 
   const renderContentPage = () => {
     switch (activePage) {

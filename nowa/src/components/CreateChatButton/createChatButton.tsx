@@ -52,13 +52,13 @@ const Input = styled.input`
   margin-top: 10px;
 `
 
-const SubmitButton = styled.button<{ themeMode: string }>`
+const SubmitButton = styled.button<{ $themeMode: string }>`
   padding: 8px;
   border-radius: 4px;
   cursor: pointer;
-  color: ${(props) => (props.themeMode === 'dark' ? '#f7f7f7' : '#2d2e2f')};
+  color: ${(props) => (props.$themeMode === 'dark' ? '#f7f7f7' : '#2d2e2f')};
   background-color: ${(props) =>
-    props.themeMode === 'dark' ? '#444' : '#fff'};
+    props.$themeMode === 'dark' ? '#444' : '#fff'};
 
   &:hover {
     color: #2d2e2f;
@@ -106,7 +106,7 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
       messages: [],
     }
     onCreateChat(newChatRoom)
-    setSelectedMembers('') // Clear input after confirm
+    setSelectedMembers('') // 입력 후 초기화
     close()
   }
 
@@ -125,9 +125,9 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
                 type="text"
                 value={selectedMembers}
                 onChange={(e) => setSelectedMembers(e.target.value)}
-                placeholder="닉네임(들)"
+                placeholder="초대할 유저 닉네임"
               />
-              <SubmitButton type="submit" themeMode={theme}>
+              <SubmitButton type="submit" $themeMode={theme}>
                 생성
               </SubmitButton>
             </Form>
