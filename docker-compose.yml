@@ -22,7 +22,7 @@ services:
         limits:
           cpus: "0.5"
           memory: 256M
-    restart: always 
+    restart: always
 
   now-waypoint-core:
     image: immyeong/now-waypoint-core:5a92df0c4e34c407b2a66f65d07ae8f2333c9111

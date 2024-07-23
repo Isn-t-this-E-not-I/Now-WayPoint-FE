@@ -1,13 +1,11 @@
-import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import Main from '@/pages/index';
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import FindIdPage from '@/pages/FindIdPage'; 
-import FindPasswordPage from '@/pages/FindPasswordPage';
+import React from 'react'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import Main from '@/pages/Main/main'
+import LoginPage from '@/pages/LoginPage'
+import RegisterPage from '@/pages/RegisterPage'
+import FindIdPage from '@/pages/FindIdPage'
+import FindPasswordPage from '@/pages/FindPasswordPage'
 // import ResetPasswordPage from '@/pages/ResetPasswordPage';
-
-
 
 const Routers: React.FC = () => {
   return (
@@ -15,7 +13,7 @@ const Routers: React.FC = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Main />} />
-          <Route path="/main" element={<Main />} /> 
+          <Route path="/main" element={<Main />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/find-id" element={<FindIdPage />} />
@@ -33,7 +31,7 @@ const Routers: React.FC = () => {
         </Routes>
       </BrowserRouter>
     </>
-  );
+  )
 }
 
-export default Routers;
+export default Routers
