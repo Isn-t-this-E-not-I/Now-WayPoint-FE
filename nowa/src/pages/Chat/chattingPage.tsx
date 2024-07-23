@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Modal from '../../components/Modal/modal'
 import ChatBubble from '../../components/ChatBubble/chatBubble'
-import ReusableModalContent from '../../components/ReusableModalContent/reusableModalContent'
 import useModal from '@/hooks/modal'
 import {
   enterChatRoom,
