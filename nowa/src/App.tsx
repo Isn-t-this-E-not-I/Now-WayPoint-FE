@@ -15,7 +15,7 @@ import Custom_Theme from '@/hooks/defaultTheme'
 const App: React.FC = () => {
   return (
     <>
-      {/* <Custom_Theme /> */}
+      <Custom_Theme />
       <Routers />
     </>
   )
