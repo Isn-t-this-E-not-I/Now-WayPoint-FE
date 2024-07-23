@@ -25,21 +25,6 @@ const ChatContent = styled.div`
   flex-direction: column;
   flex: 1;
 `
-
-const ExitButton = styled.button`
-  background-color: red;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 5px;
-  cursor: pointer;
-  margin-left: 10px;
-
-  &:hover {
-    background-color: darkred;
-  }
-`
-
 interface ChatRoom {
   id: number
   profilePic: string
@@ -65,7 +50,6 @@ interface ChatListPageProps {
 const ChatListPage: React.FC<ChatListPageProps> = ({
   chatRooms,
   onChatItemClick,
-  onExitChatRoom,
 }) => {
   const hardcodedChatRoom: ChatRoom = {
     id: 1,
