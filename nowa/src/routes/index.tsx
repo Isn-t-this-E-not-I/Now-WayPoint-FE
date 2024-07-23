@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Main from '@/pages/index'
-import DetailContent from '@/pages/DetailContent/DetailContent'
+import DetailContent from '@/pages/DetailContent/detailContent'
 
 const Routers: React.FC = () => {
   return (

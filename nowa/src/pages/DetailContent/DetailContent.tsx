@@ -1,20 +1,49 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
+import { getPostById, Post } from '@/services/detailContent'
 
-const DetailContent = () => {
+interface DetailContentProps {
+  postId: number
+}
+
+const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
+  const [post, setPost] = useState<Post | null>(null)
+
+  useEffect(() => {
+    const fetchPost = async () => {
+      try {
+        const postData = await getPostById(7)
+        setPost(postData)
+      } catch (error) {
+        console.error('Failed to fetch post data:', error)
+      }
+    }
+
+    fetchPost()
+  }, [postId])
+
+  if (!post) {
+    return <div>게시글 출력 중</div>
+  }
+
   const con_Text = '='
   const con_drop = ['게시글 수정', '게시글 삭제']
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString)
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1 // getMonth()는 0부터 시작하므로 +1 필요
+    const day = date.getDate()
+    return `${year}.${month}.${day}`
+  }
 
   return (
     <div>
       <div className="detail_container">
         <div id="detail_picture">
           <div id="detail_picture_item1">
-            <img
-              alt="이미지"
-              src="https://cdn.inflearn.com/public/files/pages/68eaac51-7fde-40f9-99be-0011c00c042c/%EB%B0%B0%EA%B2%BD%ED%99%94%EB%A9%B4-long_1920x1280.png"
-            />
+            <img alt="이미지" src={post.mediaUrl} />
           </div>
         </div>
 
@@ -24,24 +53,26 @@ const DetailContent = () => {
               <div id="test_profile_img"></div>
 
               <div id="detail_profile_id">
-                <p>test_Id_123</p>
+                <p>{post.username}</p>
 
                 <div id="detail_profile_address">
                   <img
                     src="https://cdn-icons-png.flaticon.com/128/8211/8211159.png"
                     alt="마커이미지"
-                  ></img>
-                  <span>서울시 서북구 동남쪽 백길따라 이백리</span>
+                  />
+                  <span>{post.locationTag}</span>
                 </div>
               </div>
-
-              {/* <img alt="프로필 이미지" src="" /> */}
             </div>
           </div>
 
           <div id="detail_user_content">
-            <div id="detail_user_write_content">내용</div>
-            <div id="hashtag">#태그</div>
+            <div id="detail_user_write_content">{post.content}</div>
+            <div id="hashtag">
+              {post.hashtags.map((tag, index) => (
+                <span key={index}>#{tag} </span>
+              ))}
+            </div>
           </div>
 
           <div id="detail_content_coment">
@@ -62,8 +93,8 @@ const DetailContent = () => {
           </div>
 
           <div id="detail_content_heart">
-            <div id="detail_heart_count">♥</div>
-            <div id="detail_heart_write_date">3일전</div>
+            <div id="detail_heart_count">♥ {post.likeCount}</div>
+            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
           </div>
 
           <form id="detail_coment_write">
