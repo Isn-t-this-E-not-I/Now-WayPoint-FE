@@ -1,8 +1,3 @@
-import {
-  AddMemberIcon as OriginalAddMemberIcon,
-  EditChatNameIcon as OriginalEditChatNameIcon,
-  ExitIcon as OriginalExitIcon,
-} from '@/components/icons/icons'
 import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import Modal from '../../components/Modal/modal'
@@ -17,6 +12,12 @@ import {
   leaveChatRoom,
   fetchChatMessages,
 } from '../../websocket/chatWebSocket'
+import { ChatRoom } from '../../types'
+import {
+  AddMemberIcon as OriginalAddMemberIcon,
+  EditChatNameIcon as OriginalEditChatNameIcon,
+  ExitIcon as OriginalExitIcon,
+} from '@/components/icons/icons'
 
 const Wrapper = styled.div`
   display: flex;
@@ -173,13 +174,7 @@ const SendButton = styled.button`
 `
 
 interface ChattingPageProps {
-  chatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-    memberCount: number
-  }
+  chatRoom: ChatRoom
   token: string
 }
 
@@ -193,18 +188,9 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [currentChatName, setCurrentChatName] = useState(chatRoom.name)
   const [newChatName, setNewChatName] = useState(chatRoom.name)
-  const [newMemberEmail, setNewMemberEmail] = useState('')
+  const [newMemberNickName, setNewMemberNickName] = useState('')
   const [theme, setTheme] = useState('light')
-  const [messages, setMessages] = useState<
-    {
-      avatarSrc: string
-      header: string
-      time: string
-      message: string
-      footer: string
-      alignment: 'start' | 'end'
-    }[]
-  >([])
+  const [messages, setMessages] = useState(chatRoom.messages)
   const [newMessage, setNewMessage] = useState('')
 
   useEffect(() => {
@@ -217,6 +203,7 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
   useEffect(() => {
     setCurrentChatName(chatRoom.name)
     setNewChatName(chatRoom.name)
+    loadChatMessages(chatRoom.id)
   }, [chatRoom])
 
   useEffect(() => {
@@ -236,8 +223,10 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
     setNewChatName(e.target.value)
   }
 
-  const handleMemberEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewMemberEmail(e.target.value)
+  const handleMemberNickNameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setNewMemberNickName(e.target.value)
   }
 
   const handleNewMessageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -266,9 +255,12 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
     closeEditModal()
   }
 
-  const handleAddMember = (selectedMembers: string[]) => {
-    inviteToChatRoom(token, chatRoom.id, selectedMembers)
-    closeAddMemberModal()
+  const handleAddMember = () => {
+    if (newMemberNickName.trim()) {
+      inviteToChatRoom(token, chatRoom.id, [newMemberNickName])
+      setNewMemberNickName('')
+      closeAddMemberModal()
+    }
   }
 
   const handleExitChatRoom = () => {
@@ -277,6 +269,26 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
   }
 
   const closeButtonColor = theme === 'dark' ? '#f7f7f7' : '#2d2e2f'
+
+  const loadChatMessages = async (chatRoomId: number) => {
+    try {
+      const fetchedMessages = (await fetchChatMessages(
+        token,
+        chatRoomId,
+        50
+      )) as unknown as {
+        avatarSrc: string
+        header: string
+        time: string
+        message: string
+        footer: string
+        alignment: 'start' | 'end'
+      }[]
+      setMessages(fetchedMessages)
+    } catch (error) {
+      console.error('Failed to load chat messages', error)
+    }
+  }
 
   return (
     <>
@@ -362,11 +374,34 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoom, token }) => {
             onClose={closeAddMemberModal}
             showCloseButton={false}
           >
-            <ReusableModalContent
-              close={closeAddMemberModal}
-              title="멤버 초대"
-              onConfirm={handleAddMember}
-            />
+            <div>
+              <CloseButton
+                onClick={closeAddMemberModal}
+                color={closeButtonColor}
+              >
+                &times;
+              </CloseButton>
+              <h3 className="font-bold text-lg">멤버 초대</h3>
+              <Form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleAddMember()
+                }}
+              >
+                <Input
+                  type="text"
+                  value={newMemberNickName}
+                  onChange={handleMemberNickNameChange}
+                  placeholder="닉네임 입력"
+                />
+                <Button
+                  type="submit"
+                  themeMode={theme === 'dark' ? 'dark' : 'light'}
+                >
+                  초대
+                </Button>
+              </Form>
+            </div>
           </Modal>
         )}
 

@@ -23,23 +23,42 @@ const ChatProfilePic = styled.img`
 const ChatContent = styled.div`
   display: flex;
   flex-direction: column;
+  flex: 1;
 `
 
-interface ChatListPageProps {
-  chatRooms: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-    memberCount: number
+const ExitButton = styled.button`
+  background-color: red;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px;
+  cursor: pointer;
+  margin-left: 10px;
+
+  &:hover {
+    background-color: darkred;
+  }
+`
+
+interface ChatRoom {
+  id: number
+  profilePic: string
+  name: string
+  lastMessage: string
+  memberCount: number
+  messages: {
+    avatarSrc: string
+    header: string
+    time: string
+    message: string
+    footer: string
+    alignment: 'start' | 'end'
   }[]
-  onChatItemClick: (chatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-    memberCount: number
-  }) => void
+}
+
+interface ChatListPageProps {
+  chatRooms: ChatRoom[]
+  onChatItemClick: (chatRoom: ChatRoom) => void
   onExitChatRoom: (id: number) => void
 }
 
@@ -48,15 +67,50 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
   onChatItemClick,
   onExitChatRoom,
 }) => {
+  const hardcodedChatRoom: ChatRoom = {
+    id: 1,
+    profilePic: 'https://via.placeholder.com/40',
+    name: 'Hardcoded Chat Room',
+    lastMessage: 'This is a hardcoded message',
+    memberCount: 2,
+    messages: [
+      {
+        avatarSrc: 'https://via.placeholder.com/40',
+        header: 'User1',
+        time: '10:00 AM',
+        message: 'Hello!',
+        footer: 'Seen',
+        alignment: 'start',
+      },
+      {
+        avatarSrc: 'https://via.placeholder.com/40',
+        header: 'User2',
+        time: '10:01 AM',
+        message: 'Hi there!',
+        footer: 'Seen',
+        alignment: 'end',
+      },
+    ],
+  }
+
+  const allChatRooms = [hardcodedChatRoom, ...chatRooms]
+
   return (
     <ChatListWrapper>
-      {chatRooms.map((chat) => (
-        <ChatItem key={chat.id} onClick={() => onChatItemClick(chat)}>
-          <ChatProfilePic src={chat.profilePic} alt="Profile" />
-          <ChatContent>
-            <span>{chat.name} ({chat.memberCount})</span>
-            <span>{chat.lastMessage}</span>
-          </ChatContent>
+      {allChatRooms.map((chat) => (
+        <ChatItem key={chat.id}>
+          <div
+            onClick={() => onChatItemClick(chat)}
+            style={{ display: 'flex', flex: 1 }}
+          >
+            <ChatProfilePic src={chat.profilePic} alt="Profile" />
+            <ChatContent>
+              <span>
+                {chat.name} ({chat.memberCount})
+              </span>
+              <span>{chat.lastMessage}</span>
+            </ChatContent>
+          </div>
         </ChatItem>
       ))}
     </ChatListWrapper>

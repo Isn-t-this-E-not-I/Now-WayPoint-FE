@@ -1,5 +1,6 @@
 import { Client, IMessage } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
+import { ChatRoom } from '../types/index'
 
 const SOCKET_URL = 'http://localhost:8080/ws' // 웹소켓 서버 URL
 
@@ -29,7 +30,7 @@ export const connect = (
   stompClient.activate()
 
   if (stompClient) {
-    stompClient.subscribe('/topic/messages', onMessageReceived, {
+    stompClient.subscribe('/queue/chatroom/' + token, onMessageReceived, {
       Authorization: `Bearer ${token}`,
     })
   }
@@ -73,6 +74,18 @@ export const createChatRoom = (token: string, nicknames: string[]) => {
   if (stompClient && stompClient.connected) {
     stompClient.publish({
       destination: `/app/chatRoom/create`,
+      body: JSON.stringify({ nicknames }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+}
+
+export const createDuplicateChatRoom = (token: string, nicknames: string[]) => {
+  if (stompClient && stompClient.connected) {
+    stompClient.publish({
+      destination: `/app/chatRoom/createDuplicate`,
       body: JSON.stringify({ nicknames }),
       headers: {
         Authorization: `Bearer ${token}`,
@@ -138,4 +151,43 @@ export const fetchChatMessages = (
       },
     })
   }
+}
+
+export const getMessagesBefore = (
+  token: string,
+  chatRoomId: number,
+  timestamp: string
+) => {
+  if (stompClient && stompClient.connected) {
+    stompClient.publish({
+      destination: `/app/chat/messages/before`,
+      body: JSON.stringify({ chatRoomId, timestamp }),
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  }
+}
+
+export const getChatRoomUpdate = (
+  token: string,
+  chatRoomId: number
+): Promise<ChatRoom> => {
+  return new Promise((resolve, reject) => {
+    if (stompClient && stompClient.connected) {
+      const onMessageReceived = (message: IMessage) => {
+        resolve(JSON.parse(message.body))
+      }
+
+      stompClient.subscribe(
+        `/queue/chatroom/${chatRoomId}/update`,
+        onMessageReceived,
+        {
+          Authorization: `Bearer ${token}`,
+        }
+      )
+    } else {
+      reject('WebSocket is not connected')
+    }
+  })
 }

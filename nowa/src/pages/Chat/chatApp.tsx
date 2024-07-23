@@ -9,11 +9,10 @@ import {
   leaveChatRoom as websocketLeaveChatRoom,
 } from '../../websocket/chatWebSocket'
 import { ChatRoom } from '../../types'
+import Sidebar from '../../components/Sidebar/sidebar'
 
 const AppWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
   width: 100%;
   height: 100vh;
   background-color: #f7f7f7;
@@ -25,6 +24,12 @@ const ChatApp: React.FC = () => {
     null
   )
   const [token, setToken] = useState('')
+
+  useEffect(() => {
+    // Simulate fetching a token (replace with real authentication logic)
+    const fakeToken = 'fake-token'
+    setToken(fakeToken)
+  }, [])
 
   useEffect(() => {
     const loadChatRooms = async () => {
@@ -43,36 +48,38 @@ const ChatApp: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    connect(
-      token,
-      (message) => {
-        console.log('Received message: ', message.body)
-        const parsedMessage = JSON.parse(message.body)
-        if (parsedMessage.type === 'CHAT') {
-          // 메시지 처리 로직
-          setChatRooms((prevChatRooms) =>
-            prevChatRooms.map((room) => {
-              if (room.id === parsedMessage.chatRoomId) {
-                const updatedRoom = {
-                  ...room,
-                  lastMessage: parsedMessage.content,
-                  messages: [...room.messages, parsedMessage],
+    if (token) {
+      connect(
+        token,
+        (message) => {
+          console.log('Received message: ', message.body)
+          const parsedMessage = JSON.parse(message.body)
+          if (parsedMessage.type === 'CHAT') {
+            // 메시지 처리 로직
+            setChatRooms((prevChatRooms) =>
+              prevChatRooms.map((room) => {
+                if (room.id === parsedMessage.chatRoomId) {
+                  const updatedRoom = {
+                    ...room,
+                    lastMessage: parsedMessage.content,
+                    messages: [...room.messages, parsedMessage],
+                  }
+                  // 현재 선택된 채팅방의 메시지를 업데이트
+                  if (selectedChatRoom && selectedChatRoom.id === room.id) {
+                    setSelectedChatRoom(updatedRoom)
+                  }
+                  return updatedRoom
                 }
-                // 현재 선택된 채팅방의 메시지를 업데이트
-                if (selectedChatRoom && selectedChatRoom.id === room.id) {
-                  setSelectedChatRoom(updatedRoom)
-                }
-                return updatedRoom
-              }
-              return room
-            })
-          )
+                return room
+              })
+            )
+          }
+        },
+        () => {
+          console.log('WebSocket connected')
         }
-      },
-      () => {
-        console.log('WebSocket connected')
-      }
-    )
+      )
+    }
 
     return () => {
       disconnect()
@@ -102,14 +109,27 @@ const ChatApp: React.FC = () => {
 
   return (
     <AppWrapper>
-      <ChatListPage
+      <Sidebar
+        theme={'light'}
+        setSelectedPage={() => {}}
         chatRooms={chatRooms}
         onChatItemClick={handleChatItemClick}
         onExitChatRoom={handleExitChatRoom}
+        setChatRooms={setChatRooms}
+        onCreateChat={handleCreateChat}
+        token={token}
       />
-      {selectedChatRoom && (
-        <ChattingPage chatRoom={selectedChatRoom} token={token} />
-      )}
+      <div style={{ flex: 1 }}>
+        {selectedChatRoom ? (
+          <ChattingPage chatRoom={selectedChatRoom} token={token} />
+        ) : (
+          <ChatListPage
+            chatRooms={chatRooms}
+            onChatItemClick={handleChatItemClick}
+            onExitChatRoom={handleExitChatRoom}
+          />
+        )}
+      </div>
     </AppWrapper>
   )
 }

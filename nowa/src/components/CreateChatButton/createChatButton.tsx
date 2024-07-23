@@ -49,6 +49,7 @@ const Input = styled.input`
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  margin-top: 10px;
 `
 
 const SubmitButton = styled.button<{ themeMode: string }>`
@@ -67,8 +68,8 @@ const SubmitButton = styled.button<{ themeMode: string }>`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: -15px;
+  right: -5px;
   background: none;
   border: none;
   font-size: 18px;

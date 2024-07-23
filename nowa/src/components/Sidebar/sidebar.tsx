@@ -204,7 +204,10 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <CreateChatButton
                   theme={theme}
                   token={token}
-                  onCreateChat={onCreateChat}
+                  onCreateChat={(newChatRoom) => {
+                    onCreateChat(newChatRoom)
+                    setChatRooms((prevRooms) => [...prevRooms, newChatRoom])
+                  }}
                 />
               </>
             )}
