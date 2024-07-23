@@ -40,8 +40,8 @@ const MainPage: React.FC = () => {
           const longitude = position.coords.longitude
 
           try {
-            const mapData = await getKakaoApiData(`${latitude},${longitude}`)
-            // const coordinates = await extractCoordinates(mapData)
+            // const mapData =
+            await getKakaoApiData(`${latitude},${longitude}`)
 
             initializeMap(latitude, longitude)
           } catch (error) {
