@@ -1,16 +1,20 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
 import '@/styles/tailwind.css'
 import Custom_Theme from '@/hooks/defaultTheme'
 import Sidebar from './components/Sidebar/sidebar.tsx'
 import MainPage from '@/pages/Main/main.tsx'
-import CreatePage from '../src/pages'
-import MyPage from '../src/pages'
-import ChatApp from './pages/Chat/chatApp.tsx'
-import LoginPage from './pages/LoginPage.tsx'
+import CreatePage from '@/pages/createPage.tsx'
+import MyPage from '@/pages/myPage.tsx'
+import ChatApp from '@/pages/Chat/chatApp.tsx'
 
 const App: React.FC = () => {
+  const location = useLocation()
+  const noSidebarPaths = ['/login', '/register', '/find-id', '/find-password'] // Sidebar가 보이지 않아야 하는 경로
+
+  const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
   const [selectedPage, setSelectedPage] = useState<string>('main')
 
   const renderContent = () => {
@@ -30,27 +34,36 @@ const App: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      <Sidebar
-        theme={'light'}
-        setSelectedPage={setSelectedPage}
-        chatRooms={[]}
-        onChatItemClick={() => {}}
-        onExitChatRoom={() => {}}
-        setChatRooms={() => {}}
-        onCreateChat={() => {}}
-        token={''}
-      />
-      <div style={{ flex: 1 }}>{renderContent()}</div>
+      {!isNoSidebarPage && (
+        <Sidebar
+          theme={'light'}
+          setSelectedPage={setSelectedPage}
+          chatRooms={[]}
+          onChatItemClick={() => {}}
+          onExitChatRoom={() => {}}
+          setChatRooms={() => {}}
+          onCreateChat={() => {}}
+          token={''}
+        />
+      )}
+      <div style={{ flex: 1 }}>
+        {isNoSidebarPage ? <Routers /> : renderContent()}
+      </div>
       <Custom_Theme />
-      <Routers />
     </div>
   )
 }
 
+const AppWrapper: React.FC = () => (
+  <BrowserRouter>
+    <App />
+  </BrowserRouter>
+)
+
 const rootElement = document.getElementById('root')
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement)
-  root.render(<App />)
+  root.render(<AppWrapper />)
 }
 
 export default App
