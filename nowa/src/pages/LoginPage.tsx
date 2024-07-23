@@ -16,18 +16,32 @@ const LoginPage: React.FC = () => {
   const handleLogin = async () => {
     try {
       const data = await login({ loginId, password });
+      // console.log('API 응답 전체:', data);
       console.log('로그인 성공:', data.token);
+      navigate('/main', { replace: true }); // *
+      connectWebSocket(); // *
       localStorage.setItem('token', data.token);
-      navigate('/main', { replace: true, state: { token: data.token } });
+      // navigate('/main', { replace: true, state: { token: data.token } });
     } catch (error) {
       console.error('로그인 실패:', error);
       setError('로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인하세요.');
     }
   };
 
+  const connectWebSocket = () => {  // *
+    const sock = new SockJS('http://15.165.236.244:8080/main'); // http가 맞음
+    const stompClient = Stomp.over(sock);
+    stompClient.connect({}, function(str) {
+      console.log('Connected: ' + str);
+      stompClient.subscribe('/topic/messages', function(messageOutput) {
+        console.log(messageOutput.body);
+      });
+    });
+  };
+
+
   const handleKakaoLogin = async () => {
     try {
-      // const data = await loginWithKakao();
       window.location.href = 'http://15.165.236.244:8080/api/user/login/kakao';
     } catch (error) {
       console.error('Kakao login failed:', error);
@@ -38,7 +52,7 @@ const LoginPage: React.FC = () => {
   const goToRegister = () => navigate('/register');
   const goToFindId = () => navigate('/find-id');
   const goToFindPassword = () => navigate('/find-password');
-  // const goToResetPassword = () => navigate('/reset-password');
+  // const goToResetPassword = () => navigate('/reset-password'); // 폐기
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
