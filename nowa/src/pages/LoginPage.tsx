@@ -17,6 +17,7 @@ const LoginPage: React.FC = () => {
     try {
       const data = await login({ loginId, password });
       console.log('로그인 성공:', data.token);
+      localStorage.setItem('token', data.token);
       navigate('/main', { replace: true, state: { token: data.token } });
     } catch (error) {
       console.error('로그인 실패:', error);
