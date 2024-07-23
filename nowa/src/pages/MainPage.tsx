@@ -6,7 +6,8 @@ import { Client } from '@stomp/stompjs';
 const MainPage: React.FC = () => {
   const location = useLocation();
   // const token = location.state?.token; // state에서 token을 가져옴
-  const token = localStorage.getItem('token'); 
+  const token = localStorage.getItem('token');
+  const nickname = localStorage.getItem('nickname'); 
 
   useEffect(() => {
     if (!token) {
@@ -24,9 +25,15 @@ const MainPage: React.FC = () => {
       },
       onConnect: () => {
         console.log('Websocket connected!');
-        stompClient.subscribe('/topic/messages', (message) => {
-          console.log('Received:', message.body);
+        stompClient.subscribe('/queue/notify/'+nickname, function(messageOutput) {
+          console.log(messageOutput.body);
         });
+        stompClient.subscribe('/topic/follower/'+nickname, function(messageOutput) {
+          console.log(messageOutput.body);
+        });
+        // stompClient.subscribe('/topic/messages', (message) => {
+        //   console.log('Received:', message.body);
+        // });
       },
       onStompError: (frame) => {
         console.error('Broker reported error: ' + frame.headers['message']);

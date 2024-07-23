@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 const LoginPage: React.FC = () => {
   const [loginId, setLoginId] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [nickname, setNickname] = useState('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
@@ -19,8 +20,9 @@ const LoginPage: React.FC = () => {
       // console.log('API 응답 전체:', data);
       console.log('로그인 성공:', data.token);
       navigate('/main', { replace: true }); // *
-      connectWebSocket(); // *
       localStorage.setItem('token', data.token);
+      localStorage.setItem('nickname', data.nickname);
+      setNickname(data.nickname);
       // navigate('/main', { replace: true, state: { token: data.token } });
     } catch (error) {
       console.error('로그인 실패:', error);
@@ -33,7 +35,10 @@ const LoginPage: React.FC = () => {
     const stompClient = Stomp.over(sock);
     stompClient.connect({}, function(str) {
       console.log('Connected: ' + str);
-      stompClient.subscribe('/topic/messages', function(messageOutput) {
+      stompClient.subscribe('/queue/notify/'+nickname, function(messageOutput) {
+        console.log(messageOutput.body);
+      });
+      stompClient.subscribe('/topic/follower/'+nickname, function(messageOutput) {
         console.log(messageOutput.body);
       });
     });
