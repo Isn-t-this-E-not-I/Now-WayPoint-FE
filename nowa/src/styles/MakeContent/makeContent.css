@@ -12,9 +12,19 @@
   width: 100%;
 }
 
+#upload_image hr {
+  width: 90%;
+  margin-left: 50px;
+}
+
+#upload_image p {
+  margin-left: 50px;
+}
+
 #content_title {
   font-size: 26px;
   font-weight: bold;
+  margin: 50px auto 15px 50px;
 }
 
 /* 업로드 내용 크기 조정 */
@@ -27,6 +37,7 @@
 #upload_content_right_logo {
   position: relative;
   height: 100px;
+  margin-top: 100px;
 }
 
 /* 업로드 버튼위 이미지 위치 조정 */
@@ -81,10 +92,16 @@
 }
 /* 게시글 설정 end */
 
+/* 업로드 dev */
+#upload_forder {
+  display: flex;
+}
+
 /* 업로드 이미지 버튼 */
 #upload_img {
-  width: 50px;
-  height: 50px;
+  width: 70px;
+  height: 70px;
+  margin: 15px auto 15px 50px;
 }
 
 #image_preview_container {
@@ -92,7 +109,16 @@
 }
 
 #image_preview {
-  margin-top: 20px;
-  width: 10%;
-  height: 10%;
+  margin: 15px auto 10px 15px;
+  width: 70px;
+  height: 70px;
+}
+
+#content_dev {
+  margin: 50px auto auto 50px;
+}
+
+#upload_content_dis {
+  width: 93.5%;
+  height: 60vh;
 }

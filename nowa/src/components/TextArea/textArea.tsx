@@ -1,14 +1,20 @@
 import React from 'react'
 
-const textArea = () => {
+interface TextareaProps {
+  id: string
+  text: string
+}
+
+const Textarea: React.FC<TextareaProps> = ({ id, text }) => {
   return (
     <div>
       <textarea
+        id={id}
         className="textarea textarea-bordered resize-none"
-        placeholder="Bio"
+        placeholder={text}
       />
     </div>
   )
 }
 
-export default textArea
+export default Textarea
