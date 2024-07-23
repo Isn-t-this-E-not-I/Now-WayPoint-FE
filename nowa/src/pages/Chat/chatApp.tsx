@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 import ChatListPage from './chatListPage'
 import ChattingPage from './chattingPage'
@@ -18,12 +18,24 @@ const AppWrapper = styled.div`
   background-color: #f7f7f7;
 `
 
+const WebSocketStatus = styled.div<{ connected: boolean }>`
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  padding: 10px;
+  background-color: ${(props) => (props.connected ? 'green' : 'red')};
+  color: white;
+  border-radius: 5px;
+`
+
 const ChatApp: React.FC = () => {
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([])
   const [selectedChatRoom, setSelectedChatRoom] = useState<ChatRoom | null>(
     null
   )
   const [token, setToken] = useState('')
+  const [isWebSocketConnected, setIsWebSocketConnected] = useState(false)
+  const subscriptionRef = useRef<any>(null)
 
   useEffect(() => {
     // Simulate fetching a token (replace with real authentication logic)
@@ -33,14 +45,18 @@ const ChatApp: React.FC = () => {
 
   useEffect(() => {
     const loadChatRooms = async () => {
-      const fetchedChatRooms = await fetchChatRooms(token)
-      const chatRoomsWithMessages = fetchedChatRooms.map((room: ChatRoom) => ({
-        ...room,
-        messages: [],
-      }))
-      setChatRooms(chatRoomsWithMessages)
-      if (chatRoomsWithMessages.length > 0) {
-        setSelectedChatRoom(chatRoomsWithMessages[0])
+      if (token) {
+        const fetchedChatRooms = await fetchChatRooms(token)
+        const chatRoomsWithMessages = fetchedChatRooms.map(
+          (room: ChatRoom) => ({
+            ...room,
+            messages: [],
+          })
+        )
+        setChatRooms(chatRoomsWithMessages)
+        if (chatRoomsWithMessages.length > 0) {
+          setSelectedChatRoom(chatRoomsWithMessages[0])
+        }
       }
     }
 
@@ -49,7 +65,7 @@ const ChatApp: React.FC = () => {
 
   useEffect(() => {
     if (token) {
-      connect(
+      const subscription = connect(
         token,
         (message) => {
           console.log('Received message: ', message.body)
@@ -77,11 +93,20 @@ const ChatApp: React.FC = () => {
         },
         () => {
           console.log('WebSocket connected')
+          setIsWebSocketConnected(true)
+        },
+        (error) => {
+          console.error('WebSocket error: ', error)
+          setIsWebSocketConnected(false)
         }
       )
+      subscriptionRef.current = subscription
     }
 
     return () => {
+      if (subscriptionRef.current) {
+        subscriptionRef.current.unsubscribe()
+      }
       disconnect()
     }
   }, [token, selectedChatRoom])
@@ -130,6 +155,11 @@ const ChatApp: React.FC = () => {
           />
         )}
       </div>
+      <WebSocketStatus connected={isWebSocketConnected}>
+        {isWebSocketConnected
+          ? 'WebSocket is connected'
+          : 'WebSocket is not connected'}
+      </WebSocketStatus>
     </AppWrapper>
   )
 }

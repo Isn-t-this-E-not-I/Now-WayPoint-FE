@@ -1,44 +1,65 @@
-import { Client, IMessage } from '@stomp/stompjs'
+import { Client, IMessage, StompSubscription } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { ChatRoom } from '../types'
 
 const SOCKET_URL = 'http://localhost:8080/ws' // 웹소켓 서버 URL
 
 let stompClient: Client | null = null
+let isConnected = false
 
 export const connect = (
   token: string,
   onMessageReceived: (message: IMessage) => void,
-  onConnected: () => void
-) => {
+  onConnected: () => void,
+  onError: (error: any) => void
+): StompSubscription | void => {
   const socket = new SockJS(SOCKET_URL)
   stompClient = new Client({
     webSocketFactory: () => socket,
     debug: (str) => {
       console.log(str)
     },
-    onConnect: onConnected,
+    onConnect: () => {
+      isConnected = true
+      onConnected()
+    },
     onStompError: (frame) => {
-      console.error(frame)
+      console.error('Broker reported error: ' + frame.headers['message'])
+      console.error('Additional details: ' + frame.body)
+      onError(frame)
     },
   })
 
   stompClient.onWebSocketClose = () => {
     console.log('WebSocket closed')
+    isConnected = false
+  }
+
+  stompClient.onWebSocketError = (error) => {
+    console.error('WebSocket error:', error)
+    isConnected = false
+    onError(error)
   }
 
   stompClient.activate()
 
   if (stompClient) {
-    stompClient.subscribe('/queue/chatroom/' + token, onMessageReceived, {
-      Authorization: `Bearer ${token}`,
-    })
+    return stompClient.subscribe(
+      '/queue/chatroom/' + token,
+      onMessageReceived,
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    )
+  } else {
+    throw new Error('StompClient is not initialized')
   }
 }
 
 export const disconnect = () => {
   if (stompClient) {
     stompClient.deactivate()
+    isConnected = false
   }
 }
 
@@ -47,7 +68,7 @@ export const sendMessage = (
   chatRoomId: number,
   message: string
 ) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chat/${chatRoomId}/sendMessage`,
       body: JSON.stringify({ message }),
@@ -55,6 +76,8 @@ export const sendMessage = (
         Authorization: `Bearer ${token}`,
       },
     })
+  } else {
+    console.error('StompClient is not connected')
   }
 }
 
@@ -62,16 +85,43 @@ export const enterChatRoom = (
   token: string,
   chatRoomId: number,
   onMessageReceived: (message: IMessage) => void
-) => {
-  if (stompClient && stompClient.connected) {
-    stompClient.subscribe(`/topic/chatroom/${chatRoomId}`, onMessageReceived, {
-      Authorization: `Bearer ${token}`,
-    })
+): StompSubscription | void => {
+  if (stompClient && isConnected) {
+    return stompClient.subscribe(
+      `/topic/chatroom/${chatRoomId}`,
+      onMessageReceived,
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    )
+  } else {
+    throw new Error('StompClient is not connected')
   }
 }
 
-export const createChatRoom = (token: string, nicknames: string[]) => {
-  if (stompClient && stompClient.connected) {
+export const createChatRoom = (
+  token: string,
+  nicknames: string[],
+  onSuccess: () => void,
+  onError: (error: any) => void
+) => {
+  if (stompClient && isConnected) {
+    const subscription = stompClient.subscribe(
+      `/user/queue/chatRoom/create`,
+      (message) => {
+        const response = JSON.parse(message.body)
+        if (response.success) {
+          onSuccess()
+        } else {
+          onError(response.error)
+        }
+        subscription.unsubscribe()
+      },
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    )
+
     stompClient.publish({
       destination: `/app/chatRoom/create`,
       body: JSON.stringify({ nicknames }),
@@ -79,11 +129,14 @@ export const createChatRoom = (token: string, nicknames: string[]) => {
         Authorization: `Bearer ${token}`,
       },
     })
+  } else {
+    console.error('StompClient is not connected')
+    onError('StompClient is not connected')
   }
 }
 
 export const createDuplicateChatRoom = (token: string, nicknames: string[]) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chatRoom/createDuplicate`,
       body: JSON.stringify({ nicknames }),
@@ -99,7 +152,7 @@ export const updateChatRoomName = (
   chatRoomId: number,
   newChatRoomName: string
 ) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chatRoom/${chatRoomId}/nameUpdate`,
       body: JSON.stringify({ newChatRoomName }),
@@ -115,7 +168,7 @@ export const inviteToChatRoom = (
   chatRoomId: number,
   nicknames: string[]
 ) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chatRoom/${chatRoomId}/invite`,
       body: JSON.stringify({ nicknames }),
@@ -127,7 +180,7 @@ export const inviteToChatRoom = (
 }
 
 export const leaveChatRoom = (token: string, chatRoomId: number) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chatRoom/${chatRoomId}/leave`,
       headers: {
@@ -142,7 +195,7 @@ export const fetchChatMessages = (
   chatRoomId: number,
   count: number
 ) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chatRoom/${chatRoomId}/messages`,
       body: JSON.stringify({ count }),
@@ -158,7 +211,7 @@ export const getMessagesBefore = (
   chatRoomId: number,
   timestamp: string
 ) => {
-  if (stompClient && stompClient.connected) {
+  if (stompClient && isConnected) {
     stompClient.publish({
       destination: `/app/chat/messages/before`,
       body: JSON.stringify({ chatRoomId, timestamp }),
@@ -174,18 +227,19 @@ export const getChatRoomUpdate = (
   chatRoomId: number
 ): Promise<ChatRoom> => {
   return new Promise((resolve, reject) => {
-    if (stompClient && stompClient.connected) {
+    if (stompClient && isConnected) {
       const onMessageReceived = (message: IMessage) => {
         resolve(JSON.parse(message.body))
       }
 
-      stompClient.subscribe(
+      const subscription = stompClient.subscribe(
         `/queue/chatroom/${chatRoomId}/update`,
         onMessageReceived,
         {
           Authorization: `Bearer ${token}`,
         }
       )
+      return subscription
     } else {
       reject('WebSocket is not connected')
     }

@@ -96,18 +96,28 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
   const handleCreateChat = (e: React.FormEvent) => {
     e.preventDefault()
     const members = selectedMembers.split(',').map((member) => member.trim())
-    websocketCreateChatRoom(token, members)
-    const newChatRoom = {
-      id: Date.now(),
-      profilePic: 'https://via.placeholder.com/40',
-      name: members.join(', '),
-      lastMessage: '새 채팅방이 생성되었습니다.',
-      memberCount: members.length,
-      messages: [],
-    }
-    onCreateChat(newChatRoom)
-    setSelectedMembers('') // 입력 후 초기화
-    close()
+
+    websocketCreateChatRoom(
+      token,
+      members,
+      () => {
+        const newChatRoom = {
+          id: Date.now(),
+          profilePic: 'https://via.placeholder.com/40',
+          name: members.join(', '),
+          lastMessage: '새 채팅방이 생성되었습니다.',
+          memberCount: members.length,
+          messages: [],
+        }
+        onCreateChat(newChatRoom)
+        setSelectedMembers('') // 입력 후 초기화
+        console.log('Chat room created successfully')
+        close() // 모달 닫기
+      },
+      (error) => {
+        console.error('Failed to create chat room:', error)
+      }
+    )
   }
 
   return (

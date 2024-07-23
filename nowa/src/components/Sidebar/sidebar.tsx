@@ -132,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   useEffect(() => {
     if (token) {
-      connect(
+      const subscription = connect(
         token,
         (message) => {
           const parsedMessage = JSON.parse(message.body)
@@ -157,12 +157,17 @@ const Sidebar: React.FC<SidebarProps> = ({
         },
         () => {
           console.log('WebSocket connected')
+        },
+        (error) => {
+          console.error('WebSocket error: ', error)
         }
       )
-    }
-
-    return () => {
-      disconnect()
+      return () => {
+        if (subscription) {
+          subscription.unsubscribe()
+        }
+        disconnect()
+      }
     }
   }, [token, setChatRooms])
 
