@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8080/api'
+const API_BASE_URL = 'http://15.165.236.244:8080/api'
 
 const getCookieValue = (name: string): string | null => {
   const value = `; ${document.cookie}`
@@ -28,22 +28,3 @@ export const getKakaoApiData = async (address: string): Promise<any> => {
     throw new Error('Failed to fetch map data')
   }
 }
-
-// export const extractCoordinates = async (payload: any): Promise<any> => {
-//   const token = getCookieValue('Authorization')
-//   if (!token) {
-//     throw new Error('Authorization token not found')
-//   }
-
-//   try {
-//     const response = await axios.post(`${API_BASE_URL}/maintest`, payload, {
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     })
-//     return response.data
-//   } catch (error) {
-//     console.error('Failed to extract coordinates:', error)
-//     throw new Error('Failed to extract coordinates')
-//   }
-// }
