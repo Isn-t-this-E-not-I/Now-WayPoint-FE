@@ -21,9 +21,9 @@ const RegisterPage: React.FC = () => {
     if (loginId && email && password && name && nickname) {
       try {
         const verificationResponse = await sendVerificationCode(
-          loginId,
           email,
-          '회원가입'
+          '회원가입',
+          loginId
         )
         if (verificationResponse.message) {
           setReceivedCode(verificationResponse.message)
@@ -51,7 +51,7 @@ const RegisterPage: React.FC = () => {
         password,
         name,
         nickname,
-        authNumber,
+        authNumber
       })
       if (response.data === 'ok') {
         navigate('/login')
