@@ -1,21 +1,20 @@
-import React from 'react'
-import styled from 'styled-components'
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+import StompJs, {Message as MessageType, Client} from '@stomp/stompjs';
 
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  background-color: #fff;
-`
 
 const MainPage: React.FC = () => {
-  return (
-    <Wrapper>
-      <h1>확인용 임시 Main Page</h1>
-    </Wrapper>
-  )
-}
+  const location = useLocation();
+  const token = location.state?.token;  // state에서 token을 가져옴
 
-export default MainPage
+  return (
+    <div>
+      <h1>Welcome to the Main Page</h1>
+      <p>Your token is: {token}</p>  // 토큰 출력
+    </div>
+  );
+};
+
+export default MainPage;
