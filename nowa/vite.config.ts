@@ -1,6 +1,6 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react-swc'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -9,6 +9,10 @@ export default defineConfig({
     port: 3000,
   },
   resolve: {
-    alias: [{ find: "@", replacement: path.resolve(__dirname, "src") }],
+    alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
   },
-});
+  define: {
+    'process.env': {},
+    'global': 'globalThis', // 여기서 global을 globalThis로 정의합니다.
+  },
+})
