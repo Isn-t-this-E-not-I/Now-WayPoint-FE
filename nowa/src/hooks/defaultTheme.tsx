@@ -7,7 +7,7 @@ const defaultTheme: React.FC = () => {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
 
-  return <></>
+  return <div></div>
 }
 
 export default defaultTheme

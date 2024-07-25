@@ -1,15 +1,27 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 
-const textInput = () => {
+interface TextInputProps {
+  type: string;
+  placeholder: string;
+  name?: string;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  value?: string | number;
+  className?: string;
+}
+
+const TextInput: React.FC<TextInputProps> = ({ type, placeholder, name, onChange, value, className }) => {
   return (
     <div>
       <input
-        type="text"
-        placeholder="Type here"
-        className="input input-bordered w-full max-w-xs"
+        type={type}
+        placeholder={placeholder}
+        name={name}
+        onChange={onChange}
+        value={value}
+        className={`input input-bordered w-full max-w-xs ${className}`}
       />
     </div>
   )
 }
 
-export default textInput
+export default TextInput;
