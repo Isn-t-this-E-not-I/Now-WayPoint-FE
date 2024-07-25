@@ -45,7 +45,7 @@ const MainPage: React.FC = () => {
           }
         )
         client.subscribe(
-          `/topic/${locate}/${nickname}`,
+          `/queue/${locate}/${nickname}`,
           (messageOutput: IMessage) => {
             console.log(messageOutput.body)
           }
@@ -110,7 +110,7 @@ const MainPage: React.FC = () => {
 
             initializeMap(latitude, longitude)
 
-            setLocate(`${latitude},${longitude}`)
+            setLocate(`${longitude},${latitude}`)
           } catch (error) {
             console.error('지도 초기화 실패:', error)
           }
