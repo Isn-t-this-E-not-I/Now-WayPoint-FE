@@ -52,22 +52,38 @@
 
 .customoverlay {
   position: absolute;
-  bottom: 38px;
-  border-radius: 50%;
-  border: 2px solid #000;
-  background: rgba(255, 255, 255, 0.8);
-  width: 50px;
-  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.customoverlay.visible {
+  opacity: 1;
 }
 
 .customoverlay-img {
   background-size: cover;
   background-position: center;
+  border-radius: 50px;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
+}
+
+.customoverlay-tail {
+  position: absolute;
+  bottom: -10px; /* 삼각형 꼭지의 위치 조정 */
+  left: 50%;
+  margin-left: -10px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #000; /* 삼각형 꼭지의 색상 */
 }

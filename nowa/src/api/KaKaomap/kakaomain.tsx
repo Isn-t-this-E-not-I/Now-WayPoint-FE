@@ -118,22 +118,27 @@
 //             <div class="customoverlay-tail"></div>
 //           </div>
 //         `
+//         const customOverlay = new window.kakao.maps.CustomOverlay({
+//           map,
+//           position,
+//           content,
+//           yAnchor: 1,
+//         })
+
+//         // 커스텀 오버레이를 지도에 추가한 후에 visible 클래스를 추가합니다.
+//         setTimeout(() => {
+//           const overlayElement = document.querySelector('.customoverlay')
+//           if (overlayElement) {
+//             overlayElement.classList.add('visible')
+//           }
+//         }, 100)
+//       } else {
+//         // 일반 마커 설정
+//         const marker = new window.kakao.maps.Marker({
+//           map,
+//           position,
+//         })
 //       }
-
-//       const customOverlay = new window.kakao.maps.CustomOverlay({
-//         map,
-//         position,
-//         content,
-//         yAnchor: 1,
-//       })
-
-//       // 커스텀 오버레이를 지도에 추가한 후에 visible 클래스를 추가합니다.
-//       setTimeout(() => {
-//         const overlayElement = document.querySelector('.customoverlay')
-//         if (overlayElement) {
-//           overlayElement.classList.add('visible')
-//         }
-//       }, 100)
 //     })
 //   }
 
@@ -156,6 +161,7 @@
 //             console.error('지도 초기화 실패:', error)
 //           }
 //         },
+
 //         (error) => {
 //           console.error('위치 정보를 가져오는데 실패했습니다:', error)
 //         }
@@ -217,8 +223,6 @@
 //   )
 // }
 
-// export default MainPage
-
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '@/api/KaKaomap/kakaomap'
 import { useLocation } from 'react-router-dom'
@@ -243,6 +247,7 @@ const MainPage: React.FC = () => {
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null) // 지도 객체 상태 추가
   const [mapLevel, setMapLevel] = useState<number>(1) // 지도 확대/축소 레벨 상태 추가
+  const [isInitialized, setIsInitialized] = useState(false) // 초기화 상태 추가
 
   useEffect(() => {
     const sock = new SockJS('http://15.165.236.244:8080/main')
@@ -256,6 +261,7 @@ const MainPage: React.FC = () => {
       onConnect: (frame) => {
         console.log('Websocket connected!')
         setIsConnected(true) // Update connection status
+
         client.subscribe(
           `/queue/notify/${nickname}`,
           (messageOutput: IMessage) => {
@@ -268,15 +274,8 @@ const MainPage: React.FC = () => {
             console.log(messageOutput.body)
           }
         )
-        client.subscribe(
-          `/queue/${locate}/${nickname}`,
-          (messageOutput: IMessage) => {
-            console.log(messageOutput.body)
-            const receivedData = JSON.parse(messageOutput.body)
-            setData(receivedData)
-            console.log(receivedData)
-          }
-        )
+
+        setStompClient(client)
       },
       onDisconnect: () => {
         console.log('Websocket disconnected!')
@@ -291,15 +290,35 @@ const MainPage: React.FC = () => {
       },
     })
 
-    setStompClient(client)
-
     client.activate()
 
     return () => {
       client.deactivate()
       console.log('Websocket disconnected')
     }
-  }, [token, nickname, locate])
+  }, [token, nickname])
+
+  useEffect(() => {
+    if (isConnected && stompClient && locate) {
+      const subscription = stompClient.subscribe(
+        `/queue/${locate}/${nickname}`,
+        (messageOutput: IMessage) => {
+          console.log(messageOutput.body)
+          const receivedData = JSON.parse(messageOutput.body)
+          setData(receivedData)
+          console.log(receivedData)
+          // 데이터를 받아온 후에 마커 추가
+          if (map) {
+            addMarkers(map, receivedData)
+          }
+        }
+      )
+
+      return () => {
+        subscription.unsubscribe()
+      }
+    }
+  }, [isConnected, stompClient, locate, nickname, map])
 
   const initializeMap = (latitude: number, longitude: number) => {
     const script = document.createElement('script')
@@ -319,7 +338,7 @@ const MainPage: React.FC = () => {
           setMapLevel(map.getLevel())
         })
 
-        addMarkers(map, data)
+        setIsInitialized(true) // 지도 초기화 완료 상태 설정
       })
     }
 
@@ -327,19 +346,25 @@ const MainPage: React.FC = () => {
   }
 
   const addMarkers = (map: any, data: any[]) => {
+    // 기존 마커 제거
+    map.markers?.forEach((marker: { setMap: (arg0: null) => any }) =>
+      marker.setMap(null)
+    )
+    map.markers = []
+
     data.forEach((item) => {
       const [lng, lat] = item.locationTag.split(',').map(Number)
       const position = new window.kakao.maps.LatLng(lat, lng)
 
-      let content = null
+      let marker
       if (item.category === 'PHOTO') {
-        content = `
+        const content = `
           <div class="customoverlay">
             <div class="customoverlay-img" style="background-image: url('${item.mediaUrls[0]}');"></div>
             <div class="customoverlay-tail"></div>
           </div>
         `
-        const customOverlay = new window.kakao.maps.CustomOverlay({
+        marker = new window.kakao.maps.CustomOverlay({
           map,
           position,
           content,
@@ -354,12 +379,12 @@ const MainPage: React.FC = () => {
           }
         }, 100)
       } else {
-        // 일반 마커 설정
-        const marker = new window.kakao.maps.Marker({
+        marker = new window.kakao.maps.Marker({
           map,
           position,
         })
       }
+      map.markers.push(marker)
     })
   }
 
@@ -368,11 +393,10 @@ const MainPage: React.FC = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const latitude = position.coords.latitude //위도
-          const longitude = position.coords.longitude //경도
+          const latitude = position.coords.latitude // 위도
+          const longitude = position.coords.longitude // 경도
 
           try {
-            // const mapData =
             await getKakaoApiData(`${latitude},${longitude}`)
 
             initializeMap(latitude, longitude)
@@ -389,7 +413,13 @@ const MainPage: React.FC = () => {
     } else {
       console.error('Geolocation을 지원하지 않는 브라우저입니다.')
     }
-  }, [data])
+  }, [])
+
+  useEffect(() => {
+    if (isInitialized && stompClient && isConnected) {
+      selectCategory('ALL')
+    }
+  }, [isInitialized, stompClient, isConnected])
 
   const selectCategory = (category: string) => {
     if (stompClient && isConnected) {
