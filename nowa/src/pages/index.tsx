@@ -4,10 +4,10 @@ if (typeof window !== 'undefined') {
   window.global = window;
 }
 
-const index: React.FC = () => {
+const IndexPage: React.FC = () => {
   return <div></div>
 }
 
-export default index
+export default IndexPage
 
 // 테스트중

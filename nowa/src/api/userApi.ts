@@ -16,6 +16,7 @@ interface RegisterPayload {
   password: string
   name: string
   nickname: string
+  authNumber: string
 }
 
 export const login = async (payload: { password: string; loginId: string }) => {
@@ -69,11 +70,12 @@ export const findPassword = async (loginId: string, email: string) => {
   }
 }
 
-export const sendVerificationCode = async (email: string, state: string) => {
+export const sendVerificationCode = async (email: string, state: string, loginId: string) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/mail/send`, {
       email,
       state,
+      loginId
     })
     return response.data // 이메일 발송 성공 여부 반환
   } catch (error) {

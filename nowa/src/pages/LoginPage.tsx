@@ -6,36 +6,57 @@ import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 
 const LoginPage: React.FC = () => {
-  const [loginId, setLoginId] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
-  const [rememberMe, setRememberMe] = useState<boolean>(false)
-  const [error, setError] = useState<string>('')
-  const navigate = useNavigate()
+  const [loginId, setLoginId] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [nickname, setNickname] = useState('');
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
-      const data = await login({ loginId, password })
-      console.log('로그인 성공:', data.token)
-      navigate('/main', { replace: true, state: { token: data.token } })
+      const data = await login({ loginId, password });
+      // console.log('API 응답 전체:', data);
+      console.log('로그인 성공:', data.token);
+      navigate('/main', { replace: true }); // *
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('nickname', data.nickname);
+      setNickname(data.nickname);
+      // navigate('/main', { replace: true, state: { token: data.token } });
     } catch (error) {
       console.error('로그인 실패:', error)
       setError('로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인하세요.')
     }
   }
 
+  // const connectWebSocket = () => {  // *
+  //   const sock = new SockJS('http://15.165.236.244:8080/main'); // http가 맞음
+  //   const stompClient = Stomp.over(sock);
+  //   stompClient.connect({}, function(str) {
+  //     console.log('Connected: ' + str);
+  //     stompClient.subscribe('/queue/notify/'+nickname, function(messageOutput) {
+  //       console.log(messageOutput.body);
+  //     });
+  //     stompClient.subscribe('/topic/follower/'+nickname, function(messageOutput) {
+  //       console.log(messageOutput.body);
+  //     });
+  //   });
+  // };
+
+
   const handleKakaoLogin = async () => {
     try {
-      // const data = await loginWithKakao();
-      window.location.href = 'http://15.165.236.244:8080/api/user/login/kakao'
+      window.location.href = 'http://15.165.236.244:8080/api/user/login/kakao';
     } catch (error) {
       console.error('Kakao login failed:', error)
     }
   }
 
-  const goToRegister = () => navigate('/register')
-  const goToFindId = () => navigate('/find-id')
-  const goToFindPassword = () => navigate('/find-password')
-  // const goToResetPassword = () => navigate('/reset-password');
+
+  const goToRegister = () => navigate('/register');
+  const goToFindId = () => navigate('/find-id');
+  const goToFindPassword = () => navigate('/find-password');
+  // const goToResetPassword = () => navigate('/reset-password'); // 폐기
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
