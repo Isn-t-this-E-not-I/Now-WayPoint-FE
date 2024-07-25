@@ -126,7 +126,7 @@ const MainPage: React.FC = () => {
 
   const selectCategory = (category: string) => {
     if (stompClient && isConnected) {
-      const response = stompClient.publish({
+      stompClient.publish({
         destination: '/app/main/category',
         body: JSON.stringify({ category: category }),
       })
@@ -144,21 +144,21 @@ const MainPage: React.FC = () => {
           id="categorybtn1"
           onClick={() => selectCategory('PHOTO')}
         >
-          식당
+          사진
         </button>
         <button
           className="categoryButtons"
           id="categorybtn2"
           onClick={() => selectCategory('VIDEO')}
         >
-          카페
+          동영상
         </button>
         <button
           className="categoryButtons"
           id="categorybtn3"
           onClick={() => selectCategory('MP3')}
         >
-          편의점
+          음악
         </button>
         <button
           className="categoryButtons"
