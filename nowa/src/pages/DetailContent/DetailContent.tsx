@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import { getPostById, Post } from '@/services/detailContent'
+import { verify } from 'crypto'
 
 interface DetailContentProps {
   postId: number
@@ -24,7 +25,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
   }, [postId])
 
   if (!post) {
-    return <div>게시글 출력 중</div>
+    return <div id="detail_not_found_error">조회된 게시글이 없습니다</div>
   }
 
   const con_Text = '='
