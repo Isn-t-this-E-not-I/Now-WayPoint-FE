@@ -23,8 +23,9 @@ const RegisterPage: React.FC = () => {
         const verificationResponse = await sendVerificationCode(
           email,
           '회원가입',
-          loginId
+          ''
         )
+        console.log(loginId);
         if (verificationResponse.message) {
           setReceivedCode(verificationResponse.message)
           setMessage(

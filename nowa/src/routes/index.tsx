@@ -1,12 +1,12 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
-import IndexPage from '@/pages/index';
-import MainPage from '@/api/KaKaomap/kakaomain'; // 수정된 MainPage 경로
-import LoginPage from '@/pages/LoginPage';
-import RegisterPage from '@/pages/RegisterPage';
-import FindIdPage from '@/pages/FindIdPage';
-import FindPasswordPage from '@/pages/FindPasswordPage';
-import MyPage from '@/pages/myPage';
+import IndexPage from '../pages/index';
+import MainPage from '../api/KaKaomap/kakaomain';
+import LoginPage from '../pages/LoginPage';
+import RegisterPage from '../pages/RegisterPage';
+import FindIdPage from '../pages/FindIdPage';
+import FindPasswordPage from '../pages/FindPasswordPage';
+import MyPage from '../pages/myPage';
 // import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 const Routers: React.FC = () => {
@@ -22,7 +22,7 @@ const Routers: React.FC = () => {
       <Route path="/memberfind" element={<></>} />
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/contentUpload" element={<></>} />
-      <Route path="/contentDetail" element={<></>} />
+      {/* <Route path="/detailContent" element={<DetailContent postId={1} />} /> */}
       <Route path="/contentEdit" element={<></>} />
       <Route path="/profileEdit" element={<></>} />
       <Route path="/chat" element={<></>} />
