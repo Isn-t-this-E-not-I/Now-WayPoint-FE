@@ -20,12 +20,11 @@ export const connectAndSubscribe = (
   // 연결 성공 시 호출되는 콜백
   const onConnect = () => {
     // 채팅방 목록을 구독하고 메시지를 수신할 때 handleMessage를 호출
-    stompClient!.subscribe(`/queue/chatroom/${userNickname}`, (message) =>
+    stompClient!.subscribe('/queue/chatroom/${userNickname}', (message) =>
       handleMessageUser(message, token, setChatRooms)
     )
   }
 
-  // 연결 시도
   stompClient.connect({ Authorization: `Bearer ${token}` }, onConnect, onError)
 }
 
