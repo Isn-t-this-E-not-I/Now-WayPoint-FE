@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import {
   ChatIcon,
@@ -14,9 +14,15 @@ import {
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
-import ChatListPage from '../../pages/Chat/chatListPage'
-import CreateChatButton from '../CreateChatButton/createChatButton'
-import { ChatRoom } from '../../types'
+import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
+import { ChatRoom, ChatRoomInfo } from '../../types'
+import { fetchChatRooms } from '../../api/chatApi'
+import {
+  connectAndSubscribe,
+  disconnect,
+  getStompClient,
+} from '@/websocket/chatWebSocket'
+import ChatListPage from '@/pages/Chat/chatListPage'
 
 interface SidebarProps {
   chatRooms: ChatRoom[]
@@ -26,7 +32,6 @@ interface SidebarProps {
   onExitChatRoom: (id: number) => void
   setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>
   onCreateChat: (newChatRoom: ChatRoom) => void
-  token: string
 }
 
 const Wrapper = styled.div`
@@ -117,13 +122,45 @@ const Sidebar: React.FC<SidebarProps> = ({
   theme,
   onChatItemClick,
   setSelectedPage,
-  onExitChatRoom,
   setChatRooms,
   onCreateChat,
-  token,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
+  const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([])
 
+  // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
+  // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
+
+  const token =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
+  const userNickname = 'sol'
+
+  // 채팅방 목록을 가져오는 useEffect 추가
+  useEffect(() => {
+    if (activePage === 'chat') {
+      fetchChatRooms(token).then((data) => {
+        setChatRooms(data.chatRooms)
+        setChatRoomsInfo(data.chatRoomsInfo)
+      })
+    }
+  }, [activePage, token])
+
+  useEffect(() => {
+    if (activePage === 'chat' && !getStompClient()) {
+      connectAndSubscribe(token, userNickname, setChatRooms, (error) =>
+        console.error(error)
+      )
+    }
+  }, [activePage, token, userNickname, setChatRooms])
+
+  // activePage가 'chat'이 아닌 경우 disconnect 호출
+  useEffect(() => {
+    if (activePage !== 'chat') {
+      disconnect()
+    }
+  }, [activePage])
+
+  // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
@@ -132,8 +169,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         return (
           <ChatListPage
             chatRooms={chatRooms}
+            chatRoomsInfo={chatRoomsInfo}
             onChatItemClick={onChatItemClick}
-            onExitChatRoom={onExitChatRoom}
           />
         )
       case 'contents':
@@ -145,10 +182,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }
 
+  // 검색창 보여주기 여부
   const shouldShowSearch = () => {
     return activePage !== 'notifications' && activePage !== 'chat'
   }
 
+  // 현재 페이지 제목
   const getPageTitle = () => {
     switch (activePage) {
       case 'notifications':
@@ -167,28 +206,61 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <Wrapper>
       <LeftSidebar>
-        <IconButton onClick={() => setSelectedPage('main')}>
+        <IconButton
+          onClick={() => {
+            setSelectedPage('main')
+          }}
+        >
           <LogoIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setSelectedPage('main')}>
+        <IconButton
+          onClick={() => {
+            setSelectedPage('main')
+          }}
+        >
           <MainIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setSelectedPage('create')}>
+        <IconButton
+          onClick={() => {
+            setSelectedPage('create')
+          }}
+        >
           <NewCreateIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setActivePage('notifications')}>
+        <IconButton
+          onClick={() => {
+            setActivePage('notifications')
+          }}
+        >
           <NotificationsIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setActivePage('chat')}>
+        <IconButton
+          onClick={() => {
+            connectAndSubscribe
+            setActivePage('chat')
+          }}
+        >
           <ChatIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setActivePage('contents')}>
+        <IconButton
+          onClick={() => {
+            setActivePage('contents')
+          }}
+        >
           <ContentsIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setActivePage('followContents')}>
+        <IconButton
+          onClick={() => {
+            setActivePage('followContents')
+          }}
+        >
           <FollowContentsIcon theme={theme} />
         </IconButton>
-        <IconButton onClick={() => setSelectedPage('myPage')}>
+        <IconButton
+          onClick={() => {
+            setSelectedPage('myPage')
+          }}
+        >
           <MyPageIcon theme={theme} />
         </IconButton>
         <Blank />
@@ -200,16 +272,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && (
-              <>
-                <CreateChatButton
-                  theme={theme}
-                  token={token}
-                  onCreateChat={(newChatRoom) => {
-                    onCreateChat(newChatRoom)
-                    setChatRooms((prevRooms) => [...prevRooms, newChatRoom])
-                  }}
-                />
-              </>
+              <CreateChatRoomButton
+                theme={theme}
+                token={token}
+                stompClient={getStompClient()} // 현재 연결된 stompClient를 전달
+                onCreateChat={onCreateChat}
+              />
             )}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}

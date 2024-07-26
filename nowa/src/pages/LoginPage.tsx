@@ -29,20 +29,6 @@ const LoginPage: React.FC = () => {
     }
   }
 
-  // const connectWebSocket = () => {  // *
-  //   const sock = new SockJS('http://15.165.236.244:8080/main'); // http가 맞음
-  //   const stompClient = Stomp.over(sock);
-  //   stompClient.connect({}, function(str) {
-  //     console.log('Connected: ' + str);
-  //     stompClient.subscribe('/queue/notify/'+nickname, function(messageOutput) {
-  //       console.log(messageOutput.body);
-  //     });
-  //     stompClient.subscribe('/topic/follower/'+nickname, function(messageOutput) {
-  //       console.log(messageOutput.body);
-  //     });
-  //   });
-  // };
-
 
   const handleKakaoLogin = async () => {
     try {
