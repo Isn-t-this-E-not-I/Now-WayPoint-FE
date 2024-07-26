@@ -5,6 +5,8 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import FindIdPage from '@/pages/FindIdPage'
 import FindPasswordPage from '@/pages/FindPasswordPage'
+import ChatListPage from '@/pages/Chat/chatListPage'
+import ChattingPage from '@/pages/Chat/chattingPage'
 // import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 const Routers: React.FC = () => {
@@ -23,7 +25,8 @@ const Routers: React.FC = () => {
       <Route path="/contentDetail" element={<></>} />
       <Route path="/contentEdit" element={<></>} />
       <Route path="/profileEdit" element={<></>} />
-      <Route path="/chat" element={<></>} />
+      <Route path="/chat" element={<></>} />  Route for chat list
+
       <Route path="/notification" element={<></>} />
       <Route path="/test1" element={<></>} />
     </Routes>
