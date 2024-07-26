@@ -3,26 +3,14 @@ import styled from 'styled-components'
 import { CreateChatButtonIcon } from '../icons/icons'
 import useModal from '@/hooks/modal'
 import Modal from '../Modal/modal'
-import { createChatRoom as websocketCreateChatRoom } from '../../websocket/chatWebSocket'
+import { CompatClient } from '@stomp/stompjs'
+import { ChatRoom } from '../../types'
 
 interface CreateChatButtonProps {
   theme: 'light' | 'dark'
   token: string
-  onCreateChat: (newChatRoom: {
-    id: number
-    profilePic: string
-    name: string
-    lastMessage: string
-    memberCount: number
-    messages: {
-      avatarSrc: string
-      header: string
-      time: string
-      message: string
-      footer: string
-      alignment: 'start' | 'end'
-    }[]
-  }) => void
+  stompClient: CompatClient | null
+  onCreateChat: (newChatRoom: ChatRoom) => void
 }
 
 const Button = styled.button`
@@ -85,9 +73,10 @@ const CloseButton = styled.button`
   }
 `
 
-const CreateChatButton: React.FC<CreateChatButtonProps> = ({
+const CreateChatRoomButton: React.FC<CreateChatButtonProps> = ({
   theme,
   token,
+  stompClient,
   onCreateChat,
 }) => {
   const { isOpen, open, close } = useModal()
@@ -97,27 +86,22 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
     e.preventDefault()
     const members = selectedMembers.split(',').map((member) => member.trim())
 
-    websocketCreateChatRoom(
-      token,
-      members,
-      () => {
-        const newChatRoom = {
-          id: Date.now(),
-          profilePic: 'https://via.placeholder.com/40',
-          name: members.join(', '),
-          lastMessage: '새 채팅방이 생성되었습니다.',
-          memberCount: members.length,
-          messages: [],
-        }
-        onCreateChat(newChatRoom)
-        setSelectedMembers('') // 입력 후 초기화
-        console.log('Chat room created successfully')
-        close() // 모달 닫기
-      },
-      (error) => {
-        console.error('Failed to create chat room:', error)
-      }
-    )
+    const payload = { members }
+
+    if (stompClient) {
+      // STOMP 클라이언트를 통해 서버에 메시지 전송
+      stompClient.send(
+        '/app/chatRoom/create',
+        { Authorization: `Bearer ${token}` },
+        JSON.stringify(payload)
+      )
+
+      // 입력 필드 초기화 및 모달 닫기
+      setSelectedMembers('')
+      close()
+    } else {
+      console.error('STOMP 클라이언트가 연결되어 있지 않습니다.')
+    }
   }
 
   return (
@@ -135,7 +119,7 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
                 type="text"
                 value={selectedMembers}
                 onChange={(e) => setSelectedMembers(e.target.value)}
-                placeholder="초대할 유저 닉네임"
+                placeholder="초대할 유저 닉네임 (쉼표로 구분)"
               />
               <SubmitButton type="submit" $themeMode={theme}>
                 생성
@@ -148,4 +132,4 @@ const CreateChatButton: React.FC<CreateChatButtonProps> = ({
   )
 }
 
-export default CreateChatButton
+export default CreateChatRoomButton

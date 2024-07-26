@@ -1,247 +1,121 @@
-import { Client, IMessage, StompSubscription } from '@stomp/stompjs'
+import { CompatClient, Stomp } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
-import { ChatRoom } from '../types'
+import { ChatRoom, ChatMessage } from '@/types'
 
-const SOCKET_URL = 'http://localhost:8080/ws' // 웹소켓 서버 URL
+let stompClient: CompatClient | null = null
+let chatRoomSubscription: any = null
 
-let stompClient: Client | null = null
-let isConnected = false
+export const getStompClient = () => stompClient
 
-export const connect = (
+// WebSocket 연결 및 구독 함수
+export const connectAndSubscribe = (
   token: string,
-  onMessageReceived: (message: IMessage) => void,
-  onConnected: () => void,
+  userNickname: string,
+  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>,
   onError: (error: any) => void
-): StompSubscription | void => {
-  const socket = new SockJS(SOCKET_URL)
-  stompClient = new Client({
-    webSocketFactory: () => socket,
-    debug: (str) => {
-      console.log(str)
-    },
-    onConnect: () => {
-      isConnected = true
-      onConnected()
-    },
-    onStompError: (frame) => {
-      console.error('Broker reported error: ' + frame.headers['message'])
-      console.error('Additional details: ' + frame.body)
-      onError(frame)
-    },
-  })
+) => {
+  const socket = new SockJS('http://localhost:3002/ws')
+  stompClient = Stomp.over(socket)
 
-  stompClient.onWebSocketClose = () => {
-    console.log('WebSocket closed')
-    isConnected = false
+  // 연결 성공 시 호출되는 콜백
+  const onConnect = () => {
+    console.log('WebSocket connected')
+
+    if (stompClient) {
+      // 채팅방 목록을 구독하고 메시지를 수신할 때 handleMessage를 호출
+      stompClient.subscribe(`/queue/chatroom/${userNickname}`, (message) =>
+        handleMessageUser(message, token, setChatRooms)
+      )
+    } else {
+      console.error('STOMP 클라이언트가 초기화되지 않았습니다.')
+    }
   }
 
-  stompClient.onWebSocketError = (error) => {
-    console.error('WebSocket error:', error)
-    isConnected = false
-    onError(error)
-  }
-
-  stompClient.activate()
-
-  if (stompClient) {
-    return stompClient.subscribe(
-      '/queue/chatroom/' + token,
-      onMessageReceived,
-      {
-        Authorization: `Bearer ${token}`,
-      }
-    )
-  } else {
-    throw new Error('StompClient is not initialized')
-  }
+  // 연결 실패 시 호출되는 콜백
+  stompClient.connect({ Authorization: `Bearer ${token}` }, onConnect, onError)
 }
 
 export const disconnect = () => {
   if (stompClient) {
-    stompClient.deactivate()
-    isConnected = false
-  }
-}
-
-export const sendMessage = (
-  token: string,
-  chatRoomId: number,
-  message: string
-) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chat/${chatRoomId}/sendMessage`,
-      body: JSON.stringify({ message }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    // WebSocket 연결 종료
+    stompClient.disconnect(() => {
+      console.log('Disconnected')
     })
-  } else {
-    console.error('StompClient is not connected')
+    stompClient = null
   }
 }
 
-export const enterChatRoom = (
-  token: string,
-  chatRoomId: number,
-  onMessageReceived: (message: IMessage) => void
-): StompSubscription | void => {
-  if (stompClient && isConnected) {
-    return stompClient.subscribe(
-      `/topic/chatroom/${chatRoomId}`,
-      onMessageReceived,
-      {
-        Authorization: `Bearer ${token}`,
-      }
-    )
-  } else {
-    throw new Error('StompClient is not connected')
-  }
-}
-
-export const createChatRoom = (
-  token: string,
-  nicknames: string[],
-  onSuccess: () => void,
-  onError: (error: any) => void
-) => {
-  if (stompClient && isConnected) {
-    const subscription = stompClient.subscribe(
-      `/user/queue/chatRoom/create`,
-      (message) => {
-        const response = JSON.parse(message.body)
-        if (response.success) {
-          onSuccess()
-        } else {
-          onError(response.error)
-        }
-        subscription.unsubscribe()
-      },
-      {
-        Authorization: `Bearer ${token}`,
-      }
-    )
-
-    stompClient.publish({
-      destination: `/app/chatRoom/create`,
-      body: JSON.stringify({ nicknames }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  } else {
-    console.error('StompClient is not connected')
-    onError('StompClient is not connected')
-  }
-}
-
-export const createDuplicateChatRoom = (token: string, nicknames: string[]) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chatRoom/createDuplicate`,
-      body: JSON.stringify({ nicknames }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  }
-}
-
-export const updateChatRoomName = (
-  token: string,
-  chatRoomId: number,
-  newChatRoomName: string
-) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chatRoom/${chatRoomId}/nameUpdate`,
-      body: JSON.stringify({ newChatRoomName }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  }
-}
-
-export const inviteToChatRoom = (
-  token: string,
-  chatRoomId: number,
-  nicknames: string[]
-) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chatRoom/${chatRoomId}/invite`,
-      body: JSON.stringify({ nicknames }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  }
-}
-
-export const leaveChatRoom = (token: string, chatRoomId: number) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chatRoom/${chatRoomId}/leave`,
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  }
-}
-
-export const fetchChatMessages = (
-  token: string,
-  chatRoomId: number,
-  count: number
-) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chatRoom/${chatRoomId}/messages`,
-      body: JSON.stringify({ count }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  }
-}
-
-export const getMessagesBefore = (
-  token: string,
-  chatRoomId: number,
-  timestamp: string
-) => {
-  if (stompClient && isConnected) {
-    stompClient.publish({
-      destination: `/app/chat/messages/before`,
-      body: JSON.stringify({ chatRoomId, timestamp }),
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-  }
-}
-
-export const getChatRoomUpdate = (
-  token: string,
-  chatRoomId: number
-): Promise<ChatRoom> => {
-  return new Promise((resolve, reject) => {
-    if (stompClient && isConnected) {
-      const onMessageReceived = (message: IMessage) => {
-        resolve(JSON.parse(message.body))
-      }
-
-      const subscription = stompClient.subscribe(
-        `/queue/chatroom/${chatRoomId}/update`,
-        onMessageReceived,
-        {
-          Authorization: `Bearer ${token}`,
-        }
-      )
-      return subscription
-    } else {
-      reject('WebSocket is not connected')
+// 새로운 채팅방 구독 함수
+export const subscribeToChatRoom = (token: string, chatRoomId: number) => {
+  if (stompClient) {
+    // 기존 구독이 있는 경우 해지
+    if (chatRoomSubscription) {
+      chatRoomSubscription.unsubscribe()
     }
-  })
+
+    // 새로운 채팅방 구독
+    chatRoomSubscription = stompClient.subscribe(
+      `/topic/chatRoom/${chatRoomId}`,
+      (message) => handleMessageChatRoom(message, token),
+      { Authorization: `Bearer ${token}` }
+    )
+    return chatRoomSubscription
+  } else {
+    console.error('WebSocket is not connected.')
+  }
+}
+
+// 메시지 처리 로직 /queue/chatRoom/userNickname으로 오는 것들
+
+// 채팅 메시지생성 - CHAT                       -> 채팅방 목록 조회
+// 채팅방 메시지 조회, 이전 메시지 조회 - CHAT_LIST  -> 리액트 상태 ChatMessage리스트 설정
+// 특정 채팅방의 업데이트 정보를 조회 - UPDATE       -> 리액트 chatrooms, chatroomsInfo 설정
+// 채팅방 생성 - CREATE                        -> 채팅방 목록 조회
+// 채팅방 유저 초대 - INVITE                    -> 채팅방 목록 조회
+// 채팅방 나가기 - LEAVE                       -> 채팅방 목록 조회
+export const handleMessageUser = (
+  message: { body: string },
+  token: string,
+  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>
+) => {
+  const parsedMessage = JSON.parse(message.body)
+  switch (parsedMessage.messageType) {
+    case 'CREATE':
+      const newChatRoom: ChatRoom = {
+        chatRoomId: parsedMessage.chatRoom.chatRoomId,
+        chatRoomName: parsedMessage.chatRoom.chatRoomName, // 문자열로 직접 사용
+        userCount: parsedMessage.chatRoom.userCount, // 숫자로 직접 사용
+        profilePic: '', // 프로필 사진이 없다면 빈 문자열로 초기화
+        lastMessage: '', // 마지막 메시지가 없다면 빈 문자열로 초기화
+        messages: [], // 메시지가 없다면 빈 배열로 초기화
+      }
+
+      // 이전 채팅방 목록을 가져와서 새로운 채팅방을 추가
+      setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom])
+      break
+    case 'CHAT_LIST':
+      const newMessages: ChatMessage[] = parsedMessage.messages // 메시지 리스트를 파싱합니다
+
+      break
+    default:
+      break
+  }
+}
+
+// 채팅방 메시지 처리 로직 /topic/chatroom/chatroomId
+// 메시지 전송 - CHAT
+// 채팅방 이름 업데이트 - NAME_UPDATE
+export const handleMessageChatRoom = (
+  message: { body: string },
+  token: string
+) => {
+  const parsedMessage = JSON.parse(message.body)
+  switch (parsedMessage.messageType) {
+    case 'CREATE':
+
+    case 'CHAT_LIST':
+      break
+    default:
+      break
+  }
 }
