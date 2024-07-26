@@ -38,12 +38,11 @@ const App: React.FC = () => {
           theme={'light'}
           setSelectedPage={setSelectedPage}
           chatRooms={[]}
-          onChatItemClick={() => { }}
-          onExitChatRoom={() => { }}
-          setChatRooms={() => { }}
-          onCreateChat={() => { }}
-          token={''}
-          userNickname={''} />
+          onChatItemClick={() => {}}
+          onExitChatRoom={() => {}}
+          setChatRooms={() => {}}
+          onCreateChat={() => {}}
+        />
       )}
       <div style={{ flex: 1 }}>
         {isNoSidebarPage ? <Routers /> : renderContent()}
@@ -65,4 +64,5 @@ if (rootElement) {
   root.render(<AppWrapper />);
 }
 
-export default App;
+
+export default App

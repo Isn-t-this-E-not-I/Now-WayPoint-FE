@@ -28,13 +28,19 @@ interface ChattingPageProps {
   stompClient: CompatClient
 }
 
-const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoomId, token, stompClient }) => {
-  const [messages, setMessages] = useState<{ sender: string; content: string }[]>([])
+const ChattingPage: React.FC<ChattingPageProps> = ({
+  chatRoomId,
+  token,
+  stompClient,
+}) => {
+  const [messages, setMessages] = useState<
+    { sender: string; content: string }[]
+  >([])
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
     const payload = {
-      chatRoomId: chatRoomId
+      chatRoomId: chatRoomId,
     }
 
     stompClient.send(
@@ -57,7 +63,6 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoomId, token, stompCli
       }
     }
   }, [chatRoomId, token, stompClient])
-
 
   return (
     <ChatContainer>

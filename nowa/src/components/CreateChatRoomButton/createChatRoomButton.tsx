@@ -6,7 +6,7 @@ import Modal from '../Modal/modal'
 import { CompatClient } from '@stomp/stompjs'
 import { ChatRoom } from '../../types'
 
-interface CreateChatButtonProps {
+interface CreateChatRoomButtonProps {
   theme: 'light' | 'dark'
   token: string
   stompClient: CompatClient | null
@@ -73,7 +73,7 @@ const CloseButton = styled.button`
   }
 `
 
-const CreateChatRoomButton: React.FC<CreateChatButtonProps> = ({
+const CreateChatRoomButton: React.FC<CreateChatRoomButtonProps> = ({
   theme,
   token,
   stompClient,
