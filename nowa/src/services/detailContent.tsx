@@ -9,7 +9,7 @@ export interface Post {
   locationTag: string
   category: string
   mediaUrl: string
-  username: string
+  nickname: string
   createdAt: string
   likeCount: number
 }
@@ -36,6 +36,7 @@ const getPostById = async (postId: number): Promise<Post> => {
       },
     })
 
+    console.log(response)
     return response.data
   } catch (error) {
     console.error('Error fetching the post data:', error)

@@ -14,7 +14,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const postData = await getPostById(2)
+        const postData = await getPostById(41)
         setPost(postData)
       } catch (error) {
         console.error('Failed to fetch post data:', error)
@@ -54,7 +54,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
               <div id="test_profile_img"></div>
 
               <div id="detail_profile_id">
-                <p>{post.username}</p>
+                <p>{post.nickname}</p>
 
                 <div id="detail_profile_address">
                   <img
