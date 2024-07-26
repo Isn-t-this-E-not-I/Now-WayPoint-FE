@@ -4,13 +4,16 @@ const API_BASE_URL = 'http://15.165.236.244:8080/api'
 
 const getCookieValue = (name: string): string | null => {
   const value = `; ${document.cookie}`
+  console.log(document.cookie);
   const parts = value.split(`; ${name}=`)
   if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
   return null
 }
 
 export const getKakaoApiData = async (address: string): Promise<any> => {
-  const token = getCookieValue('Authorization')
+  const token = localStorage.getItem('token');
+  // const token = getCookieValue('Authorization')
+  console.log(token);
   if (!token) {
     throw new Error('Authorization token not found')
   }
