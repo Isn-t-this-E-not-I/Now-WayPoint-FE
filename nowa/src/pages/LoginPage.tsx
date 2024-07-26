@@ -42,7 +42,6 @@ const LoginPage: React.FC = () => {
   const goToRegister = () => navigate('/register');
   const goToFindId = () => navigate('/find-id');
   const goToFindPassword = () => navigate('/find-password');
-  // const goToResetPassword = () => navigate('/reset-password'); // 폐기
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white">
