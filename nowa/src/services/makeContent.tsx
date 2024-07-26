@@ -5,7 +5,7 @@ export const uploadContent = async (
   selectedOption: string,
   token: string | null
 ) => {
-  const API_BASE_URL = 'http://15.165.236.244:8080/api'
+  const API_BASE_URL = import.meta.env.VITE_APP_API
   const formData = new FormData()
 
   files.forEach((file) => {
@@ -34,7 +34,6 @@ export const uploadContent = async (
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
-        // 'Content-Type': 'multipart/form-data', // 이 부분은 설정하지 않아야 함
       },
       body: formData,
     })

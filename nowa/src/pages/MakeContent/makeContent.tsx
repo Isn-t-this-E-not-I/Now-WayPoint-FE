@@ -4,7 +4,7 @@ import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
 import Modal from '@/components/Modal/modals'
-import { uploadContent } from '@/service/makeContent'
+import { uploadContent } from '@/services/makeContent'
 import { useNavigate } from 'react-router-dom'
 
 const MakeContent = () => {

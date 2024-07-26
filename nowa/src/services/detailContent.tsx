@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = 'http://15.165.236.244:8080/api'
+const API_URL = import.meta.env.VITE_APP_API
 
 export interface Post {
   id: number
