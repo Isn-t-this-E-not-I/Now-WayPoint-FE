@@ -5,7 +5,7 @@ import { ChatRoom, ChatMessage } from '@/types'
 let stompClient: CompatClient | null = null
 let chatRoomSubscription: any = null
 
-export const getStompClient = () => stompClient;
+export const getStompClient = () => stompClient
 
 // WebSocket 연결 및 구독 함수
 export const connectAndSubscribe = (
@@ -14,21 +14,18 @@ export const connectAndSubscribe = (
   setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>,
   onError: (error: any) => void
 ) => {
-  const socket = new SockJS('/ws')
-  stompClient = Stomp.over(socket)
+  const socket = new SockJS('http://15.165.236.244:8080/ws')
+  stompClient = Stomp.over(() => socket)
 
   // 연결 성공 시 호출되는 콜백
   const onConnect = () => {
-    console.log('WebSocket connected')
-
     // 채팅방 목록을 구독하고 메시지를 수신할 때 handleMessage를 호출
-    stompClient!.subscribe(
-      `/queue/chatroom/${userNickname}`,
-      (message) => handleMessageUser(message, token, setChatRooms)
+    stompClient!.subscribe(`/queue/chatroom/${userNickname}`, (message) =>
+      handleMessageUser(message, token, setChatRooms)
     )
   }
 
-  // 연결 실패 시 호출되는 콜백
+  // 연결 시도
   stompClient.connect({ Authorization: `Bearer ${token}` }, onConnect, onError)
 }
 
@@ -43,14 +40,11 @@ export const disconnect = () => {
 }
 
 // 새로운 채팅방 구독 함수
-export const subscribeToChatRoom = (
-  token: string,
-  chatRoomId: number
-) => {
+export const subscribeToChatRoom = (token: string, chatRoomId: number) => {
   if (stompClient) {
     // 기존 구독이 있는 경우 해지
     if (chatRoomSubscription) {
-      chatRoomSubscription.unsubscribe();
+      chatRoomSubscription.unsubscribe()
     }
 
     // 새로운 채팅방 구독
@@ -58,10 +52,10 @@ export const subscribeToChatRoom = (
       `/topic/chatRoom/${chatRoomId}`,
       (message) => handleMessageChatRoom(message, token),
       { Authorization: `Bearer ${token}` }
-    );
-    return chatRoomSubscription;
+    )
+    return chatRoomSubscription
   } else {
-    console.error('WebSocket is not connected.');
+    console.error('WebSocket is not connected.')
   }
 }
 
@@ -83,19 +77,18 @@ export const handleMessageUser = (
     case 'CREATE':
       const newChatRoom: ChatRoom = {
         chatRoomId: parsedMessage.chatRoom.chatRoomId,
-        chatRoomName: parsedMessage.chatRoom.chatRoomName,  // 문자열로 직접 사용
-        userCount: parsedMessage.chatRoom.userCount,  // 숫자로 직접 사용
-        profilePic: '',  // 프로필 사진이 없다면 빈 문자열로 초기화
-        lastMessage: '',  // 마지막 메시지가 없다면 빈 문자열로 초기화
-        messages: []  // 메시지가 없다면 빈 배열로 초기화
+        chatRoomName: parsedMessage.chatRoom.chatRoomName, // 문자열로 직접 사용
+        userCount: parsedMessage.chatRoom.userCount, // 숫자로 직접 사용
+        profilePic: '', // 프로필 사진이 없다면 빈 문자열로 초기화
+        lastMessage: '', // 마지막 메시지가 없다면 빈 문자열로 초기화
+        messages: [], // 메시지가 없다면 빈 배열로 초기화
       }
 
       // 이전 채팅방 목록을 가져와서 새로운 채팅방을 추가
       setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom])
       break
     case 'CHAT_LIST':
-      const newMessages: ChatMessage[] = parsedMessage.messages; // 메시지 리스트를 파싱합니다
-
+      const newMessages: ChatMessage[] = parsedMessage.messages // 메시지 리스트를 파싱합니다
 
       break
     default:
@@ -108,16 +101,13 @@ export const handleMessageUser = (
 // 채팅방 이름 업데이트 - NAME_UPDATE
 export const handleMessageChatRoom = (
   message: { body: string },
-  token: string,
+  token: string
 ) => {
   const parsedMessage = JSON.parse(message.body)
   switch (parsedMessage.messageType) {
     case 'CREATE':
 
-
-
     case 'CHAT_LIST':
-
       break
     default:
       break

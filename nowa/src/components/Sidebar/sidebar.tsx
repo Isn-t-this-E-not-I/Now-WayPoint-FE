@@ -14,7 +14,7 @@ import {
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
-import CreateChatRoomButton from '../CreateChatButton/createChatButton'
+import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
 import { ChatRoom, ChatRoomInfo } from '../../types'
 import { fetchChatRooms } from '../../api/chatApi'
 import {
@@ -32,8 +32,6 @@ interface SidebarProps {
   onExitChatRoom: (id: number) => void
   setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>
   onCreateChat: (newChatRoom: ChatRoom) => void
-  token: string
-  userNickname: string
 }
 
 const Wrapper = styled.div`
@@ -126,11 +124,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   setSelectedPage,
   setChatRooms,
   onCreateChat,
-  token,
-  userNickname,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([])
+
+  // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
+  // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
+
+  const token =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
+  const userNickname = 'sol'
 
   // 채팅방 목록을 가져오는 useEffect 추가
   useEffect(() => {
@@ -144,15 +147,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   useEffect(() => {
     if (activePage === 'chat' && !getStompClient()) {
-      connectAndSubscribe(token, userNickname, setChatRooms, (error) => console.error(error));
+      connectAndSubscribe(token, userNickname, setChatRooms, (error) =>
+        console.error(error)
+      )
     }
+  }, [activePage, token, userNickname, setChatRooms])
 
-    return () => {
-      if (activePage === 'chat') {
-        disconnect();
-      }
-    };
-  }, [activePage, token, userNickname, setChatRooms]);
+  // activePage가 'chat'이 아닌 경우 disconnect 호출
+  useEffect(() => {
+    if (activePage !== 'chat') {
+      disconnect()
+    }
+  }, [activePage])
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
@@ -265,11 +271,11 @@ const Sidebar: React.FC<SidebarProps> = ({
         <ContentDiv>
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
-            {activePage === 'chat' && getStompClient() && (
+            {activePage === 'chat' && (
               <CreateChatRoomButton
                 theme={theme}
                 token={token}
-                stompClient={getStompClient()}  // 현재 연결된 stompClient를 전달
+                stompClient={getStompClient()} // 현재 연결된 stompClient를 전달
                 onCreateChat={onCreateChat}
               />
             )}
@@ -283,4 +289,3 @@ const Sidebar: React.FC<SidebarProps> = ({
 }
 
 export default Sidebar
-
