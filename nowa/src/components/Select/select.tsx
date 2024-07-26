@@ -1,8 +1,8 @@
 import React from 'react'
 
 interface SelectOption {
-  id: string // 고유한 키 값
-  label: string // 옵션의 라벨
+  id?: string // 고유한 키 값
+  label?: string // 옵션의 라벨
 }
 
 interface SelectProps {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
@@ -72,8 +72,8 @@ const MakeContent = () => {
     setTags((prevTags) => [...prevTags, `#${tag}`])
   }
 
-  const handleContentChange = (newContent: string) => {
-    setContent(newContent)
+  const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setContent(e.target.value)
   }
 
   const handleOptionChange = (selected: string) => {
@@ -139,7 +139,7 @@ const MakeContent = () => {
           <div id="content_dev">
             <Textarea
               id={'upload_content_dis'}
-              text={'내용을 입력해주세요'}
+              placeholder={'내용을 입력해주세요'}
               value={content}
               onChange={handleContentChange}
             />
@@ -176,7 +176,7 @@ const MakeContent = () => {
               />
               <Button
                 id={'upload_btn_2'}
-                text={'게시 하기'}
+                children={'게시 하기'}
                 onClick={handleSubmit}
               />
             </div>

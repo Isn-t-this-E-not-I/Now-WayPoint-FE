@@ -1,21 +1,28 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 
 interface TextareaProps {
   id: string
-  text: string
-  value: string
-  onChange: (value: string) => void
+  placeholder?: string
+  value?: string
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  className?: string
 }
 
-const Textarea: React.FC<TextareaProps> = ({ id, text, value, onChange }) => {
+const Textarea: React.FC<TextareaProps> = ({
+  id,
+  placeholder,
+  value,
+  onChange,
+  className = '',
+}) => {
   return (
     <div>
       <textarea
         id={id}
-        className="textarea textarea-bordered resize-none"
-        placeholder={text}
+        className={`textarea textarea-bordered resize-none ${className}`}
+        placeholder={placeholder}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
       />
     </div>
   )
