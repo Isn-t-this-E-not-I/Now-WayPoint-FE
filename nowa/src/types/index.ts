@@ -1,15 +1,28 @@
+import { ReactNode } from 'react'
+
 export interface ChatRoom {
-  id: number
+  chatRoomId: number
+  chatRoomName: string
+  userCount: number
   profilePic: string
-  name: string
   lastMessage: string
-  memberCount: number
   messages: {
     avatarSrc: string
     header: string
     time: string
     message: string
-    footer: string
-    alignment: 'start' | 'end'
   }[]
+}
+
+export interface ChatRoomInfo {
+  chatRoomId: number
+  unreadMessagesCount: number
+  lastMessageContent: string
+  lastMessageTimestamp: string
+}
+
+export interface ChatMessage {
+  sender: string
+  content: string
+  timestamp: string
 }

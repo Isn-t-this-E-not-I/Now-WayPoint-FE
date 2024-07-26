@@ -25,7 +25,8 @@ const Routers: React.FC = () => {
       {/* <Route path="/detailContent" element={<DetailContent postId={1} />} /> */}
       <Route path="/contentEdit" element={<></>} />
       <Route path="/profileEdit" element={<></>} />
-      <Route path="/chat" element={<></>} />
+      <Route path="/chat" element={<></>} />  Route for chat list
+
       <Route path="/notification" element={<></>} />
       <Route path="/test1" element={<></>} />
     </Routes>

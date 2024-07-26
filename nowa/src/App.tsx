@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, useLocation } from 'react-router-dom';
@@ -9,7 +8,6 @@ import Sidebar from './components/Sidebar/sidebar.tsx';
 import MainPage from '@/pages/Main/main.tsx'
 import CreatePage from '@/pages/createPage.tsx'
 import MyPage from '@/pages/myPage.tsx'
-import ChatApp from '@/pages/Chat/chatApp.tsx'
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -40,12 +38,12 @@ const App: React.FC = () => {
           theme={'light'}
           setSelectedPage={setSelectedPage}
           chatRooms={[]}
-          onChatItemClick={() => {}}
-          onExitChatRoom={() => {}}
-          setChatRooms={() => {}}
-          onCreateChat={() => {}}
+          onChatItemClick={() => { }}
+          onExitChatRoom={() => { }}
+          setChatRooms={() => { }}
+          onCreateChat={() => { }}
           token={''}
-        />
+          userNickname={''} />
       )}
       <div style={{ flex: 1 }}>
         {isNoSidebarPage ? <Routers /> : renderContent()}
