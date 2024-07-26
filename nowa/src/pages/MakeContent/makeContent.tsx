@@ -5,6 +5,7 @@ import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
 import Modal from '@/components/Modal/modals'
 import { uploadContent } from '@/service/makeContent'
+import { useNavigate } from 'react-router-dom'
 
 const MakeContent = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -13,6 +14,8 @@ const MakeContent = () => {
   const [content, setContent] = useState<string>('')
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
   const [files, setFiles] = useState<File[]>([])
+
+  const navigate = useNavigate()
 
   const photoOptions = [
     { id: 'PHOTO', label: '사진' },
@@ -80,14 +83,17 @@ const MakeContent = () => {
   const handleSubmit = async () => {
     const token = localStorage.getItem('token')
     try {
-      const result = await uploadContent(
+      const reseponse = await uploadContent(
         files,
         content,
         tags,
         selectedOption,
         token
       )
-      console.log('Upload successful:', result)
+      const id = reseponse.id
+      if (id) {
+        navigate(`/detailContent/${id}`)
+      }
     } catch (error) {
       console.error('Error uploading content:', error)
     }

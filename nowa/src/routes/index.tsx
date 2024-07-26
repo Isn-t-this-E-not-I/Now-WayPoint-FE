@@ -22,8 +22,8 @@ const Routers: React.FC = () => {
       {/* <Route path="/reset-password" element={<ResetPasswordPage />} /> */}
       <Route path="/memberfind" element={<></>} />
       <Route path="/mypage" element={<></>} />
-      <Route path="/uploadContent" element={<UploadContent />} />
-      <Route path="/detailContent" element={<DetailContent postId={41} />} />
+      <Route path="/makeContent" element={<UploadContent />} />
+      <Route path="/detailContent/:id" element={<DetailContent />} />
       <Route path="/contentEdit" element={<></>} />
       <Route path="/profileEdit" element={<></>} />
       <Route path="/chat" element={<></>} />

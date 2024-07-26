@@ -3,18 +3,16 @@ import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import { getPostById, Post } from '@/services/detailContent'
 import { verify } from 'crypto'
+import { useParams } from 'react-router-dom'
 
-interface DetailContentProps {
-  postId: number
-}
-
-const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
+const DetailContent: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null)
+  const { id } = useParams()
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const postData = await getPostById(41)
+        const postData = await getPostById(Number(id))
         setPost(postData)
       } catch (error) {
         console.error('Failed to fetch post data:', error)
@@ -22,7 +20,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
     }
 
     fetchPost()
-  }, [postId])
+  }, [id])
 
   if (!post) {
     return <div id="detail_not_found_error">조회된 게시글이 없습니다</div>
@@ -71,7 +69,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
             <div id="detail_user_write_content">{post.content}</div>
             <div id="hashtag">
               {post.hashtags.map((tag, index) => (
-                <span key={index}>#{tag} </span>
+                <span key={index}>{tag} </span>
               ))}
             </div>
           </div>
