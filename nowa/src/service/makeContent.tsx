@@ -13,6 +13,8 @@
 //   formData.append('tags', JSON.stringify(tags))
 //   formData.append('type', selectedOption)
 
+import { Navigate } from 'react-router-dom'
+
 //   try {
 //     const response = await fetch('/api/posts', {
 //       method: 'POST',
@@ -66,7 +68,7 @@ export const uploadContent = async (
   }
 
   try {
-    await fetch(`${API_BASE_URL}/posts`, {
+    const result = await fetch(`${API_BASE_URL}/posts`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -74,6 +76,9 @@ export const uploadContent = async (
       },
       body: formData,
     })
+    const response = await result.json()
+
+    return response
   } catch (error) {
     console.error('Error uploading content:', error)
     throw error
