@@ -1,13 +1,12 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import IndexPage from '@/pages/index'
-import MainPage from '@/pages/Main/main'
-import LoginPage from '@/pages/LoginPage'
-import RegisterPage from '@/pages/RegisterPage'
-import FindIdPage from '@/pages/FindIdPage'
-import FindPasswordPage from '@/pages/FindPasswordPage'
+import IndexPage from '../pages/index'
+import MainPage from '../pages/Main/main'
+import LoginPage from '../pages/LoginPage'
+import RegisterPage from '../pages/RegisterPage'
+import FindIdPage from '../pages/FindIdPage'
+import FindPasswordPage from '../pages/FindPasswordPage'
 import MyPage from '../pages/myPage'
-// import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 const Routers: React.FC = () => {
   return (
@@ -18,7 +17,6 @@ const Routers: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
-      {/* <Route path="/reset-password" element={<ResetPasswordPage />} /> */}
       <Route path="/memberfind" element={<></>} />
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/contentUpload" element={<></>} />
