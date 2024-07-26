@@ -55,7 +55,7 @@ const RightSidebar = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 19rem;
+  width: 19.5rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
@@ -128,8 +128,13 @@ const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 10px;
-  margin-left: 3px;
+  margin-left: 6px;
   align-self: flex-start;
+`
+
+const SearchContainer = styled.div`
+  margin-left: 6px;
+  width: 100%;
 `
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -298,7 +303,11 @@ const Sidebar: React.FC<SidebarProps> = ({
               />
             )}
           </PageTitleWrapper>
-          {shouldShowSearch() && <Search />}
+          {shouldShowSearch() && (
+            <SearchContainer>
+              <Search />
+            </SearchContainer>
+          )}
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
