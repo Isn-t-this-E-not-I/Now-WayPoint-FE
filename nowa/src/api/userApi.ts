@@ -97,3 +97,32 @@ export const resetPassword = async (
     throw error;
   }
 };
+
+export const uploadProfileImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const token = localStorage.getItem('token');
+  const response = await axios.put(`${API_BASE_URL}/user/profileImage/change`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};
+
+export const updatePassword = async (loginId: string, newPassword: string) => {
+  const token = localStorage.getItem('token');
+  const response = await axios.put(`${API_BASE_URL}/user/password/change`, {
+    loginId,
+    password: newPassword,
+  }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return response.data;
+};
