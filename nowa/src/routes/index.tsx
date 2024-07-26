@@ -1,12 +1,16 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import IndexPage from '../pages/index'
-import MainPage from '../pages/Main/main'
-import LoginPage from '../pages/LoginPage'
-import RegisterPage from '../pages/RegisterPage'
-import FindIdPage from '../pages/FindIdPage'
-import FindPasswordPage from '../pages/FindPasswordPage'
+
 import MyPage from '../pages/myPage'
+import IndexPage from '@/pages/index'
+import MainPage from '../pages/Main/main'
+import LoginPage from '@/pages/LoginPage'
+import RegisterPage from '@/pages/RegisterPage'
+import FindIdPage from '@/pages/FindIdPage'
+import FindPasswordPage from '@/pages/FindPasswordPage'
+import DetailContent from '@/pages/DetailContent/detailContent'
+import UploadContent from '@/pages/MakeContent/makeContent'
+// import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 const Routers: React.FC = () => {
   return (
@@ -19,8 +23,9 @@ const Routers: React.FC = () => {
       <Route path="/find-password" element={<FindPasswordPage />} />
       <Route path="/memberfind" element={<></>} />
       <Route path="/mypage" element={<MyPage />} />
-      <Route path="/contentUpload" element={<></>} />
-      {/* <Route path="/detailContent" element={<DetailContent postId={1} />} /> */}
+      <Route path="/mypage" element={<></>} />
+      <Route path="/makeContent" element={<UploadContent />} />
+      <Route path="/detailContent/:id" element={<DetailContent />} />
       <Route path="/contentEdit" element={<></>} />
       <Route path="/profileEdit" element={<></>} />
       <Route path="/chat" element={<></>} /> Route for chat list

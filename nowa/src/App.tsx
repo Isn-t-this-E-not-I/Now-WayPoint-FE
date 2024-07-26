@@ -2,8 +2,8 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
-import '@/styles/tailwind.css'
 import Custom_Theme from '@/hooks/defaultTheme'
+import '@/styles/tailwind.css'
 import Sidebar from './components/Sidebar/sidebar.tsx'
 import MainPage from '@/pages/Main/main.tsx'
 import CreatePage from '@/pages/createPage.tsx'
@@ -35,7 +35,7 @@ const App: React.FC = () => {
       {!isNoSidebarPage && (
         <Sidebar
           theme={'light'}
-          setSelectedPage={setSelectedPage}
+          setSelectedPage={() => {}}
           chatRooms={[]}
           onChatItemClick={() => {}}
           onExitChatRoom={() => {}}
@@ -44,7 +44,7 @@ const App: React.FC = () => {
         />
       )}
       <div style={{ flex: 1 }}>
-        {isNoSidebarPage ? <Routers /> : renderContent()}
+        <Routers />
       </div>
       <Custom_Theme />
     </div>
