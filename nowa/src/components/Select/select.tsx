@@ -1,25 +1,36 @@
 import React from 'react'
 
-interface SelectProps {
-  options: string[]
-  selectCount: number
+interface SelectOption {
+  id: string // 고유한 키 값
+  label: string // 옵션의 라벨
 }
 
-const Select: React.FC<SelectProps> = ({ options, selectCount }) => {
+interface SelectProps {
+  options: SelectOption[]
+  classN: string
+  value: string
+  onChange: (value: string) => void
+}
+
+const Select: React.FC<SelectProps> = ({
+  options,
+  classN,
+  value,
+  onChange,
+}) => {
   return (
     <div>
-      {[...Array(selectCount)].map((_, index) => (
-        <div key={index}>
-          <select className="select select-bordered w-full max-w-xs">
-            <option disabled selected>
-              Who shot first?
-            </option>
-            {options.map((option, i) => (
-              <option key={i}>{option}</option>
-            ))}
-          </select>
-        </div>
-      ))}
+      <select
+        className={classN}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </div>
   )
 }

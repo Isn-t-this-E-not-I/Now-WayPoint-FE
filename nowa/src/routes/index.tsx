@@ -1,19 +1,8 @@
 import React from 'react'
-<<<<<<< Updated upstream
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Main from '@/pages/index'
 import MakeContent from '@/pages/MakeContent/makeContent'
-=======
-import { Route, Routes } from 'react-router-dom'
-import IndexPage from '@/pages/index'
-import MainPage from '@/api/KaKaomap/kakaomain' // 수정된 MainPage 경로
-import LoginPage from '@/pages/LoginPage'
-import RegisterPage from '@/pages/RegisterPage'
-import FindIdPage from '@/pages/FindIdPage'
-import FindPasswordPage from '@/pages/FindPasswordPage'
-import DetailContent from '@/pages/DetailContent/DetailContent'
 // import ResetPasswordPage from '@/pages/ResetPasswordPage';
->>>>>>> Stashed changes
 
 const Routers: React.FC = () => {
   return (

@@ -1,12 +1,24 @@
 import React, { useState } from 'react'
 import '@/styles/MakeContent/makeContent.css'
-import TextArea from '@/components/TextArea/textArea'
+import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
-import { text } from 'stream/consumers'
+import Select from '@/components/Select/select'
+import Modal from '@/components/Modal/modal'
+import { uploadContent } from '@/service/makeContent'
 
-const makeContent = () => {
+const MakeContent = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
+  const [tags, setTags] = useState<string[]>([])
+  const [content, setContent] = useState<string>('')
+  const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
+  const [files, setFiles] = useState<File[]>([])
+
+  const photoOptions = [
+    { id: 'PHOTO', label: '사진' },
+    { id: 'VIDEO', label: '동영상' },
+    { id: 'MP3', label: '음악' },
+  ]
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -20,6 +32,7 @@ const makeContent = () => {
       const fileArray = Array.from(files).filter((file) =>
         file.type.startsWith('image/')
       )
+      setFiles((prevFiles) => [...prevFiles, ...fileArray])
       const fileReaders = fileArray.map((file) => {
         const reader = new FileReader()
         reader.readAsDataURL(file)
@@ -50,6 +63,34 @@ const makeContent = () => {
 
   const handleContextMenu = (event: React.MouseEvent<HTMLImageElement>) => {
     event.preventDefault()
+  }
+
+  const handleAddTag = (tag: string) => {
+    setTags((prevTags) => [...prevTags, `#${tag}`])
+  }
+
+  const handleContentChange = (newContent: string) => {
+    setContent(newContent)
+  }
+
+  const handleOptionChange = (selected: string) => {
+    setSelectedOption(selected)
+  }
+
+  const handleSubmit = async () => {
+    const token = localStorage.getItem('token')
+    try {
+      const result = await uploadContent(
+        files,
+        content,
+        tags,
+        selectedOption,
+        token
+      )
+      console.log('Upload successful:', result)
+    } catch (error) {
+      console.error('Error uploading content:', error)
+    }
   }
 
   return (
@@ -90,7 +131,19 @@ const makeContent = () => {
           </div>
           <p>최대 10개의 파일 첨부가 가능합니다</p>
           <div id="content_dev">
-            <TextArea id={'upload_content_dis'} text={'내용을 입력해주세요'} />
+            <Textarea
+              id={'upload_content_dis'}
+              text={'내용을 입력해주세요'}
+              value={content}
+              onChange={handleContentChange}
+            />
+            <div id="tag_previews">
+              {tags.map((tag, index) => (
+                <span key={index} className="tag_preview">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -103,27 +156,23 @@ const makeContent = () => {
           </div>
 
           <div>
-            {/* <input
-              className="upload_input"
-              type="text"
-              defaultValue={'태그 입력하기'}
-            /> */}
-            {/* <input
-              className="upload_input"
-              type="text"
-              value={'공개 범위 설정'}
-            /> */}
-
             <div id="upload_button_list">
-              {/* <button id="upload_btn_1" className="upload_btn">
-                임시 저장
-              </button>
-              <button id="upload_btn_2" className="upload_btn">
-                게시 하기
-              </button> */}
-
-              <Button id={'upload_btn_1'} text={'태그 입력하기'} />
-              <Button id={'upload_btn_2'} text={'태그 입력하기'} />
+              <Select
+                options={photoOptions}
+                classN={'upload_select'}
+                value={selectedOption}
+                onChange={handleOptionChange}
+              />
+              <Modal
+                id={'upload_btn_1'}
+                title={'태그 입력'}
+                onAddTag={handleAddTag}
+              />
+              <Button
+                id={'upload_btn_2'}
+                text={'게시 하기'}
+                onClick={handleSubmit}
+              />
             </div>
           </div>
         </div>
@@ -132,4 +181,4 @@ const makeContent = () => {
   )
 }
 
-export default makeContent
+export default MakeContent
