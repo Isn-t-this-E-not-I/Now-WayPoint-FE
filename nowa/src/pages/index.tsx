@@ -1,9 +1,13 @@
 import React from 'react'
 
-export default function index() {
-  return (
-    <div>
-      
-    </div>
-  )
+if (typeof window !== 'undefined') {
+  window.global = window;
 }
+
+const IndexPage: React.FC = () => {
+  return <div></div>
+}
+
+export default IndexPage
+
+// 테스트중
