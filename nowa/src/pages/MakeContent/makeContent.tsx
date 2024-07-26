@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import '@/styles/MakeContent/makeContent.css'
 import TextArea from '@/components/TextArea/textArea'
+import Button from '@/components/Button/button'
+import { text } from 'stream/consumers'
 
 const makeContent = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
@@ -101,11 +103,11 @@ const makeContent = () => {
           </div>
 
           <div>
-            <input
+            {/* <input
               className="upload_input"
               type="text"
               defaultValue={'태그 입력하기'}
-            />
+            /> */}
             {/* <input
               className="upload_input"
               type="text"
@@ -113,12 +115,15 @@ const makeContent = () => {
             /> */}
 
             <div id="upload_button_list">
-              <button id="upload_btn_1" className="upload_btn">
+              {/* <button id="upload_btn_1" className="upload_btn">
                 임시 저장
               </button>
               <button id="upload_btn_2" className="upload_btn">
                 게시 하기
-              </button>
+              </button> */}
+
+              <Button id={'upload_btn_1'} text={'태그 입력하기'} />
+              <Button id={'upload_btn_2'} text={'태그 입력하기'} />
             </div>
           </div>
         </div>

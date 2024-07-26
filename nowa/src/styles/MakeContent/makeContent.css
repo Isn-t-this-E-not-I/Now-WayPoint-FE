@@ -51,7 +51,8 @@
 }
 
 /* 업로드 버튼 크기 조정 */
-.upload_btn {
+#upload_btn_1,
+#upload_btn_2 {
   border-radius: 12px;
   width: 500px;
   height: 45px;
