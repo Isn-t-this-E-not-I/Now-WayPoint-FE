@@ -1,7 +1,13 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
-const index: React.FC = () => {
+if (typeof window !== 'undefined') {
+  window.global = window;
+}
+
+const IndexPage: React.FC = () => {
   return <div></div>
 }
 
-export default index
+export default IndexPage
+
+// 테스트중

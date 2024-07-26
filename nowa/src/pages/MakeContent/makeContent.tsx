@@ -3,7 +3,7 @@ import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
-import Modal from '@/components/Modal/modal'
+import Modal from '@/components/Modal/modals'
 import { uploadContent } from '@/service/makeContent'
 
 const MakeContent = () => {
