@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 
-const defaultTheme = () => {
+const defaultTheme: React.FC = () => {
   const [theme, setTheme] = useState('light')
 
   useEffect(() => {

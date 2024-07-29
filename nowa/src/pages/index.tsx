@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 if (typeof window !== 'undefined') {
   window.global = window;

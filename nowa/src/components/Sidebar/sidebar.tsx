@@ -47,7 +47,7 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 2.5rem;
+  width: 2.6rem;
   height: 100%;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
@@ -59,19 +59,18 @@ const RightSidebar = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 19rem;
+  width: 19.5rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
-  margin-left: 2.5rem;
+  margin-left: 2.6rem;
 `
 
 const Blank = styled.div`
   height: 45.5vh;
   width: 2.5rem;
 `
-
-const IconButton = styled.button`
+const LogoIconButtonWrapper = styled.button`
   background: none;
   border: none;
   cursor: pointer;
@@ -79,6 +78,22 @@ const IconButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 7.5px;
+
+  &:focus {
+    outline: none;
+  }
+`
+
+const IconButtonWrapper = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
 
   &:focus {
     outline: none;
@@ -117,8 +132,13 @@ const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 10px;
-  margin-left: 3px;
+  margin-left: 6px;
   align-self: flex-start;
+`
+
+const SearchContainer = styled.div`
+  margin-left: 6px;
+  width: 100%;
 `
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -189,7 +209,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // 검색창 보여주기 여부
   const shouldShowSearch = () => {
-    return activePage !== 'notifications' && activePage !== 'chat'
+    return (
+      activePage !== 'notifications' &&
+      activePage !== 'chat' &&
+      activePage !== ''
+    )
   }
 
   // 현재 페이지 제목
@@ -230,70 +254,70 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <Wrapper>
       <LeftSidebar>
-        <IconButton
+        <LogoIconButtonWrapper
           onClick={() => {
             setSelectedPage('main');
           }}
         >
           <LogoIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </LogoIconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setSelectedPage('main');
           }}
         >
           <MainIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setSelectedPage('create');
           }}
         >
           <NewCreateIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('notifications');
           }}
         >
           <NotificationsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             connectAndSubscribe;
             setActivePage('chat');
           }}
         >
           <ChatIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('contents');
           }}
         >
           <ContentsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('followContents');
           }}
         >
           <FollowContentsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setSelectedPage('myPage');
           }}
         >
           <MyPageIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setLogoutModalOpen(true);
           }}
         >
           <ExitIcon theme={theme} />
-        </IconButton>
+        </IconButtonWrapper>
         <Blank />
         <ThemeController />
       </LeftSidebar>
@@ -306,12 +330,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               <CreateChatRoomButton
                 theme={theme}
                 token={token}
-                stompClient={getStompClient()} // 현재 연결된 stompClient를 전달
                 onCreateChat={onCreateChat}
               />
             )}
           </PageTitleWrapper>
-          {shouldShowSearch() && <Search />}
+          {shouldShowSearch() && (
+            <SearchContainer>
+              <Search />
+            </SearchContainer>
+          )}
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>

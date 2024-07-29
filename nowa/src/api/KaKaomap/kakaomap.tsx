@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'https://15.165.236.244:8080/api'
+const API_BASE_URL = import.meta.env.VITE_APP_API
 
 const getCookieValue = (name: string): string | null => {
   const value = `; ${document.cookie}`

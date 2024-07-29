@@ -10,6 +10,7 @@ import defaultProfileImage from '../../../defaultprofile.png'
 import { updatePassword, uploadProfileImage } from '../api/userApi'
 
 const MyPage = () => {
+  const location = import.meta.env.VITE_APP_API
   const [isModalOpen, setModalOpen] = useState(false)
   const [isPasswordModalOpen, setPasswordModalOpen] = useState(false)
   const [currentPassword, setCurrentPassword] = useState('')
@@ -25,7 +26,6 @@ const MyPage = () => {
     description: string
   }>(null)
   const navigate = useNavigate()
-  const location = import.meta.env.VITE_APP_API
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -87,7 +87,7 @@ const MyPage = () => {
 
     try {
       await axios.put(
-        `${location}/nickname/change`,
+        `${location}/user/nickname/change`,
         {
           nickname: userInfo.nickname,
         },

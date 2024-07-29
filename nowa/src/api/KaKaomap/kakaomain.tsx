@@ -25,7 +25,7 @@ const MainPage: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false) // 초기화 상태 추가
 
   useEffect(() => {
-    const sock = new SockJS('https://15.165.236.244:8080/main')
+    const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
     console.log(token)
 
     const client = new Client({

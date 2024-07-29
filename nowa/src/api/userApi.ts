@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_APP_API
+console.log(API_BASE_URL)
 
 interface LoginPayload {
   email: string
