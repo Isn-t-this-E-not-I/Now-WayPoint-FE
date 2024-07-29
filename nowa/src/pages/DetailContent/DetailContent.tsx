@@ -45,7 +45,7 @@ const DetailContent: React.FC = () => {
 
   const handleCommentDelete = async (commentId: number) => {
     try {
-      await deleteCommentById(Number(id), commentId)
+      const result = await deleteCommentById(Number(id), commentId)
       setComments((prevComments) =>
         prevComments.filter((comment) => comment.id !== commentId)
       )

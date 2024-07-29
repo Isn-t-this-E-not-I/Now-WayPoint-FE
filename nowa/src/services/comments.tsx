@@ -33,7 +33,7 @@ const getCommentsByPostId = async (postId: number): Promise<Comment[]> => {
 const deleteCommentById = async (
   postId: number,
   commentId: number
-): Promise<void> => {
+): Promise<void | string> => {
   const token = localStorage.getItem('token')
 
   if (!token) {
@@ -47,8 +47,13 @@ const deleteCommentById = async (
       },
     })
   } catch (error) {
-    console.error('Error deleting the comment:', error)
-    throw error
+    if (axios.isAxiosError(error) && error.response?.status === 400) {
+      const result = '댓글을 삭제할 권한이 없습니다.'
+      return result
+    } else {
+      console.error('Error deleting comment:', error)
+      throw new Error('댓글을 삭제하는 중 오류가 발생했습니다.')
+    }
   }
 }
 
