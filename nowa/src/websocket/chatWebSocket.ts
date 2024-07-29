@@ -14,7 +14,7 @@ export const connectAndSubscribe = (
   setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>,
   onError: (error: any) => void
 ) => {
-  const socket = new SockJS('http://15.165.236.244:8080/ws')
+  const socket = new SockJS('https://subdomain.now-waypoint.store:8080/ws')
   stompClient = Stomp.over(() => socket)
 
   // 연결 성공 시 호출되는 콜백
