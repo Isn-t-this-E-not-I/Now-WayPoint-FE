@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import { getPostById, Post } from '@/services/detailContent'
-import { getCommentsByPostId, Comment } from '@/services/comments'
+import {
+  getCommentsByPostId,
+  deleteCommentById,
+  Comment,
+} from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
 import { useParams } from 'react-router-dom'
 
@@ -20,6 +24,7 @@ const DetailContent: React.FC = () => {
 
         const commentsData = await getCommentsByPostId(Number(id))
         setComments(commentsData)
+        console.log(commentsData)
 
         if (postData.locationTag) {
           const [longitude, latitude] = postData.locationTag
@@ -35,6 +40,17 @@ const DetailContent: React.FC = () => {
 
     fetchPostAndComments()
   }, [id])
+
+  const handle_comment_Delete = async (commentId: number) => {
+    try {
+      await deleteCommentById(Number(id), commentId)
+      setComments((prevComments) =>
+        prevComments.filter((comment) => comment.id !== commentId)
+      )
+    } catch (error) {
+      console.error('Failed to delete comment:', error)
+    }
+  }
 
   if (!post) {
     return <div id="detail_not_found_error">조회된 게시글이 없습니다</div>
@@ -89,15 +105,44 @@ const DetailContent: React.FC = () => {
           </div>
 
           <div id="detail_content_coment">
-            {/* {comments.map((comment) => (
-              <div key={comment.id} id="detail_coment_deep">
-                <div id="test_coment_img"></div>
-                <div>
-                  <div id="detail_coment_id">{comment.userId}</div>
-                  <div id="detail_coment_content">{comment.content}</div>
+            {comments.length > 0 ? (
+              comments.map((comment) => (
+                <div key={comment.id} id="detail_coment_deep">
+                  <div id="test_coment_img">
+                    <img
+                      id="d"
+                      alt="프로필 이미지"
+                      src={comment.profileImageUrl}
+                    />
+                  </div>
+                  <div>
+                    <div id="detail_coment_id">{comment.nickname}</div>
+                    <div id="detail_coment_content">{comment.content}</div>
+                    <div id="detail_coment_edit_line">
+                      {/* <div id="detail_coment_edit">
+                        <a href="#">수정</a>
+                        </div> */}
+                      <div id="detail_coment_delete">
+                        <a
+                          href=""
+                          onClick={(e) => {
+                            e.preventDefault()
+                            handle_comment_Delete(comment.id)
+                          }}
+                        >
+                          삭제
+                        </a>
+                      </div>
+                      <div id="detail_coment_date">
+                        {formatDate(comment.createdAt)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))} */}
+              ))
+            ) : (
+              <div id="no_comments">댓글이 존재하지 않습니다</div>
+            )}
             <div id="detail_content_edit">
               <DropDown buttonText={con_Text} items={con_drop} />
             </div>

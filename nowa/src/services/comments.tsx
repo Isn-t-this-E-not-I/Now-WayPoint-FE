@@ -4,8 +4,8 @@ const API_URL = import.meta.env.VITE_APP_API
 
 export interface Comment {
   id: number
-  postId: number
-  userId: string
+  profileImageUrl: string
+  nickname: string
   content: string
   createdAt: string
 }
@@ -23,12 +23,33 @@ const getCommentsByPostId = async (postId: number): Promise<Comment[]> => {
         Authorization: `Bearer ${token}`,
       },
     })
-
-    return response.data
+    return response.data.content
   } catch (error) {
     console.error('Error fetching the comments data:', error)
     throw error
   }
 }
 
-export { getCommentsByPostId }
+const deleteCommentById = async (
+  postId: number,
+  commentId: number
+): Promise<void> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    await axios.delete(`${API_URL}/posts/${postId}/comments/${commentId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  } catch (error) {
+    console.error('Error deleting the comment:', error)
+    throw error
+  }
+}
+
+export { getCommentsByPostId, deleteCommentById }

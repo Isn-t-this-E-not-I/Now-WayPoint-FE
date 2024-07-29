@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://15.165.236.244:8080/api'
+const API_BASE_URL = import.meta.env.VITE_APP_API
 // const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 // const API_BASE_URL = 'http://localhost:8080/api'
@@ -70,12 +70,16 @@ export const findPassword = async (loginId: string, email: string) => {
   }
 }
 
-export const sendVerificationCode = async (email: string, state: string, loginId: string) => {
+export const sendVerificationCode = async (
+  email: string,
+  state: string,
+  loginId: string
+) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/mail/send`, {
       email,
       state,
-      loginId
+      loginId,
     })
     return response.data // 이메일 발송 성공 여부 반환
   } catch (error) {

@@ -115,7 +115,7 @@
   border-radius: 50px;
   width: 40px;
   height: 40px;
-  margin: auto 18px 18px 18px;
+  margin: 0px 18px 18px 18px;
 }
 
 /* 댓글 단 사람 위치 조정 */
@@ -134,6 +134,27 @@
 #detail_coment_content {
   font-size: 12px;
   width: 390px;
+}
+
+/* 댓글 작성 날짜  */
+#detail_coment_date {
+  font-size: 12px;
+}
+
+/* 댓글 수정 삭제 라인 */
+#detail_coment_edit_line {
+  display: flex;
+  font-size: 12px;
+}
+
+/* 댓글 삭제 */
+#detail_coment_delete {
+  margin-right: 10px;
+}
+
+#detail_coment_delete:hover {
+  color: rgb(101, 169, 228);
+  transition: 0.25s;
 }
 
 /* 댓글 end */
