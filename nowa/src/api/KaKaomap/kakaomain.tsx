@@ -21,7 +21,7 @@ const MainPage: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false)
 
   useEffect(() => {
-    const sock = new SockJS('http://15.165.236.244:8080/main')
+    const sock = new SockJS('https://15.165.236.244:8080/main')
     console.log(token)
 
     const client = new Client({

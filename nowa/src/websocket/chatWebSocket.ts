@@ -2,7 +2,7 @@ import { Client, IMessage } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { ChatRoom } from '../types/index'
 
-const SOCKET_URL = 'http://localhost:8080/ws' // 웹소켓 서버 URL
+const SOCKET_URL = 'https://subdomain.now-waypoint.store:8080/ws' // 웹소켓 서버 URL
 
 let stompClient: Client | null = null
 

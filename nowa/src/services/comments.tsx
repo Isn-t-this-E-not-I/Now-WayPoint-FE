@@ -52,4 +52,28 @@ const deleteCommentById = async (
   }
 }
 
-export { getCommentsByPostId, deleteCommentById }
+const createComment = async (postId: number, content: string) => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/posts/${postId}/comments`,
+      { content },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error('Error creating the comment:', error)
+    throw error
+  }
+}
+
+export { getCommentsByPostId, deleteCommentById, createComment }

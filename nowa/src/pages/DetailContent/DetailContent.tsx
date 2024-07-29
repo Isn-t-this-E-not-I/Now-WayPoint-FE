@@ -5,6 +5,7 @@ import { getPostById, Post } from '@/services/detailContent'
 import {
   getCommentsByPostId,
   deleteCommentById,
+  createComment, // 댓글 작성 함수 추가
   Comment,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
@@ -14,6 +15,7 @@ const DetailContent: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
+  const [newComment, setNewComment] = useState<string>('') // 새로운 댓글 내용 상태 추가
   const { id } = useParams()
 
   useEffect(() => {
@@ -41,7 +43,7 @@ const DetailContent: React.FC = () => {
     fetchPostAndComments()
   }, [id])
 
-  const handle_comment_Delete = async (commentId: number) => {
+  const handleCommentDelete = async (commentId: number) => {
     try {
       await deleteCommentById(Number(id), commentId)
       setComments((prevComments) =>
@@ -49,6 +51,17 @@ const DetailContent: React.FC = () => {
       )
     } catch (error) {
       console.error('Failed to delete comment:', error)
+    }
+  }
+
+  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    try {
+      const newCommentData = await createComment(Number(id), newComment) // 댓글 작성 함수 호출
+      setComments((prevComments) => [...prevComments, newCommentData])
+      setNewComment('') // 댓글 작성 후 입력 필드 초기화
+    } catch (error) {
+      console.error('Failed to submit comment:', error)
     }
   }
 
@@ -127,7 +140,7 @@ const DetailContent: React.FC = () => {
                           href=""
                           onClick={(e) => {
                             e.preventDefault()
-                            handle_comment_Delete(comment.id)
+                            handleCommentDelete(comment.id)
                           }}
                         >
                           삭제
@@ -153,10 +166,14 @@ const DetailContent: React.FC = () => {
             <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
           </div>
 
-          <form id="detail_coment_write">
-            <textarea id="detail_coment_content_content"></textarea>
+          <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
+            <textarea
+              id="detail_coment_content_content"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            ></textarea>
             <div id="detail_coment_write_button">
-              <button>게시</button>
+              <button type="submit">게시</button>
             </div>
           </form>
         </div>
