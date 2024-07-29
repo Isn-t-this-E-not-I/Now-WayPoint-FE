@@ -6,22 +6,23 @@ import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 
 const LoginPage: React.FC = () => {
-  const [loginId, setLoginId] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [nickname, setNickname] = useState('');
-  const [rememberMe, setRememberMe] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const navigate = useNavigate();
+  const [loginId, setLoginId] = useState<string>('')
+  const [password, setPassword] = useState<string>('')
+  const [nickname, setNickname] = useState('')
+  const [rememberMe, setRememberMe] = useState<boolean>(false)
+  const [error, setError] = useState<string>('')
+  const navigate = useNavigate()
+  const location = import.meta.env.VITE_APP_API
 
   const handleLogin = async () => {
     try {
-      const data = await login({ loginId, password });
+      const data = await login({ loginId, password })
       // console.log('API 응답 전체:', data);
-      console.log('로그인 성공:', data.token);
-      navigate('/main', { replace: true }); // *
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('nickname', data.nickname);
-      setNickname(data.nickname);
+      console.log('로그인 성공:', data.token)
+      navigate('/main', { replace: true }) // *
+      localStorage.setItem('token', data.token)
+      localStorage.setItem('nickname', data.nickname)
+      setNickname(data.nickname)
       // navigate('/main', { replace: true, state: { token: data.token } });
     } catch (error) {
       console.error('로그인 실패:', error)
@@ -29,19 +30,17 @@ const LoginPage: React.FC = () => {
     }
   }
 
-
   const handleKakaoLogin = async () => {
     try {
-      window.location.href = 'http://15.165.236.244:8080/api/user/login/kakao';
+      window.location.href = `${location}/user/login/kakao`
     } catch (error) {
       console.error('Kakao login failed:', error)
     }
   }
 
-
-  const goToRegister = () => navigate('/register');
-  const goToFindId = () => navigate('/find-id');
-  const goToFindPassword = () => navigate('/find-password');
+  const goToRegister = () => navigate('/register')
+  const goToFindId = () => navigate('/find-id')
+  const goToFindPassword = () => navigate('/find-password')
   // const goToResetPassword = () => navigate('/reset-password'); // 폐기
 
   return (
