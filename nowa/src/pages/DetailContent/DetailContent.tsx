@@ -5,7 +5,7 @@ import { getPostById, Post } from '@/services/detailContent'
 import {
   getCommentsByPostId,
   deleteCommentById,
-  createComment, // 댓글 작성 함수 추가
+  createComment,
   Comment,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
@@ -46,11 +46,16 @@ const DetailContent: React.FC = () => {
   const handleCommentDelete = async (commentId: number) => {
     try {
       const result = await deleteCommentById(Number(id), commentId)
-      setComments((prevComments) =>
-        prevComments.filter((comment) => comment.id !== commentId)
-      )
+      if (typeof result === 'string') {
+        alert(result)
+      } else {
+        setComments((prevComments) =>
+          prevComments.filter((comment) => comment.id !== commentId)
+        )
+      }
     } catch (error) {
       console.error('Failed to delete comment:', error)
+      alert('댓글을 삭제하는 중 오류가 발생했습니다.')
     }
   }
 
@@ -62,6 +67,7 @@ const DetailContent: React.FC = () => {
       setNewComment('') // 댓글 작성 후 입력 필드 초기화
     } catch (error) {
       console.error('Failed to submit comment:', error)
+      alert('댓글 작성에 실패했습니다.')
     }
   }
 
@@ -123,7 +129,7 @@ const DetailContent: React.FC = () => {
                 <div key={comment.id} id="detail_coment_deep">
                   <div id="test_coment_img">
                     <img
-                      id="d"
+                      id="d_d"
                       alt="프로필 이미지"
                       src={comment.profileImageUrl}
                     />
@@ -132,9 +138,6 @@ const DetailContent: React.FC = () => {
                     <div id="detail_coment_id">{comment.nickname}</div>
                     <div id="detail_coment_content">{comment.content}</div>
                     <div id="detail_coment_edit_line">
-                      {/* <div id="detail_coment_edit">
-                        <a href="#">수정</a>
-                        </div> */}
                       <div id="detail_coment_delete">
                         <a
                           href=""
