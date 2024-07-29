@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, useLocation } from 'react-router-dom';
 import Routers from './routes';
 import '@/styles/tailwind.css';
-import Custom_Theme from '@/hooks/defaultTheme';
+import Custom_Theme from './hooks/defaultTheme';
 import Sidebar from './components/Sidebar/sidebar.tsx';
-import MainPage from '@/pages/Main/main.tsx'
-import CreatePage from '@/pages/createPage.tsx'
-import MyPage from '@/pages/myPage.tsx'
+import MainPage from './pages/Main/main.tsx'
+import CreatePage from './pages/createPage.tsx'
+import MyPage from './pages/myPage.tsx'
 
 const App: React.FC = () => {
   const location = useLocation();
