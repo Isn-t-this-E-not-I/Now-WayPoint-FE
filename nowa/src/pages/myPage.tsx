@@ -31,19 +31,24 @@ const ProfileImage = styled.img`
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  margin-bottom: 10px;
+  margin-top: 30px;
+  margin-bottom: 30px;
 `;
+
 
 const ProfileInfo = styled.div`
   text-align: center;
+  margin-top: 20px;
 `;
 
 const Stats = styled.div`
   margin-top: 10px;
+  margin-bottom: 20px;
 `;
 
 const StatItem = styled.div`
   margin-bottom: 5px;
+  margin-bottom: 10px;
 `;
 
 const Description = styled.p`
@@ -135,9 +140,9 @@ const MyPage: React.FC = () => {
         <ProfileInfo>
           <h3>{userInfo.nickname}</h3>
           <Stats>
-            <StatItem>팔로잉: {userInfo.followings}</StatItem>
-            <StatItem>팔로워: {userInfo.followers}</StatItem>
-            <StatItem>게시글: {userInfo.postCount}</StatItem>
+            <StatItem>팔로잉 {userInfo.followings}</StatItem>
+            <StatItem>팔로워 {userInfo.followers}</StatItem>
+            <StatItem>게시글 {userInfo.postCount}</StatItem>
           </Stats>
           <Description>{userInfo.description}</Description>
         </ProfileInfo>
