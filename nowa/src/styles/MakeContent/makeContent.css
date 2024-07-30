@@ -102,7 +102,7 @@
 #upload_img {
   width: 70px;
   height: 70px;
-  margin: 15px auto 15px 50px;
+  margin: 15px 15px 15px 50px;
 }
 
 #image_preview_container {
@@ -110,7 +110,7 @@
 }
 
 #image_preview {
-  margin: 15px auto 10px 15px;
+  margin: 10px auto 10px 10px;
   width: 70px;
   height: 70px;
 }
@@ -156,7 +156,68 @@
 }
 
 .tag_preview {
-  background-color: #f0f0f0;
-  border-radius: 5px;
+  display: inline-block;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  padding: 3px 5px;
+  margin: 2px;
+}
+
+.remove_tag_button {
+  background: none;
+  border: none;
+  color: rgba(70, 70, 70, 0.692);
+  font-weight: bold;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+/* 이미지 업로드 제거 */
+.image_preview_wrapper {
+  display: inline-block;
+  position: relative;
+  margin: 5px;
+}
+
+.remove_image_button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: rgb(255, 0, 0);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 10px 5px 0px 0px;
+}
+
+/* 파일업로드 미리보기 */
+.file_preview_wrapper {
+  display: inline-block;
+  position: relative;
+  margin: 5px;
+}
+
+.remove_file_button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
   padding: 5px;
+}
+
+#image_preview {
+  max-width: 80px;
+  max-height: 80px;
+}
+
+#video_preview,
+#audio_preview {
+  margin-top: 15px;
+  max-width: 60px;
+  max-height: 60px;
 }

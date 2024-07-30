@@ -4,6 +4,7 @@ import { ChatRoom, ChatMessage } from '@/types'
 
 let stompClient: CompatClient | null = null
 let chatRoomSubscription: any = null
+const SOCKET_URL = 'https://subdomain.now-waypoint.store:8080/ws' // 웹소켓 서버 URL
 
 export const getStompClient = () => stompClient
 
