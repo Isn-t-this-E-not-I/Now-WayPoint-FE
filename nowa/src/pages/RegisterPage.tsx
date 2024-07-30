@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import TextInput from '../components/TextInput/textInput'
 import { register, sendVerificationCode } from '../api/userApi'
-// import { RegistrationErrorResponse } from '../api/userApi';
 
 const RegisterPage: React.FC = () => {
   const [loginId, setLoginId] = useState('')
@@ -17,8 +16,18 @@ const RegisterPage: React.FC = () => {
   const [message, setMessage] = useState('')
   const navigate = useNavigate()
 
+  const isNicknameValid = (nickname: string) => {
+    // 공백과 특수문자가 포함되지 않도록 정규식 사용
+    const regex = /^[a-zA-Z0-9]*$/;
+    return regex.test(nickname);
+  };
+
   const handleSendCode = async () => {
     if (loginId && email && password && name && nickname) {
+      if (!isNicknameValid(nickname)) {
+        setMessage('닉네임에는 공백이나 특수 문자를 포함할 수 없습니다.');
+        return;
+      }
       try {
         const verificationResponse = await sendVerificationCode(
           email,
