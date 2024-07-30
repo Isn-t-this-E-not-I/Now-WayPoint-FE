@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components'
 import {
   ChatIcon,
@@ -152,6 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [activePage, setActivePage] = useState<string>('')
   const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([])
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
   // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
@@ -310,7 +312,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('myPage');
+            navigate('/mypage'); // 마이페이지로 리디렉션
           }}
         >
           <MyPageIcon theme={theme} />
