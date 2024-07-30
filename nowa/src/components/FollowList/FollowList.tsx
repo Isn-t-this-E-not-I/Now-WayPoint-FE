@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const FollowListWrapper = styled.div`
@@ -12,6 +12,7 @@ const FollowItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
+  border-bottom: 1px solid #ccc;
 `;
 
 const FollowName = styled.div`
@@ -45,14 +46,19 @@ interface FollowListProps {
   followings: { name: string; nickname: string; profileImageUrl: string }[];
   followers: { name: string; nickname: string; profileImageUrl: string }[];
   isFollowingList: boolean;
+  searchQuery: string;
 }
 
-const FollowList: React.FC<FollowListProps> = ({ followings, followers, isFollowingList }) => {
+const FollowList: React.FC<FollowListProps> = ({ followings, followers, isFollowingList, searchQuery }) => {
   const list = isFollowingList ? followings : followers;
+
+  const filteredList = list.filter(user =>
+    user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
+  );
 
   return (
     <FollowListWrapper>
-      {list.map((user, index) => (
+      {filteredList.map((user, index) => (
         <FollowItem key={index}>
           <FollowName>
             <ProfileImage src={user.profileImageUrl || '/defaultprofile.png'} alt="Profile" />

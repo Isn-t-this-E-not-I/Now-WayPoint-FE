@@ -83,6 +83,7 @@ const MyPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('posts');
+  const [searchQuery, setSearchQuery] = useState('');
   const location = import.meta.env.VITE_APP_API;
 
   const fetchUserData = async () => {
@@ -159,6 +160,10 @@ const MyPage: React.FC = () => {
     navigate('/mypage/profileEdit');
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -194,13 +199,39 @@ const MyPage: React.FC = () => {
         {selectedTab === 'followings' && (
           <>
             <SectionTitle>팔로잉</SectionTitle>
-            <FollowList followings={userInfo.followingsList} followers={[]} isFollowingList={true} />
+            <input 
+              type="text"
+              placeholder="검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+              }}
+            />
+            <FollowList followings={userInfo.followingsList} followers={[]} isFollowingList={true} searchQuery={searchQuery} />
           </>
         )}
         {selectedTab === 'followers' && (
           <>
             <SectionTitle>팔로워</SectionTitle>
-            <FollowList followings={[]} followers={userInfo.followersList} isFollowingList={false} />
+            <input 
+              type="text"
+              placeholder="검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+              }}
+            />
+            <FollowList followings={[]} followers={userInfo.followersList} isFollowingList={false} searchQuery={searchQuery} />
           </>
         )}
       </ContentSection>
