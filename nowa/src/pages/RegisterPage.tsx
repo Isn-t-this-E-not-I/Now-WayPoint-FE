@@ -17,7 +17,6 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate()
 
   const isNicknameValid = (nickname: string) => {
-    // 공백과 특수문자가 포함되지 않도록 정규식 사용
     const regex = /^[a-zA-Z0-9]*$/;
     return regex.test(nickname);
   };
