@@ -12,8 +12,9 @@ import FindPasswordPage from '@/pages/FindPasswordPage'
 import DetailContent from '@/pages/DetailContent/DetailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
+import UserPage from '@/pages/UserPage';
 import EditContent from '@/pages/EditContent/editContent'
-// import ResetPasswordPage from '@/pages/ResetPasswordPage';
+
 
 const Routers: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const Routers: React.FC = () => {
         <Route path="/profileEdit" element={<></>} />
         <Route path="/chat" element={<></>} />
         <Route path="/notification" element={<></>} />
+        <Route path="/user/:nickname" element={<UserPage />} />
       </Route>
     </Routes>
   )

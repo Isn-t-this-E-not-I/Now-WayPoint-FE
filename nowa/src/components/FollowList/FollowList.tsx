@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Button from '../Button/button';
+import { useNavigate } from 'react-router-dom';
 
 const FollowListWrapper = styled.div`
   display: flex;
@@ -19,6 +20,7 @@ const FollowItem = styled.div`
 const FollowName = styled.div`
   display: flex;
   align-items: center;
+  cursor: pointer;
 `;
 
 const ProfileImage = styled.img`
@@ -51,15 +53,21 @@ interface FollowListProps {
 }
 
 const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow }) => {
+  const navigate = useNavigate();
+
   const filteredList = users.filter((user) =>
     user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
   );
+
+  const handleProfileClick = (nickname: string) => {
+    navigate(`/user/${nickname}`);
+  };
 
   return (
     <FollowListWrapper>
       {filteredList.map((user, index) => (
         <FollowItem key={index}>
-          <FollowName>
+          <FollowName onClick={() => handleProfileClick(user.nickname)}>
             <ProfileImage src={user.profileImageUrl || '/defaultprofile.png'} alt="Profile" />
             <FollowDetails>
               <UserName>{user.name}</UserName>
