@@ -11,7 +11,7 @@ import FindIdPage from '@/pages/FindIdPage'
 import FindPasswordPage from '@/pages/FindPasswordPage'
 import DetailContent from '@/pages/DetailContent/detailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
-import PrivateRoute from '@/components/PrivateRoute/privateRoute'
+// import PrivateRoute from '@/components/PrivateRoute/privateRoute'
 
 const Routers: React.FC = () => {
   return (
