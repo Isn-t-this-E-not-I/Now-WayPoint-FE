@@ -8,7 +8,7 @@ export interface Post {
   hashtags: string[]
   locationTag: string
   category: string
-  mediaUrl: string
+  mediaUrls: string[]
   nickname: string
   createdAt: string
   likeCount: number
@@ -44,4 +44,23 @@ const getPostById = async (postId: number): Promise<Post> => {
   }
 }
 
-export { getPostById }
+const deletePostById = async (postId: number): Promise<void> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    await axios.delete(`${API_URL}/posts/${postId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+  } catch (error) {
+    console.error('Error deleting the post:', error)
+    throw error
+  }
+}
+
+export { getPostById, deletePostById }

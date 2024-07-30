@@ -1,20 +1,20 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { useEffect, useState, ChangeEvent } from 'react'
 import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
 import Modal from '@/components/Modal/modals'
-import { uploadContent } from '@/services/makeContent'
-import { useNavigate } from 'react-router-dom'
+import { getPostById, updateContent, Post } from '@/services/editContent'
+import { useParams, useNavigate } from 'react-router-dom'
 
-const MakeContent = () => {
+const EditContent = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [content, setContent] = useState<string>('')
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
   const [files, setFiles] = useState<File[]>([])
-
+  const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
   const photoOptions = [
@@ -22,6 +22,22 @@ const MakeContent = () => {
     { id: 'VIDEO', label: '동영상' },
     { id: 'MP3', label: '음악' },
   ]
+
+  useEffect(() => {
+    const fetchPostData = async () => {
+      try {
+        const postData: Post = await getPostById(Number(id))
+        setContent(postData.content || '')
+        setTags(postData.hashtags || [])
+        setSelectedOption(postData.category || 'PHOTO')
+        setPreviewSrcs(postData.mediaUrls || [])
+      } catch (error) {
+        console.error('Failed to fetch post data:', error)
+      }
+    }
+
+    fetchPostData()
+  }, [id])
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -101,27 +117,31 @@ const MakeContent = () => {
   const handleSubmit = async () => {
     const token = localStorage.getItem('token')
     try {
-      const response = await uploadContent(
+      const response = await updateContent(
+        Number(id),
         files,
         content,
         tags,
         selectedOption,
         token
       )
-      const id = response.id
-      if (id) {
+      if (response.success) {
         navigate(`/detailContent/${id}`)
       }
     } catch (error) {
-      console.error('Error uploading content:', error)
+      console.error('Error updating content:', error)
     }
+  }
+
+  if (!content && !tags.length && !selectedOption && !previewSrcs.length) {
+    return <div>Loading...</div>
   }
 
   return (
     <div>
       <div id="upload_content">
         <div id="upload_image">
-          <div id="content_title">컨텐츠 작성</div>
+          <div id="content_title">컨텐츠 수정</div>
           <hr />
           <div id="upload_forder">
             <div id="image_preview_container">
@@ -241,7 +261,7 @@ const MakeContent = () => {
               />
               <Button
                 id={'upload_btn_2'}
-                children={'게시 하기'}
+                children={'수정 하기'}
                 onClick={handleSubmit}
               />
             </div>
@@ -252,4 +272,4 @@ const MakeContent = () => {
   )
 }
 
-export default MakeContent
+export default EditContent
