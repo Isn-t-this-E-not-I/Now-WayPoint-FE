@@ -4,6 +4,8 @@ import axios from 'axios';
 import Button from '../components/Button/button';
 import styled from 'styled-components';
 import defaultProfileImage from '../../../defaultprofile.png';
+import Posts from '../components/Posts/Posts';
+import FollowList from '../components/FollowList/FollowList';
 
 const Container = styled.div`
   display: flex;
@@ -25,6 +27,8 @@ const ProfileSection = styled.div`
 const ContentSection = styled.div`
   flex: 5;
   padding: 20px;
+  margin-left: 40px;
+  margin-right: 40px;
 `;
 
 const ProfileImage = styled.img`
@@ -34,7 +38,6 @@ const ProfileImage = styled.img`
   margin-top: 30px;
   margin-bottom: 30px;
 `;
-
 
 const ProfileInfo = styled.div`
   text-align: center;
@@ -48,11 +51,20 @@ const Stats = styled.div`
 
 const StatItem = styled.div`
   margin-bottom: 5px;
-  margin-bottom: 10px;
+  cursor: pointer;
 `;
 
 const Description = styled.p`
   margin-top: 10px;
+`;
+
+const SectionTitle = styled.h2`
+  font-size: 20px;
+  margin-bottom: 20px;
+`;
+
+const NicknameTitle = styled.h3`
+  font-size: 16px;
 `;
 
 interface UserProfile {
@@ -62,12 +74,16 @@ interface UserProfile {
   followers: number;
   followings: number;
   postCount: number;
+  posts: { mediaUrls: string[], createdAt: string }[];
+  followersList: { nickname: string }[];
+  followingsList: { nickname: string }[];
 }
 
 const MyPage: React.FC = () => {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('posts');
   const location = import.meta.env.VITE_APP_API;
 
   const fetchUserData = async () => {
@@ -93,15 +109,12 @@ const MyPage: React.FC = () => {
         followers: parseInt(response.data.follower, 10),
         followings: parseInt(response.data.following, 10),
         postCount: response.data.posts ? response.data.posts.length : 0,
-      });
-
-      console.log('UserInfo:', {
-        nickname: response.data.nickname,
-        profileImageUrl: response.data.profileImageUrl || defaultProfileImage,
-        description: response.data.description,
-        followers: parseInt(response.data.follower, 10),
-        followings: parseInt(response.data.following, 10),
-        postCount: response.data.posts ? response.data.posts.length : 0,
+        posts: response.data.posts ? response.data.posts.map((post: any) => ({
+          mediaUrls: post.mediaUrls,
+          createdAt: post.createdAt
+        })) : [],
+        followersList: response.data.followers ? response.data.followers.map((user: any) => ({ nickname: user.nickname })) : [],
+        followingsList: response.data.followings ? response.data.followings.map((user: any) => ({ nickname: user.nickname })) : [],
       });
 
       setLoading(false);
@@ -130,25 +143,39 @@ const MyPage: React.FC = () => {
   return (
     <Container>
       <ProfileSection>
-        <ProfileImage 
-          src={userInfo.profileImageUrl} 
-          alt="Profile" 
-        />
+        <ProfileImage src={userInfo.profileImageUrl} alt="Profile" />
         <Button className="btn-primary" onClick={goToProfileEdit}>
           프로필 편집
         </Button>
         <ProfileInfo>
-          <h3>{userInfo.nickname}</h3>
+          <NicknameTitle>{userInfo.nickname}</NicknameTitle>
           <Stats>
-            <StatItem>팔로잉 {userInfo.followings}</StatItem>
-            <StatItem>팔로워 {userInfo.followers}</StatItem>
-            <StatItem>게시글 {userInfo.postCount}</StatItem>
+            <StatItem onClick={() => setSelectedTab('posts')}>게시글 {userInfo.postCount}</StatItem>
+            <StatItem onClick={() => setSelectedTab('followings')}>팔로잉 {userInfo.followings}</StatItem>
+            <StatItem onClick={() => setSelectedTab('followers')}>팔로워 {userInfo.followers}</StatItem>
           </Stats>
           <Description>{userInfo.description}</Description>
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
-        {/* 오른쪽 섹션 */}
+        {selectedTab === 'posts' && (
+          <>
+            <SectionTitle>게시글</SectionTitle>
+            <Posts posts={userInfo.posts} />
+          </>
+        )}
+        {selectedTab === 'followings' && (
+          <>
+            <SectionTitle>팔로잉</SectionTitle>
+            <FollowList followings={userInfo.followingsList} followers={[]} isFollowingList={true} />
+          </>
+        )}
+        {selectedTab === 'followers' && (
+          <>
+            <SectionTitle>팔로워</SectionTitle>
+            <FollowList followings={[]} followers={userInfo.followersList} isFollowingList={false} />
+          </>
+        )}
       </ContentSection>
     </Container>
   );
