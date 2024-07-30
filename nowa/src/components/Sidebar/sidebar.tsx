@@ -157,8 +157,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
 
   const token =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
-  const userNickname = 'sol'
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0dEB0ZXN0LmNvbSIsImlhdCI6MTcyMjMwNTk1MSwiZXhwIjoxNzIyOTEwNzUxfQ.6_9WlSPqRYbbHv7VH9e53hVnQV5PQcpnc-VKDdZAHfgAahAJfcO1kDQ8EhqdBpPV'
+  const userNickname = '예진스'
 
   // 채팅방 목록을 가져오는 useEffect 추가
   useEffect(() => {
@@ -231,11 +231,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         return ''
     }
   };
+
   
   const handleLogout = async () => {
+    console.log(token);
     try {
+      const token = localStorage.getItem('token');
       await axios.post(
-        'https://15.165.236.244:8080/api/user/logout',
+        'https://subdomain.now-waypoint.store:8080/api/user/logout',
         {},
         {
           headers: {
@@ -244,6 +247,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         }
       );
       localStorage.removeItem('token');
+      localStorage.removeItem('nickname');
       setLogoutModalOpen(false);
       window.location.href = '/login'; // 로그아웃 후 로그인 페이지로 이동
     } catch (error) {
