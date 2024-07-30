@@ -1,5 +1,3 @@
-// src/pages/MyPage.tsx
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,12 +5,26 @@ import Button from '../components/Button/button';
 import styled from 'styled-components';
 import defaultProfileImage from '../../../defaultprofile.png';
 
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  padding: 20px;
+`;
+
 const ProfileSection = styled.div`
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 20px;
   border-right: 1px solid #ccc;
+`;
+
+const ContentSection = styled.div`
+  flex: 5;
+  padding: 20px;
 `;
 
 const ProfileImage = styled.img`
@@ -67,7 +79,7 @@ const MyPage: React.FC = () => {
         },
       });
 
-      console.log('API Response:', response); // 콘솔 로그 추가
+      console.log('API Response:', response);
 
       setUserInfo({
         nickname: response.data.nickname,
@@ -85,7 +97,7 @@ const MyPage: React.FC = () => {
         followers: parseInt(response.data.follower, 10),
         followings: parseInt(response.data.following, 10),
         postCount: response.data.posts ? response.data.posts.length : 0,
-      }); // 콘솔 로그 추가
+      });
 
       setLoading(false);
     } catch (error) {
@@ -111,7 +123,7 @@ const MyPage: React.FC = () => {
   }
 
   return (
-    <div style={{ display: 'flex' }}>
+    <Container>
       <ProfileSection>
         <ProfileImage 
           src={userInfo.profileImageUrl} 
@@ -130,8 +142,10 @@ const MyPage: React.FC = () => {
           <Description>{userInfo.description}</Description>
         </ProfileInfo>
       </ProfileSection>
-      {/* 오른쪽 게시글 부분은 여기에 추가됩니다. */}
-    </div>
+      <ContentSection>
+        {/* 오른쪽 섹션 */}
+      </ContentSection>
+    </Container>
   );
 };
 
