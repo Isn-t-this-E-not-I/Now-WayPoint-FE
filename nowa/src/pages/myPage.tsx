@@ -21,14 +21,13 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  border-right: 1px solid #ccc;
 `;
 
 const ContentSection = styled.div`
   flex: 5;
   padding: 20px;
-  margin-left: 40px;
-  margin-right: 40px;
+  margin-left: 30px;
+  margin-right: 30px;
 `;
 
 const ProfileImage = styled.img`
@@ -74,9 +73,9 @@ interface UserProfile {
   followers: number;
   followings: number;
   postCount: number;
-  posts: { mediaUrls: string[], createdAt: string }[];
-  followersList: { nickname: string }[];
-  followingsList: { nickname: string }[];
+  posts: { id: number; mediaUrls: string[]; createdAt: string }[];
+  followersList: { name: string; nickname: string; profileImageUrl: string }[];
+  followingsList: { name: string; nickname: string; profileImageUrl: string }[];
 }
 
 const MyPage: React.FC = () => {
@@ -84,6 +83,7 @@ const MyPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('posts');
+  const [searchQuery, setSearchQuery] = useState('');
   const location = import.meta.env.VITE_APP_API;
 
   const fetchUserData = async () => {
@@ -99,8 +99,21 @@ const MyPage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log('User API Response:', response);
 
-      console.log('API Response:', response);
+      const followingResponse = await axios.get(`${location}/follow/following`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Following API Response:', followingResponse);
+
+      const followerResponse = await axios.get(`${location}/follow/follower`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Follower API Response:', followerResponse);
 
       setUserInfo({
         nickname: response.data.nickname,
@@ -109,12 +122,27 @@ const MyPage: React.FC = () => {
         followers: parseInt(response.data.follower, 10),
         followings: parseInt(response.data.following, 10),
         postCount: response.data.posts ? response.data.posts.length : 0,
-        posts: response.data.posts ? response.data.posts.map((post: any) => ({
-          mediaUrls: post.mediaUrls,
-          createdAt: post.createdAt
-        })) : [],
-        followersList: response.data.followers ? response.data.followers.map((user: any) => ({ nickname: user.nickname })) : [],
-        followingsList: response.data.followings ? response.data.followings.map((user: any) => ({ nickname: user.nickname })) : [],
+        posts: response.data.posts
+          ? response.data.posts.map((post: any) => ({
+              id: post.id,
+              mediaUrls: post.mediaUrls,
+              createdAt: post.createdAt,
+            }))
+          : [],
+        followersList: followerResponse.data
+          ? followerResponse.data.map((user: any) => ({
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
+          : [],
+        followingsList: followingResponse.data
+          ? followingResponse.data.map((user: any) => ({
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
+          : [],
       });
 
       setLoading(false);
@@ -130,6 +158,10 @@ const MyPage: React.FC = () => {
 
   const goToProfileEdit = () => {
     navigate('/mypage/profileEdit');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   if (loading) {
@@ -167,13 +199,39 @@ const MyPage: React.FC = () => {
         {selectedTab === 'followings' && (
           <>
             <SectionTitle>팔로잉</SectionTitle>
-            <FollowList followings={userInfo.followingsList} followers={[]} isFollowingList={true} />
+            <input 
+              type="text"
+              placeholder="검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+              }}
+            />
+            <FollowList followings={userInfo.followingsList} followers={[]} isFollowingList={true} searchQuery={searchQuery} />
           </>
         )}
         {selectedTab === 'followers' && (
           <>
             <SectionTitle>팔로워</SectionTitle>
-            <FollowList followings={[]} followers={userInfo.followersList} isFollowingList={false} />
+            <input 
+              type="text"
+              placeholder="검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              style={{
+                width: '100%',
+                padding: '10px',
+                marginBottom: '20px',
+                border: '1px solid #ccc',
+                borderRadius: '8px',
+              }}
+            />
+            <FollowList followings={[]} followers={userInfo.followersList} isFollowingList={false} searchQuery={searchQuery} />
           </>
         )}
       </ContentSection>
