@@ -35,15 +35,15 @@ const FollowDetails = styled.div`
   flex-direction: column;
 `;
 
-const UserName = styled.div`
-  font-size: 1rem;
-  font-weight: bold;
+const Nickname = styled.div`
+  font-size: 0.9rem;
 `;
 
-const Nickname = styled.div`
+const UserName = styled.div`
   font-size: 0.8rem;
   color: #555;
 `;
+
 
 interface FollowListProps {
   users: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
@@ -70,8 +70,8 @@ const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, o
           <FollowName onClick={() => handleProfileClick(user.nickname)}>
             <ProfileImage src={user.profileImageUrl || '/defaultprofile.png'} alt="Profile" />
             <FollowDetails>
-              <UserName>{user.name}</UserName>
-              <Nickname>@{user.nickname}</Nickname>
+              <Nickname>{user.nickname}</Nickname>
+              <UserName>@{user.name}</UserName>
             </FollowDetails>
           </FollowName>
           <Button
