@@ -2,6 +2,7 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import MyPage from '../pages/myPage'
+import ProfileEditPage from '../pages/ProfileEditPage';
 import IndexPage from '@/pages/index'
 import MainPage from '../pages/Main/main'
 import LoginPage from '@/pages/LoginPage'
@@ -24,6 +25,7 @@ const Routers: React.FC = () => {
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />
+        <Route path="/mypage/profileEdit" element={<ProfileEditPage />} />
         <Route path="/UploadContent" element={<UploadContent />} />
         <Route path="/detailContent/:id" element={<DetailContent />} />
         <Route path="/contentDetail" element={<></>} />
