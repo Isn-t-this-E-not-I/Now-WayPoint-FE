@@ -23,7 +23,7 @@ const Routers: React.FC = () => {
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
       <Route element={<PrivateRoute />}>
-        <Route path="/" element={<MainPage />} />
+        {/* <Route path="/" element={<MainPage />} /> */}
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />
