@@ -16,8 +16,8 @@
 
 /* 게시글 이미지 */
 #detail_picture_item1 img {
-  height: 70%;
-  margin-top: 125px;
+  height: 100vh;
+  object-fit: contain;
 }
 
 /* 오른쪽 내용 크기 조정 */
@@ -107,6 +107,12 @@
   position: absolute;
   bottom: 0;
   right: 0;
+}
+
+/* 게시글 수정 삭제 조정 */
+#detail_Dropdown {
+  background-color: #f5f5f5;
+  border: none;
 }
 
 /* 댓글 이미지 */
@@ -210,6 +216,14 @@
   transition: 0.25s;
 }
 
+/* 조회된 댓글이 없는 경우 */
+#no_comments {
+  display: flex;
+  justify-content: center;
+  font-size: 12px;
+  padding: 50px;
+}
+
 /* 조회된 게시글이 없을 경우 */
 #detail_not_found_error {
   width: 100%;
@@ -220,8 +234,38 @@
   align-items: center;
 }
 
-.slick-slide img {
-  display: block;
-  margin: 0 auto;
-  max-height: 70vh;
+.file_preview_wrapper {
+  display: inline-block;
+  position: relative;
+  margin: 5px;
+}
+
+.remove_image_button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: red;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 5px;
+}
+#preview_container {
+  display: flex;
+  justify-content: center;
+}
+
+#image_preview {
+  max-width: 100px;
+  max-height: 100px;
+}
+
+video {
+  margin-top: 15%;
+  max-width: 150px;
+}
+
+audio {
+  margin-top: 45%;
 }

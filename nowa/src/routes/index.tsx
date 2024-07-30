@@ -6,8 +6,9 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import FindIdPage from '@/pages/FindIdPage'
 import FindPasswordPage from '@/pages/FindPasswordPage'
-import DetailContent from '@/pages/DetailContent/detailContent'
+import DetailContent from '@/pages/DetailContent/DetailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
+import EditContent from '@/pages/EditContent/editContent'
 // import ResetPasswordPage from '@/pages/ResetPasswordPage';
 
 const Routers: React.FC = () => {
@@ -24,7 +25,7 @@ const Routers: React.FC = () => {
       <Route path="/mypage" element={<></>} />
       <Route path="/makeContent" element={<UploadContent />} />
       <Route path="/detailContent/:id" element={<DetailContent />} />
-      <Route path="/contentEdit" element={<></>} />
+      <Route path="/editContent/:id" element={<EditContent />} />
       <Route path="/profileEdit" element={<></>} />
       <Route path="/chat" element={<></>} />
       <Route path="/notification" element={<></>} />

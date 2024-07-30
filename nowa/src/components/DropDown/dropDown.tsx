@@ -1,11 +1,22 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 
-const DropDown = ({ buttonText, items }) => {
+interface DropDownProps {
+  buttonText: string
+  items: string[]
+  id: string
+  onItemSelect: (item: string) => void
+}
+
+const DropDown: React.FC<DropDownProps> = ({
+  buttonText,
+  items,
+  id,
+  onItemSelect,
+}) => {
   return (
     <div>
       <div className="dropdown dropdown-top dropdown-end">
-        <div tabIndex={0} role="button" className="btn m-1">
+        <div tabIndex={0} role="button" className="btn m-1" id={id}>
           {buttonText}
         </div>
         <ul
@@ -14,18 +25,21 @@ const DropDown = ({ buttonText, items }) => {
         >
           {items.map((item, index) => (
             <li key={index}>
-              <a>{item}</a>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  onItemSelect(item)
+                }}
+              >
+                {item}
+              </a>
             </li>
           ))}
         </ul>
       </div>
     </div>
   )
-}
-
-DropDown.propTypes = {
-  buttonText: PropTypes.string.isRequired,
-  items: PropTypes.arrayOf(PropTypes.string).isRequired,
 }
 
 export default DropDown
