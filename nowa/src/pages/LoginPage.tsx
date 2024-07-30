@@ -32,6 +32,7 @@ const LoginPage: React.FC = () => {
 
   const handleKakaoLogin = async () => {
     try {
+      localStorage.setItem('token', 'zzz')
       window.location.href = `${location}/user/login/kakao`
     } catch (error) {
       console.error('Kakao login failed:', error)

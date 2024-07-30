@@ -2,7 +2,7 @@ import React from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import MyPage from '../pages/myPage'
-import ProfileEditPage from '../pages/ProfileEditPage';
+import ProfileEditPage from '../pages/ProfileEditPage'
 import IndexPage from '@/pages/index'
 import MainPage from '../pages/Main/main'
 import LoginPage from '@/pages/LoginPage'
@@ -13,6 +13,7 @@ import DetailContent from '@/pages/DetailContent/DetailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
 import UserPage from '@/pages/UserPage';
+import EditContent from '@/pages/EditContent/editContent'
 
 
 const Routers: React.FC = () => {
@@ -23,15 +24,14 @@ const Routers: React.FC = () => {
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
       <Route element={<PrivateRoute />}>
-        <Route path="/" element={<IndexPage />} />
+        {/* <Route path="/" element={<MainPage />} /> */}
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/mypage/profileEdit" element={<ProfileEditPage />} />
         <Route path="/UploadContent" element={<UploadContent />} />
         <Route path="/detailContent/:id" element={<DetailContent />} />
-        <Route path="/contentDetail" element={<></>} />
-        <Route path="/contentEdit" element={<></>} />
+        <Route path="/editContent/:id" element={<EditContent />} />
         <Route path="/profileEdit" element={<></>} />
         <Route path="/chat" element={<></>} />
         <Route path="/notification" element={<></>} />
