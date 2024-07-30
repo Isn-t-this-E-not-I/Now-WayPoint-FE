@@ -10,6 +10,7 @@ import {
   NewCreateIcon,
   NotificationsIcon,
   NowaIcon,
+  ExitIcon,
 } from '../icons/icons'
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
@@ -23,6 +24,9 @@ import {
   getStompClient,
 } from '@/websocket/chatWebSocket'
 import ChatListPage from '@/pages/Chat/chatListPage'
+import Modal from '../Modal/modal';
+import axios from 'axios';
+
 
 interface SidebarProps {
   chatRooms: ChatRoom[]
@@ -147,6 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([])
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
 
   // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
   // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
@@ -225,67 +230,93 @@ const Sidebar: React.FC<SidebarProps> = ({
       default:
         return ''
     }
-  }
+  };
+  
+  const handleLogout = async () => {
+    try {
+      await axios.post(
+        'https://15.165.236.244:8080/api/user/logout',
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      localStorage.removeItem('token');
+      setLogoutModalOpen(false);
+      window.location.href = '/login'; // 로그아웃 후 로그인 페이지로 이동
+    } catch (error) {
+      console.error('로그아웃에 실패했습니다:', error);
+    }
+  };
 
   return (
     <Wrapper>
       <LeftSidebar>
         <LogoIconButtonWrapper
           onClick={() => {
-            setSelectedPage('main')
+            setSelectedPage('main');
           }}
         >
           <LogoIcon theme={theme} />
         </LogoIconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('main')
+            setSelectedPage('main');
           }}
         >
           <MainIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('create')
+            setSelectedPage('create');
           }}
         >
           <NewCreateIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setActivePage('notifications')
+            setActivePage('notifications');
           }}
         >
           <NotificationsIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            connectAndSubscribe
-            setActivePage('chat')
+            connectAndSubscribe;
+            setActivePage('chat');
           }}
         >
           <ChatIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setActivePage('contents')
+            setActivePage('contents');
           }}
         >
           <ContentsIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setActivePage('followContents')
+            setActivePage('followContents');
           }}
         >
           <FollowContentsIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('myPage')
+            setSelectedPage('myPage');
           }}
         >
           <MyPageIcon theme={theme} />
+        </IconButtonWrapper>
+        <IconButtonWrapper
+          onClick={() => {
+            setLogoutModalOpen(true);
+          }}
+        >
+          <ExitIcon theme={theme} />
         </IconButtonWrapper>
         <Blank />
         <ThemeController />
@@ -311,8 +342,17 @@ const Sidebar: React.FC<SidebarProps> = ({
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
+      {isLogoutModalOpen && (
+        <Modal isOpen={isLogoutModalOpen} onClose={() => setLogoutModalOpen(false)}>
+          <div>
+            <h3>로그아웃 하시겠습니까?</h3>
+            <button onClick={handleLogout}>네</button>
+            <button onClick={() => setLogoutModalOpen(false)}>아니오</button>
+          </div>
+        </Modal>
+      )}
     </Wrapper>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

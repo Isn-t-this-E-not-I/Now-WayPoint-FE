@@ -10,7 +10,6 @@ import FindIdPage from '@/pages/FindIdPage'
 import FindPasswordPage from '@/pages/FindPasswordPage'
 import DetailContent from '@/pages/DetailContent/detailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
-// import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
 
 const Routers: React.FC = () => {
