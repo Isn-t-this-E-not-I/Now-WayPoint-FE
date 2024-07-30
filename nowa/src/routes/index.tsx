@@ -9,7 +9,7 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import FindIdPage from '@/pages/FindIdPage'
 import FindPasswordPage from '@/pages/FindPasswordPage'
-import DetailContent from '@/pages/DetailContent/detailContent'
+import DetailContent from '@/pages/DetailContent/DetailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
 
