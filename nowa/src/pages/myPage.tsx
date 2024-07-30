@@ -21,7 +21,6 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  // border-right: 1px solid #ccc;
 `;
 
 const ContentSection = styled.div`
@@ -75,8 +74,8 @@ interface UserProfile {
   followings: number;
   postCount: number;
   posts: { id: number; mediaUrls: string[]; createdAt: string }[];
-  followersList: { nickname: string }[];
-  followingsList: { nickname: string }[];
+  followersList: { name: string; nickname: string; profileImageUrl: string }[];
+  followingsList: { name: string; nickname: string; profileImageUrl: string }[];
 }
 
 const MyPage: React.FC = () => {
@@ -99,8 +98,21 @@ const MyPage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log('User API Response:', response);
 
-      console.log('API Response:', response);
+      const followingResponse = await axios.get(`${location}/follow/following`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Following API Response:', followingResponse);
+
+      const followerResponse = await axios.get(`${location}/follow/follower`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Follower API Response:', followerResponse);
 
       setUserInfo({
         nickname: response.data.nickname,
@@ -116,11 +128,19 @@ const MyPage: React.FC = () => {
               createdAt: post.createdAt,
             }))
           : [],
-        followersList: response.data.followers
-          ? response.data.followers.map((user: any) => ({ nickname: user.nickname }))
+        followersList: followerResponse.data
+          ? followerResponse.data.map((user: any) => ({
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
           : [],
-        followingsList: response.data.followings
-          ? response.data.followings.map((user: any) => ({ nickname: user.nickname }))
+        followingsList: followingResponse.data
+          ? followingResponse.data.map((user: any) => ({
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
           : [],
       });
 
