@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
+import Button from '../Button/button';
 
 const FollowListWrapper = styled.div`
   display: flex;
@@ -43,16 +44,14 @@ const Nickname = styled.div`
 `;
 
 interface FollowListProps {
-  followings: { name: string; nickname: string; profileImageUrl: string }[];
-  followers: { name: string; nickname: string; profileImageUrl: string }[];
-  isFollowingList: boolean;
+  users: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
   searchQuery: string;
+  onFollow: (nickname: string) => void;
+  onUnfollow: (nickname: string) => void;
 }
 
-const FollowList: React.FC<FollowListProps> = ({ followings, followers, isFollowingList, searchQuery }) => {
-  const list = isFollowingList ? followings : followers;
-
-  const filteredList = list.filter(user =>
+const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow }) => {
+  const filteredList = users.filter((user) =>
     user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
   );
 
@@ -67,7 +66,12 @@ const FollowList: React.FC<FollowListProps> = ({ followings, followers, isFollow
               <Nickname>@{user.nickname}</Nickname>
             </FollowDetails>
           </FollowName>
-          <button>메시지</button>
+          <Button
+            className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
+            onClick={() => (user.isFollowing ? onUnfollow(user.nickname) : onFollow(user.nickname))}
+          >
+            {user.isFollowing ? '언팔로우' : '팔로우'}
+          </Button>
         </FollowItem>
       ))}
     </FollowListWrapper>

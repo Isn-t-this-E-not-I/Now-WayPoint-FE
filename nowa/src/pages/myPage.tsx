@@ -66,6 +66,14 @@ const NicknameTitle = styled.h3`
   font-size: 16px;
 `;
 
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+`;
+
 interface UserProfile {
   nickname: string;
   profileImageUrl: string;
@@ -74,8 +82,8 @@ interface UserProfile {
   followings: number;
   postCount: number;
   posts: { id: number; mediaUrls: string[]; createdAt: string }[];
-  followersList: { name: string; nickname: string; profileImageUrl: string }[];
-  followingsList: { name: string; nickname: string; profileImageUrl: string }[];
+  followersList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
+  followingsList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
 }
 
 const MyPage: React.FC = () => {
@@ -131,6 +139,7 @@ const MyPage: React.FC = () => {
           : [],
         followersList: followerResponse.data
           ? followerResponse.data.map((user: any) => ({
+              isFollowing: true,
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
@@ -138,6 +147,7 @@ const MyPage: React.FC = () => {
           : [],
         followingsList: followingResponse.data
           ? followingResponse.data.map((user: any) => ({
+              isFollowing: true,
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
@@ -149,6 +159,90 @@ const MyPage: React.FC = () => {
     } catch (error) {
       console.error('Failed to fetch user data:', error);
       setLoading(false);
+    }
+  };
+
+  const handleFollow = async (nickname: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+  
+    try {
+      console.log('Follow request sent to API with nickname:', nickname);
+  
+      const location = import.meta.env.VITE_APP_API;
+      const response = await fetch(`${location}/follow/add`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nickname })
+      });
+  
+      console.log('Follow API response:', response);
+  
+      if (response.ok) {
+        console.log('Successfully followed user:', nickname);
+        setUserInfo((prevUserInfo) => {
+          if (!prevUserInfo) return prevUserInfo;
+          return {
+            ...prevUserInfo,
+            followings: prevUserInfo.followings + 1,
+            followingsList: prevUserInfo.followingsList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: true } : user
+            ),
+            followersList: prevUserInfo.followersList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: true } : user
+            ),
+          };
+        });
+      } else {
+        console.error('Failed to follow user:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleUnfollow = async (nickname: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+  
+    try {
+      console.log('Unfollow request sent to API with nickname:', nickname);
+  
+      const location = import.meta.env.VITE_APP_API;
+      const response = await fetch(`${location}/follow/cancel`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nickname })
+      });
+  
+      console.log('Unfollow API response:', response);
+  
+      if (response.ok) {
+        console.log('Successfully unfollowed user:', nickname);
+        setUserInfo((prevUserInfo) => {
+          if (!prevUserInfo) return prevUserInfo;
+          return {
+            ...prevUserInfo,
+            followings: prevUserInfo.followings - 1,
+            followingsList: prevUserInfo.followingsList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: false } : user
+            ),
+            followersList: prevUserInfo.followersList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: false } : user
+            ),
+          };
+        });
+      } else {
+        console.error('Failed to unfollow user:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error:', error);
     }
   };
 
@@ -199,39 +293,35 @@ const MyPage: React.FC = () => {
         {selectedTab === 'followings' && (
           <>
             <SectionTitle>팔로잉</SectionTitle>
-            <input 
+            <SearchInput 
               type="text"
               placeholder="검색"
               value={searchQuery}
               onChange={handleSearchChange}
-              style={{
-                width: '100%',
-                padding: '10px',
-                marginBottom: '20px',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-              }}
             />
-            <FollowList followings={userInfo.followingsList} followers={[]} isFollowingList={true} searchQuery={searchQuery} />
+            <FollowList 
+              users={userInfo.followingsList} 
+              searchQuery={searchQuery} 
+              onFollow={handleFollow} 
+              onUnfollow={handleUnfollow} 
+            />
           </>
         )}
         {selectedTab === 'followers' && (
           <>
             <SectionTitle>팔로워</SectionTitle>
-            <input 
+            <SearchInput 
               type="text"
               placeholder="검색"
               value={searchQuery}
               onChange={handleSearchChange}
-              style={{
-                width: '100%',
-                padding: '10px',
-                marginBottom: '20px',
-                border: '1px solid #ccc',
-                borderRadius: '8px',
-              }}
             />
-            <FollowList followings={[]} followers={userInfo.followersList} isFollowingList={false} searchQuery={searchQuery} />
+            <FollowList 
+              users={userInfo.followersList} 
+              searchQuery={searchQuery} 
+              onFollow={handleFollow} 
+              onUnfollow={handleUnfollow} 
+            />
           </>
         )}
       </ContentSection>
