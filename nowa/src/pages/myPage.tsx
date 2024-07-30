@@ -21,14 +21,14 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  border-right: 1px solid #ccc;
+  // border-right: 1px solid #ccc;
 `;
 
 const ContentSection = styled.div`
   flex: 5;
   padding: 20px;
-  margin-left: 40px;
-  margin-right: 40px;
+  margin-left: 30px;
+  margin-right: 30px;
 `;
 
 const ProfileImage = styled.img`
@@ -74,7 +74,7 @@ interface UserProfile {
   followers: number;
   followings: number;
   postCount: number;
-  posts: { mediaUrls: string[], createdAt: string }[];
+  posts: { id: number; mediaUrls: string[]; createdAt: string }[];
   followersList: { nickname: string }[];
   followingsList: { nickname: string }[];
 }
@@ -109,12 +109,19 @@ const MyPage: React.FC = () => {
         followers: parseInt(response.data.follower, 10),
         followings: parseInt(response.data.following, 10),
         postCount: response.data.posts ? response.data.posts.length : 0,
-        posts: response.data.posts ? response.data.posts.map((post: any) => ({
-          mediaUrls: post.mediaUrls,
-          createdAt: post.createdAt
-        })) : [],
-        followersList: response.data.followers ? response.data.followers.map((user: any) => ({ nickname: user.nickname })) : [],
-        followingsList: response.data.followings ? response.data.followings.map((user: any) => ({ nickname: user.nickname })) : [],
+        posts: response.data.posts
+          ? response.data.posts.map((post: any) => ({
+              id: post.id,
+              mediaUrls: post.mediaUrls,
+              createdAt: post.createdAt,
+            }))
+          : [],
+        followersList: response.data.followers
+          ? response.data.followers.map((user: any) => ({ nickname: user.nickname }))
+          : [],
+        followingsList: response.data.followings
+          ? response.data.followings.map((user: any) => ({ nickname: user.nickname }))
+          : [],
       });
 
       setLoading(false);
