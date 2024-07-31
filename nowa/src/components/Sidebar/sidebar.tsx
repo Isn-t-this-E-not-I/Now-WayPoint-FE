@@ -109,26 +109,24 @@ const PageTitle = styled.div`
   align-self: flex-start;
 `
 
-const Sidebar: React.FC<SidebarProps> = ({
-  theme,
-  setSelectedPage,
-}) => {
+const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
   const [activePage, setActivePage] = useState<string>('')
   const { setChatRooms, setChatRoomsInfo } = useChat()
 
   // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
   // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
 
-  const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
+  const token =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
   const userNickname = 'sol'
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
     if (activePage !== 'chat') {
-      disconnect();
+      disconnect()
     }
-  }, [activePage]);
+  }, [activePage])
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
@@ -205,7 +203,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               setChatRooms(data.chatRooms)
               setChatRoomsInfo(data.chatRoomsInfo)
             })
-            connectAndSubscribe(userNickname, (error) => console.error(error));
+            connectAndSubscribe(userNickname, (error) => console.error(error))
           }}
         >
           <ChatIcon theme={theme} />
@@ -239,9 +237,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <ContentDiv>
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
-            {activePage === 'chat' && (
-              <CreateChatRoomButton />
-            )}
+            {activePage === 'chat' && <CreateChatRoomButton />}
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
@@ -252,4 +248,3 @@ const Sidebar: React.FC<SidebarProps> = ({
 }
 
 export default Sidebar
-

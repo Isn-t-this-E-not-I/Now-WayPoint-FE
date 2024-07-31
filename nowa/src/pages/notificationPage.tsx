@@ -15,7 +15,6 @@ const NotificationItem = styled.div`
   border-radius: 5px;
   width: 17.5rem;
   font-size: 15px;
-  background-color: wheat;
   position: relative;
 `
 
@@ -48,7 +47,6 @@ const CloseButton = styled.button`
   border: none;
   font-size: 15px;
   cursor: pointer;
-  color: black;
   position: absolute;
   top: -3px;
   right: 6px;
