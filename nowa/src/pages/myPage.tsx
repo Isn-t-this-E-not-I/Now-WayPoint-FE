@@ -1,3 +1,5 @@
+// src/pages/myPage.tsx
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -84,6 +86,7 @@ interface UserProfile {
   posts: { id: number; mediaUrls: string[]; createdAt: string }[];
   followersList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
   followingsList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
+  allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
 }
 
 const MyPage: React.FC = () => {
@@ -123,6 +126,13 @@ const MyPage: React.FC = () => {
       });
       console.log('Follower API Response:', followerResponse);
 
+      const allUsersResponse = await axios.get(`${location}/user/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('All Users API Response:', allUsersResponse);
+
       setUserInfo({
         nickname: response.data.nickname,
         profileImageUrl: response.data.profileImageUrl || defaultProfileImage,
@@ -148,6 +158,15 @@ const MyPage: React.FC = () => {
         followingsList: followingResponse.data
           ? followingResponse.data.map((user: any) => ({
               isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
+          : [],
+        allUsers: allUsersResponse.data
+          ? allUsersResponse.data.map((user: any) => ({
+              isFollowing: followingResponse.data.some((f: any) => f.nickname === user.nickname) ||
+                followerResponse.data.some((f: any) => f.nickname === user.nickname),
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
@@ -194,6 +213,9 @@ const MyPage: React.FC = () => {
             followersList: prevUserInfo.followersList.map((user) =>
               user.nickname === nickname ? { ...user, isFollowing: true } : user
             ),
+            allUsers: prevUserInfo.allUsers.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: true } : user
+            ),
           };
         });
       } else {
@@ -222,7 +244,7 @@ const MyPage: React.FC = () => {
       });
   
       console.log('Unfollow API response:', response);
-  
+
       if (response.ok) {
         console.log('Successfully unfollowed user:', nickname);
         setUserInfo((prevUserInfo) => {
@@ -234,6 +256,9 @@ const MyPage: React.FC = () => {
               user.nickname === nickname ? { ...user, isFollowing: false } : user
             ),
             followersList: prevUserInfo.followersList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: false } : user
+            ),
+            allUsers: prevUserInfo.allUsers.map((user) =>
               user.nickname === nickname ? { ...user, isFollowing: false } : user
             ),
           };
@@ -261,11 +286,11 @@ const MyPage: React.FC = () => {
   if (loading) {
     return <div>Loading...</div>;
   }
-
+  
   if (!userInfo) {
     return <div>Failed to load user data</div>;
   }
-
+  
   return (
     <Container>
       <ProfileSection>
@@ -300,10 +325,12 @@ const MyPage: React.FC = () => {
               onChange={handleSearchChange}
             />
             <FollowList 
-              users={userInfo.followingsList} 
-              searchQuery={searchQuery} 
-              onFollow={handleFollow} 
-              onUnfollow={handleUnfollow} 
+              users={userInfo.followingsList}
+              searchQuery={searchQuery}
+              onFollow={handleFollow}
+              onUnfollow={handleUnfollow}
+              priorityList={userInfo.followingsList}
+              allUsers={userInfo.allUsers}
             />
           </>
         )}
@@ -317,10 +344,12 @@ const MyPage: React.FC = () => {
               onChange={handleSearchChange}
             />
             <FollowList 
-              users={userInfo.followersList} 
-              searchQuery={searchQuery} 
-              onFollow={handleFollow} 
-              onUnfollow={handleUnfollow} 
+              users={userInfo.followersList}
+              searchQuery={searchQuery}
+              onFollow={handleFollow}
+              onUnfollow={handleUnfollow}
+              priorityList={userInfo.followersList}
+              allUsers={userInfo.allUsers}
             />
           </>
         )}

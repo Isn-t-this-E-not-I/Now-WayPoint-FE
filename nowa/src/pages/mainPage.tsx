@@ -33,7 +33,7 @@ const MainPage: React.FC = () => {
           }
         )
         stompClient.subscribe(
-          '/topic/follower/' + nickname,
+          '/queue/posts/' + nickname,
           function (messageOutput) {
             console.log(messageOutput.body)
           }
