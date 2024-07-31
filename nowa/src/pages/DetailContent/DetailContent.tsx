@@ -80,7 +80,7 @@ const DetailContent: React.FC = () => {
       try {
         await deletePostById(Number(id))
         alert('게시글이 삭제되었습니다.')
-        navigate('/main') // 삭제 후 메인 페이지로 리다이렉트
+        navigate('/mypage') // 삭제 후 메인 페이지로 리다이렉트
       } catch (error) {
         console.error('Failed to delete post:', error)
         alert('게시글을 삭제하는 중 오류가 발생했습니다.')

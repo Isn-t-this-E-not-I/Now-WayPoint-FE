@@ -83,6 +83,10 @@ const MakeContent = () => {
   }
 
   const handleAddTag = (tag: string) => {
+    if (tags.length >= 5) {
+      alert('태그는 최대 5개까지 입력할 수 있습니다.')
+      return
+    }
     setTags((prevTags) => [...prevTags, `#${tag}`])
   }
 
