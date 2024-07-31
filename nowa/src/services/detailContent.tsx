@@ -12,6 +12,8 @@ export interface Post {
   nickname: string
   createdAt: string
   likeCount: number
+  profileImageUrl: string
+  likedByUser: boolean
 }
 
 const getCookieValue = (name: number): string | null => {
@@ -22,7 +24,6 @@ const getCookieValue = (name: number): string | null => {
 }
 
 const getPostById = async (postId: number): Promise<Post> => {
-  // const token = getCookieValue('Authorization')
   const token = localStorage.getItem('token')
 
   if (!token) {
@@ -63,4 +64,27 @@ const deletePostById = async (postId: number): Promise<void> => {
   }
 }
 
-export { getPostById, deletePostById }
+const likePostById = async (postId: number): Promise<void> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    await axios.post(
+      `${API_URL}/posts/${postId}/like`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+  } catch (error) {
+    console.error('Error liking the post:', error)
+    throw error
+  }
+}
+
+export { getPostById, deletePostById, likePostById }

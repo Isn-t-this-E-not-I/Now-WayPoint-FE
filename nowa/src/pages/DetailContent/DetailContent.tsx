@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
-import { getPostById, Post, deletePostById } from '@/services/detailContent'
+import {
+  getPostById,
+  Post,
+  deletePostById,
+  likePostById,
+} from '@/services/detailContent'
 import {
   getCommentsByPostId,
   deleteCommentById,
   createComment,
+  toggleCommentLike,
   Comment,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
@@ -21,7 +27,7 @@ const DetailContent: React.FC = () => {
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
-  const [newComment, setNewComment] = useState<string>('') // 새로운 댓글 내용 상태 추가
+  const [newComment, setNewComment] = useState<string>('')
   const [currentUser, setCurrentUser] = useState<string | null>(null)
   const { id } = useParams()
   const navigate = useNavigate()
@@ -31,7 +37,6 @@ const DetailContent: React.FC = () => {
       try {
         const postData = await getPostById(Number(id))
         setPost(postData)
-
         const commentsData = await getCommentsByPostId(Number(id))
         setComments(commentsData)
 
@@ -86,12 +91,54 @@ const DetailContent: React.FC = () => {
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
-      const newCommentData = await createComment(Number(id), newComment) // 댓글 작성 함수 호출
+      const newCommentData = await createComment(Number(id), newComment)
       setComments((prevComments) => [...prevComments, newCommentData])
-      setNewComment('') // 댓글 작성 후 입력 필드 초기화
+      setNewComment('')
     } catch (error) {
       console.error('Failed to submit comment:', error)
       alert('댓글 작성에 실패했습니다.')
+    }
+  }
+
+  const handleLikeToggle = async () => {
+    try {
+      await likePostById(Number(id))
+      setPost((prevPost) =>
+        prevPost
+          ? {
+              ...prevPost,
+              likedByUser: !prevPost.likedByUser,
+              likeCount: prevPost.likedByUser
+                ? prevPost.likeCount - 1
+                : prevPost.likeCount + 1,
+            }
+          : null
+      )
+    } catch (error) {
+      console.error('Failed to like/unlike post:', error)
+      alert('좋아요/좋아요 취소에 실패했습니다.')
+    }
+  }
+
+  const handleCommentLikeToggle = async (commentId: number) => {
+    try {
+      await toggleCommentLike(Number(id), commentId)
+      setComments((prevComments) =>
+        prevComments.map((comment) =>
+          comment.id === commentId
+            ? {
+                ...comment,
+                isLiked: !comment.isLiked,
+                likeCount: comment.isLiked
+                  ? comment.likeCount - 1
+                  : comment.likeCount + 1,
+              }
+            : comment
+        )
+      )
+    } catch (error) {
+      console.error('Failed to like/unlike comment:', error)
+      alert('댓글 좋아요/좋아요 취소에 실패했습니다.')
     }
   }
 
@@ -146,7 +193,9 @@ const DetailContent: React.FC = () => {
         <div id="detail_content_story">
           <div id="detail_right_profile">
             <div id="detail_content_profile">
-              <div id="test_profile_img"></div>
+              <div id="test_profile_img">
+                <img alt="프로필 이미지" src={post.profileImageUrl}></img>
+              </div>
 
               <div id="detail_profile_id">
                 <p>{post.nickname}</p>
@@ -186,19 +235,35 @@ const DetailContent: React.FC = () => {
                     <div id="detail_coment_id">{comment.nickname}</div>
                     <div id="detail_coment_content">{comment.content}</div>
                     <div id="detail_coment_edit_line">
-                      <div id="detail_coment_delete">
-                        <a
-                          href=""
-                          onClick={(e) => {
-                            e.preventDefault()
-                            handleCommentDelete(comment.id)
-                          }}
-                        >
-                          삭제
-                        </a>
-                      </div>
                       <div id="detail_coment_date">
                         {formatDate(comment.createdAt)}
+                      </div>
+                      <div id="detail_coment_delete">
+                        {currentUser === comment.nickname && (
+                          <a
+                            href=""
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleCommentDelete(comment.id)
+                            }}
+                          >
+                            삭제
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                    <div id="detail_comment_like">
+                      <img
+                        src={
+                          comment.isLiked
+                            ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
+                            : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
+                        }
+                        alt="좋아요"
+                        onClick={() => handleCommentLikeToggle(comment.id)}
+                      />
+                      <div id="detail_comment_like_count">
+                        {comment.likeCount}
                       </div>
                     </div>
                   </div>
@@ -226,8 +291,18 @@ const DetailContent: React.FC = () => {
           </div>
 
           <div id="detail_content_heart">
-            <div id="detail_heart_count">♥ {post.likeCount}</div>
+            <div id="detail_heart_count">{post.likeCount}</div>
             <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
+            <div id="detail_like_button" onClick={handleLikeToggle}>
+              <img
+                src={
+                  post.likedByUser
+                    ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
+                    : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
+                }
+                alt="좋아요"
+              />
+            </div>
           </div>
 
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
