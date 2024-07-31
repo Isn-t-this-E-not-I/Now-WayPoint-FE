@@ -46,3 +46,59 @@
   left: 400px;
   z-index: 10;
 }
+
+.overlaybox {
+  position: relative;
+  width: 200px;
+  height: 100px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 8px 8px 5px;
+  border: 0.5px solid gray;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 0px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.closeBtn:hover {
+  cursor: pointer;
+}
+
+#main_maker_img {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  top: 10px;
+  left: 10px;
+}
+
+#main_maker_img:hover {
+  cursor: pointer;
+}
+
+#main_maker_img img {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+}
+
+#main_maker_name {
+  position: absolute;
+  top: 30px;
+  right: 51.5px;
+  font-size: 11px;
+}
+
+#main_maker_create {
+  position: absolute;
+  top: 55px;
+  right: 15px;
+  font-size: 10px;
+}

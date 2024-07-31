@@ -25,6 +25,17 @@ const MainPage: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
+  const overlayRef = useRef<any>(null)
+
+  const formatDate = (dateString: string | number | Date) => {
+    const date = new Date(dateString)
+    return date.toLocaleString('ko-KR', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
 
   const saveTokenToLocalStorage = () => {
     const getCookie = (name: string) => {
@@ -76,7 +87,7 @@ const MainPage: React.FC = () => {
         const clusterer = new window.kakao.maps.MarkerClusterer({
           map: map,
           averageCenter: true,
-          minLevel: 5, // 클러스터 할 최소 지도 레벨 설정
+          minLevel: 3, // 클러스터 할 최소 지도 레벨 설정
         })
 
         // 클러스터러에 클릭 이벤트 추가
@@ -112,16 +123,22 @@ const MainPage: React.FC = () => {
       const position = new window.kakao.maps.LatLng(lat, lng)
 
       const markerImageSrc = getMarkerImageSrc(item.category)
-      const markerImageSize = new window.kakao.maps.Size(24, 35)
+      const markerImageSize = new window.kakao.maps.Size(35, 35)
       const markerImage = new window.kakao.maps.MarkerImage(
         markerImageSrc,
         markerImageSize
       )
 
-      return new window.kakao.maps.Marker({
+      const marker = new window.kakao.maps.Marker({
         position,
         image: markerImage,
       })
+
+      window.kakao.maps.event.addListener(marker, 'click', () => {
+        displayCustomOverlay(map, marker, item)
+      })
+
+      return marker
     })
 
     markersRef.current = markers
@@ -133,15 +150,49 @@ const MainPage: React.FC = () => {
   const getMarkerImageSrc = (category: string) => {
     switch (category) {
       case 'PHOTO':
-        return 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png'
+        return 'https://cdn-icons-png.flaticon.com/128/4503/4503874.png'
       case 'VIDEO':
-        return 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png'
+        return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
       case 'MP3':
-        return 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png'
+        return 'https://cdn-icons-png.flaticon.com/128/6527/6527906.png'
       default:
-        return 'https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png'
+        return 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
     }
   }
+
+  const displayCustomOverlay = (map: any, marker: any, item: any) => {
+    const content = `
+      <div class="overlaybox">
+        <div onclick="closeOverlay()" class="closeBtn">x</div>
+        <div id="main_maker_img"><img alt="게시글 이미지" src='${item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : null}'></img></div>
+        <div id="main_maker_name">이름 : ${item.username}</div>
+        <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+      </div>
+    `
+
+    const overlay = new window.kakao.maps.CustomOverlay({
+      content: content,
+      map: map,
+      position: marker.getPosition(),
+    })
+
+    overlay.setMap(map)
+    overlayRef.current = overlay
+
+    const closeBtn = document.querySelector('.closeBtn')
+    closeBtn?.addEventListener('click', () => {
+      overlay.setMap(null)
+    })
+
+    // const imgDiv = document.querySelector('#main_maker_img')
+    // imgDiv?.addEventListener('click', () => {
+    //   detail_navigate(item.postId)
+    // })
+  }
+
+  // const detail_navigate = (postId) => {
+  //   window.location.href = `detailContent/${postId}`
+  // }
 
   useEffect(() => {
     saveTokenToLocalStorage()
@@ -206,6 +257,7 @@ const MainPage: React.FC = () => {
         (messageOutput: IMessage) => {
           const receivedData = JSON.parse(messageOutput.body)
           setData(receivedData)
+          console.log(receivedData)
         }
       )
       return () => {
@@ -239,7 +291,10 @@ const MainPage: React.FC = () => {
 
   return (
     <div>
-      <div ref={mapContainer} style={{ width: '100%', height: '100vh' }} />
+      <div
+        ref={mapContainer}
+        style={{ width: '100%', height: '100vh', position: 'relative' }}
+      />
       <div id="categoryBox">
         <button
           className="categoryButtons"
