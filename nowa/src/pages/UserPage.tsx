@@ -95,10 +95,10 @@ const UserPage: React.FC = () => {
 
       setUserInfo({
         nickname: response.data.nickname,
-        profileImageUrl: response.data.profile_image_url || defaultProfileImage,
+        profileImageUrl: response.data.profileImageUrl || defaultProfileImage,
         description: response.data.description,
-        followers: parseInt(response.data.followers, 10),
-        followings: parseInt(response.data.followings, 10),
+        followers: parseInt(response.data.follower, 10),
+        followings: parseInt(response.data.following, 10),
         postCount: response.data.posts ? response.data.posts.length : 0,
         posts: response.data.posts
           ? response.data.posts.map((post: any) => ({
