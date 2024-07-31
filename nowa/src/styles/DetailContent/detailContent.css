@@ -52,6 +52,12 @@
 
 #test_profile_img img {
   border-radius: 50px;
+  width: 40px;
+  height: 40px;
+}
+
+#test_profile_img:hover {
+  cursor: pointer;
 }
 
 /* 프로필 아이디 크기 및 위치조정 */
@@ -124,6 +130,10 @@
   width: 40px;
   height: 40px;
   margin: 0px 18px 18px 18px;
+}
+
+#test_coment_img:hover {
+  cursor: pointer;
 }
 
 /* 댓글 단 사람 위치 조정 */
