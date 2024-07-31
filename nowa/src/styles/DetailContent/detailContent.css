@@ -46,10 +46,12 @@
 
 /* 프로필 사진 크기조정*/
 #test_profile_img {
-  background-color: black;
-  border-radius: 50px;
   width: 40px;
   height: 40px;
+}
+
+#test_profile_img img {
+  border-radius: 50px;
 }
 
 /* 프로필 아이디 크기 및 위치조정 */
@@ -155,12 +157,23 @@
 
 /* 댓글 삭제 */
 #detail_coment_delete {
-  margin-right: 10px;
+  margin-left: 10px;
 }
 
 #detail_coment_delete:hover {
   color: rgb(101, 169, 228);
   transition: 0.25s;
+}
+
+#detail_comment_like {
+  display: flex;
+  width: 15px;
+  height: 15px;
+}
+
+#detail_comment_like_count {
+  margin: 0px 5px;
+  font-size: 10px;
 }
 
 /* 댓글 end */
@@ -175,7 +188,22 @@
 
 /* 좋아요 위치 조정 */
 #detail_heart_count {
-  margin-left: 10px;
+  margin: auto 5px auto 10px;
+  display: flex;
+  font-size: 14px;
+}
+
+#detail_like_button {
+  padding-top: 4px;
+}
+
+#detail_like_button img {
+  width: 15px;
+  height: 15px;
+}
+
+#detail_like_button img:hover {
+  cursor: pointer;
 }
 
 /* 게시글 게시지난 날짜 */
@@ -271,5 +299,7 @@ audio {
 }
 
 #d_d {
+  width: 40px;
+  height: 40px;
   border-radius: 50px;
 }
