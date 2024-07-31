@@ -126,6 +126,10 @@
   margin: 0px 18px 18px 18px;
 }
 
+#test_coment_img:hover {
+  cursor: pointer;
+}
+
 /* 댓글 단 사람 위치 조정 */
 #detail_coment_deep {
   display: flex;
