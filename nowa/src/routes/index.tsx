@@ -12,11 +12,11 @@ import FindPasswordPage from '@/pages/FindPasswordPage'
 import DetailContent from '@/pages/DetailContent/DetailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
-import UserPage from '@/pages/UserPage';
+import UserPage from '@/pages/UserPage'
 import EditContent from '@/pages/EditContent/editContent'
 import ChatListPage from '@/pages/Chat/chatListPage'
 import ChattingPage from '@/pages/Chat/chattingPage'
-
+import { WebSocketProvider } from '@/components/WebSocketProvider/WebSocketProvider'
 
 const Routers: React.FC = () => {
   return (
@@ -25,8 +25,15 @@ const Routers: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
-      <Route element={<PrivateRoute />}>
-        {/* <Route path="/" element={<MainPage />} /> */}
+
+      {/* Private routes wrapped with WebSocketProvider */}
+      <Route
+        element={
+          <WebSocketProvider>
+            <PrivateRoute />
+          </WebSocketProvider>
+        }
+      >
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />

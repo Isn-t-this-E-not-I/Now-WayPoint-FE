@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 import SockJS from 'sockjs-client'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
+import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
 
 declare global {
   interface Window {
@@ -17,12 +18,13 @@ const MainPage: React.FC = () => {
   const [token, setToken] = useState(localStorage.getItem('token'))
   const [nickname, setNickname] = useState(localStorage.getItem('nickname'))
   const [locate, setLocate] = useState('')
-  const [stompClient, setStompClient] = useState<Client | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
+  // const [stompClient, setStompClient] = useState<Client | null>(null)
+  // const [isConnected, setIsConnected] = useState(false)
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null) // 지도 객체 상태 추가
   const [mapLevel, setMapLevel] = useState<number>(1) // 지도 확대/축소 레벨 상태 추가
   const [isInitialized, setIsInitialized] = useState(false) // 초기화 상태 추가
+  const client = useWebSocket();
 
   // 쿠키 값을 가져와 로컬스토리지에 저장하는 함수
   const saveTokenToLocalStorage = () => {
@@ -55,65 +57,17 @@ const MainPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (token && nickname) {
-      const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
-      console.log(token)
+    if (client && locate && nickname) {
+      // 로그 출력 추가
+      console.log('Subscribing to:', `/queue/${locate}/${nickname}`);
 
-      const client = new Client({
-        webSocketFactory: () => sock,
-        connectHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        onConnect: (frame) => {
-          console.log('Websocket connected!')
-          setIsConnected(true) // Update connection status
-
-          client.subscribe(
-            `/queue/notify/${nickname}`,
-            (messageOutput: IMessage) => {
-              console.log(messageOutput.body)
-            }
-          )
-          client.subscribe(
-            `/topic/follower/${nickname}`,
-            (messageOutput: IMessage) => {
-              console.log(messageOutput.body)
-            }
-          )
-
-          setStompClient(client)
-        },
-        onDisconnect: () => {
-          console.log('Websocket disconnected!')
-          setIsConnected(false) // Update connection status
-        },
-        onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message'])
-          console.error('Additional details: ' + frame.body)
-        },
-        debug: (str) => {
-          console.log('STOMP Debug:', str)
-        },
-      })
-
-      client.activate()
-
-      return () => {
-        client.deactivate()
-        console.log('Websocket disconnected')
-      }
-    }
-  }, [token, nickname])
-
-  useEffect(() => {
-    if (isConnected && stompClient && locate) {
-      const subscription = stompClient.subscribe(
+      const subscription = client.subscribe(
         `/queue/${locate}/${nickname}`,
         (messageOutput: IMessage) => {
-          console.log(messageOutput.body)
+          console.log('Message received:', messageOutput.body)
           const receivedData = JSON.parse(messageOutput.body)
           setData(receivedData)
-          console.log(receivedData)
+          console.log('Parsed data:', receivedData)
           // 데이터를 받아온 후에 마커 추가
           if (map) {
             addMarkers(map, receivedData)
@@ -122,10 +76,10 @@ const MainPage: React.FC = () => {
       )
 
       return () => {
-        subscription.unsubscribe()
+        if (subscription) subscription.unsubscribe()
       }
     }
-  }, [isConnected, stompClient, locate, nickname, map])
+  }, [client, locate, nickname, map])
 
   const initializeMap = (latitude: number, longitude: number) => {
     const script = document.createElement('script')
@@ -223,14 +177,14 @@ const MainPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (isInitialized && stompClient && isConnected) {
+    if (isInitialized && client) {
       selectCategory('ALL')
     }
-  }, [isInitialized, stompClient, isConnected])
+  }, [isInitialized, client])
 
   const selectCategory = (category: string) => {
-    if (stompClient && isConnected) {
-      stompClient.publish({
+    if (client) {
+      client.publish({
         destination: '/app/main/category',
         body: JSON.stringify({ category: category }),
       })

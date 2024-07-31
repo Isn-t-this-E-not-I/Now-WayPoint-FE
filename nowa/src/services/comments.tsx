@@ -8,6 +8,8 @@ export interface Comment {
   nickname: string
   content: string
   createdAt: string
+  likeCount: number // 좋아요 수 추가
+  isLiked: boolean // 사용자가 좋아요를 눌렀는지 여부 추가
 }
 
 const getCommentsByPostId = async (postId: number): Promise<Comment[]> => {
@@ -81,4 +83,35 @@ const createComment = async (postId: number, content: string) => {
   }
 }
 
-export { getCommentsByPostId, deleteCommentById, createComment }
+const toggleCommentLike = async (
+  postId: number,
+  commentId: number
+): Promise<void> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    await axios.post(
+      `${API_URL}/posts/${postId}/comments/${commentId}/like`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    )
+  } catch (error) {
+    console.error('Error liking/unliking the comment:', error)
+    throw error
+  }
+}
+
+export {
+  getCommentsByPostId,
+  deleteCommentById,
+  createComment,
+  toggleCommentLike,
+}

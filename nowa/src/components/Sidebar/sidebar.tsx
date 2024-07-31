@@ -10,15 +10,20 @@ import {
   NewCreateIcon,
   NotificationsIcon,
   NowaIcon,
+  ExitIcon,
 } from '../icons/icons'
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
 import { fetchChatRooms } from '../../api/chatApi'
-import { useChatWebSocket } from '@/websocket/chatWebSocket'
-import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
+import Modal from '../Modal/modal'
+import FollowList from '../FollowList/FollowList'
+import fetchAllUsers from '@/data/fetchAllUsers'
+import { handleLogout } from '../Logout/Logout'
+import { useChat } from '@/context/chatContext'
+import { useChatWebSocket } from '@/websocket/chatWebSocket'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -35,7 +40,7 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 2.5rem;
+  width: 2.6rem;
   height: 100%;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
@@ -47,11 +52,11 @@ const RightSidebar = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 19rem;
+  width: 19.5rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
-  margin-left: 2.5rem;
+  margin-left: 2.6rem;
 `
 
 const Blank = styled.div`
@@ -59,7 +64,7 @@ const Blank = styled.div`
   width: 2.5rem;
 `
 
-const IconButton = styled.button`
+const LogoIconButtonWrapper = styled.button`
   background: none;
   border: none;
   cursor: pointer;
@@ -67,6 +72,22 @@ const IconButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 7.5px;
+
+  &:focus {
+    outline: none;
+  }
+`
+
+const IconButtonWrapper = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
 
   &:focus {
     outline: none;
@@ -105,21 +126,46 @@ const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 10px;
-  margin-left: 3px;
+  margin-left: 6px;
   align-self: flex-start;
+`
+
+const SearchContainer = styled.div`
+  margin-left: 6px;
+  width: 100%;
+`
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
 `
 
 const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
   const [activePage, setActivePage] = useState<string>('')
   const { setChatRooms, setChatRoomsInfo } = useChat()
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
 
-  // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
-  // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
+  const [token] = useState<string>(localStorage.getItem('token') || '')
+  const [userNickname] = useState<string>(
+    localStorage.getItem('nickname') || ''
+  )
 
-  const token =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
-  const userNickname = 'sol'
+  const [allUsers, setAllUsers] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
+
+  // 전체 유저 목록 가져오기
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const users = await fetchAllUsers()
+      setAllUsers(users)
+    }
+
+    getAllUsers()
+  }, [])
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
@@ -132,7 +178,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
-        return <NotificationPage />
+        return <NotificationPage token={token} userNickname={userNickname} />
       case 'chat':
         return <ChatListPage />
       case 'contents':
@@ -165,70 +211,90 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
   return (
     <Wrapper>
       <LeftSidebar>
-        <IconButton
+        <LogoIconButtonWrapper
           onClick={() => {
             setSelectedPage('main')
           }}
         >
           <LogoIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </LogoIconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setSelectedPage('main')
           }}
         >
           <MainIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setSelectedPage('create')
           }}
         >
           <NewCreateIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('notifications')
           }}
         >
           <NotificationsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
-            setActivePage('chat')
-            fetchChatRooms(token).then((data) => {
-              setChatRooms(data.chatRooms)
-              setChatRoomsInfo(data.chatRoomsInfo)
-            })
             connectAndSubscribe(userNickname, (error) => console.error(error))
+            setActivePage('chat')
+            fetchChatRooms(token)
+              .then((data) => {
+                if (data) {
+                  // data가 null이 아니고, undefined도 아닌 경우
+                  setChatRooms(data.chatRooms)
+                  setChatRoomsInfo(data.chatRoomsInfo)
+                } else {
+                  console.error('No data received from fetchChatRooms.')
+                }
+              })
+              .catch((error) => {
+                console.error('Error fetching chat rooms:', error)
+              })
           }}
         >
           <ChatIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('contents')
           }}
         >
           <ContentsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('followContents')
           }}
         >
           <FollowContentsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setSelectedPage('myPage')
           }}
         >
           <MyPageIcon theme={theme} />
-        </IconButton>
+        </IconButtonWrapper>
+        <IconButtonWrapper
+          onClick={() => {
+            setLogoutModalOpen(true)
+          }}
+        >
+          <ExitIcon theme={theme} />
+        </IconButtonWrapper>
         <Blank />
         <ThemeController />
       </LeftSidebar>
@@ -239,10 +305,43 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && <CreateChatRoomButton />}
           </PageTitleWrapper>
-          {shouldShowSearch() && <Search />}
+          {shouldShowSearch() && (
+            <SearchContainer>
+              <Search />
+            </SearchContainer>
+          )}
           <ContentPage>{renderContentPage()}</ContentPage>
+          <SearchContainer>
+            <SearchInput
+              type="text"
+              placeholder="전체 유저 검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <FollowList
+              users={allUsers}
+              searchQuery={searchQuery}
+              onFollow={() => {}}
+              onUnfollow={() => {}}
+              priorityList={[]}
+              allUsers={allUsers}
+              showFollowButtons={false}
+            />
+          </SearchContainer>
         </ContentDiv>
       </RightSidebar>
+      {isLogoutModalOpen && (
+        <Modal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setLogoutModalOpen(false)}
+        >
+          <div>
+            <h3>로그아웃 하시겠습니까?</h3>
+            <button onClick={() => handleLogout(setLogoutModalOpen)}>네</button>
+            <button onClick={() => setLogoutModalOpen(false)}>아니오</button>
+          </div>
+        </Modal>
+      )}
     </Wrapper>
   )
 }

@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import SockJS from 'sockjs-client'
+import { Client, IMessage } from '@stomp/stompjs'
 
 const NotificationWrapper = styled.div`
   text-align: left;
@@ -31,7 +33,7 @@ const NotificationContent = styled.div`
   text-align: left;
   margin-right: auto;
   position: relative;
-  padding-bottom: 20px; /* Adjusted to prevent overlap */
+  padding-bottom: 20px;
 `
 
 const TimeAgo = styled.span`
@@ -52,71 +54,44 @@ const CloseButton = styled.button`
   right: 6px;
 `
 
-const NotificationPage: React.FC = () => {
-  const initialNotifications = [
-    {
-      id: 1,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'You have a new follower!',
-      timeAgo: '2 hours ago',
-    },
-    {
-      id: 2,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'Your post got 5 likes!',
-      timeAgo: '5 hours ago',
-    },
-    {
-      id: 3,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'New comment on your post!',
-      timeAgo: '1 day ago',
-    },
-    {
-      id: 4,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'You have a new message!',
-      timeAgo: '3 days ago',
-    },
-    {
-      id: 5,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'New friend request!',
-      timeAgo: '4 days ago',
-    },
-    {
-      id: 6,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'You have a new follower!',
-      timeAgo: '5 days ago',
-    },
-    {
-      id: 7,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'Your post got 5 likes!',
-      timeAgo: '6 days ago',
-    },
-    {
-      id: 8,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'New comment on your post!',
-      timeAgo: '1 week ago',
-    },
-    {
-      id: 9,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'You have a new message!',
-      timeAgo: '2 weeks ago',
-    },
-    {
-      id: 10,
-      profilePic: 'https://via.placeholder.com/40',
-      content: 'Your post got 10 likes!',
-      timeAgo: '3 weeks ago',
-    },
-  ]
+const NotificationPage: React.FC<{ token: string; userNickname: string }> = ({
+  token,
+  userNickname,
+}) => {
+  const [notifications, setNotifications] = useState<any[]>([])
 
-  const [notifications, setNotifications] = useState(initialNotifications)
+  useEffect(() => {
+    if (token && userNickname) {
+      const sock = new SockJS(
+        'https://subdomain.now-waypoint.store:8080/notification'
+      )
+      const client = new Client({
+        webSocketFactory: () => sock,
+        connectHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+        onConnect: (frame) => {
+          console.log('Connected to notification socket')
+          client.subscribe(`/user/queue/notify`, (message: IMessage) => {
+            console.log('Notification received:', message.body)
+            setNotifications((prevNotifications) => [
+              JSON.parse(message.body),
+              ...prevNotifications,
+            ])
+          })
+        },
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message'])
+          console.error('Additional details: ' + frame.body)
+        },
+      })
+      client.activate()
+
+      return () => {
+        client.deactivate()
+      }
+    }
+  }, [token, userNickname])
 
   const handleDelete = (id: number) => {
     setNotifications(
