@@ -113,6 +113,27 @@ const MainPage: React.FC = () => {
     document.head.appendChild(script)
   }
 
+  const adjustMarkerPosition = (markers: any[]) => {
+    const adjustedPositions = new Set()
+    const OFFSET = 0.0001 // 마커를 이동시킬 거리
+
+    markers.forEach((marker) => {
+      let position = marker.getPosition()
+      let lat = position.getLat()
+      let lng = position.getLng()
+      let newPosition = `${lat},${lng}`
+
+      while (adjustedPositions.has(newPosition)) {
+        lat += OFFSET
+        lng += OFFSET
+        newPosition = `${lat},${lng}`
+      }
+
+      adjustedPositions.add(newPosition)
+      marker.setPosition(new window.kakao.maps.LatLng(lat, lng))
+    })
+  }
+
   const addMarkers = (map: any, data: any[]) => {
     if (clustererRef.current) {
       clustererRef.current.clear()
@@ -141,6 +162,8 @@ const MainPage: React.FC = () => {
       return marker
     })
 
+    adjustMarkerPosition(markers)
+
     markersRef.current = markers
     if (clustererRef.current) {
       clustererRef.current.addMarkers(markers)
@@ -161,10 +184,15 @@ const MainPage: React.FC = () => {
   }
 
   const displayCustomOverlay = (map: any, marker: any, item: any) => {
-    const content = `
+    const content = document.createElement('div')
+    content.className = 'overlaybox'
+
+    content.innerHTML = `
       <div class="overlaybox">
         <div onclick="closeOverlay()" class="closeBtn">x</div>
-        <div id="main_maker_img"><img alt="게시글 이미지" src='${item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : null}'></img></div>
+        <div id="main_maker_img">
+          <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/11542/11542598.png'}'></img>
+        </div>
         <div id="main_maker_name">이름 : ${item.username}</div>
         <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
       </div>
@@ -179,18 +207,18 @@ const MainPage: React.FC = () => {
     overlay.setMap(map)
     overlayRef.current = overlay
 
-    const closeBtn = document.querySelector('.closeBtn')
+    const closeBtn = content.querySelector('.closeBtn')
     closeBtn?.addEventListener('click', () => {
       overlay.setMap(null)
     })
 
-    // const imgDiv = document.querySelector('#main_maker_img')
+    // const imgDiv = content.querySelector('#main_maker_img')
     // imgDiv?.addEventListener('click', () => {
     //   detail_navigate(item.postId)
     // })
   }
 
-  // const detail_navigate = (postId) => {
+  // const detail_navigate = (postId: any) => {
   //   window.location.href = `detailContent/${postId}`
   // }
 
