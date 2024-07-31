@@ -155,12 +155,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
-  // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
-
-  const token =
-    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJ0dEB0ZXN0LmNvbSIsImlhdCI6MTcyMjMwNTk1MSwiZXhwIjoxNzIyOTEwNzUxfQ.6_9WlSPqRYbbHv7VH9e53hVnQV5PQcpnc-VKDdZAHfgAahAJfcO1kDQ8EhqdBpPV'
-  const userNickname = '예진스'
+  const [token] = useState<string>(localStorage.getItem('token') || '');
+  const [userNickname] = useState<string>(localStorage.getItem('nickname') || '');
 
   // 채팅방 목록을 가져오는 useEffect 추가
   useEffect(() => {
@@ -236,9 +232,8 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   
   const handleLogout = async () => {
-    console.log(token);
+    const token = localStorage.getItem('token');
     try {
-      const token = localStorage.getItem('token');
       await axios.post(
         'https://subdomain.now-waypoint.store:8080/api/user/logout',
         {},
@@ -250,6 +245,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       );
       localStorage.removeItem('token');
       localStorage.removeItem('nickname');
+      document.cookie.split(";").forEach((cookie) => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      });
       setLogoutModalOpen(false);
       window.location.href = '/login'; // 로그아웃 후 로그인 페이지로 이동
     } catch (error) {
