@@ -197,7 +197,10 @@ const DetailContent: React.FC = () => {
         <div id="detail_content_story">
           <div id="detail_right_profile">
             <div id="detail_content_profile">
-              <div id="test_profile_img">
+              <div
+                id="test_profile_img"
+                onClick={() => handleProfileClick(post.nickname)}
+              >
                 <img alt="프로필 이미지" src={post.profileImageUrl}></img>
               </div>
 
