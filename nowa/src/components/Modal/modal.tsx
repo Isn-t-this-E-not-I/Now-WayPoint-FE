@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react'
+import React, { useState, ReactNode, useEffect } from 'react'
 import useModal from '@/hooks/modal'
 import styled from 'styled-components'
 

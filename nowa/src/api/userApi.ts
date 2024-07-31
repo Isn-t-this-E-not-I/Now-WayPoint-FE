@@ -1,10 +1,7 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://15.165.236.244:8080/api'
-// const API_BASE_URL = process.env.REACT_APP_API_URL;
+const API_BASE_URL = import.meta.env.VITE_APP_API
 
-// const API_BASE_URL = 'http://localhost:8080/api'
-// process.env.REACT_APP_API_URL ||
 interface LoginPayload {
   email: string
   password: string
@@ -16,6 +13,7 @@ interface RegisterPayload {
   password: string
   name: string
   nickname: string
+  authNumber: string
 }
 
 export const login = async (payload: { password: string; loginId: string }) => {
@@ -39,29 +37,17 @@ export const loginWithKakao = async () => {
 export const register = async (payload: RegisterPayload) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/user/register`, payload)
-    return response.data // 응답 데이터 반환
-  } catch (error) {
-    throw error
-  }
-}
-
-export const findId = async (nickname: string, email: string) => {
-  try {
-    const response = await axios.post(`${API_BASE_URL}/user/userId`, {
-      nickname,
-      email,
-    }) // 백 경로 확인
     return response.data
   } catch (error) {
     throw error
   }
 }
 
-export const findPassword = async (loginId: string, email: string) => {
+export const findId = async (email: string, authNumber: string) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/user/password/find`, {
-      loginId,
+    const response = await axios.post(`${API_BASE_URL}/user/userId`, {
       email,
+      authNumber,
     })
     return response.data
   } catch (error) {
@@ -69,13 +55,35 @@ export const findPassword = async (loginId: string, email: string) => {
   }
 }
 
-export const sendVerificationCode = async (email: string, state: string) => {
+export const findPassword = async (
+  loginId: string,
+  email: string,
+  authNumber: string
+) => {
+  try {
+    const response = await axios.put(`${API_BASE_URL}/user/password/find`, {
+      loginId,
+      email,
+      authNumber,
+    })
+    return response.data
+  } catch (error) {
+    throw error
+  }
+}
+
+export const sendVerificationCode = async (
+  email: string,
+  state: string,
+  loginId: string
+) => {
   try {
     const response = await axios.post(`${API_BASE_URL}/mail/send`, {
       email,
       state,
+      loginId,
     })
-    return response.data // 이메일 발송 성공 여부 반환
+    return response.data
   } catch (error) {
     throw error
   }
@@ -83,18 +91,54 @@ export const sendVerificationCode = async (email: string, state: string) => {
 
 export const resetPassword = async (
   email: string,
-  code: string,
+  authNumber: string,
   newPassword: string
 ) => {
-  //  새 비밀번호 발급
   try {
     const response = await axios.put(`${API_BASE_URL}/user/password/find`, {
       email,
-      code,
+      authNumber,
       newPassword,
     })
     return response.data
   } catch (error) {
     throw error
   }
+}
+
+export const uploadProfileImage = async (file: File) => {
+  const formData = new FormData()
+  formData.append('file', file)
+
+  const token = localStorage.getItem('token')
+  const response = await axios.put(
+    `${API_BASE_URL}/user/profileImage/change`,
+    formData,
+    {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    }
+  )
+
+  return response.data
+}
+
+export const updatePassword = async (loginId: string, newPassword: string) => {
+  const token = localStorage.getItem('token')
+  const response = await axios.put(
+    `${API_BASE_URL}/user/password/change`,
+    {
+      loginId,
+      password: newPassword,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  )
+
+  return response.data
 }

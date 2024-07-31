@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { subscribeToChatRoom } from '@/websocket/chatWebSocket'
+import { useChatWebSocket } from '@/websocket/chatWebSocket'
 import { useParams } from 'react-router-dom';
 import { useApp } from '@/context/appContext';
 import { useChat } from '../../context/chatContext'
@@ -29,6 +29,7 @@ const ChattingPage: React.FC = () => {
   const { chatRooms, messages, setMessages } = useChat();
   const { theme } = useApp();
   const token = useState<string>(localStorage.getItem('token') || '');
+  const { subscribeToChatRoom } = useChatWebSocket()
 
   const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null;
   const chatRoom = chatRooms.find(room => room.chatRoomId === roomId);

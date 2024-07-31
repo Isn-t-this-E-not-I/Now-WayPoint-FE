@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
 import '@/styles/tailwind.css'
-import Custom_Theme from '@/hooks/defaultTheme'
 import Sidebar from './components/Sidebar/sidebar.tsx'
 import MainPage from '@/pages/Main/main.tsx'
 import CreatePage from '@/pages/createPage.tsx'
@@ -61,7 +60,11 @@ const AppWrapper: React.FC = () => (
 const rootElement = document.getElementById('root')
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement)
-  root.render(<AppWrapper />)
+  root.render(
+    <React.StrictMode>
+      <AppWrapper />
+    </React.StrictMode>
+  )
 }
 
 export default App

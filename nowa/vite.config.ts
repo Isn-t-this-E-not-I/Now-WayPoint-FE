@@ -12,7 +12,6 @@ export default defineConfig({
     alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
   },
   define: {
-    'process.env': {},
-    'global': 'globalThis', // 여기서 global을 globalThis로 정의합니다.
+    global: 'window',
   },
 })

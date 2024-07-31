@@ -1,17 +1,23 @@
 import React from 'react'
 
 interface ButtonProps {
-  id: string
+  id?: string
+  onClick?: () => void
+  className?: string
+  children: React.ReactNode
 }
 
-const button: React.FC<ButtonProps> = ({ id }) => {
+const Button: React.FC<ButtonProps> = ({
+  id,
+  onClick,
+  className,
+  children,
+}) => {
   return (
-    <div>
-      <button id={id} className="btn">
-        Button
-      </button>
-    </div>
+    <button id={id} onClick={onClick} className={`btn ${className}`}>
+      {children}
+    </button>
   )
 }
 
-export default button
+export default Button

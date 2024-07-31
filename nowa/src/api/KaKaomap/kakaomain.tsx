@@ -1,5 +1,9 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '@/api/KaKaomap/kakaomap'
+import { useLocation } from 'react-router-dom'
+import SockJS from 'sockjs-client'
+import { Client, IMessage } from '@stomp/stompjs'
+import '@/styles/kakaomap.css'
 
 declare global {
   interface Window {
@@ -9,6 +13,119 @@ declare global {
 
 const MainPage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null)
+  const location = useLocation()
+  const [token, setToken] = useState(localStorage.getItem('token'))
+  const [nickname, setNickname] = useState(localStorage.getItem('nickname'))
+  const [locate, setLocate] = useState('')
+  const [stompClient, setStompClient] = useState<Client | null>(null)
+  const [isConnected, setIsConnected] = useState(false)
+  const [data, setData] = useState<any[]>([])
+  const [map, setMap] = useState<any>(null) // 지도 객체 상태 추가
+  const [mapLevel, setMapLevel] = useState<number>(1) // 지도 확대/축소 레벨 상태 추가
+  const [isInitialized, setIsInitialized] = useState(false) // 초기화 상태 추가
+
+  // 쿠키 값을 가져와 로컬스토리지에 저장하는 함수
+  const saveTokenToLocalStorage = () => {
+    const getCookie = (name: string) => {
+      let cookieArr = document.cookie.split(';')
+      for (let i = 0; i < cookieArr.length; i++) {
+        let cookiePair = cookieArr[i].split('=')
+        if (name === cookiePair[0].trim()) {
+          return decodeURIComponent(cookiePair[1])
+        }
+      }
+      return null
+    }
+
+    const authToken = getCookie('Authorization') // "Authorization" 쿠키 값을 가져옴
+    if (authToken) {
+      localStorage.setItem('token', authToken)
+      setToken(authToken) // 상태 업데이트
+    }
+
+    const userNickname = getCookie('nickname') // "nickname" 쿠키 값을 가져옴
+    if (userNickname) {
+      localStorage.setItem('nickname', userNickname)
+      setNickname(userNickname) // 상태 업데이트
+    }
+  }
+
+  useEffect(() => {
+    saveTokenToLocalStorage()
+  }, [])
+
+  useEffect(() => {
+    if (token && nickname) {
+      const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
+      console.log(token)
+
+      const client = new Client({
+        webSocketFactory: () => sock,
+        connectHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+        onConnect: (frame) => {
+          console.log('Websocket connected!')
+          setIsConnected(true) // Update connection status
+
+          client.subscribe(
+            `/queue/notify/${nickname}`,
+            (messageOutput: IMessage) => {
+              console.log(messageOutput.body)
+            }
+          )
+          client.subscribe(
+            `/topic/follower/${nickname}`,
+            (messageOutput: IMessage) => {
+              console.log(messageOutput.body)
+            }
+          )
+
+          setStompClient(client)
+        },
+        onDisconnect: () => {
+          console.log('Websocket disconnected!')
+          setIsConnected(false) // Update connection status
+        },
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message'])
+          console.error('Additional details: ' + frame.body)
+        },
+        debug: (str) => {
+          console.log('STOMP Debug:', str)
+        },
+      })
+
+      client.activate()
+
+      return () => {
+        client.deactivate()
+        console.log('Websocket disconnected')
+      }
+    }
+  }, [token, nickname])
+
+  useEffect(() => {
+    if (isConnected && stompClient && locate) {
+      const subscription = stompClient.subscribe(
+        `/queue/${locate}/${nickname}`,
+        (messageOutput: IMessage) => {
+          console.log(messageOutput.body)
+          const receivedData = JSON.parse(messageOutput.body)
+          setData(receivedData)
+          console.log(receivedData)
+          // 데이터를 받아온 후에 마커 추가
+          if (map) {
+            addMarkers(map, receivedData)
+          }
+        }
+      )
+
+      return () => {
+        subscription.unsubscribe()
+      }
+    }
+  }, [isConnected, stompClient, locate, nickname, map])
 
   const initializeMap = (latitude: number, longitude: number) => {
     const script = document.createElement('script')
@@ -17,33 +134,81 @@ const MainPage: React.FC = () => {
       window.kakao.maps.load(() => {
         const mapOption = {
           center: new window.kakao.maps.LatLng(latitude, longitude),
-          level: 3,
+          level: mapLevel, // 초기 레벨 설정
         }
 
         const map = new window.kakao.maps.Map(mapContainer.current, mapOption)
+        setMap(map) // 지도 객체 저장
 
-        new window.kakao.maps.Marker({
-          map,
-          position: new window.kakao.maps.LatLng(latitude, longitude),
+        // 지도 레벨 변경 시 상태 업데이트
+        window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
+          setMapLevel(map.getLevel())
         })
+
+        setIsInitialized(true) // 지도 초기화 완료 상태 설정
       })
     }
 
     document.head.appendChild(script)
   }
 
+  const addMarkers = (map: any, data: any[]) => {
+    // 기존 마커 제거
+    map.markers?.forEach((marker: { setMap: (arg0: null) => any }) =>
+      marker.setMap(null)
+    )
+    map.markers = []
+
+    data.forEach((item) => {
+      const [lng, lat] = item.locationTag.split(',').map(Number)
+      const position = new window.kakao.maps.LatLng(lat, lng)
+
+      let marker
+      if (item.category === 'PHOTO') {
+        const content = `
+          <div class="customoverlay">
+            <div class="customoverlay-img" style="background-image: url('${item.mediaUrls[0]}');"></div>
+            <div class="customoverlay-tail"></div>
+          </div>
+        `
+        marker = new window.kakao.maps.CustomOverlay({
+          map,
+          position,
+          content,
+          yAnchor: 1,
+        })
+
+        // 커스텀 오버레이를 지도에 추가한 후에 visible 클래스를 추가합니다.
+        setTimeout(() => {
+          const overlayElement = document.querySelector('.customoverlay')
+          if (overlayElement) {
+            overlayElement.classList.add('visible')
+          }
+        }, 100)
+      } else {
+        marker = new window.kakao.maps.Marker({
+          map,
+          position,
+        })
+      }
+      map.markers.push(marker)
+    })
+  }
+
   useEffect(() => {
+    // 지도 출력
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
-          const latitude = position.coords.latitude
-          const longitude = position.coords.longitude
+          const latitude = position.coords.latitude // 위도
+          const longitude = position.coords.longitude // 경도
 
           try {
-            const mapData = await getKakaoApiData(`${latitude},${longitude}`)
-            // const coordinates = await extractCoordinates(mapData)
+            await getKakaoApiData(`${latitude},${longitude}`)
 
             initializeMap(latitude, longitude)
+
+            setLocate(`${longitude},${latitude}`)
           } catch (error) {
             console.error('지도 초기화 실패:', error)
           }
@@ -57,9 +222,60 @@ const MainPage: React.FC = () => {
     }
   }, [])
 
+  useEffect(() => {
+    if (isInitialized && stompClient && isConnected) {
+      selectCategory('ALL')
+    }
+  }, [isInitialized, stompClient, isConnected])
+
+  const selectCategory = (category: string) => {
+    if (stompClient && isConnected) {
+      stompClient.publish({
+        destination: '/app/main/category',
+        body: JSON.stringify({ category: category }),
+      })
+      // 카테고리 선택 시 지도의 확대/축소 레벨 고정
+      if (map) {
+        map.setLevel(mapLevel)
+      }
+    } else {
+      console.error('Not connected to WebSocket')
+    }
+  }
+
   return (
     <div>
       <div ref={mapContainer} style={{ width: '100%', height: '100vh' }} />
+      <div id="categoryBox">
+        <button
+          className="categoryButtons"
+          id="categorybtn1"
+          onClick={() => selectCategory('PHOTO')}
+        >
+          사진
+        </button>
+        <button
+          className="categoryButtons"
+          id="categorybtn2"
+          onClick={() => selectCategory('VIDEO')}
+        >
+          동영상
+        </button>
+        <button
+          className="categoryButtons"
+          id="categorybtn3"
+          onClick={() => selectCategory('MP3')}
+        >
+          음악
+        </button>
+        <button
+          className="categoryButtons"
+          id="categorybtn4"
+          onClick={() => selectCategory('ALL')}
+        >
+          전체
+        </button>
+      </div>
     </div>
   )
 }

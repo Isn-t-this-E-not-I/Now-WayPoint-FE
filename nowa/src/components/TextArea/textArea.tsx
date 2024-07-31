@@ -1,19 +1,31 @@
-import React from 'react'
+import React, { ChangeEvent } from 'react'
 
-interface TextArea {
+interface TextareaProps {
   id: string
+  placeholder?: string
+  value?: string
+  onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
+  className?: string
 }
 
-const textArea: React.FC<TextArea> = ({ id }) => {
+const TextArea: React.FC<TextareaProps> = ({
+  id,
+  placeholder,
+  value,
+  onChange,
+  className = '',
+}) => {
   return (
     <div>
       <textarea
         id={id}
-        className="textarea textarea-bordered resize-none"
-        placeholder="Bio"
+        className={`textarea textarea-bordered resize-none ${className}`}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
       />
     </div>
   )
 }
 
-export default textArea
+export default TextArea

@@ -1,0 +1,45 @@
+import React from 'react'
+
+interface DropDownProps {
+  buttonText: string
+  items: string[]
+  id: string
+  onItemSelect: (item: string) => void
+}
+
+const DropDown: React.FC<DropDownProps> = ({
+  buttonText,
+  items,
+  id,
+  onItemSelect,
+}) => {
+  return (
+    <div>
+      <div className="dropdown dropdown-top dropdown-end">
+        <div tabIndex={0} role="button" className="btn m-1" id={id}>
+          {buttonText}
+        </div>
+        <ul
+          tabIndex={0}
+          className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+        >
+          {items.map((item, index) => (
+            <li key={index}>
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  onItemSelect(item)
+                }}
+              >
+                {item}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  )
+}
+
+export default DropDown

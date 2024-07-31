@@ -15,12 +15,8 @@ import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
-
 import { fetchChatRooms } from '../../api/chatApi'
-import {
-  connectAndSubscribe,
-  disconnect,
-} from '@/websocket/chatWebSocket'
+import { useChatWebSocket } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 
@@ -125,6 +121,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
   const userNickname = 'sol'
+  const { connectAndSubscribe, disconnect } = useChatWebSocket()
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
