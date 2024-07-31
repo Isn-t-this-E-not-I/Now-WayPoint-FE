@@ -21,9 +21,10 @@ const MainPage: React.FC = () => {
   const [isConnected, setIsConnected] = useState(false)
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null)
-  const [mapLevel, setMapLevel] = useState<number>(1)
+  const [mapLevel, setMapLevel] = useState<number>(11)
   const [isInitialized, setIsInitialized] = useState(false)
   const markersRef = useRef<any[]>([])
+  const clustererRef = useRef<any>(null)
 
   const saveTokenToLocalStorage = () => {
     const getCookie = (name: string) => {
@@ -61,7 +62,7 @@ const MainPage: React.FC = () => {
 
   const initializeMap = (latitude: number, longitude: number) => {
     const script = document.createElement('script')
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&autoload=false`
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
     script.onload = () => {
       window.kakao.maps.load(() => {
         const mapOption = {
@@ -71,6 +72,24 @@ const MainPage: React.FC = () => {
 
         const map = new window.kakao.maps.Map(mapContainer.current, mapOption)
         setMap(map)
+
+        const clusterer = new window.kakao.maps.MarkerClusterer({
+          map: map,
+          averageCenter: true,
+          minLevel: 5, // 클러스터 할 최소 지도 레벨 설정
+        })
+
+        // 클러스터러에 클릭 이벤트 추가
+        window.kakao.maps.event.addListener(
+          clusterer,
+          'clusterclick',
+          (cluster: { getCenter: () => any }) => {
+            const level = map.getLevel() - 1
+            map.setLevel(level, { anchor: cluster.getCenter(), animate: true })
+          }
+        )
+
+        clustererRef.current = clusterer
 
         window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
           setMapLevel(map.getLevel())
@@ -84,10 +103,11 @@ const MainPage: React.FC = () => {
   }
 
   const addMarkers = (map: any, data: any[]) => {
-    markersRef.current.forEach((marker: any) => marker.setMap(null))
-    markersRef.current = []
+    if (clustererRef.current) {
+      clustererRef.current.clear()
+    }
 
-    data.forEach((item) => {
+    const markers = data.map((item) => {
       const [lng, lat] = item.locationTag.split(',').map(Number)
       const position = new window.kakao.maps.LatLng(lat, lng)
 
@@ -98,14 +118,16 @@ const MainPage: React.FC = () => {
         markerImageSize
       )
 
-      const marker = new window.kakao.maps.Marker({
-        map,
+      return new window.kakao.maps.Marker({
         position,
         image: markerImage,
       })
-
-      markersRef.current.push(marker)
     })
+
+    markersRef.current = markers
+    if (clustererRef.current) {
+      clustererRef.current.addMarkers(markers)
+    }
   }
 
   const getMarkerImageSrc = (category: string) => {
