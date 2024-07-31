@@ -53,7 +53,7 @@ interface FollowListProps {
   allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
 }
 
-const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow, priorityList, allUsers }) => {
+const UserFollowList: React.FC<FollowListProps> = ({ users, searchQuery, priorityList, allUsers }) => {
   const navigate = useNavigate();
 
   const filteredList = searchQuery ? allUsers.filter((user) => user.nickname.includes(searchQuery)) : users;
@@ -77,16 +77,10 @@ const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, o
               <UserName>@{user.name}</UserName>
             </FollowDetails>
           </FollowName>
-          <Button
-            className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
-            onClick={() => (user.isFollowing ? onUnfollow(user.nickname) : onFollow(user.nickname))}
-          >
-            {user.isFollowing ? '언팔로우' : '팔로우'}
-          </Button>
         </FollowItem>
       ))}
     </FollowListWrapper>
   );
 };
 
-export default FollowList;
+export default UserFollowList;

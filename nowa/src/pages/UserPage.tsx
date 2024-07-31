@@ -4,6 +4,7 @@ import axios from 'axios';
 import styled from 'styled-components';
 import defaultProfileImage from '../../../defaultprofile.png';
 import Posts from '../components/Posts/Posts';
+import UserFollowList from '../components/FollowList/UserFollowList';
 
 const Container = styled.div`
   display: flex;
@@ -64,6 +65,14 @@ const NicknameTitle = styled.h3`
   font-size: 16px;
 `;
 
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+`;
+
 interface UserProfile {
   nickname: string;
   profileImageUrl: string;
@@ -72,6 +81,9 @@ interface UserProfile {
   followings: number;
   postCount: number;
   posts: { id: number; mediaUrls: string[]; createdAt: string }[];
+  followersList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
+  followingsList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
+  allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
 }
 
 const UserPage: React.FC = () => {
@@ -79,6 +91,7 @@ const UserPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('posts');
+  const [searchQuery, setSearchQuery] = useState('');
   const location = import.meta.env.VITE_APP_API;
 
   const fetchUserData = async () => {
@@ -86,6 +99,7 @@ const UserPage: React.FC = () => {
     if (!token) return;
 
     try {
+      console.log('Fetching user data...');
       const response = await axios.get(`${location}/user?nickname=${nickname}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -93,20 +107,68 @@ const UserPage: React.FC = () => {
       });
       console.log('User API Response:', response);
 
+      const userData = response.data;
+
+      console.log(`Fetching following data for ${nickname}...`);
+      const followingResponse = await axios.get(`${location}/follow/following?nickname=${nickname}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Following API Response:', followingResponse);
+
+      console.log(`Fetching follower data for ${nickname}...`);
+      const followerResponse = await axios.get(`${location}/follow/follower?nickname=${nickname}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Follower API Response:', followerResponse);
+
+      console.log('Fetching all users...');
+      const allUsersResponse = await axios.get(`${location}/user/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('All Users API Response:', allUsersResponse);
+
+      const allUsers = allUsersResponse.data.map((user: any) => ({
+        isFollowing: followingResponse.data.some((followingUser: any) => followingUser.nickname === user.nickname),
+        ...user,
+      }));
+
       setUserInfo({
-        nickname: response.data.nickname,
-        profileImageUrl: response.data.profile_image_url || defaultProfileImage,
-        description: response.data.description,
-        followers: parseInt(response.data.followers, 10),
-        followings: parseInt(response.data.followings, 10),
-        postCount: response.data.posts ? response.data.posts.length : 0,
-        posts: response.data.posts
-          ? response.data.posts.map((post: any) => ({
+        nickname: userData.nickname,
+        profileImageUrl: userData.profileImageUrl || defaultProfileImage,
+        description: userData.description,
+        followers: parseInt(userData.follower, 10),
+        followings: parseInt(userData.following, 10),
+        postCount: userData.posts ? userData.posts.length : 0,
+        posts: userData.posts
+          ? userData.posts.map((post: any) => ({
               id: post.id,
               mediaUrls: post.mediaUrls,
               createdAt: post.createdAt,
             }))
           : [],
+        followersList: followerResponse.data
+          ? followerResponse.data.map((user: any) => ({
+              isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
+          : [],
+        followingsList: followingResponse.data
+          ? followingResponse.data.map((user: any) => ({
+              isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+            }))
+          : [],
+        allUsers,
       });
 
       setLoading(false);
@@ -120,14 +182,18 @@ const UserPage: React.FC = () => {
     fetchUserData();
   }, [nickname]);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
-
+  
   if (!userInfo) {
     return <div>Failed to load user data</div>;
   }
-
+  
   return (
     <Container>
       <ProfileSection>
@@ -147,6 +213,46 @@ const UserPage: React.FC = () => {
           <>
             <SectionTitle>게시글</SectionTitle>
             <Posts posts={userInfo.posts} />
+          </>
+        )}
+        {selectedTab === 'followings' && (
+          <>
+            <SectionTitle>팔로잉</SectionTitle>
+            <SearchInput 
+              type="text"
+              placeholder="검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <UserFollowList 
+              users={userInfo.followingsList}
+              searchQuery={searchQuery}
+              priorityList={userInfo.followingsList}
+              allUsers={userInfo.allUsers} onFollow={function (): void {
+                throw new Error('Function not implemented.');
+              } } onUnfollow={function (): void {
+                throw new Error('Function not implemented.');
+              } }            />
+          </>
+        )}
+        {selectedTab === 'followers' && (
+          <>
+            <SectionTitle>팔로워</SectionTitle>
+            <SearchInput 
+              type="text"
+              placeholder="검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <UserFollowList 
+              users={userInfo.followersList}
+              searchQuery={searchQuery}
+              priorityList={userInfo.followersList}
+              allUsers={userInfo.allUsers} onFollow={function (): void {
+                throw new Error('Function not implemented.');
+              } } onUnfollow={function (): void {
+                throw new Error('Function not implemented.');
+              } }            />
           </>
         )}
       </ContentSection>
