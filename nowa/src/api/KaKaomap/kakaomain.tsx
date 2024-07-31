@@ -75,7 +75,7 @@ const MainPage: React.FC = () => {
             }
           )
           client.subscribe(
-            `/topic/follower/${nickname}`,
+            `/queue/posts/${nickname}`,
             (messageOutput: IMessage) => {
               console.log(messageOutput.body)
             }
