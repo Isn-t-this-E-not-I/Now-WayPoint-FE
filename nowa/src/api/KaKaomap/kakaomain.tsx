@@ -23,8 +23,8 @@ const MainPage: React.FC = () => {
   const [map, setMap] = useState<any>(null)
   const [mapLevel, setMapLevel] = useState<number>(1)
   const [isInitialized, setIsInitialized] = useState(false)
+  const markersRef = useRef<any[]>([])
 
-  // 쿠키 값을 가져와 로컬스토리지에 저장하는 함수
   const saveTokenToLocalStorage = () => {
     const getCookie = (name: string) => {
       let cookieArr = document.cookie.split(';')
@@ -50,75 +50,14 @@ const MainPage: React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    saveTokenToLocalStorage()
-  }, [])
-
-  useEffect(() => {
-    if (token && nickname) {
-      const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
-
-      const client = new Client({
-        webSocketFactory: () => sock,
-        connectHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        onConnect: (frame) => {
-          setIsConnected(true)
-
-          client.subscribe(
-            `/queue/notify/${nickname}`,
-            (messageOutput: IMessage) => {
-              console.log(messageOutput.body)
-            }
-          )
-          client.subscribe(
-            `/queue/posts/${nickname}`,
-            (messageOutput: IMessage) => {
-              console.log(messageOutput.body)
-            }
-          )
-
-          setStompClient(client)
-        },
-        onDisconnect: () => {
-          setIsConnected(false)
-        },
-        onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message'])
-          console.error('Additional details: ' + frame.body)
-        },
-        debug: (str) => {
-          console.log('STOMP Debug:', str)
-        },
-      })
-
-      client.activate()
-
-      return () => {
-        client.deactivate()
-      }
-    }
-  }, [token, nickname])
-
-  useEffect(() => {
-    if (isConnected && stompClient && locate) {
-      const subscription = stompClient.subscribe(
-        `/queue/${locate}/${nickname}`,
-        (messageOutput: IMessage) => {
-          const receivedData = JSON.parse(messageOutput.body)
-          setData(receivedData)
-          if (map) {
-            addMarkers(map, receivedData)
-          }
-        }
-      )
-
-      return () => {
-        subscription.unsubscribe()
-      }
-    }
-  }, [isConnected, stompClient, locate, nickname, map])
+  const subscribeToTopics = (client: Client, nickname: string) => {
+    client.subscribe(`/queue/notify/${nickname}`, (messageOutput: IMessage) => {
+      console.log(messageOutput.body)
+    })
+    client.subscribe(`/queue/posts/${nickname}`, (messageOutput: IMessage) => {
+      console.log(messageOutput.body)
+    })
+  }
 
   const initializeMap = (latitude: number, longitude: number) => {
     const script = document.createElement('script')
@@ -145,10 +84,8 @@ const MainPage: React.FC = () => {
   }
 
   const addMarkers = (map: any, data: any[]) => {
-    map.markers?.forEach((marker: { setMap: (arg0: null) => any }) =>
-      marker.setMap(null)
-    )
-    map.markers = []
+    markersRef.current.forEach((marker: any) => marker.setMap(null))
+    markersRef.current = []
 
     data.forEach((item) => {
       const [lng, lat] = item.locationTag.split(',').map(Number)
@@ -167,7 +104,7 @@ const MainPage: React.FC = () => {
         image: markerImage,
       })
 
-      map.markers.push(marker)
+      markersRef.current.push(marker)
     })
   }
 
@@ -185,6 +122,8 @@ const MainPage: React.FC = () => {
   }
 
   useEffect(() => {
+    saveTokenToLocalStorage()
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
@@ -193,9 +132,7 @@ const MainPage: React.FC = () => {
 
           try {
             await getKakaoApiData(`${latitude},${longitude}`)
-
             initializeMap(latitude, longitude)
-
             setLocate(`${longitude},${latitude}`)
           } catch (error) {
             console.error('지도 초기화 실패:', error)
@@ -208,7 +145,58 @@ const MainPage: React.FC = () => {
     } else {
       console.error('Geolocation을 지원하지 않는 브라우저입니다.')
     }
-  }, [])
+
+    if (token && nickname) {
+      const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
+      const client = new Client({
+        webSocketFactory: () => sock,
+        connectHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+        onConnect: () => {
+          setIsConnected(true)
+          subscribeToTopics(client, nickname)
+          setStompClient(client)
+        },
+        onDisconnect: () => {
+          setIsConnected(false)
+        },
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message'])
+          console.error('Additional details: ' + frame.body)
+        },
+        debug: (str) => {
+          console.log('STOMP Debug:', str)
+        },
+      })
+
+      client.activate()
+      return () => {
+        client.deactivate()
+      }
+    }
+  }, [token, nickname])
+
+  useEffect(() => {
+    if (isConnected && stompClient && locate) {
+      const subscription = stompClient.subscribe(
+        `/queue/${locate}/${nickname}`,
+        (messageOutput: IMessage) => {
+          const receivedData = JSON.parse(messageOutput.body)
+          setData(receivedData)
+        }
+      )
+      return () => {
+        subscription.unsubscribe()
+      }
+    }
+  }, [isConnected, stompClient, locate, nickname])
+
+  useEffect(() => {
+    if (data.length > 0 && map) {
+      addMarkers(map, data)
+    }
+  }, [data, map])
 
   useEffect(() => {
     if (isInitialized && stompClient && isConnected) {
@@ -220,11 +208,8 @@ const MainPage: React.FC = () => {
     if (stompClient && isConnected) {
       stompClient.publish({
         destination: '/app/main/category',
-        body: JSON.stringify({ category: category }),
+        body: JSON.stringify({ category }),
       })
-      if (map) {
-        map.setLevel(mapLevel)
-      }
     } else {
       console.error('Not connected to WebSocket')
     }
@@ -236,28 +221,24 @@ const MainPage: React.FC = () => {
       <div id="categoryBox">
         <button
           className="categoryButtons"
-          id="categorybtn1"
           onClick={() => selectCategory('PHOTO')}
         >
           사진
         </button>
         <button
           className="categoryButtons"
-          id="categorybtn2"
           onClick={() => selectCategory('VIDEO')}
         >
           동영상
         </button>
         <button
           className="categoryButtons"
-          id="categorybtn3"
           onClick={() => selectCategory('MP3')}
         >
           음악
         </button>
         <button
           className="categoryButtons"
-          id="categorybtn4"
           onClick={() => selectCategory('ALL')}
         >
           전체
