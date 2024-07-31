@@ -10,7 +10,7 @@ import {
   NewCreateIcon,
   NotificationsIcon,
   NowaIcon,
-  ExitIcon,
+  LogOutIcon,
 } from '../icons/icons'
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
@@ -57,6 +57,22 @@ const RightSidebar = styled.div`
   z-index: 5;
   position: relative;
   margin-left: 2.6rem;
+`
+
+const SidebarRightHeader = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 65px;
+  padding-left: 10px;
+`
+
+const LogOutButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 26px;
+  margin-left: -18px;
 `
 
 const Blank = styled.div`
@@ -288,18 +304,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
         >
           <MyPageIcon theme={theme} />
         </IconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            setLogoutModalOpen(true)
-          }}
-        >
-          <ExitIcon theme={theme} />
-        </IconButtonWrapper>
         <Blank />
         <ThemeController />
       </LeftSidebar>
       <RightSidebar>
-        <NowaIcon theme={theme} />
+        <SidebarRightHeader>
+          <NowaIcon theme={theme} />
+          <LogOutButtonWrapper
+            onClick={() => {
+              setLogoutModalOpen(true)
+            }}
+          >
+            <LogOutIcon theme={theme} />
+          </LogOutButtonWrapper>
+        </SidebarRightHeader>
         <ContentDiv>
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
