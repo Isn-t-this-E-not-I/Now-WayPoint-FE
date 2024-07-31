@@ -329,6 +329,7 @@ const MyPage: React.FC = () => {
               onUnfollow={handleUnfollow}
               priorityList={userInfo.followingsList}
               allUsers={userInfo.allUsers}
+              showFollowButtons={true}
             />
           </>
         )}
@@ -348,6 +349,7 @@ const MyPage: React.FC = () => {
               onUnfollow={handleUnfollow}
               priorityList={userInfo.followersList}
               allUsers={userInfo.allUsers}
+              showFollowButtons={false}
             />
           </>
         )}
