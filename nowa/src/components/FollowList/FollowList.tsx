@@ -51,9 +51,10 @@ interface FollowListProps {
   onUnfollow: (nickname: string) => void;
   priorityList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
   allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
+  showFollowButtons: boolean; // 팔로우 버튼을 표시할지 여부
 }
 
-const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow, priorityList, allUsers }) => {
+const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow, priorityList, allUsers, showFollowButtons }) => {
   const navigate = useNavigate();
 
   const filteredList = searchQuery ? allUsers.filter((user) => user.nickname.includes(searchQuery)) : users;
@@ -77,12 +78,14 @@ const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, o
               <UserName>@{user.name}</UserName>
             </FollowDetails>
           </FollowName>
-          <Button
-            className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
-            onClick={() => (user.isFollowing ? onUnfollow(user.nickname) : onFollow(user.nickname))}
-          >
-            {user.isFollowing ? '언팔로우' : '팔로우'}
-          </Button>
+          {showFollowButtons && (
+            <Button
+              className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
+              onClick={() => (user.isFollowing ? onUnfollow(user.nickname) : onFollow(user.nickname))}
+            >
+              {user.isFollowing ? '언팔로우' : '팔로우'}
+            </Button>
+          )}
         </FollowItem>
       ))}
     </FollowListWrapper>
