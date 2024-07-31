@@ -1,4 +1,4 @@
-export const fetchChatRooms = async (token: string) => {
+export const fetchChatRooms = async (token: string | null) => {
   // 서버에 GET 요청을 보내서 채팅방 목록을 가져옴
   const response = await fetch('/api/chat/list', {
     method: 'GET',

@@ -1,34 +1,33 @@
+import { useState } from 'react'
 import { CompatClient, Stomp } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 import { ChatRoom, ChatMessage } from '@/types'
+import { useChat } from '@/context/chatContext'
 
 let stompClient: CompatClient | null = null
 let chatRoomSubscription: any = null
+const { setChatRooms, setMessages } = useChat()
 
 export const getStompClient = () => stompClient;
+const token = useState<string>(localStorage.getItem('token') || '');
 
 // WebSocket 연결 및 구독 함수
 export const connectAndSubscribe = (
-  token: string,
   userNickname: string,
-  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>,
   onError: (error: any) => void
 ) => {
-  const socket = new SockJS('/ws')
-  stompClient = Stomp.over(socket)
+  const socket = new SockJS('https://subdomain.now-waypoint.store:8080/ws')
+  stompClient = Stomp.over(() => socket)
 
   // 연결 성공 시 호출되는 콜백
   const onConnect = () => {
-    console.log('WebSocket connected')
-
     // 채팅방 목록을 구독하고 메시지를 수신할 때 handleMessage를 호출
     stompClient!.subscribe(
       `/queue/chatroom/${userNickname}`,
-      (message) => handleMessageUser(message, token, setChatRooms)
+      (message) => handleMessageUser(message)
     )
   }
 
-  // 연결 실패 시 호출되는 콜백
   stompClient.connect({ Authorization: `Bearer ${token}` }, onConnect, onError)
 }
 
@@ -44,7 +43,6 @@ export const disconnect = () => {
 
 // 새로운 채팅방 구독 함수
 export const subscribeToChatRoom = (
-  token: string,
   chatRoomId: number
 ) => {
   if (stompClient) {
@@ -56,7 +54,7 @@ export const subscribeToChatRoom = (
     // 새로운 채팅방 구독
     chatRoomSubscription = stompClient.subscribe(
       `/topic/chatRoom/${chatRoomId}`,
-      (message) => handleMessageChatRoom(message, token),
+      (message) => handleMessageChatRoom(message),
       { Authorization: `Bearer ${token}` }
     );
     return chatRoomSubscription;
@@ -67,16 +65,14 @@ export const subscribeToChatRoom = (
 
 // 메시지 처리 로직 /queue/chatRoom/userNickname으로 오는 것들
 
+// 채팅방 생성 - CREATE                        -> 채팅방 목록 조회 setChatRoom으로 
 // 채팅 메시지생성 - CHAT                       -> 채팅방 목록 조회
 // 채팅방 메시지 조회, 이전 메시지 조회 - CHAT_LIST  -> 리액트 상태 ChatMessage리스트 설정
 // 특정 채팅방의 업데이트 정보를 조회 - UPDATE       -> 리액트 chatrooms, chatroomsInfo 설정
-// 채팅방 생성 - CREATE                        -> 채팅방 목록 조회
 // 채팅방 유저 초대 - INVITE                    -> 채팅방 목록 조회
 // 채팅방 나가기 - LEAVE                       -> 채팅방 목록 조회
 export const handleMessageUser = (
   message: { body: string },
-  token: string,
-  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>
 ) => {
   const parsedMessage = JSON.parse(message.body)
   switch (parsedMessage.messageType) {
@@ -92,10 +88,15 @@ export const handleMessageUser = (
 
       // 이전 채팅방 목록을 가져와서 새로운 채팅방을 추가
       setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom])
+
       break
     case 'CHAT_LIST':
       const newMessages: ChatMessage[] = parsedMessage.messages; // 메시지 리스트를 파싱합니다
+      setMessages(newMessages); // 이전 메시지 리스트를 갱신합니다.
 
+      break
+
+    case 'FDAF':
 
       break
     default:
@@ -108,14 +109,9 @@ export const handleMessageUser = (
 // 채팅방 이름 업데이트 - NAME_UPDATE
 export const handleMessageChatRoom = (
   message: { body: string },
-  token: string,
 ) => {
   const parsedMessage = JSON.parse(message.body)
   switch (parsedMessage.messageType) {
-    case 'CREATE':
-
-
-
     case 'CHAT_LIST':
 
       break

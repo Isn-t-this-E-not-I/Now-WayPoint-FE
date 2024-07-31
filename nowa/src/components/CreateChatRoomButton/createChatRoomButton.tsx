@@ -3,15 +3,8 @@ import styled from 'styled-components'
 import { CreateChatButtonIcon } from '../icons/icons'
 import useModal from '@/hooks/modal'
 import Modal from '../Modal/modal'
-import { CompatClient } from '@stomp/stompjs'
-import { ChatRoom } from '../../types'
-
-interface CreateChatButtonProps {
-  theme: 'light' | 'dark'
-  token: string
-  stompClient: CompatClient | null
-  onCreateChat: (newChatRoom: ChatRoom) => void
-}
+import { getStompClient } from '@/websocket/chatWebSocket'
+import { useApp } from '@/context/appContext'
 
 const Button = styled.button`
   background: none;
@@ -73,30 +66,31 @@ const CloseButton = styled.button`
   }
 `
 
-const CreateChatRoomButton: React.FC<CreateChatButtonProps> = ({
-  theme,
-  token,
-  stompClient,
-  onCreateChat,
-}) => {
+const CreateChatRoomButton: React.FC = () => {
+  const { theme } = useApp();
   const { isOpen, open, close } = useModal()
-  const [selectedMembers, setSelectedMembers] = useState<string>('')
+  const [selectedUsers, setSelectedUsers] = useState<string>('')
+  const token = useState<string>(localStorage.getItem('token') || '');
 
   const handleCreateChat = (e: React.FormEvent) => {
     e.preventDefault()
-    const members = selectedMembers.split(',').map((member) => member.trim())
-
-    const payload = { members }
+    const nicknames = selectedUsers.split(',').map((user) => user.trim())
+    const stompClient = getStompClient();
+    const payload = { nicknames }
 
     // STOMP 클라이언트를 통해 서버에 메시지 전송
-    stompClient!.send(
-      '/app/chatRoom/create',
-      { Authorization: `Bearer ${token}` },
-      JSON.stringify(payload)
-    )
+    if (stompClient) {
+      stompClient.publish({
+        destination: '/app/chatRoom/create',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload)
+      })
+    } else {
+      console.error('StompClient is not connected.')
+    }
 
     // 입력 필드 초기화 및 모달 닫기
-    setSelectedMembers('')
+    setSelectedUsers('')
     close()
   }
 
@@ -113,8 +107,8 @@ const CreateChatRoomButton: React.FC<CreateChatButtonProps> = ({
             <Form onSubmit={handleCreateChat}>
               <Input
                 type="text"
-                value={selectedMembers}
-                onChange={(e) => setSelectedMembers(e.target.value)}
+                value={selectedUsers}
+                onChange={(e) => setSelectedUsers(e.target.value)}
                 placeholder="초대할 유저 닉네임 (쉼표로 구분)"
               />
               <SubmitButton type="submit" $themeMode={theme}>

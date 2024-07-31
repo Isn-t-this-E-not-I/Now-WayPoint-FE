@@ -1,17 +1,14 @@
 import React from 'react'
-import { ChatRoom, ChatRoomInfo } from '../../types'
+import { useNavigate } from 'react-router-dom';
+import { useChat } from '../../context/chatContext';
 
-interface ChatListPageProps {
-  chatRooms: ChatRoom[]
-  chatRoomsInfo: ChatRoomInfo[]
-  onChatItemClick: (chatRoom: ChatRoom) => void
-}
+const ChatListPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { chatRooms, chatRoomsInfo } = useChat();
 
-const ChatListPage: React.FC<ChatListPageProps> = ({
-  chatRooms,
-  chatRoomsInfo,
-  onChatItemClick,
-}) => {
+  const handleChatRoomClick = (chatRoomId: number) => {
+    navigate(`/chatting/${chatRoomId}`);
+  };
 
   return (
     <div>
@@ -23,7 +20,7 @@ const ChatListPage: React.FC<ChatListPageProps> = ({
           )
           return (
             <li key={room.chatRoomId}>
-              <span onClick={() => onChatItemClick(room)}>
+              <span onClick={() => handleChatRoomClick(room.chatRoomId)}>
                 {room.chatRoomName}
               </span>
               {roomInfo && (

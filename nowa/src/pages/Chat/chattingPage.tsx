@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { CompatClient } from '@stomp/stompjs'
 import { subscribeToChatRoom } from '@/websocket/chatWebSocket'
-import { ChatMessage } from '@/types'
+import { useParams } from 'react-router-dom';
+import { useApp } from '@/context/appContext';
+import { useChat } from '../../context/chatContext'
+import { getStompClient } from '@/websocket/chatWebSocket'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -22,30 +24,42 @@ const MessageItem = styled.li`
   margin: 5px 0;
 `
 
-interface ChattingPageProps {
-  chatRoomId: number
-  token: string
-  stompClient: CompatClient
-}
+const ChattingPage: React.FC = () => {
+  const { chatRoomId } = useParams<{ chatRoomId: string }>();
+  const { chatRooms, messages, setMessages } = useChat();
+  const { theme } = useApp();
+  const token = useState<string>(localStorage.getItem('token') || '');
 
-const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoomId, token, stompClient }) => {
-  const [messages, setMessages] = useState<{ sender: string; content: string }[]>([])
+  const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null;
+  const chatRoom = chatRooms.find(room => room.chatRoomId === roomId);
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
+    if (roomId === null) return; // roomId가 null인 경우 처리
+
     const payload = {
-      chatRoomId: chatRoomId
+      chatRoomId: roomId
     }
 
-    stompClient.send(
-      '/app/chat/messages',
-      { Authorization: `Bearer ${token}` },
-      JSON.stringify(payload)
-    )
+    const stompClient = getStompClient();
+
+    if (stompClient) {
+      stompClient.publish({
+        destination: '/app/chat/messages',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload)
+      })
+    } else {
+      console.error('StompClient is not connected.')
+    }
+
   }
+
   useEffect(() => {
+    if (roomId === null) return; // roomId가 null인 경우 처리
+
     // 채팅방 구독 시작
-    const subscription = subscribeToChatRoom(token, chatRoomId)
+    const subscription = subscribeToChatRoom(roomId)
 
     // 최근 메시지 요청
     getRecentMessages()
@@ -55,13 +69,18 @@ const ChattingPage: React.FC<ChattingPageProps> = ({ chatRoomId, token, stompCli
       if (subscription) {
         subscription.unsubscribe()
       }
+      // 메시지 상태 초기화
+      setMessages([])
     }
-  }, [chatRoomId, token, stompClient])
+  }, [roomId, token, setMessages])
 
+  if (!chatRoom) {
+    return <div>채팅방을 찾을 수 없습니다.</div>;
+  }
 
   return (
     <ChatContainer>
-      <h2>Chat Room {chatRoomId}</h2>
+      <h2>{chatRoom.chatRoomName}</h2>
       <MessageList>
         {messages.map((msg, index) => (
           <MessageItem key={index}>
