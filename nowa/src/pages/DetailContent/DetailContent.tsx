@@ -17,6 +17,7 @@ import {
 import { getAddressFromCoordinates } from '@/services/getAddress'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
+import TextArea from '@/components/TextArea/textArea'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
 const getCurrentUser = (): string | null => {
@@ -28,6 +29,8 @@ const DetailContent: React.FC = () => {
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
   const [newComment, setNewComment] = useState<string>('')
+  const [replyCommentId, setReplyCommentId] = useState<number | null>(null)
+  const [replyContent, setReplyContent] = useState<string>('')
   const [currentUser, setCurrentUser] = useState<string | null>(null)
   const { id } = useParams()
   const navigate = useNavigate()
@@ -38,7 +41,7 @@ const DetailContent: React.FC = () => {
         const postData = await getPostById(Number(id))
         setPost(postData)
         const commentsData = await getCommentsByPostId(Number(id))
-        setComments(commentsData)
+        setComments(buildCommentTree(commentsData))
 
         if (postData.locationTag) {
           const [longitude, latitude] = postData.locationTag
@@ -58,15 +61,43 @@ const DetailContent: React.FC = () => {
     setCurrentUser(user)
   }, [id])
 
+  const buildCommentTree = (comments: Comment[]): Comment[] => {
+    const map: { [key: number]: Comment } = {}
+    const roots: Comment[] = []
+
+    comments.forEach((comment) => {
+      map[comment.id] = { ...comment, children: [] }
+    })
+
+    comments.forEach((comment) => {
+      if (comment.parentId) {
+        if (map[comment.parentId]) {
+          map[comment.parentId].children?.push(map[comment.id])
+        }
+      } else {
+        roots.push(map[comment.id])
+      }
+    })
+
+    return roots
+  }
+
+  const fetchComments = async () => {
+    try {
+      const commentsData = await getCommentsByPostId(Number(id))
+      setComments(buildCommentTree(commentsData))
+    } catch (error) {
+      console.error('Failed to fetch comments data:', error)
+    }
+  }
+
   const handleCommentDelete = async (commentId: number) => {
     try {
       const result = await deleteCommentById(Number(id), commentId)
       if (typeof result === 'string') {
         alert(result)
       } else {
-        setComments((prevComments) =>
-          prevComments.filter((comment) => comment.id !== commentId)
-        )
+        await fetchComments()
       }
     } catch (error) {
       console.error('Failed to delete comment:', error)
@@ -92,11 +123,31 @@ const DetailContent: React.FC = () => {
     e.preventDefault()
     try {
       const newCommentData = await createComment(Number(id), newComment)
-      setComments((prevComments) => [...prevComments, newCommentData])
+      await fetchComments()
       setNewComment('')
     } catch (error) {
       console.error('Failed to submit comment:', error)
       alert('댓글 작성에 실패했습니다.')
+    }
+  }
+
+  const handleReplySubmit = async (
+    parentCommentId: number,
+    e: React.FormEvent<HTMLFormElement>
+  ) => {
+    e.preventDefault()
+    try {
+      const newReplyData = await createComment(
+        Number(id),
+        replyContent,
+        parentCommentId
+      )
+      await fetchComments()
+      setReplyContent('')
+      setReplyCommentId(null)
+    } catch (error) {
+      console.error('Failed to submit reply:', error)
+      alert('답글 작성에 실패했습니다.')
     }
   }
 
@@ -123,19 +174,7 @@ const DetailContent: React.FC = () => {
   const handleCommentLikeToggle = async (commentId: number) => {
     try {
       await toggleCommentLike(Number(id), commentId)
-      setComments((prevComments) =>
-        prevComments.map((comment) =>
-          comment.id === commentId
-            ? {
-                ...comment,
-                isLiked: !comment.isLiked,
-                likeCount: comment.isLiked
-                  ? comment.likeCount - 1
-                  : comment.likeCount + 1,
-              }
-            : comment
-        )
-      )
+      await fetchComments()
     } catch (error) {
       console.error('Failed to like/unlike comment:', error)
       alert('댓글 좋아요/좋아요 취소에 실패했습니다.')
@@ -144,6 +183,12 @@ const DetailContent: React.FC = () => {
 
   const handleProfileClick = (nickname: string) => {
     navigate(`/user/${nickname}`)
+  }
+
+  const toggleReplyComment = (commentId: number) => {
+    setReplyCommentId((prevReplyCommentId) =>
+      prevReplyCommentId === commentId ? null : commentId
+    )
   }
 
   if (!post) {
@@ -163,6 +208,77 @@ const DetailContent: React.FC = () => {
     const month = date.getMonth() + 1 // getMonth()는 0부터 시작하므로 +1 필요
     const day = date.getDate()
     return `${year}.${month}.${day}`
+  }
+
+  const renderComments = (comments: Comment[]) => {
+    return comments.map((comment) => (
+      <div key={comment.id} id="detail_coment_deep">
+        <div
+          id="test_coment_img"
+          onClick={() => handleProfileClick(comment.nickname)}
+        >
+          <img id="d_d" alt="프로필 이미지" src={comment.profileImageUrl} />
+        </div>
+        <div>
+          <div id="detail_coment_id">{comment.nickname}</div>
+          <div id="detail_coment_content">{comment.content}</div>
+          <div id="detail_coment_edit_line">
+            <div id="detail_coment_date">{formatDate(comment.createdAt)}</div>
+            <div
+              id="detail_coment_recoment"
+              onClick={() => toggleReplyComment(comment.id)}
+            >
+              답글 달기
+            </div>
+            <div id="detail_coment_delete">
+              {currentUser === comment.nickname && (
+                <a
+                  href=""
+                  onClick={(e) => {
+                    e.preventDefault()
+                    handleCommentDelete(comment.id)
+                  }}
+                >
+                  삭제
+                </a>
+              )}
+            </div>
+          </div>
+          <div id="detail_comment_like">
+            <img
+              src={
+                comment.likedByUser
+                  ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
+                  : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
+              }
+              alt="좋아요"
+              onClick={() => handleCommentLikeToggle(comment.id)}
+            />
+            <div id="detail_comment_like_count">{comment.likeCount}</div>
+          </div>
+          {replyCommentId === comment.id && (
+            <form
+              id="detail_reply_write"
+              onSubmit={(e) => handleReplySubmit(comment.id, e)}
+            >
+              <TextArea
+                id="detail_reply_content"
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+              ></TextArea>
+              <div id="detail_reply_write_button">
+                <button type="submit">답글 게시</button>
+              </div>
+            </form>
+          )}
+          {comment.children && comment.children.length > 0 && (
+            <div className="comment-children">
+              {renderComments(comment.children)}
+            </div>
+          )}
+        </div>
+      </div>
+    ))
   }
 
   return (
@@ -229,56 +345,7 @@ const DetailContent: React.FC = () => {
 
           <div id="detail_content_coment">
             {comments.length > 0 ? (
-              comments.map((comment) => (
-                <div key={comment.id} id="detail_coment_deep">
-                  <div
-                    id="test_coment_img"
-                    onClick={() => handleProfileClick(comment.nickname)}
-                  >
-                    <img
-                      id="d_d"
-                      alt="프로필 이미지"
-                      src={comment.profileImageUrl}
-                    />
-                  </div>
-                  <div>
-                    <div id="detail_coment_id">{comment.nickname}</div>
-                    <div id="detail_coment_content">{comment.content}</div>
-                    <div id="detail_coment_edit_line">
-                      <div id="detail_coment_date">
-                        {formatDate(comment.createdAt)}
-                      </div>
-                      <div id="detail_coment_delete">
-                        {currentUser === comment.nickname && (
-                          <a
-                            href=""
-                            onClick={(e) => {
-                              e.preventDefault()
-                              handleCommentDelete(comment.id)
-                            }}
-                          >
-                            삭제
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                    <div id="detail_comment_like">
-                      <img
-                        src={
-                          comment.isLiked
-                            ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
-                            : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
-                        }
-                        alt="좋아요"
-                        onClick={() => handleCommentLikeToggle(comment.id)}
-                      />
-                      <div id="detail_comment_like_count">
-                        {comment.likeCount}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))
+              renderComments(comments)
             ) : (
               <div id="no_comments">댓글이 존재하지 않습니다</div>
             )}
