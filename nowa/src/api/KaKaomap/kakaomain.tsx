@@ -24,7 +24,7 @@ const MainPage: React.FC = () => {
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
-  const client = useWebSocket()
+  const client = useWebSocket().client
 
   const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString)
