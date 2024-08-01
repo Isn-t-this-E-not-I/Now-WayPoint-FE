@@ -89,16 +89,16 @@
   border-radius: 10px;
 }
 
-#main_maker_name {
+#main_maker_content {
   position: absolute;
   top: 30px;
-  right: 51.5px;
+  right: 10px;
+}
+
+#main_maker_name {
   font-size: 11px;
 }
 
 #main_maker_create {
-  position: absolute;
-  top: 55px;
-  right: 15px;
   font-size: 10px;
 }
