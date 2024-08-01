@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
 import { useChatWebSocket } from '@/websocket/chatWebSocket'
 import { useParams } from 'react-router-dom';
@@ -24,11 +24,12 @@ const MessageItem = styled.li`
   margin: 5px 0;
 `
 
+// sender가 admin일때는 중앙정렬된 메시지로 출력
 const ChattingPage: React.FC = () => {
   const { chatRoomId } = useParams<{ chatRoomId: string }>();
   const { chatRooms, messages, setMessages } = useChat();
   const { theme } = useApp();
-  const token = useState<string>(localStorage.getItem('token') || '');
+  const token = localStorage.getItem('token') || '';
   const { subscribeToChatRoom } = useChatWebSocket()
 
   const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null;
@@ -81,6 +82,7 @@ const ChattingPage: React.FC = () => {
 
   return (
     <ChatContainer>
+      <h2>예시코드입니다~~~~~~~</h2>
       <h2>{chatRoom.chatRoomName}</h2>
       <MessageList>
         {messages.map((msg, index) => (

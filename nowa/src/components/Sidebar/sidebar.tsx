@@ -16,7 +16,7 @@ import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
 import { fetchChatRooms } from '../../api/chatApi'
-import { useChatWebSocket } from '@/websocket/chatWebSocket'
+import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 
@@ -116,11 +116,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [activePage, setActivePage] = useState<string>('')
   const { setChatRooms, setChatRoomsInfo } = useChat()
 
-  // const [token, setToken] = useState<string>(localStorage.getItem('token') || '');
-  // const [userNickname, setUserNickname] = useState<string>(localStorage.getItem('nickname') || '');
-
-  const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzM4NCJ9.eyJzdWIiOiJzb2wxQHNvbC5jb20iLCJpYXQiOjE3MjE5NTc2NDYsImV4cCI6MTcyMjU2MjQ0Nn0.iC-NBMHmXB8LUEIOThpjVlE8gzC4UjDsXUC_lK0z7v9PKLaGQaUxyqA1Do5EMY4v'
-  const userNickname = 'sol'
+  const token = localStorage.getItem('token') || '';
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
@@ -200,12 +196,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         </IconButton>
         <IconButton
           onClick={() => {
+            if (getStompClient() == null) {
+              connectAndSubscribe((error) => console.error(error));
+            }
             setActivePage('chat')
-            fetchChatRooms(token).then((data) => {
-              setChatRooms(data.chatRooms)
-              setChatRoomsInfo(data.chatRoomsInfo)
-            })
-            connectAndSubscribe(userNickname, (error) => console.error(error));
+            fetchChatRooms(token)
+              .then(data => {
+                // 데이터 구조를 확인하고 필요한 데이터만 추출
+                const chatRooms = data.chatRooms;
+                const chatRoomsInfo = data.chatRoomsInfo;
+
+                // state나 context에 데이터를 설정
+                setChatRooms(chatRooms);
+                setChatRoomsInfo(chatRoomsInfo);
+              })
           }}
         >
           <ChatIcon theme={theme} />

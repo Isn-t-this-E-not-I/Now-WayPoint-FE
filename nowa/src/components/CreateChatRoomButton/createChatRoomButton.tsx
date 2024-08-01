@@ -70,7 +70,7 @@ const CreateChatRoomButton: React.FC = () => {
   const { theme } = useApp();
   const { isOpen, open, close } = useModal()
   const [selectedUsers, setSelectedUsers] = useState<string>('')
-  const token = useState<string>(localStorage.getItem('token') || '');
+  const token = localStorage.getItem('token') || '';
 
   const handleCreateChat = (e: React.FormEvent) => {
     e.preventDefault()

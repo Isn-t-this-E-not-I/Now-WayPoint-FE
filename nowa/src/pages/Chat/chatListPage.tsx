@@ -7,6 +7,7 @@ const ChatListPage: React.FC = () => {
   const { chatRooms, chatRoomsInfo } = useChat();
 
   const handleChatRoomClick = (chatRoomId: number) => {
+    console.log(`Navigating to chat room with ID: ${chatRoomId}`); // 디버깅용
     navigate(`/chatting/${chatRoomId}`);
   };
 
@@ -19,8 +20,8 @@ const ChatListPage: React.FC = () => {
             (info) => info.chatRoomId === room.chatRoomId
           )
           return (
-            <li key={room.chatRoomId}>
-              <span onClick={() => handleChatRoomClick(room.chatRoomId)}>
+            <li key={room.chatRoomId} onClick={() => handleChatRoomClick(room.chatRoomId)}>
+              <span>
                 {room.chatRoomName}
               </span>
               {roomInfo && (
