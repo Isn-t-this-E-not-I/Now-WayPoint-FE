@@ -32,6 +32,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import FollowList from '../FollowList/FollowList';  //*
 import fetchAllUsers from '@/data/fetchAllUsers';
 import { handleLogout } from '../Logout/Logout';
+import MyPage from '@/pages/myPage';
 
 interface SidebarProps {
   chatRooms: ChatRoom[];
@@ -166,7 +167,7 @@ const NotificationItem = styled.div`
 `;
 
 const SearchInput = styled.input`
-  width: 100%;
+  width: 95%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
@@ -255,7 +256,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [token, userNickname]);
 
-  // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
@@ -279,39 +279,44 @@ const Sidebar: React.FC<SidebarProps> = ({
             onChatItemClick={onChatItemClick}
           />
         );
-        case 'contents':
-          return <div>Contents Page</div>;
-        case 'followContents':
-          return <div>Follow Contents Page</div>;
-        default:
-          return <div>Welcome! This is default!</div>;
-      }
-    };
-  
-    // 검색창 보여주기 여부
-    const shouldShowSearch = () => {
-      return (
-        activePage !== 'notifications' &&
-        activePage !== 'chat' &&
-        activePage !== ''
-      );
-    };
-  
-    // 현재 페이지 제목
-    const getPageTitle = () => {
-      switch (activePage) {
-        case 'notifications':
-          return '알림';
-        case 'chat':
-          return '메시지';
-        case 'contents':
-          return '콘텐츠';
-        case 'followContents':
-          return '팔로우 컨텐츠';
-        default:
-          return '';
-      }
-    };
+      case 'contents':
+        return <div>Contents Page</div>;
+      case 'followContents':
+        return <div>Follow Contents Page</div>;
+      case 'myPage':
+        return ;
+      default:
+        return <div>Welcome! This is default!</div>;
+    }
+  };
+
+// 검색창 보여주기 여부
+const shouldShowSearch = () => {
+  return (
+    activePage !== 'notifications' &&
+    activePage !== 'chat' &&
+    activePage !== 'myPage' &&
+    activePage !== ''
+  );
+};
+
+// 현재 페이지 제목
+const getPageTitle = () => {
+  switch (activePage) {
+    case 'notifications':
+      return '알림';
+    case 'chat':
+      return '메시지';
+    case 'contents':
+      return '콘텐츠';
+    case 'followContents':
+      return '팔로우 컨텐츠';
+    case 'myPage':
+      return '마이페이지';
+    default:
+      return '';
+  }
+};
   
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setSearchQuery(e.target.value);
@@ -372,6 +377,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </IconButtonWrapper>
           <IconButtonWrapper
             onClick={() => {
+              setActivePage('myPage'); // activePage - myPage
               navigate('/mypage'); // 마이페이지로 리디렉션
             }}
           >
@@ -406,23 +412,25 @@ const Sidebar: React.FC<SidebarProps> = ({
               </SearchContainer>
             )}
             <ContentPage>{renderContentPage()}</ContentPage>
-            <SearchContainer>
-              <SearchInput
-                type="text"
-                placeholder="전체 유저 검색"
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <FollowList
-                users={allUsers}
-                searchQuery={searchQuery}
-                onFollow={() => {}}
-                onUnfollow={() => {}}
-                priorityList={[]}
-                allUsers={allUsers}
-                showFollowButtons={false}
-              />
-            </SearchContainer>
+            {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
+              <SearchContainer>
+                <SearchInput
+                  type="text"
+                  placeholder="전체 유저 검색"
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+                <FollowList
+                  users={allUsers}
+                  searchQuery={searchQuery}
+                  onFollow={() => {}}
+                  onUnfollow={() => {}}
+                  priorityList={[]}
+                  allUsers={allUsers}
+                  showFollowButtons={false}
+                />
+              </SearchContainer>
+            )}
           </ContentDiv>
         </RightSidebar>
           {isLogoutModalOpen && (
