@@ -29,8 +29,9 @@ import Modal from '../Modal/modal'
 import axios from 'axios'
 import SockJS from 'sockjs-client'
 import { Client, IMessage } from '@stomp/stompjs'
-import FollowList from '../FollowList/FollowList' //*
-import fetchAllUsers from '@/data/fetchAllUsers'
+import FollowList from '../FollowList/FollowList' // 사용 안함
+import AllUserList from '../FollowList/AllUserList' //*
+import fetchAllUsers from '@/data/fetchAllUsers'  // 사용 안함
 import { handleLogout } from '../Logout/Logout'
 import MyPage from '@/pages/myPage'
 
@@ -289,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       case 'contents':
         return <div>Contents Page</div>
       case 'followContents':
-        return <div>Follow Contents Page</div>
+        return <div>Follow Contents Page</div>  //*
       case 'myPage':
         return
       default:
@@ -316,7 +317,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         return '메시지'
       case 'contents':
         return '콘텐츠'
-      case 'followContents':
+      case 'followContents':  //*
         return '팔로우 컨텐츠'
       case 'myPage':
         return '마이페이지'
@@ -381,7 +382,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setActivePage('followContents')
+            setActivePage('followContents') //*
           }}
         >
           <FollowContentsIcon theme={theme} />
@@ -404,6 +405,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         <Blank />
         <ThemeController />
       </LeftSidebar>
+      {/* ----------------------------------- */}
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
@@ -422,26 +424,21 @@ const Sidebar: React.FC<SidebarProps> = ({
               <Search />
             </SearchContainer>
           )}
-          <ContentPage>{renderContentPage()}</ContentPage>
           {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
             <SearchContainer>
-              <SearchInput
-                type="text"
-                placeholder="전체 유저 검색"
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <FollowList
-                users={allUsers}
-                searchQuery={searchQuery}
-                onFollow={() => {}}
-                onUnfollow={() => {}}
-                priorityList={[]}
-                allUsers={allUsers}
-                showFollowButtons={false}
-              />
-            </SearchContainer>
+            <SearchInput
+              type="text"
+              placeholder="전체 유저 검색"
+              value={searchQuery}
+              onChange={handleSearchChange}
+            />
+            <AllUserList
+              users={allUsers}
+              searchQuery={searchQuery}
+            />
+          </SearchContainer>
           )}
+          <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
       {isLogoutModalOpen && (
