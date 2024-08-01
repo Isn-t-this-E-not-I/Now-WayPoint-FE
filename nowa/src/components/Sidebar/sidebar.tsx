@@ -290,7 +290,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       case 'contents':
         return <div>Contents Page</div>
       case 'followContents':
-        return <div>Follow Contents Page</div>
+        return <div>Follow Contents Page</div>  //*
       case 'myPage':
         return
       default:
@@ -317,7 +317,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         return '메시지'
       case 'contents':
         return '콘텐츠'
-      case 'followContents':
+      case 'followContents':  //*
         return '팔로우 컨텐츠'
       case 'myPage':
         return '마이페이지'
@@ -382,7 +382,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setActivePage('followContents')
+            setActivePage('followContents') //*
           }}
         >
           <FollowContentsIcon theme={theme} />
