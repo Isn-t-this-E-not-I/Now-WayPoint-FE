@@ -8,8 +8,16 @@ export interface Comment {
   nickname: string
   content: string
   createdAt: string
-  likeCount: number // 좋아요 수 추가
-  isLiked: boolean // 사용자가 좋아요를 눌렀는지 여부 추가
+  likeCount: number
+  likedByUser: boolean
+  parentId: number | null
+  children?: Comment[]
+}
+
+export interface User {
+  id: number
+  nickname: string
+  profileImageUrl: string
 }
 
 const getCommentsByPostId = async (postId: number): Promise<Comment[]> => {
@@ -59,7 +67,11 @@ const deleteCommentById = async (
   }
 }
 
-const createComment = async (postId: number, content: string) => {
+const createComment = async (
+  postId: number,
+  content: string,
+  parentId: number | null = null
+): Promise<Comment> => {
   const token = localStorage.getItem('token')
 
   if (!token) {
@@ -69,7 +81,7 @@ const createComment = async (postId: number, content: string) => {
   try {
     const response = await axios.post(
       `${API_URL}/posts/${postId}/comments`,
-      { content },
+      { content, parentId },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -109,9 +121,30 @@ const toggleCommentLike = async (
   }
 }
 
+const getAllUsers = async (): Promise<User[]> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/user/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error fetching all users:', error)
+    throw error
+  }
+}
+
 export {
   getCommentsByPostId,
   deleteCommentById,
   createComment,
   toggleCommentLike,
+  getAllUsers,
 }
