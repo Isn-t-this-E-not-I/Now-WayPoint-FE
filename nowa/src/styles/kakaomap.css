@@ -1,7 +1,7 @@
 #categoryBox {
   position: absolute;
   top: 10px;
-  left: 380px;
+  left: 200px;
   z-index: 10;
   flex-direction: column;
 }
