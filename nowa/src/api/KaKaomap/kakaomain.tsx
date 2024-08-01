@@ -149,6 +149,7 @@ const MainPage: React.FC = () => {
         markerImageSrc,
         markerImageSize
       )
+      console.log(item, 123123131231)
 
       const marker = new window.kakao.maps.Marker({
         position,
@@ -183,19 +184,26 @@ const MainPage: React.FC = () => {
     }
   }
 
-  const displayCustomOverlay = (map: any, marker: any, item: any) => {
+  const displayCustomOverlay = (
+    map: any,
+    marker: { getPosition: () => any },
+    item: {
+      mediaUrls: string | any[]
+      username: any
+      createdAt: string | number | Date
+      id: any
+      category: string // 추가: category 속성
+    }
+  ) => {
     const content = document.createElement('div')
     content.className = 'overlaybox'
-
     content.innerHTML = `
-      <div class="overlaybox">
-        <div onclick="closeOverlay()" class="closeBtn">x</div>
-        <div id="main_maker_img">
-          <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/11542/11542598.png'}'></img>
-        </div>
-        <div id="main_maker_name">이름 : ${item.username}</div>
-        <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+      <div class="closeBtn">x</div>
+      <div id="main_maker_img">
+        <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://example.com/dummy.jpg'}'></img>
       </div>
+      <div id="main_maker_name">이름 : ${item.username}</div>
+      <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
     `
 
     const overlay = new window.kakao.maps.CustomOverlay({
@@ -207,20 +215,22 @@ const MainPage: React.FC = () => {
     overlay.setMap(map)
     overlayRef.current = overlay
 
+    // Close button 이벤트 추가
     const closeBtn = content.querySelector('.closeBtn')
     closeBtn?.addEventListener('click', () => {
       overlay.setMap(null)
     })
 
-    // const imgDiv = content.querySelector('#main_maker_img')
-    // imgDiv?.addEventListener('click', () => {
-    //   detail_navigate(item.postId)
-    // })
+    // detail_navigate 이벤트 추가
+    const imgDiv = content.querySelector('#main_maker_img')
+    imgDiv?.addEventListener('click', () => {
+      detail_navigate(item.id)
+    })
   }
 
-  // const detail_navigate = (postId: any) => {
-  //   window.location.href = `detailContent/${postId}`
-  // }
+  const detail_navigate = (postId: any) => {
+    window.location.href = `detailContent/${postId}`
+  }
 
   useEffect(() => {
     saveTokenToLocalStorage()
@@ -285,7 +295,6 @@ const MainPage: React.FC = () => {
         (messageOutput: IMessage) => {
           const receivedData = JSON.parse(messageOutput.body)
           setData(receivedData)
-          console.log(receivedData)
         }
       )
       return () => {
@@ -296,6 +305,7 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (data.length > 0 && map) {
+      console.log(data)
       addMarkers(map, data)
     }
   }, [data, map])
