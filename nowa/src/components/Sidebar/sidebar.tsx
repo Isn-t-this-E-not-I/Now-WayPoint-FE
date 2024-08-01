@@ -29,10 +29,10 @@ import Modal from '../Modal/modal';
 import axios from 'axios';
 import SockJS from 'sockjs-client';
 import { Client, IMessage } from '@stomp/stompjs';
-import FollowList from '../FollowList/FollowList';  //*
+import FollowList from '../FollowList/FollowList';
 import fetchAllUsers from '@/data/fetchAllUsers';
 import { handleLogout } from '../Logout/Logout';
-import MyPage from '@/pages/myPage';
+import MyPage from '@/pages/myPage';  //*
 
 interface SidebarProps {
   chatRooms: ChatRoom[];
@@ -283,8 +283,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         return <div>Contents Page</div>;
       case 'followContents':
         return <div>Follow Contents Page</div>;
-      case 'myPage':
-        return ;
+      case 'myPage':  //*
+        return ;  //*
       default:
         return <div>Welcome! This is default!</div>;
     }
@@ -295,7 +295,7 @@ const shouldShowSearch = () => {
   return (
     activePage !== 'notifications' &&
     activePage !== 'chat' &&
-    activePage !== 'myPage' &&
+    activePage !== 'myPage' &&  //*
     activePage !== ''
   );
 };
@@ -311,8 +311,8 @@ const getPageTitle = () => {
       return '콘텐츠';
     case 'followContents':
       return '팔로우 컨텐츠';
-    case 'myPage':
-      return '마이페이지';
+    case 'myPage':  //*
+      return '마이페이지';  //*
     default:
       return '';
   }
@@ -377,7 +377,7 @@ const getPageTitle = () => {
           </IconButtonWrapper>
           <IconButtonWrapper
             onClick={() => {
-              setActivePage('myPage'); // activePage - myPage
+              setActivePage('myPage'); // activePage - myPage  //*
               navigate('/mypage'); // 마이페이지로 리디렉션
             }}
           >
@@ -412,7 +412,7 @@ const getPageTitle = () => {
               </SearchContainer>
             )}
             <ContentPage>{renderContentPage()}</ContentPage>
-            {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
+            {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시  //*
               <SearchContainer>
                 <SearchInput
                   type="text"
