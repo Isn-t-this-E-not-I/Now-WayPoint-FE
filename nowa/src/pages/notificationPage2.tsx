@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { useWebSocket, Notification } from '@/components/WebSocketProvider/WebSocketProvider';
 import styled from 'styled-components';
+import { Notification } from '@/components/WebSocketProvider/WebSocketProvider';
 
 const NotificationWrapper = styled.div`
   text-align: left;
@@ -55,18 +55,39 @@ const CloseButton = styled.button`
   right: 6px;
 `;
 
-const NotificationPage: React.FC = () => {
-  const { notifications, isLoading } = useWebSocket();
+const NotificationPage2: React.FC = () => {
   const [displayNotifications, setDisplayNotifications] = useState<Notification[]>([]);
-  console.log(useWebSocket());
+  const location = import.meta.env.VITE_APP_API
 
   useEffect(() => {
-    if (!isLoading) {
-      // notifications를 id 기준으로 역순 정렬
-      const sortedNotifications = [...notifications].sort((a, b) => a.id - b.id);
-      setDisplayNotifications(sortedNotifications);
-    }
-  }, [notifications, isLoading]);
+    // API 호출
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token'); // 토큰 가져오기
+        if (!token) {
+          throw new Error('No token found');
+        }
+
+        const response = await fetch(`${location}/notify`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: Notification[] = await response.json();
+        // notifications를 id 기준으로 역순 정렬
+        const sortedNotifications = data.sort((a, b) => b.id - a.id);
+        setDisplayNotifications(sortedNotifications);
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
 
   const handleDelete = (id: number) => {
     setDisplayNotifications(displayNotifications.filter(notification => notification.id !== id));
@@ -90,4 +111,4 @@ const NotificationPage: React.FC = () => {
   );
 };
 
-export default NotificationPage;
+export default NotificationPage2;
