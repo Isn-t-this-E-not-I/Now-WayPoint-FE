@@ -12,7 +12,9 @@ import {
   deleteCommentById,
   createComment,
   toggleCommentLike,
+  getAllUsers,
   Comment,
+  User,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
 import { useParams, useNavigate } from 'react-router-dom'
@@ -20,6 +22,7 @@ import { Carousel } from 'react-responsive-carousel'
 import TextArea from '@/components/TextArea/textArea'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
+// 현재 로그인한 유저의 닉네임을 가져오는 함수
 const getCurrentUser = (): string | null => {
   return localStorage.getItem('nickname')
 }
@@ -32,6 +35,9 @@ const DetailContent: React.FC = () => {
   const [replyCommentId, setReplyCommentId] = useState<number | null>(null)
   const [replyContent, setReplyContent] = useState<string>('')
   const [currentUser, setCurrentUser] = useState<string | null>(null)
+  const [users, setUsers] = useState<User[]>([]) // 모든 유저 상태
+  const [mentionList, setMentionList] = useState<User[]>([]) // 멘션 목록 상태
+  const [newMentionList, setNewMentionList] = useState<User[]>([]) // 새로운 댓글 멘션 목록 상태
   const { id } = useParams()
   const navigate = useNavigate()
 
@@ -57,10 +63,22 @@ const DetailContent: React.FC = () => {
 
     fetchPostAndComments()
 
+    const fetchUsers = async () => {
+      try {
+        const usersData = await getAllUsers()
+        setUsers(usersData)
+      } catch (error) {
+        console.error('Failed to fetch users data:', error)
+      }
+    }
+
+    fetchUsers()
+
     const user = getCurrentUser()
     setCurrentUser(user)
   }, [id])
 
+  // 댓글을 트리 구조로 변환하는 함수
   const buildCommentTree = (comments: Comment[]): Comment[] => {
     const map: { [key: number]: Comment } = {}
     const roots: Comment[] = []
@@ -82,6 +100,7 @@ const DetailContent: React.FC = () => {
     return roots
   }
 
+  // 댓글 목록을 갱신하는 함수
   const fetchComments = async () => {
     try {
       const commentsData = await getCommentsByPostId(Number(id))
@@ -91,6 +110,7 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 댓글을 삭제하는 함수
   const handleCommentDelete = async (commentId: number) => {
     try {
       const result = await deleteCommentById(Number(id), commentId)
@@ -105,6 +125,7 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 게시글을 삭제하는 함수
   const handlePostDelete = async () => {
     const confirmed = window.confirm('정말로 게시글을 삭제하시겠습니까?')
     if (confirmed) {
@@ -119,6 +140,7 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 새로운 댓글을 작성하는 함수
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     try {
@@ -131,6 +153,7 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 대댓글을 작성하는 함수
   const handleReplySubmit = async (
     parentCommentId: number,
     e: React.FormEvent<HTMLFormElement>
@@ -151,6 +174,7 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 게시글 좋아요를 토글하는 함수
   const handleLikeToggle = async () => {
     try {
       await likePostById(Number(id))
@@ -171,6 +195,7 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 댓글 좋아요를 토글하는 함수
   const handleCommentLikeToggle = async (commentId: number) => {
     try {
       await toggleCommentLike(Number(id), commentId)
@@ -181,13 +206,85 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 유저 프로필 클릭 시 프로필 페이지로 이동하는 함수
   const handleProfileClick = (nickname: string) => {
     navigate(`/user/${nickname}`)
   }
 
+  // 대댓글 입력 창을 토글하는 함수
   const toggleReplyComment = (commentId: number) => {
     setReplyCommentId((prevReplyCommentId) =>
       prevReplyCommentId === commentId ? null : commentId
+    )
+  }
+
+  // 멘션 입력 시 자동 완성 목록을 업데이트하는 함수 (대댓글 작성 시)
+  const handleMention = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value
+    setReplyContent(value)
+
+    const lastWord = value.split(' ').pop()
+    if (lastWord?.startsWith('@')) {
+      const query = lastWord.slice(1)
+      setMentionList(
+        users.filter((user) =>
+          user.nickname.toLowerCase().includes(query.toLowerCase())
+        )
+      )
+    } else {
+      setMentionList([])
+    }
+  }
+
+  // 멘션 입력 시 자동 완성 목록을 업데이트하는 함수 (새 댓글 작성 시)
+  const handleNewCommentMention = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const value = e.target.value
+    setNewComment(value)
+
+    const lastWord = value.split(' ').pop()
+    if (lastWord?.startsWith('@')) {
+      const query = lastWord.slice(1)
+      setNewMentionList(
+        users.filter((user) =>
+          user.nickname.toLowerCase().includes(query.toLowerCase())
+        )
+      )
+    } else {
+      setNewMentionList([])
+    }
+  }
+
+  // 멘션을 댓글 내용에 추가하는 함수 (대댓글 작성 시)
+  const addMention = (nickname: string) => {
+    const words = replyContent.split(' ')
+    words.pop()
+    const newContent = [...words, ` @${nickname} `].join(' ')
+    setReplyContent(newContent)
+    setMentionList([])
+  }
+
+  // 멘션을 댓글 내용에 추가하는 함수 (새 댓글 작성 시)
+  const addNewCommentMention = (nickname: string) => {
+    const words = newComment.split(' ')
+    words.pop()
+    const newContent = [...words, ` @${nickname} `].join(' ')
+    setNewComment(newContent)
+    setNewMentionList([])
+  }
+
+  // 댓글 내용에서 @멘션 부분을 파란색으로 표시하는 함수
+  const formatContentWithMentions = (content: string) => {
+    const parts = content.split(/(\s@\w+\s)/g) // '@'로 시작하는 단어를 기준으로 문자열을 분할
+    return parts.map((part, index) =>
+      part.startsWith(' @') && part.endsWith(' ') ? (
+        <span key={index} className="mention">
+          {part}
+        </span>
+      ) : (
+        part
+      )
     )
   }
 
@@ -205,7 +302,7 @@ const DetailContent: React.FC = () => {
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString)
     const year = date.getFullYear()
-    const month = date.getMonth() + 1 // getMonth()는 0부터 시작하므로 +1 필요
+    const month = date.getMonth() + 1
     const day = date.getDate()
     return `${year}.${month}.${day}`
   }
@@ -221,7 +318,9 @@ const DetailContent: React.FC = () => {
         </div>
         <div>
           <div id="detail_coment_id">{comment.nickname}</div>
-          <div id="detail_coment_content">{comment.content}</div>
+          <div id="detail_coment_content">
+            {formatContentWithMentions(comment.content)}
+          </div>
           <div id="detail_coment_edit_line">
             <div id="detail_coment_date">{formatDate(comment.createdAt)}</div>
             <div
@@ -264,8 +363,24 @@ const DetailContent: React.FC = () => {
               <TextArea
                 id="detail_reply_content"
                 value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
+                onChange={handleMention}
               ></TextArea>
+              {mentionList.length > 0 && (
+                <div className="mention-list">
+                  {mentionList.map((user) => (
+                    <div
+                      key={user.id}
+                      className="mention-item"
+                      onClick={() => addMention(user.nickname)}
+                    >
+                      <div className="mention_profile">
+                        <img src={`${user.profileImageUrl}`}></img>
+                        <div className="mention_name">{user.nickname}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div id="detail_reply_write_button">
                 <button type="submit">답글 게시</button>
               </div>
@@ -349,22 +464,6 @@ const DetailContent: React.FC = () => {
             ) : (
               <div id="no_comments">댓글이 존재하지 않습니다</div>
             )}
-            {currentUser === post.nickname && (
-              <div id="detail_content_edit">
-                <DropDown
-                  id={'detail_Dropdown'}
-                  buttonText={con_Text}
-                  items={con_drop}
-                  onItemSelect={(item) => {
-                    if (item === '게시글 삭제') {
-                      handlePostDelete()
-                    } else if (item === '게시글 수정') {
-                      navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
-                    }
-                  }}
-                />
-              </div>
-            )}
           </div>
 
           <div id="detail_content_heart">
@@ -386,8 +485,40 @@ const DetailContent: React.FC = () => {
             <textarea
               id="detail_coment_content_content"
               value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
+              onChange={handleNewCommentMention}
             ></textarea>
+            {newMentionList.length > 0 && (
+              <div className="mention-list-parent">
+                {newMentionList.map((user) => (
+                  <div
+                    key={user.id}
+                    className="mention-item"
+                    onClick={() => addNewCommentMention(user.nickname)}
+                  >
+                    <div className="mention_profile">
+                      <img src={`${user.profileImageUrl}`}></img>
+                      <div className="mention_name">{user.nickname}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {currentUser === post.nickname && (
+              <div id="detail_content_edit">
+                <DropDown
+                  id={'detail_Dropdown'}
+                  buttonText={con_Text}
+                  items={con_drop}
+                  onItemSelect={(item) => {
+                    if (item === '게시글 삭제') {
+                      handlePostDelete()
+                    } else if (item === '게시글 수정') {
+                      navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
+                    }
+                  }}
+                />
+              </div>
+            )}
             <div id="detail_coment_write_button">
               <button type="submit">게시</button>
             </div>

@@ -108,7 +108,7 @@
   position: relative;
   border-bottom: 1px solid black;
   border: 1px solid #ccc;
-  max-height: 490px;
+  height: 490px;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -121,14 +121,18 @@
 /* 게시글 수정 삭제 아이콘 */
 #detail_content_edit {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 100px;
+  right: 0px;
 }
 
 /* 게시글 수정 삭제 조정 */
 #detail_Dropdown {
   background-color: #f5f5f5;
   border: none;
+}
+
+#detail_Dropdown:hover {
+  background-color: #ccc;
 }
 
 /* 댓글 이미지 */
@@ -238,6 +242,49 @@
   width: 100%;
 }
 
+/* 멘션 리스트 */
+.mention-list {
+  font-size: 12px;
+  border-radius: 10px;
+}
+
+.mention {
+  color: rgb(0, 174, 255);
+}
+
+/* 멘션 이미지 */
+
+.mention_profile {
+  display: flex;
+}
+
+.mention_profile:hover {
+  cursor: pointer;
+  background-color: #ccc;
+}
+
+.mention_profile img {
+  margin: 5px 5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50px;
+}
+
+.mention-list-parent {
+  position: absolute;
+  bottom: 2px;
+  font-size: 12px;
+  max-height: 130px;
+  width: 250px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mention_name {
+  padding-top: 8px;
+}
+
 /* 좋아요 칸 위치 조정 */
 #detail_content_heart {
   display: flex;
@@ -297,10 +344,16 @@
   margin-right: 15px;
   color: rgb(0, 0, 0);
   font-size: 14px;
+  border-radius: 5px;
 }
 
 #detail_coment_write_button:hover {
-  color: rgb(0, 195, 255);
+  background-color: #ccc;
+  border: 1px solid gray;
+}
+
+#detail_coment_write_button:hover {
+  color: rgb(255, 255, 255);
   transition: 0.25s;
 }
 
@@ -310,6 +363,7 @@
   justify-content: center;
   font-size: 12px;
   padding: 50px;
+  height: 490px;
 }
 
 /* 조회된 게시글이 없을 경우 */
@@ -342,6 +396,8 @@
 #preview_container {
   display: flex;
   justify-content: center;
+  background-color: black;
+  height: 100vh;
 }
 
 #image_preview {
@@ -350,7 +406,6 @@
 }
 
 video {
-  margin-top: 15%;
   max-width: 150px;
 }
 

@@ -14,6 +14,12 @@ export interface Comment {
   children?: Comment[]
 }
 
+export interface User {
+  id: number
+  nickname: string
+  profileImageUrl: string
+}
+
 const getCommentsByPostId = async (postId: number): Promise<Comment[]> => {
   const token = localStorage.getItem('token')
 
@@ -65,7 +71,7 @@ const createComment = async (
   postId: number,
   content: string,
   parentId: number | null = null
-) => {
+): Promise<Comment> => {
   const token = localStorage.getItem('token')
 
   if (!token) {
@@ -115,9 +121,30 @@ const toggleCommentLike = async (
   }
 }
 
+const getAllUsers = async (): Promise<User[]> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/user/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    return response.data
+  } catch (error) {
+    console.error('Error fetching all users:', error)
+    throw error
+  }
+}
+
 export {
   getCommentsByPostId,
   deleteCommentById,
   createComment,
   toggleCommentLike,
+  getAllUsers,
 }
