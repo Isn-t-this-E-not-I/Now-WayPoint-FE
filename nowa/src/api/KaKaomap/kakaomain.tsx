@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '@/api/KaKaomap/kakaomap'
 import { useLocation } from 'react-router-dom'
-import SockJS from 'sockjs-client'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
+import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
 
 declare global {
   interface Window {
@@ -17,8 +17,6 @@ const MainPage: React.FC = () => {
   const [token, setToken] = useState(localStorage.getItem('token'))
   const [nickname, setNickname] = useState(localStorage.getItem('nickname'))
   const [locate, setLocate] = useState('')
-  const [stompClient, setStompClient] = useState<Client | null>(null)
-  const [isConnected, setIsConnected] = useState(false)
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null)
   const [mapLevel, setMapLevel] = useState<number>(11)
@@ -26,6 +24,7 @@ const MainPage: React.FC = () => {
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
+  const client = useWebSocket()
 
   const formatDate = (dateString: string | number | Date) => {
     const date = new Date(dateString)
@@ -60,15 +59,6 @@ const MainPage: React.FC = () => {
       localStorage.setItem('nickname', userNickname)
       setNickname(userNickname)
     }
-  }
-
-  const subscribeToTopics = (client: Client, nickname: string) => {
-    client.subscribe(`/queue/notify/${nickname}`, (messageOutput: IMessage) => {
-      console.log(messageOutput.body)
-    })
-    client.subscribe(`/queue/posts/${nickname}`, (messageOutput: IMessage) => {
-      console.log(messageOutput.body)
-    })
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
@@ -256,52 +246,32 @@ const MainPage: React.FC = () => {
     } else {
       console.error('Geolocation을 지원하지 않는 브라우저입니다.')
     }
-
-    if (token && nickname) {
-      const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
-      const client = new Client({
-        webSocketFactory: () => sock,
-        connectHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        onConnect: () => {
-          setIsConnected(true)
-          subscribeToTopics(client, nickname)
-          setStompClient(client)
-        },
-        onDisconnect: () => {
-          setIsConnected(false)
-        },
-        onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message'])
-          console.error('Additional details: ' + frame.body)
-        },
-        debug: (str) => {
-          console.log('STOMP Debug:', str)
-        },
-      })
-
-      client.activate()
-      return () => {
-        client.deactivate()
-      }
-    }
-  }, [token, nickname])
+  }, [])
 
   useEffect(() => {
-    if (isConnected && stompClient && locate) {
-      const subscription = stompClient.subscribe(
+    if (client && locate && nickname) {
+      // 로그 출력 추가
+      console.log('Subscribing to:', `/queue/${locate}/${nickname}`)
+
+      const subscription = client.subscribe(
         `/queue/${locate}/${nickname}`,
         (messageOutput: IMessage) => {
+          console.log('Message received:', messageOutput.body)
           const receivedData = JSON.parse(messageOutput.body)
           setData(receivedData)
+          console.log('Parsed data:', receivedData)
+          // 데이터를 받아온 후에 마커 추가
+          if (map) {
+            addMarkers(map, receivedData)
+          }
         }
       )
+
       return () => {
-        subscription.unsubscribe()
+        if (subscription) subscription.unsubscribe()
       }
     }
-  }, [isConnected, stompClient, locate, nickname])
+  }, [client, locate, nickname, map])
 
   useEffect(() => {
     if (data.length > 0 && map) {
@@ -311,17 +281,21 @@ const MainPage: React.FC = () => {
   }, [data, map])
 
   useEffect(() => {
-    if (isInitialized && stompClient && isConnected) {
+    if (isInitialized && client) {
       selectCategory('ALL')
     }
-  }, [isInitialized, stompClient, isConnected])
+  }, [isInitialized, client])
 
   const selectCategory = (category: string) => {
-    if (stompClient && isConnected) {
-      stompClient.publish({
+    if (client) {
+      client.publish({
         destination: '/app/main/category',
-        body: JSON.stringify({ category }),
+        body: JSON.stringify({ category: category }),
       })
+      // 카테고리 선택 시 지도의 확대/축소 레벨 고정
+      if (map) {
+        map.setLevel(mapLevel)
+      }
     } else {
       console.error('Not connected to WebSocket')
     }
@@ -336,24 +310,28 @@ const MainPage: React.FC = () => {
       <div id="categoryBox">
         <button
           className="categoryButtons"
+          id="categorybtn1"
           onClick={() => selectCategory('PHOTO')}
         >
           사진
         </button>
         <button
           className="categoryButtons"
+          id="categorybtn2"
           onClick={() => selectCategory('VIDEO')}
         >
           동영상
         </button>
         <button
           className="categoryButtons"
+          id="categorybtn3"
           onClick={() => selectCategory('MP3')}
         >
           음악
         </button>
         <button
           className="categoryButtons"
+          id="categorybtn4"
           onClick={() => selectCategory('ALL')}
         >
           전체
