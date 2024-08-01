@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '@/api/KaKaomap/kakaomap'
 import { useLocation } from 'react-router-dom'
+import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
@@ -27,13 +28,7 @@ const MainPage: React.FC = () => {
   const client = useWebSocket()
 
   const formatDate = (dateString: string | number | Date) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('ko-KR', {
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+    return moment(dateString).tz('Asia/Seoul').format('MM-DD HH:mm A')
   }
 
   const saveTokenToLocalStorage = () => {
@@ -190,10 +185,12 @@ const MainPage: React.FC = () => {
     content.innerHTML = `
       <div class="closeBtn">x</div>
       <div id="main_maker_img">
-        <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://example.com/dummy.jpg'}'></img>
+         <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/4110/4110234.png'}' onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/128/4110/4110234.png';">
       </div>
-      <div id="main_maker_name">이름 : ${item.username}</div>
-      <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+      <div id="main_maker_content">
+        <div id="main_maker_name">이름 : ${item.username}</div>
+        <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+      </div>
     `
 
     const overlay = new window.kakao.maps.CustomOverlay({
@@ -274,6 +271,7 @@ const MainPage: React.FC = () => {
   }, [client, locate, nickname, map])
 
   useEffect(() => {
+    console.log(data)
     if (data.length > 0 && map) {
       console.log(data)
       addMarkers(map, data)
