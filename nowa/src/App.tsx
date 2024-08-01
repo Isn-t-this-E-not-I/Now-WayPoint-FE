@@ -4,9 +4,6 @@ import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
 import '@/styles/tailwind.css'
 import Sidebar from './components/Sidebar/sidebar.tsx'
-import MainPage from '@/pages/Main/main.tsx'
-import CreatePage from '@/pages/createPage.tsx'
-import MyPage from '@/pages/myPage.tsx'
 import { ChatProvider } from '@/context/chatContext.tsx'
 import { AppProvider } from '@/context/appContext.tsx'
 
@@ -16,20 +13,6 @@ const App: React.FC = () => {
 
   const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
   const [selectedPage, setSelectedPage] = useState<string>('main')
-
-  const renderContent = () => {
-    switch (selectedPage) {
-      case 'main':
-        return <MainPage />
-      case 'create':
-        return <CreatePage />
-      case 'myPage':
-        return <MyPage />
-
-      default:
-        return null
-    }
-  }
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
@@ -42,7 +25,7 @@ const App: React.FC = () => {
           />
         )}
         <div style={{ flex: 1 }}>
-          {isNoSidebarPage ? <Routers /> : renderContent()}
+          <Routers />
         </div>
       </ChatProvider>
     </div >

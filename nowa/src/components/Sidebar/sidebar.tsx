@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import {
   ChatIcon,
@@ -10,6 +11,7 @@ import {
   NewCreateIcon,
   NotificationsIcon,
   NowaIcon,
+  ExitIcon,
 } from '../icons/icons'
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
@@ -19,6 +21,14 @@ import { fetchChatRooms } from '../../api/chatApi'
 import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
+import Modal from '../Modal/modal'
+import axios from 'axios'
+import SockJS from 'sockjs-client'
+import { Client, IMessage } from '@stomp/stompjs'
+import FollowList from '../FollowList/FollowList' //*
+import fetchAllUsers from '@/data/fetchAllUsers'
+import { handleLogout } from '../Logout/Logout'
+import MyPage from '@/pages/myPage'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -59,7 +69,7 @@ const Blank = styled.div`
   width: 2.5rem;
 `
 
-const IconButton = styled.button`
+const LogoIconButtonWrapper = styled.button`
   background: none;
   border: none;
   cursor: pointer;
@@ -67,6 +77,21 @@ const IconButton = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+
+  &:focus {
+    outline: none;
+  }
+`
+
+const IconButtonWrapper = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 8px;
 
   &:focus {
     outline: none;
@@ -109,15 +134,64 @@ const PageTitle = styled.div`
   align-self: flex-start;
 `
 
+const SearchContainer = styled.div`
+  margin-left: 6px;
+  width: 100%;
+`
+
+const NotificationList = styled.div`
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  margin-top: 10px;
+`
+
+const NotificationItem = styled.div`
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+  &:last-child {
+    border-bottom: none;
+  }
+`
+
+const SearchInput = styled.input`
+  width: 95%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+`
+
 const Sidebar: React.FC<SidebarProps> = ({
   theme,
   setSelectedPage,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
-  const { setChatRooms, setChatRoomsInfo } = useChat()
-
-  const token = localStorage.getItem('token') || '';
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
+  const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
+
+  const { setChatRooms, setChatRoomsInfo } = useChat()
+  const [token] = useState<string>(localStorage.getItem('token') || '')
+  const [userNickname] = useState<string>(
+    localStorage.getItem('nickname') || ''
+  )
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [allUsers, setAllUsers] = useState<any[]>([])
+  const [searchQuery, setSearchQuery] = useState('')
+
+  // 전체 유저 목록 가져오기
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const users = await fetchAllUsers()
+      setAllUsers(users)
+    }
+
+    getAllUsers()
+  }, [])
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
@@ -126,17 +200,62 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [activePage]);
 
-  // 현재 활성된 페이지에 따라 콘텐츠 렌더링
+  useEffect(() => {
+    if (token && userNickname) {
+      const sock = new SockJS(
+        'https://subdomain.now-waypoint.store:8080/notification'
+      )
+      const client = new Client({
+        webSocketFactory: () => sock,
+        connectHeaders: {
+          Authorization: `Bearer ${token}`,
+        },
+        onConnect: (frame) => {
+          console.log('Connected to notification socket')
+          client.subscribe(`/user/queue/notify`, (message: IMessage) => {
+            console.log('Notification received:', message.body)
+            setNotifications((prevNotifications) => [
+              JSON.parse(message.body),
+              ...prevNotifications,
+            ])
+          })
+        },
+        onStompError: (frame) => {
+          console.error('Broker reported error: ' + frame.headers['message'])
+          console.error('Additional details: ' + frame.body)
+        },
+      })
+      client.activate()
+
+      return () => {
+        client.deactivate()
+      }
+    }
+  }, [token, userNickname])
+
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
-        return <NotificationPage />
+        return (
+          <div>
+            <NotificationPage />
+            <NotificationList>
+              {notifications.map((notification, index) => (
+                <NotificationItem key={index}>
+                  {notification.content}
+                </NotificationItem>
+              ))}
+            </NotificationList>
+          </div>
+        )
       case 'chat':
         return <ChatListPage />
       case 'contents':
         return <div>Contents Page</div>
       case 'followContents':
         return <div>Follow Contents Page</div>
+      case 'myPage':
+        return
       default:
         return <div>Welcome! This is default!</div>
     }
@@ -144,7 +263,12 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   // 검색창 보여주기 여부
   const shouldShowSearch = () => {
-    return activePage !== 'notifications' && activePage !== 'chat'
+    return (
+      activePage !== 'notifications' &&
+      activePage !== 'chat' &&
+      activePage !== 'myPage' &&
+      activePage !== ''
+    )
   }
 
   // 현재 페이지 제목
@@ -158,43 +282,53 @@ const Sidebar: React.FC<SidebarProps> = ({
         return '콘텐츠'
       case 'followContents':
         return '팔로우 컨텐츠'
+      case 'myPage':
+        return '마이페이지'
       default:
         return ''
     }
   }
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const handleNavigate = (page: string) => {
+    navigate(`/${page}`)
+  }
+
   return (
     <Wrapper>
       <LeftSidebar>
-        <IconButton
+        <LogoIconButtonWrapper
           onClick={() => {
-            setSelectedPage('main')
+            handleNavigate('main')
           }}
         >
           <LogoIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </LogoIconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('main')
+            handleNavigate('main')
           }}
         >
           <MainIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('create')
+            handleNavigate('uploadContent')
           }}
         >
           <NewCreateIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('notifications')
           }}
         >
           <NotificationsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             if (getStompClient() == null) {
               connectAndSubscribe((error) => console.error(error));
@@ -213,28 +347,36 @@ const Sidebar: React.FC<SidebarProps> = ({
           }}
         >
           <ChatIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('contents')
           }}
         >
           <ContentsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
             setActivePage('followContents')
           }}
         >
           <FollowContentsIcon theme={theme} />
-        </IconButton>
-        <IconButton
+        </IconButtonWrapper>
+        <IconButtonWrapper
           onClick={() => {
-            setSelectedPage('myPage')
+            setActivePage('myPage')
+            handleNavigate('mypage')
           }}
         >
           <MyPageIcon theme={theme} />
-        </IconButton>
+        </IconButtonWrapper>
+        <IconButtonWrapper
+          onClick={() => {
+            setLogoutModalOpen(true)
+          }}
+        >
+          <ExitIcon theme={theme} />
+        </IconButtonWrapper>
         <Blank />
         <ThemeController />
       </LeftSidebar>
@@ -249,11 +391,41 @@ const Sidebar: React.FC<SidebarProps> = ({
           </PageTitleWrapper>
           {shouldShowSearch() && <Search />}
           <ContentPage>{renderContentPage()}</ContentPage>
+          {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
+            <SearchContainer>
+              <SearchInput
+                type="text"
+                placeholder="전체 유저 검색"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <FollowList
+                users={allUsers}
+                searchQuery={searchQuery}
+                onFollow={() => { }}
+                onUnfollow={() => { }}
+                priorityList={[]}
+                allUsers={allUsers}
+                showFollowButtons={false}
+              />
+            </SearchContainer>
+          )}
         </ContentDiv>
       </RightSidebar>
+      {isLogoutModalOpen && (
+        <Modal
+          isOpen={isLogoutModalOpen}
+          onClose={() => setLogoutModalOpen(false)}
+        >
+          <div>
+            <h3>로그아웃 하시겠습니까?</h3>
+            <button onClick={() => handleLogout(setLogoutModalOpen)}>네</button>
+            <button onClick={() => setLogoutModalOpen(false)}>아니오</button>
+          </div>
+        </Modal>
+      )}
     </Wrapper>
   )
 }
 
 export default Sidebar
-
