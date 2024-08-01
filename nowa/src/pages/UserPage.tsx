@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom'; // useLocation 추가
 import axios from 'axios';
 import styled from 'styled-components';
 import defaultProfileImage from '../../../defaultprofile.png';
@@ -88,11 +88,12 @@ interface UserProfile {
 
 const UserPage: React.FC = () => {
   const { nickname } = useParams<{ nickname: string }>();
+  const location = useLocation(); // useLocation 훅 사용
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedTab, setSelectedTab] = useState('posts');
   const [searchQuery, setSearchQuery] = useState('');
-  const location = import.meta.env.VITE_APP_API;
+  const apiLocation = import.meta.env.VITE_APP_API;
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
@@ -100,7 +101,7 @@ const UserPage: React.FC = () => {
 
     try {
       console.log('Fetching user data...');
-      const response = await axios.get(`${location}/user?nickname=${nickname}`, {
+      const response = await axios.get(`${apiLocation}/user?nickname=${nickname}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -110,7 +111,7 @@ const UserPage: React.FC = () => {
       const userData = response.data;
 
       console.log(`Fetching following data for ${nickname}...`);
-      const followingResponse = await axios.get(`${location}/follow/following?nickname=${nickname}`, {
+      const followingResponse = await axios.get(`${apiLocation}/follow/following?nickname=${nickname}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -118,7 +119,7 @@ const UserPage: React.FC = () => {
       console.log('Following API Response:', followingResponse);
 
       console.log(`Fetching follower data for ${nickname}...`);
-      const followerResponse = await axios.get(`${location}/follow/follower?nickname=${nickname}`, {
+      const followerResponse = await axios.get(`${apiLocation}/follow/follower?nickname=${nickname}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -126,7 +127,7 @@ const UserPage: React.FC = () => {
       console.log('Follower API Response:', followerResponse);
 
       console.log('Fetching all users...');
-      const allUsersResponse = await axios.get(`${location}/user/all`, {
+      const allUsersResponse = await axios.get(`${apiLocation}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -180,7 +181,14 @@ const UserPage: React.FC = () => {
 
   useEffect(() => {
     fetchUserData();
+    setSelectedTab('posts');
   }, [nickname]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tab = params.get('tab');
+    setSelectedTab(tab || 'posts');
+  }, [location.search]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -228,11 +236,10 @@ const UserPage: React.FC = () => {
               users={userInfo.followingsList}
               searchQuery={searchQuery}
               priorityList={userInfo.followingsList}
-              allUsers={userInfo.allUsers} onFollow={function (): void {
-                throw new Error('Function not implemented.');
-              } } onUnfollow={function (): void {
-                throw new Error('Function not implemented.');
-              } }            />
+              allUsers={userInfo.allUsers}
+              onFollow={() => {}}
+              onUnfollow={() => {}}
+            />
           </>
         )}
         {selectedTab === 'followers' && (
@@ -248,11 +255,10 @@ const UserPage: React.FC = () => {
               users={userInfo.followersList}
               searchQuery={searchQuery}
               priorityList={userInfo.followersList}
-              allUsers={userInfo.allUsers} onFollow={function (): void {
-                throw new Error('Function not implemented.');
-              } } onUnfollow={function (): void {
-                throw new Error('Function not implemented.');
-              } }            />
+              allUsers={userInfo.allUsers}
+              onFollow={() => {}}
+              onUnfollow={() => {}}
+            />
           </>
         )}
       </ContentSection>

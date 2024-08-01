@@ -23,17 +23,19 @@ import {
   connectAndSubscribe,
   disconnect,
   getStompClient,
-} from '@/websocket/chatWebSocket'
-import ChatListPage from '@/pages/Chat/chatListPage'
-import Modal from '../Modal/modal'
-import axios from 'axios'
-import SockJS from 'sockjs-client'
-import { Client, IMessage } from '@stomp/stompjs'
-import FollowList from '../FollowList/FollowList' // 사용 안함
+} from '@/websocket/chatWebSocket';
+import ChatListPage from '@/pages/Chat/chatListPage';
+import Modal from '../Modal/modal';
+import axios from 'axios';
+import SockJS from 'sockjs-client';
+import { Client, IMessage } from '@stomp/stompjs';
+import FollowList from '../FollowList/FollowList';  //*
 import AllUserList from '../FollowList/AllUserList' //*
-import fetchAllUsers from '@/data/fetchAllUsers'  // 사용 안함
-import { handleLogout } from '../Logout/Logout'
-import MyPage from '@/pages/myPage'
+import fetchAllUsers from '@/data/fetchAllUsers';
+import { handleLogout } from '../Logout/Logout';
+import MyPage from '@/pages/myPage';
+import NotificationPage2 from '@/pages/notificationPage2';
+import { useWebSocket } from '../WebSocketProvider/WebSocketProvider';
 
 interface SidebarProps {
   chatRooms: ChatRoom[]
@@ -188,13 +190,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
   const navigate = useNavigate()
 
-  const [token] = useState<string>(localStorage.getItem('token') || '')
-  const [userNickname] = useState<string>(
-    localStorage.getItem('nickname') || ''
-  )
-  const [notifications, setNotifications] = useState<any[]>([])
-  const [allUsers, setAllUsers] = useState<any[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
+  const [token] = useState<string>(localStorage.getItem('token') || '');
+  const [userNickname] = useState<string>(localStorage.getItem('nickname') || '');
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
@@ -232,53 +231,16 @@ const Sidebar: React.FC<SidebarProps> = ({
   }, [activePage])
 
   useEffect(() => {
-    if (token && userNickname) {
-      const sock = new SockJS(
-        'https://subdomain.now-waypoint.store:8080/notification'
-      )
-      const client = new Client({
-        webSocketFactory: () => sock,
-        connectHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        onConnect: (frame) => {
-          console.log('Connected to notification socket')
-          client.subscribe(`/user/queue/notify`, (message: IMessage) => {
-            console.log('Notification received:', message.body)
-            setNotifications((prevNotifications) => [
-              JSON.parse(message.body),
-              ...prevNotifications,
-            ])
-          })
-        },
-        onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message'])
-          console.error('Additional details: ' + frame.body)
-        },
-      })
-      client.activate()
 
-      return () => {
-        client.deactivate()
-      }
+    if (activePage !== 'notifications') {
+      
     }
-  }, [token, userNickname])
+  }, [activePage]);
 
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
-        return (
-          <div>
-            <NotificationPage />
-            <NotificationList>
-              {notifications.map((notification, index) => (
-                <NotificationItem key={index}>
-                  {notification.content}
-                </NotificationItem>
-              ))}
-            </NotificationList>
-          </div>
-        )
+        return <NotificationPage2 />;
       case 'chat':
         return (
           <ChatListPage

@@ -62,9 +62,9 @@ const UserFollowList: React.FC<FollowListProps> = ({ users, searchQuery, priorit
     ? [...priorityList, ...filteredList.filter(user => !priorityList.some(pUser => pUser.nickname === user.nickname))]
     : users;
 
-  const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}`);
-  };
+    const handleProfileClick = (nickname: string) => {
+      navigate(`/user/${nickname}?tab=posts`);
+    };
 
   return (
     <FollowListWrapper>
