@@ -496,7 +496,6 @@ const DetailContent: React.FC = () => {
 
           <div id="detail_content_heart">
             <div id="detail_heart_count">{post.likeCount}</div>
-            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
             <div id="detail_like_button" onClick={handleLikeToggle}>
               <img
                 src={
@@ -507,6 +506,7 @@ const DetailContent: React.FC = () => {
                 alt="좋아요"
               />
             </div>
+            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
           </div>
 
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>

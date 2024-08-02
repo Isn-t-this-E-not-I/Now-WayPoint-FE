@@ -291,6 +291,7 @@
 /* 좋아요 위치 조정 */
 #detail_heart_count {
   font-size: 14px;
+  margin: auto 5px;
 }
 
 #detail_like_button {
@@ -308,6 +309,7 @@
 
 /* 게시글 게시지난 날짜 */
 #detail_heart_write_date {
+  margin-left: auto;
   margin-right: 10px;
 }
 
