@@ -78,9 +78,9 @@ const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, o
             <Button
               className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
               onClick={() => (user.isFollowing ? onUnfollow(user.nickname) : onFollow(user.nickname))}
-            >
+              >
               {user.isFollowing ? '언팔로우' : '팔로우'}
-            </Button>
+          </Button>
           )}
         </FollowItem>
       ))}
