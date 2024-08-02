@@ -3,14 +3,8 @@ import styled from 'styled-components'
 import { CreateChatButtonIcon } from '../icons/icons'
 import useModal from '@/hooks/modal'
 import Modal from '../Modal/modal'
-import { ChatRoom } from '../../types'
 import { getStompClient } from '@/websocket/chatWebSocket'
-
-interface CreateChatRoomButtonProps {
-  theme: 'light' | 'dark'
-  token: string
-  onCreateChat: (newChatRoom: ChatRoom) => void
-}
+import { useApp } from '@/context/appContext'
 
 const Button = styled.button`
   background: none;
@@ -72,17 +66,16 @@ const CloseButton = styled.button`
   }
 `
 
-const CreateChatRoomButton: React.FC<CreateChatRoomButtonProps> = ({
-  theme,
-  token,
-}) => {
+const CreateChatRoomButton: React.FC = () => {
+  const { theme } = useApp();
   const { isOpen, open, close } = useModal()
   const [selectedUsers, setSelectedUsers] = useState<string>('')
+  const token = localStorage.getItem('token') || '';
 
   const handleCreateChat = (e: React.FormEvent) => {
     e.preventDefault()
     const nicknames = selectedUsers.split(',').map((user) => user.trim())
-    const stompClient = getStompClient()
+    const stompClient = getStompClient();
     const payload = { nicknames }
 
     // STOMP 클라이언트를 통해 서버에 메시지 전송
@@ -90,7 +83,7 @@ const CreateChatRoomButton: React.FC<CreateChatRoomButtonProps> = ({
       stompClient.publish({
         destination: '/app/chatRoom/create',
         headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       })
     } else {
       console.error('StompClient is not connected.')

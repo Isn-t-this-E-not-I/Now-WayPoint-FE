@@ -83,7 +83,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             message: data.message,
             createDate: data.createDate,
           };
-        
+
           setNotifications((prevNotifications) => [newNotification, ...prevNotifications]);
         });
 

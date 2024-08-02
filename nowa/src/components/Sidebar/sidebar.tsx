@@ -17,34 +17,26 @@ import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
-import { ChatRoom, ChatRoomInfo } from '../../types'
 import { fetchChatRooms } from '../../api/chatApi'
-import {
-  connectAndSubscribe,
-  disconnect,
-  getStompClient,
-} from '@/websocket/chatWebSocket';
-import ChatListPage from '@/pages/Chat/chatListPage';
-import Modal from '../Modal/modal';
-import axios from 'axios';
-import SockJS from 'sockjs-client';
-import { Client, IMessage } from '@stomp/stompjs';
-import FollowList from '../FollowList/FollowList';  //*
+import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
+import { useChat } from '../../context/chatContext'
+import ChatListPage from '@/pages/Chat/chatListPage'
+import Modal from '../Modal/modal'
+import axios from 'axios'
+import SockJS from 'sockjs-client'
+import { Client, IMessage } from '@stomp/stompjs'
+import FollowList from '../FollowList/FollowList' //*
+import fetchAllUsers from '@/data/fetchAllUsers'
+import { handleLogout } from '../Logout/Logout'
+import MyPage from '@/pages/myPage'
 import AllUserList from '../FollowList/AllUserList' //*
-import fetchAllUsers from '@/data/fetchAllUsers';
-import { handleLogout } from '../Logout/Logout';
-import MyPage from '@/pages/myPage';
 import NotificationPage2 from '@/pages/notificationPage2';
 import { useWebSocket } from '../WebSocketProvider/WebSocketProvider';
 
 interface SidebarProps {
-  chatRooms: ChatRoom[]
   theme: 'light' | 'dark'
-  onChatItemClick: (chatRoom: ChatRoom) => void
   setSelectedPage: (page: string) => void
   onExitChatRoom: (id: number) => void
-  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>
-  onCreateChat: (newChatRoom: ChatRoom) => void
 }
 
 const Wrapper = styled.div`
@@ -56,7 +48,7 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 2.6rem;
+  width: 2.5rem;
   height: 100%;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
@@ -68,11 +60,11 @@ const RightSidebar = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 19.5rem;
+  width: 19rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
-  margin-left: 2.6rem;
+  margin-left: 2.5rem;
 `
 
 const Blank = styled.div`
@@ -88,7 +80,6 @@ const LogoIconButtonWrapper = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 7.5px;
 
   &:focus {
     outline: none;
@@ -142,7 +133,7 @@ const PageTitle = styled.div`
   font-size: 25px;
   font-weight: bold;
   margin-bottom: 10px;
-  margin-left: 6px;
+  margin-left: 3px;
   align-self: flex-start;
 `
 
@@ -178,20 +169,16 @@ const SearchInput = styled.input`
 `
 
 const Sidebar: React.FC<SidebarProps> = ({
-  chatRooms,
   theme,
-  onChatItemClick,
   setSelectedPage,
-  setChatRooms,
-  onCreateChat,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
-  const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([])
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
   const navigate = useNavigate()
+  const { connectAndSubscribe, disconnect } = useChatWebSocket()
+  const { setChatRooms, setChatRoomsInfo } = useChat()
 
   const [token] = useState<string>(localStorage.getItem('token') || '');
-  const [userNickname] = useState<string>(localStorage.getItem('nickname') || '');
   const [allUsers, setAllUsers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -201,39 +188,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       const users = await fetchAllUsers()
       setAllUsers(users)
     }
-
     getAllUsers()
   }, [])
-
-  // 채팅방 목록을 가져오는 useEffect 추가
-  useEffect(() => {
-    if (activePage === 'chat') {
-      fetchChatRooms(token).then((data) => {
-        setChatRooms(data.chatRooms)
-        setChatRoomsInfo(data.chatRoomsInfo)
-      })
-    }
-  }, [activePage, token])
-
-  useEffect(() => {
-    if (activePage === 'chat' && !getStompClient()) {
-      connectAndSubscribe(token, userNickname, setChatRooms, (error) =>
-        console.error(error)
-      )
-    }
-  }, [activePage, token, userNickname, setChatRooms])
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
     if (activePage !== 'chat') {
-      disconnect()
-    }
-  }, [activePage])
-
-  useEffect(() => {
-
-    if (activePage !== 'notifications') {
-      
+      disconnect();
     }
   }, [activePage]);
 
@@ -242,17 +203,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       case 'notifications':
         return <NotificationPage2 />;
       case 'chat':
-        return (
-          <ChatListPage
-            chatRooms={chatRooms}
-            chatRoomsInfo={chatRoomsInfo}
-            onChatItemClick={onChatItemClick}
-          />
-        )
+        return <ChatListPage />
       case 'contents':
         return <div>Contents Page</div>
       case 'followContents':
-        return <div>Follow Contents Page</div>  //*
+        return <div>Follow Contents Page</div>
       case 'myPage':
         return
       default:
@@ -279,7 +234,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         return '메시지'
       case 'contents':
         return '콘텐츠'
-      case 'followContents':  //*
+      case 'followContents':
         return '팔로우 컨텐츠'
       case 'myPage':
         return '마이페이지'
@@ -329,8 +284,20 @@ const Sidebar: React.FC<SidebarProps> = ({
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            connectAndSubscribe
+            if (getStompClient() == null) {
+              connectAndSubscribe();
+            }
             setActivePage('chat')
+            fetchChatRooms(token)
+              .then(data => {
+                // 데이터 구조를 확인하고 필요한 데이터만 추출
+                const chatRooms = data.chatRooms;
+                const chatRoomsInfo = data.chatRoomsInfo;
+
+                // state나 context에 데이터를 설정
+                setChatRooms(chatRooms);
+                setChatRoomsInfo(chatRoomsInfo);
+              })
           }}
         >
           <ChatIcon theme={theme} />
@@ -344,7 +311,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setActivePage('followContents') //*
+            setActivePage('followContents')
           }}
         >
           <FollowContentsIcon theme={theme} />
@@ -367,40 +334,34 @@ const Sidebar: React.FC<SidebarProps> = ({
         <Blank />
         <ThemeController />
       </LeftSidebar>
-      {/* ----------------------------------- */}
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
           <PageTitleWrapper>
             <PageTitle>{getPageTitle()}</PageTitle>
             {activePage === 'chat' && (
-              <CreateChatRoomButton
-                theme={theme}
-                token={token}
-                onCreateChat={onCreateChat}
-              />
+              <CreateChatRoomButton />
             )}
           </PageTitleWrapper>
-          {shouldShowSearch() && (
-            <SearchContainer>
-              <Search />
-            </SearchContainer>
-          )}
+          {shouldShowSearch() && <Search />}
+          <ContentPage>{renderContentPage()}</ContentPage>
           {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
             <SearchContainer>
-            <SearchInput
-              type="text"
-              placeholder="전체 유저 검색"
-              value={searchQuery}
-              onChange={handleSearchChange}
-            />
-            <AllUserList
-              users={allUsers}
-              searchQuery={searchQuery}
-            />
-          </SearchContainer>
+              <SearchInput
+                type="text"
+                placeholder="전체 유저 검색"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <FollowList
+                users={allUsers}
+                searchQuery={searchQuery}
+                onFollow={() => { }}
+                onUnfollow={() => { }}
+                showFollowButtons={false}
+              />
+            </SearchContainer>
           )}
-          <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
       {isLogoutModalOpen && (

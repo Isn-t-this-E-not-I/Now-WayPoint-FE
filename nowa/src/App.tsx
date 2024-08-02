@@ -2,12 +2,10 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
-import Custom_Theme from '@/hooks/defaultTheme'
 import '@/styles/tailwind.css'
 import Sidebar from './components/Sidebar/sidebar.tsx'
-import MainPage from '@/pages/Main/main.tsx'
-import CreatePage from '@/pages/createPage.tsx'
-import MyPage from '@/pages/myPage.tsx'
+import { ChatProvider } from '@/context/chatContext.tsx'
+import { AppProvider } from '@/context/appContext.tsx'
 
 const App: React.FC = () => {
   const location = useLocation()
@@ -18,28 +16,27 @@ const App: React.FC = () => {
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
-      {!isNoSidebarPage && (
-        <Sidebar
-          theme={'light'}
-          setSelectedPage={() => {}}
-          chatRooms={[]}
-          onChatItemClick={() => {}}
-          onExitChatRoom={() => {}}
-          setChatRooms={() => {}}
-          onCreateChat={() => {}}
-        />
-      )}
-      <div style={{ flex: 1 }}>
-        <Routers />
-      </div>
-      <Custom_Theme />
-    </div>
+      <ChatProvider>
+        {!isNoSidebarPage && (
+          <Sidebar
+            theme={'light'}
+            setSelectedPage={setSelectedPage}
+            onExitChatRoom={() => { }}
+          />
+        )}
+        <div style={{ flex: 1 }}>
+          <Routers />
+        </div>
+      </ChatProvider>
+    </div >
   )
 }
 
 const AppWrapper: React.FC = () => (
   <BrowserRouter>
-    <App />
+    <AppProvider>
+      <App />
+    </AppProvider>
   </BrowserRouter>
 )
 

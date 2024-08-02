@@ -16,7 +16,8 @@ const MainPage: React.FC = () => {
     }
 
     // SockJS와 Stomp 클라이언트 구성
-    const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
+    // const sock = new SockJS('https://ain.now-waypoint.store:8080/main')
+    const sock = new SockJS('https://localhost:8080/main')
     console.log(token)
     const stompClient = new Client({
       webSocketFactory: () => sock,

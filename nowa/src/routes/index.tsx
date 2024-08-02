@@ -15,6 +15,7 @@ import PrivateRoute from '@/components/PrivateRoute/privateRoute'
 import UserPage from '@/pages/UserPage';
 import EditContent from '@/pages/EditContent/editContent'
 import { WebSocketProvider } from '@/components/WebSocketProvider/WebSocketProvider'
+import ChattingPage from '@/pages/Chat/chattingPage'
 
 
 const Routers: React.FC = () => {
@@ -42,6 +43,7 @@ const Routers: React.FC = () => {
         <Route path="/editContent/:id" element={<EditContent />} />
         <Route path="/profileEdit" element={<></>} />
         <Route path="/chat" element={<></>} />
+        <Route path="/chatting/:chatRoomId" element={<ChattingPage />} />
         <Route path="/notification" element={<></>} />
         <Route path="/user/:nickname" element={<UserPage />} />
       </Route>

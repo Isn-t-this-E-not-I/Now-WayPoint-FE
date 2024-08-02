@@ -4,14 +4,6 @@ export interface ChatRoom {
   chatRoomId: number
   chatRoomName: string
   userCount: number
-  profilePic: string
-  lastMessage: string
-  messages: {
-    avatarSrc: string
-    header: string
-    time: string
-    message: string
-  }[]
 }
 
 export interface ChatRoomInfo {
