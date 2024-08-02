@@ -1,6 +1,5 @@
-import React, { useState, ReactNode, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import styled from 'styled-components'
-import useModal from '@/hooks/modal'
 
 const Overlay = styled.div`
   position: fixed;
@@ -63,38 +62,43 @@ const Input = styled.input`
 
 const SubmitButton = styled.button<{ $themeMode: string }>`
   padding: 8px;
-  border-radius: 4px;
+  width: 80px;
+  margin-left: 380px;
+  border-radius: 5px;
   cursor: pointer;
   color: ${(props) => (props.$themeMode === 'dark' ? '#f7f7f7' : '#2d2e2f')};
   background-color: ${(props) =>
-    props.$themeMode === 'dark' ? '#444' : '#fff'};
+    props.$themeMode === 'dark' ? '#444' : 'lightblue'};
 
   &:hover {
     color: #2d2e2f;
     background-color: #ffeb6b;
   }
+  margin-top: 10px;
 `
 
 interface InviteModalProps {
   isOpen: boolean
   onClose: () => void
-  children?: ReactNode
+  selectedUsers: string
+  setSelectedUsers: React.Dispatch<React.SetStateAction<string>>
+  chatRoomName: string
+  setChatRoomName: React.Dispatch<React.SetStateAction<string>>
+  handleCreateChat: (e: React.FormEvent) => void
+  theme: string
   showCloseButton?: boolean
-  selectedUsers?: string
-  setSelectedUsers?: React.Dispatch<React.SetStateAction<string>>
-  handleCreateChat?: (e: React.FormEvent) => void
-  theme?: string
 }
 
 const InviteModal: React.FC<InviteModalProps> = ({
   isOpen,
   onClose,
-  children,
-  showCloseButton = true,
   selectedUsers,
   setSelectedUsers,
+  chatRoomName,
+  setChatRoomName,
   handleCreateChat,
   theme,
+  showCloseButton = true,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -113,40 +117,29 @@ const InviteModal: React.FC<InviteModalProps> = ({
   return (
     <Overlay>
       <ModalBox>
-        {children || (
-          <>
-            {selectedUsers !== undefined &&
-            setSelectedUsers !== undefined &&
-            handleCreateChat !== undefined &&
-            theme !== undefined ? (
-              <div style={{ position: 'relative' }}>
-                <CloseButton onClick={onClose}>&times;</CloseButton>
-                <h3 className="font-bold text-lg">새 채팅방 생성</h3>
-                <Form onSubmit={handleCreateChat}>
-                  <Label htmlFor="chatRoomName">채팅방명</Label>
-                  {/* 채팅방명 입력 */}
-                  <Label htmlFor="invitedUsers">유저 초대</Label>
-                  <Input
-                    type="text"
-                    value={selectedUsers}
-                    onChange={(e) => setSelectedUsers(e.target.value)}
-                    placeholder="유저 닉네임 입력"
-                  />
-                  <SubmitButton type="submit" $themeMode={theme}>
-                    생성
-                  </SubmitButton>
-                </Form>
-              </div>
-            ) : (
-              <>
-                <h3 className="font-bold text-lg">Hello!</h3>
-                <p className="py-4">
-                  Press ESC key or click the button below to close
-                </p>
-              </>
-            )}
-          </>
-        )}
+        <div style={{ position: 'relative' }}>
+          <CloseButton onClick={onClose}>&times;</CloseButton>
+          <h3 className="font-bold text-lg">새 채팅방 생성</h3>
+          <Form onSubmit={handleCreateChat}>
+            <Label htmlFor="chatRoomName">채팅방명</Label>
+            <Input
+              type="text"
+              value={chatRoomName}
+              onChange={(e) => setChatRoomName(e.target.value)}
+              placeholder="채팅방명 입력 (공란 가능)"
+            />
+            <Label htmlFor="invitedUsers">유저 초대</Label>
+            <Input
+              type="text"
+              value={selectedUsers}
+              onChange={(e) => setSelectedUsers(e.target.value)}
+              placeholder="유저 닉네임 입력"
+            />
+            <SubmitButton type="submit" $themeMode={theme}>
+              생성
+            </SubmitButton>
+          </Form>
+        </div>
         {showCloseButton && (
           <div className="modal-action">
             <button className="btn" onClick={onClose}>
