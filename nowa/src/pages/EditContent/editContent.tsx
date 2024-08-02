@@ -54,6 +54,7 @@ const EditContent = () => {
 
   const handleFiles = (files: FileList | null) => {
     if (files) {
+      console.log(selectedOption)
       const totalFilesCount =
         existingUrls.length + newFiles.length + files.length
       if (totalFilesCount > 10) {
@@ -166,17 +167,27 @@ const EditContent = () => {
     }
 
     // 각 미디어 URL의 파일 확장자를 확인하여 카테고리와 일치하는지 확인
-    const allMediaUrls = [
-      ...existingUrls,
-      ...newFiles.map((file) => URL.createObjectURL(file)),
-    ]
-    const isValid = allMediaUrls.every((url) => {
-      if (selectedOption === 'PHOTO') {
-        return /\.(jpg|jpeg|png|gif)$/i.test(url)
-      } else if (selectedOption === 'VIDEO') {
-        return /\.(mp4|avi)$/i.test(url)
-      } else if (selectedOption === 'MP3') {
-        return /\.(mp3)$/i.test(url)
+    const isValid = previewSrcs.every((url, index) => {
+      const isExistingUrl = index < existingUrls.length
+      if (isExistingUrl) {
+        // 기존 URL의 확장자 확인
+        if (selectedOption === 'PHOTO') {
+          return /\.(jpg|jpeg|png|gif)$/i.test(url)
+        } else if (selectedOption === 'VIDEO') {
+          return /\.(mp4|avi)$/i.test(url)
+        } else if (selectedOption === 'MP3') {
+          return /\.(mp3)$/i.test(url)
+        }
+      } else {
+        // 새로 추가된 파일의 확장자 확인
+        const file = newFiles[index - existingUrls.length]
+        if (selectedOption === 'PHOTO') {
+          return file.type.startsWith('image/')
+        } else if (selectedOption === 'VIDEO') {
+          return file.type === 'video/mp4' || file.type === 'video/x-msvideo'
+        } else if (selectedOption === 'MP3') {
+          return file.type === 'audio/mpeg'
+        }
       }
       return false
     })
