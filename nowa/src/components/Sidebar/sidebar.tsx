@@ -32,6 +32,7 @@ import { Client, IMessage } from '@stomp/stompjs';
 import FollowList from '../FollowList/FollowList';  //*
 import fetchAllUsers from '@/data/fetchAllUsers';
 import { handleLogout } from '../Logout/Logout';
+import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider';
 
 interface SidebarProps {
   chatRooms: ChatRoom[];
@@ -227,48 +228,15 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [activePage]);
 
-  useEffect(() => {
-    if (token && userNickname) {
-      const sock = new SockJS('https://subdomain.now-waypoint.store:8080/notification');
-      const client = new Client({
-        webSocketFactory: () => sock,
-        connectHeaders: {
-          Authorization: `Bearer ${token}`,
-        },
-        onConnect: (frame) => {
-          console.log('Connected to notification socket');
-          client.subscribe(`/user/queue/notify`, (message: IMessage) => {
-            console.log('Notification received:', message.body);
-            setNotifications((prevNotifications) => [JSON.parse(message.body), ...prevNotifications]);
-          });
-        },
-        onStompError: (frame) => {
-          console.error('Broker reported error: ' + frame.headers['message']);
-          console.error('Additional details: ' + frame.body);
-        },
-      });
-      client.activate();
-
-      return () => {
-        client.deactivate();
-      };
-    }
-  }, [token, userNickname]);
-
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
         return (
           <div>
-            <NotificationPage />
-            <NotificationList>
-              {notifications.map((notification, index) => (
-                <NotificationItem key={index}>
-                  {notification.content}
-                </NotificationItem>
-              ))}
-            </NotificationList>
+            <WebSocketProvider>
+              <NotificationPage />
+            </WebSocketProvider>
           </div>
         );
       case 'chat':

@@ -24,7 +24,7 @@ const MainPage: React.FC = () => {
   const [map, setMap] = useState<any>(null) // 지도 객체 상태 추가
   const [mapLevel, setMapLevel] = useState<number>(1) // 지도 확대/축소 레벨 상태 추가
   const [isInitialized, setIsInitialized] = useState(false) // 초기화 상태 추가
-  const client = useWebSocket();
+  const client = useWebSocket().client;
 
   // 쿠키 값을 가져와 로컬스토리지에 저장하는 함수
   const saveTokenToLocalStorage = () => {
