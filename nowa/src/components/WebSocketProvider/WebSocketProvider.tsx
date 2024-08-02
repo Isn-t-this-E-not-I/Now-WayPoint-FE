@@ -39,6 +39,30 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const location = import.meta.env.VITE_APP_API;
   const getStompClient = () => clientRef.current;
 
+  const initialNotifications: Notification[] = [
+    {
+      id: 10000,
+      nickname: 'InitialUser1',
+      message: 'You have a new follower!',
+      profileImageUrl: 'https://via.placeholder.com/40',
+      createDate: new Date().toISOString(),
+    },
+    {
+      id: 20000,
+      nickname: 'InitialUser2',
+      message: 'Your post got 5 likes!',
+      profileImageUrl: 'https://via.placeholder.com/40',
+      createDate: new Date().toISOString(),
+    },
+    {
+      id: 30000,
+      nickname: 'InitialUser3',
+      message: 'New comment on your post!',
+      profileImageUrl: 'https://via.placeholder.com/40',
+      createDate: new Date().toISOString(),
+    },
+  ];
+
   useEffect(() => {
   const fetchNotifications = async () => {
     try {

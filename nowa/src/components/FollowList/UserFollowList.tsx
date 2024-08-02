@@ -1,6 +1,6 @@
 import React from 'react';
+import Button from '../../components/Button/button';
 import styled from 'styled-components';
-import Button from '../Button/button';
 import { useNavigate } from 'react-router-dom';
 
 const FollowListWrapper = styled.div`
@@ -49,26 +49,22 @@ interface FollowListProps {
   searchQuery: string;
   onFollow: (nickname: string) => void;
   onUnfollow: (nickname: string) => void;
-  priorityList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
-  allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
 }
 
-const UserFollowList: React.FC<FollowListProps> = ({ users, searchQuery, priorityList, allUsers }) => {
+const UserFollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow }) => {
   const navigate = useNavigate();
 
-  const filteredList = searchQuery ? allUsers.filter((user) => user.nickname.includes(searchQuery)) : users;
-
-  const prioritizedList = searchQuery
-    ? [...priorityList, ...filteredList.filter(user => !priorityList.some(pUser => pUser.nickname === user.nickname))]
+  const filteredList = searchQuery
+    ? users.filter((user) => user.nickname.toLowerCase().includes(searchQuery.toLowerCase()))
     : users;
 
   const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}`);
+    navigate(`/user/${nickname}?tab=posts`);
   };
 
   return (
     <FollowListWrapper>
-      {prioritizedList.map((user, index) => (
+      {filteredList.map((user, index) => (
         <FollowItem key={index}>
           <FollowName onClick={() => handleProfileClick(user.nickname)}>
             <ProfileImage src={user.profileImageUrl || '/defaultprofile.png'} alt="Profile" />
@@ -77,6 +73,12 @@ const UserFollowList: React.FC<FollowListProps> = ({ users, searchQuery, priorit
               <UserName>@{user.name}</UserName>
             </FollowDetails>
           </FollowName>
+          <Button
+            className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
+            onClick={() => (user.isFollowing ? onUnfollow(user.nickname) : onFollow(user.nickname))}
+          >
+            {user.isFollowing ? '언팔로우' : '팔로우'}
+          </Button>
         </FollowItem>
       ))}
     </FollowListWrapper>

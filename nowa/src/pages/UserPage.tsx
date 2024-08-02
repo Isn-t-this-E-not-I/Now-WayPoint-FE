@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import styled from 'styled-components';
-import defaultProfileImage from '../../../defaultprofile.png';
-import Posts from '../components/Posts/Posts';
-import UserFollowList from '../components/FollowList/UserFollowList';
+import React, { useEffect, useState } from 'react'
+import { useParams, useLocation } from 'react-router-dom'
+import axios from 'axios'
+import styled from 'styled-components'
+import defaultProfileImage from '../../../defaultprofile.png'
+import Posts from '../components/Posts/Posts'
+import UserFollowList from '../components/FollowList/UserFollowList'
+import { getCommentsByPostId } from '../services/comments'
 
 const Container = styled.div`
   display: flex;
@@ -12,7 +13,7 @@ const Container = styled.div`
   align-items: flex-start;
   height: 100vh;
   padding: 20px;
-`;
+`
 
 const ProfileSection = styled.div`
   flex: 1;
@@ -20,14 +21,14 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
-`;
+`
 
 const ContentSection = styled.div`
   flex: 5;
   padding: 20px;
   margin-left: 30px;
   margin-right: 30px;
-`;
+`
 
 const ProfileImage = styled.img`
   width: 100px;
@@ -35,35 +36,35 @@ const ProfileImage = styled.img`
   border-radius: 50%;
   margin-top: 30px;
   margin-bottom: 30px;
-`;
+`
 
 const ProfileInfo = styled.div`
   text-align: center;
   margin-top: 20px;
-`;
+`
 
 const Stats = styled.div`
   margin-top: 10px;
   margin-bottom: 20px;
-`;
+`
 
 const StatItem = styled.div`
   margin-bottom: 5px;
   cursor: pointer;
-`;
+`
 
 const Description = styled.p`
   margin-top: 10px;
-`;
+`
 
 const SectionTitle = styled.h2`
   font-size: 20px;
   margin-bottom: 20px;
-`;
+`
 
 const NicknameTitle = styled.h3`
   font-size: 16px;
-`;
+`
 
 const SearchInput = styled.input`
   width: 100%;
@@ -71,72 +72,122 @@ const SearchInput = styled.input`
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
-`;
+`
+
+interface Post {
+  id: number
+  mediaUrls: string[]
+  createdAt: string
+  category: string
+  likeCount: number
+  commentCount: number // 댓글 수 추가
+}
 
 interface UserProfile {
-  nickname: string;
-  profileImageUrl: string;
-  description: string;
-  followers: number;
-  followings: number;
-  postCount: number;
-  posts: { id: number; mediaUrls: string[]; createdAt: string }[];
-  followersList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
-  followingsList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
-  allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
+  nickname: string
+  profileImageUrl: string
+  description: string
+  followers: number
+  followings: number
+  postCount: number
+  posts: Post[]
+  followersList: {
+    isFollowing: boolean
+    name: string
+    nickname: string
+    profileImageUrl: string
+  }[]
+  followingsList: {
+    isFollowing: boolean
+    name: string
+    nickname: string
+    profileImageUrl: string
+  }[]
+  allUsers: {
+    isFollowing: boolean
+    name: string
+    nickname: string
+    profileImageUrl: string
+  }[]
 }
 
 const UserPage: React.FC = () => {
-  const { nickname } = useParams<{ nickname: string }>();
-  const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedTab, setSelectedTab] = useState('posts');
-  const [searchQuery, setSearchQuery] = useState('');
-  const location = import.meta.env.VITE_APP_API;
+  const { nickname } = useParams<{ nickname: string }>()
+  const [userInfo, setUserInfo] = useState<UserProfile | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [selectedTab, setSelectedTab] = useState('posts')
+  const [searchQuery, setSearchQuery] = useState('')
+  const location = import.meta.env.VITE_APP_API
 
   const fetchUserData = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+    const token = localStorage.getItem('token')
+    if (!token) return
 
     try {
-      console.log('Fetching user data...');
-      const response = await axios.get(`${location}/user?nickname=${nickname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('User API Response:', response);
+      console.log('Fetching user data...')
+      const response = await axios.get(
+        `${location}/user?nickname=${nickname}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      console.log('User API Response:', response)
 
-      const userData = response.data;
+      const userData = response.data
 
-      console.log(`Fetching following data for ${nickname}...`);
-      const followingResponse = await axios.get(`${location}/follow/following?nickname=${nickname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('Following API Response:', followingResponse);
+      console.log(`Fetching following data for ${nickname}...`)
+      const followingResponse = await axios.get(
+        `${location}/follow/following?nickname=${nickname}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      console.log('Following API Response:', followingResponse)
 
-      console.log(`Fetching follower data for ${nickname}...`);
-      const followerResponse = await axios.get(`${location}/follow/follower?nickname=${nickname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('Follower API Response:', followerResponse);
+      console.log(`Fetching follower data for ${nickname}...`)
+      const followerResponse = await axios.get(
+        `${location}/follow/follower?nickname=${nickname}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      console.log('Follower API Response:', followerResponse)
 
-      console.log('Fetching all users...');
+      console.log('Fetching all users...')
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      console.log('All Users API Response:', allUsersResponse);
+      })
+      console.log('All Users API Response:', allUsersResponse)
 
       const allUsers = allUsersResponse.data.map((user: any) => ({
-        isFollowing: followingResponse.data.some((followingUser: any) => followingUser.nickname === user.nickname),
+        isFollowing: followingResponse.data.some(
+          (followingUser: any) => followingUser.nickname === user.nickname
+        ),
         ...user,
-      }));
+      }))
+
+      // 각 게시글의 댓글 수를 가져와서 posts 배열에 추가
+      const postsWithCommentCounts = await Promise.all(
+        userData.posts.map(async (post: any) => {
+          const comments = await getCommentsByPostId(post.id)
+          return {
+            id: post.id,
+            mediaUrls: post.mediaUrls,
+            createdAt: post.createdAt,
+            category: post.category,
+            likeCount: post.likeCount,
+            commentCount: comments.length, // 댓글 수 추가
+          }
+        })
+      )
 
       setUserInfo({
         nickname: userData.nickname,
@@ -145,13 +196,7 @@ const UserPage: React.FC = () => {
         followers: parseInt(userData.follower, 10),
         followings: parseInt(userData.following, 10),
         postCount: userData.posts ? userData.posts.length : 0,
-        posts: userData.posts
-          ? userData.posts.map((post: any) => ({
-              id: post.id,
-              mediaUrls: post.mediaUrls,
-              createdAt: post.createdAt,
-            }))
-          : [],
+        posts: postsWithCommentCounts,
         followersList: followerResponse.data
           ? followerResponse.data.map((user: any) => ({
               isFollowing: true,
@@ -169,31 +214,39 @@ const UserPage: React.FC = () => {
             }))
           : [],
         allUsers,
-      });
+      })
 
-      setLoading(false);
+      setLoading(false)
     } catch (error) {
-      console.error('Failed to fetch user data:', error);
-      setLoading(false);
+      console.error('Failed to fetch user data:', error)
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchUserData();
-  }, [nickname]);
+    fetchUserData()
+  }, [nickname])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+    setSearchQuery(e.target.value)
+  }
+
+  const filteredFollowings = userInfo?.followingsList.filter((user) =>
+    user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const filteredFollowers = userInfo?.followersList.filter((user) =>
+    user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
-  
+
   if (!userInfo) {
-    return <div>Failed to load user data</div>;
+    return <div>Failed to load user data</div>
   }
-  
+
   return (
     <Container>
       <ProfileSection>
@@ -201,9 +254,15 @@ const UserPage: React.FC = () => {
         <ProfileInfo>
           <NicknameTitle>{userInfo.nickname}</NicknameTitle>
           <Stats>
-            <StatItem onClick={() => setSelectedTab('posts')}>게시글 {userInfo.postCount}</StatItem>
-            <StatItem onClick={() => setSelectedTab('followings')}>팔로잉 {userInfo.followings}</StatItem>
-            <StatItem onClick={() => setSelectedTab('followers')}>팔로워 {userInfo.followers}</StatItem>
+            <StatItem onClick={() => setSelectedTab('posts')}>
+              게시글 {userInfo.postCount}
+            </StatItem>
+            <StatItem onClick={() => setSelectedTab('followings')}>
+              팔로잉 {userInfo.followings}
+            </StatItem>
+            <StatItem onClick={() => setSelectedTab('followers')}>
+              팔로워 {userInfo.followers}
+            </StatItem>
           </Stats>
           <Description>{userInfo.description}</Description>
         </ProfileInfo>
@@ -218,46 +277,40 @@ const UserPage: React.FC = () => {
         {selectedTab === 'followings' && (
           <>
             <SectionTitle>팔로잉</SectionTitle>
-            <SearchInput 
+            <SearchInput
               type="text"
               placeholder="검색"
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <UserFollowList 
-              users={userInfo.followingsList}
+            <UserFollowList
+              users={filteredFollowings || userInfo.followingsList}
               searchQuery={searchQuery}
-              priorityList={userInfo.followingsList}
-              allUsers={userInfo.allUsers} onFollow={function (): void {
-                throw new Error('Function not implemented.');
-              } } onUnfollow={function (): void {
-                throw new Error('Function not implemented.');
-              } }            />
+              onFollow={() => {}}
+              onUnfollow={() => {}}
+            />
           </>
         )}
         {selectedTab === 'followers' && (
           <>
             <SectionTitle>팔로워</SectionTitle>
-            <SearchInput 
+            <SearchInput
               type="text"
               placeholder="검색"
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <UserFollowList 
-              users={userInfo.followersList}
+            <UserFollowList
+              users={filteredFollowers || userInfo.followersList}
               searchQuery={searchQuery}
-              priorityList={userInfo.followersList}
-              allUsers={userInfo.allUsers} onFollow={function (): void {
-                throw new Error('Function not implemented.');
-              } } onUnfollow={function (): void {
-                throw new Error('Function not implemented.');
-              } }            />
+              onFollow={() => {}}
+              onUnfollow={() => {}}
+            />
           </>
         )}
       </ContentSection>
     </Container>
-  );
-};
+  )
+}
 
-export default UserPage;
+export default UserPage
