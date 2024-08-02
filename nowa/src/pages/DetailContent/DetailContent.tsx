@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, KeyboardEvent } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import {
@@ -160,9 +160,9 @@ const DetailContent: React.FC = () => {
   // 대댓글을 작성하는 함수
   const handleReplySubmit = async (
     parentCommentId: number,
-    e: React.FormEvent<HTMLFormElement>
+    e?: React.FormEvent<HTMLFormElement>
   ) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     if (replyContent.trim() === '') {
       alert('내용을 입력해주세요.')
       return
@@ -179,6 +179,25 @@ const DetailContent: React.FC = () => {
     } catch (error) {
       console.error('Failed to submit reply:', error)
       alert('답글 작성에 실패했습니다.')
+    }
+  }
+
+  // 댓글 작성 시 Enter 키 핸들러
+  const handleCommentKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleCommentSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
+    }
+  }
+
+  // 답글 작성 시 Enter 키 핸들러
+  const handleReplyKeyDown = (
+    e: KeyboardEvent<HTMLTextAreaElement>,
+    parentCommentId: number
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleReplySubmit(parentCommentId)
     }
   }
 
@@ -372,6 +391,7 @@ const DetailContent: React.FC = () => {
                 id="detail_reply_content"
                 value={replyContent}
                 onChange={handleMention}
+                onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
               ></TextArea>
               <div id="detail_reply_write_button">
                 <button type="submit">답글 게시</button>
@@ -494,6 +514,7 @@ const DetailContent: React.FC = () => {
               id="detail_coment_content_content"
               value={newComment}
               onChange={handleNewCommentMention}
+              onKeyDown={handleCommentKeyDown}
             ></TextArea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
