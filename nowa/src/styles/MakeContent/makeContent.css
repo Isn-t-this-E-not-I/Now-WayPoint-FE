@@ -8,8 +8,8 @@
 
 /* 업로드 이미지 조정 */
 #upload_image {
+  flex: 1;
   height: 100vh;
-  width: 100%;
 }
 
 #upload_image hr {
