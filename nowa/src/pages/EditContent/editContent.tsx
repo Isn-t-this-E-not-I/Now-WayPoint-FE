@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from 'react'
+import React, { useEffect, useState, ChangeEvent, DragEvent } from 'react'
 import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
@@ -10,10 +10,12 @@ import { useParams, useNavigate } from 'react-router-dom'
 const EditContent = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
+  const [existingUrls, setExistingUrls] = useState<string[]>([]) // 기존 이미지 URL 관리
+  const [deletedUrls, setDeletedUrls] = useState<string[]>([]) // 삭제된 이미지 URL 관리
   const [tags, setTags] = useState<string[]>([])
   const [content, setContent] = useState<string>('')
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
-  const [files, setFiles] = useState<File[]>([])
+  const [newFiles, setNewFiles] = useState<File[]>([]) // 새로 추가된 파일 관리
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -31,6 +33,7 @@ const EditContent = () => {
         setTags(postData.hashtags || [])
         setSelectedOption(postData.category || 'PHOTO')
         setPreviewSrcs(postData.mediaUrls || [])
+        setExistingUrls(postData.mediaUrls || []) // 기존 이미지 URL 설정
       } catch (error) {
         console.error('Failed to fetch post data:', error)
       }
@@ -46,18 +49,37 @@ const EditContent = () => {
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    handleFiles(event.target.files)
+  }
+
+  const handleFiles = (files: FileList | null) => {
     if (files) {
-      const fileArray = Array.from(files).filter(
-        (file) =>
-          file.type.startsWith('image/') ||
-          file.type.startsWith('video/') ||
-          file.type === 'audio/mpeg' ||
-          file.type === 'audio/mp3' ||
-          file.type === 'video/mp4'
-      )
-      setFiles((prevFiles) => [...prevFiles, ...fileArray])
-      const fileReaders = fileArray.map((file) => {
+      const validFileArray: File[] = []
+      const invalidFileNames: string[] = []
+
+      Array.from(files).forEach((file) => {
+        if (selectedOption === 'PHOTO' && file.type.startsWith('image/')) {
+          validFileArray.push(file)
+        } else if (
+          selectedOption === 'VIDEO' &&
+          (file.type === 'video/mp4' || file.type === 'video/x-msvideo')
+        ) {
+          validFileArray.push(file)
+        } else if (selectedOption === 'MP3' && file.type === 'audio/mpeg') {
+          validFileArray.push(file)
+        } else {
+          invalidFileNames.push(file.name)
+        }
+      })
+
+      if (invalidFileNames.length > 0) {
+        alert(
+          `다음 파일 형식은 허용되지 않습니다: ${invalidFileNames.join(', ')}`
+        )
+      }
+
+      setNewFiles((prevFiles) => [...prevFiles, ...validFileArray])
+      const fileReaders = validFileArray.map((file) => {
         const reader = new FileReader()
         reader.readAsDataURL(file)
         return reader
@@ -86,8 +108,20 @@ const EditContent = () => {
   }
 
   const handleRemoveFile = (index: number) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
-    setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+    if (index < existingUrls.length) {
+      // 기존 파일을 제거하는 경우
+      const urlToRemove = existingUrls[index]
+      setExistingUrls((prevUrls) => prevUrls.filter((_, i) => i !== index))
+      setDeletedUrls((prevUrls) => [...prevUrls, urlToRemove]) // 삭제된 URL 추가
+      setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+    } else {
+      // 새 파일을 제거하는 경우
+      const adjustedIndex = index - existingUrls.length
+      setNewFiles((prevFiles) =>
+        prevFiles.filter((_, i) => i !== adjustedIndex)
+      )
+      setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+    }
   }
 
   const handleContextMenu = (
@@ -119,15 +153,47 @@ const EditContent = () => {
   }
 
   const handleSubmit = async () => {
+    if (!content) {
+      alert('내용을 입력해주세요.')
+      return
+    }
+
+    // 각 미디어 URL의 파일 확장자를 확인하여 카테고리와 일치하는지 확인
+    const allMediaUrls = [
+      ...existingUrls,
+      ...newFiles.map((file) => URL.createObjectURL(file)),
+    ]
+    const isValid = allMediaUrls.every((url) => {
+      if (selectedOption === 'PHOTO') {
+        return /\.(jpg|jpeg|png|gif)$/i.test(url)
+      } else if (selectedOption === 'VIDEO') {
+        return /\.(mp4|avi)$/i.test(url)
+      } else if (selectedOption === 'MP3') {
+        return /\.(mp3)$/i.test(url)
+      }
+      return false
+    })
+
+    if (!isValid) {
+      alert('선택한 카테고리와 일치하지 않는 파일이 있습니다.')
+      return
+    }
+
+    const confirmed = window.confirm('정말로 게시글을 수정하시겠습니까?')
+    if (!confirmed) {
+      return
+    }
+
     const token = localStorage.getItem('token')
     try {
       const response = await updateContent(
         Number(id),
-        files,
+        newFiles,
         content,
         tags,
         selectedOption,
-        token
+        token,
+        deletedUrls
       )
       if (response.success) {
         navigate(`/detailContent/${id}`)
@@ -137,13 +203,22 @@ const EditContent = () => {
     }
   }
 
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    handleFiles(e.dataTransfer.files)
+  }
+
   if (!content && !tags.length && !selectedOption && !previewSrcs.length) {
     return <div>Loading...</div>
   }
 
   return (
     <div>
-      <div id="upload_content">
+      <div id="upload_content" onDragOver={handleDragOver} onDrop={handleDrop}>
         <div id="upload_image">
           <div id="content_title">컨텐츠 수정</div>
           <hr />
@@ -164,11 +239,23 @@ const EditContent = () => {
                 style={{ display: 'none' }}
                 onChange={handleFileChange}
                 multiple
+                accept={
+                  selectedOption === 'PHOTO'
+                    ? 'image/*'
+                    : selectedOption === 'VIDEO'
+                      ? 'video/mp4, video/x-msvideo'
+                      : selectedOption === 'MP3'
+                        ? 'audio/mpeg'
+                        : ''
+                }
               />
 
               {previewSrcs.map((src, index) => (
                 <div key={index} className="file_preview_wrapper">
-                  {src.startsWith('data:image/') ? (
+                  {src.startsWith('data:image/') ||
+                  src.endsWith('.jpg') ||
+                  src.endsWith('.jpeg') ||
+                  src.endsWith('.png') ? (
                     <div className="image_preview_wrapper">
                       <img
                         id="image_preview"
@@ -183,7 +270,9 @@ const EditContent = () => {
                         x
                       </button>
                     </div>
-                  ) : src.startsWith('data:video/') ? (
+                  ) : src.startsWith('data:video/') ||
+                    src.endsWith('.mp4') ||
+                    src.endsWith('.avi') ? (
                     <div className="image_preview_wrapper">
                       <img
                         id="video_preview"
@@ -198,7 +287,7 @@ const EditContent = () => {
                         x
                       </button>
                     </div>
-                  ) : src.startsWith('data:audio/') ? (
+                  ) : src.startsWith('data:audio/') || src.endsWith('.mp3') ? (
                     <div className="image_preview_wrapper">
                       <img
                         id="audio_preview"
