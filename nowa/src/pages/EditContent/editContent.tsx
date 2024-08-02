@@ -222,6 +222,29 @@ const EditContent = () => {
         <div id="upload_image">
           <div id="content_title">컨텐츠 수정</div>
           <hr />
+
+          <div id="content_dev">
+            <Textarea
+              id={'upload_content_dis'}
+              placeholder={'내용을 입력해주세요'}
+              value={content}
+              onChange={handleContentChange}
+            />
+            <div id="tag_previews">
+              {tags.map((tag, index) => (
+                <span key={index} className="tag_preview">
+                  {tag}
+                  <button
+                    className="remove_tag_button"
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div id="upload_forder">
             <div id="image_preview_container">
               <img
@@ -308,27 +331,6 @@ const EditContent = () => {
             </div>
           </div>
           <p>최대 10개의 파일 첨부가 가능합니다</p>
-          <div id="content_dev">
-            <Textarea
-              id={'upload_content_dis'}
-              placeholder={'내용을 입력해주세요'}
-              value={content}
-              onChange={handleContentChange}
-            />
-            <div id="tag_previews">
-              {tags.map((tag, index) => (
-                <span key={index} className="tag_preview">
-                  {tag}
-                  <button
-                    className="remove_tag_button"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    x
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
 
         <div id="upload_content_detail">
