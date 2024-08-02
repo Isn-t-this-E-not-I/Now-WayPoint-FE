@@ -315,8 +315,7 @@
 
 /* 댓글작성 */
 #detail_coment_content_content {
-  position: relative;
-  width: 100%;
+  flex: 1;
   height: 100px;
   resize: none;
   font-size: 12px;
