@@ -60,7 +60,7 @@ const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, o
     : users;
 
   const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}`);
+    navigate(`/user/${nickname}?tab=posts`);
   };
 
   return (
