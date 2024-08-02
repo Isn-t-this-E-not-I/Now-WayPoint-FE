@@ -32,7 +32,7 @@ const MainPage: React.FC = () => {
   } | null>(null) // 현재 위치를 저장하는 ref
 
   const formatDate = (dateString: string | number | Date) => {
-    return moment(dateString).tz('Asia/Seoul').format('MM-DD HH:mm A')
+    return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
   }
 
   const saveTokenToLocalStorage = () => {
@@ -194,8 +194,10 @@ const MainPage: React.FC = () => {
          <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/4110/4110234.png'}' onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/128/4110/4110234.png';">
       </div>
       <div id="main_maker_content">
-        <div id="main_maker_name">이름 : ${item.username}</div>
-        <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+        <div id="main_maker_name">작성자 : ${item.username}</div> 
+      </div>
+      <div id="main_maker_content2">
+        <div id="main_maker_create">${formatDate(item.createdAt)}</div>   
       </div>
     `
 
