@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useChatWebSocket } from '@/websocket/chatWebSocket'
-import { useParams } from 'react-router-dom';
-import { useApp } from '@/context/appContext';
+import { useParams } from 'react-router-dom'
+import { useApp } from '@/context/appContext'
 import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
 
@@ -53,14 +53,14 @@ const InputContainer = styled.div`
   padding: 10px;
   border-top: 1px solid #ccc;
   background-color: #f9f9f9;
-`;
+`
 
 const InputField = styled.input`
   flex-grow: 1;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-`;
+`
 
 const SendButton = styled.button`
   margin-left: 10px;
@@ -74,36 +74,38 @@ const SendButton = styled.button`
   &:hover {
     background-color: #0056b3;
   }
-`;
+`
 
 // sender가 admin일때는 중앙정렬된 메시지로 출력
 const ChattingPage: React.FC = () => {
-  const { chatRoomId } = useParams<{ chatRoomId: string }>();
-  const { chatRooms, messages, setMessages } = useChat();
-  const { theme } = useApp();
-  const token = localStorage.getItem('token') || '';
+  const { chatRoomId } = useParams<{ chatRoomId: string }>()
+  const { chatRooms, messages, setMessages } = useChat()
+  const { theme } = useApp()
+  const token = localStorage.getItem('token') || ''
   const { subscribeToChatRoom } = useChatWebSocket()
 
-  const [messageContent, setMessageContent] = useState('');
+  const [messageContent, setMessageContent] = useState('')
 
-  const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null;
-  const chatRoom = chatRooms.find(room => room.chatRoomId === roomId);
+  const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null
+  const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
-    if (roomId === null) return; // roomId가 null인 경우 처리
+    if (roomId === null) return // roomId가 null인 경우 처리
 
     const payload = {
-      chatRoomId: roomId
+      chatRoomId: roomId,
     }
-    const stompClient = getStompClient();
+    const stompClient = getStompClient()
 
     if (stompClient) {
       stompClient.publish({
         destination: '/app/chat/messages',
         headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       })
+
+      // 입력 필드 초기화
     } else {
       console.error('StompClient is not connected.')
     }
@@ -111,31 +113,31 @@ const ChattingPage: React.FC = () => {
 
   // 메시지 전송
   const sendMessage = () => {
-    if (!messageContent.trim() || roomId === null) return;
+    if (!messageContent.trim() || roomId === null) return
 
     const payload = {
       chatRoomId: roomId,
-      content: messageContent.trim()
-    };
+      content: messageContent.trim(),
+    }
 
-    const stompClient = getStompClient();
+    const stompClient = getStompClient()
 
     if (stompClient) {
       stompClient.publish({
         destination: '/app/chat/send',
         headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload)
-      });
+        body: JSON.stringify(payload),
+      })
 
       // 입력 필드 초기화
-      setMessageContent('');
+      setMessageContent('')
     } else {
-      console.error('StompClient is not connected.');
+      console.error('StompClient is not connected.')
     }
   }
 
   useEffect(() => {
-    if (roomId === null) return; // roomId가 null인 경우 처리
+    if (roomId === null) return // roomId가 null인 경우 처리
 
     // 채팅방 구독 시작
     const subscription = subscribeToChatRoom(roomId)
@@ -154,7 +156,7 @@ const ChattingPage: React.FC = () => {
   }, [roomId, token, setMessages])
 
   if (!chatRoom) {
-    return <div>채팅방을 찾을 수 없습니다.</div>;
+    return <div>채팅방을 찾을 수 없습니다.</div>
   }
 
   return (
@@ -164,7 +166,9 @@ const ChattingPage: React.FC = () => {
           <MessageItem key={index}>
             <Sender>{msg.sender}</Sender>
             <Content>{msg.content}</Content>
-            <Timestamp>{new Date(msg.timestamp).toLocaleTimeString()}</Timestamp>
+            <Timestamp>
+              {new Date(msg.timestamp).toLocaleTimeString()}
+            </Timestamp>
           </MessageItem>
         ))}
       </MessageList>
