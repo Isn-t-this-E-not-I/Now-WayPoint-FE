@@ -1,14 +1,14 @@
 /* 전체 크기 조정 */
 #upload_content {
   display: flex;
-  height: 100%;
+  height: 100vh;
   width: 100%;
   margin: 0;
 }
 
 /* 업로드 이미지 조정 */
 #upload_image {
-  flex: 1;
+  flex: 3;
   height: 100vh;
 }
 
@@ -30,7 +30,7 @@
 /* 업로드 내용 크기 조정 */
 #upload_content_detail {
   height: 100vh;
-  width: 30%;
+  flex: 1;
 }
 
 /* 업로드 버튼위 이미지 크기 조정 */
