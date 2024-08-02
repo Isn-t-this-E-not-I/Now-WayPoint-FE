@@ -10,6 +10,7 @@ export const getStompClient = () => stompClient
 export const useChatWebSocket = () => {
   const { setChatRooms, setMessages, setChatRoomsInfo } = useChat()
   const token = localStorage.getItem('token') || ''
+  const nickname = localStorage.getItem('nickname') || ''
 
   const connectAndSubscribe = () => {
     const socket = new SockJS('https://subdomain.now-waypoint.store:8080/ws')
@@ -48,7 +49,6 @@ export const useChatWebSocket = () => {
 
   const handleMessageUser = (message: { body: string }) => {
     const parsedMessage = JSON.parse(message.body)
-    console.log(parsedMessage)
     switch (parsedMessage.messageType) {
       case 'CREATE':
         const newChatRoom: ChatRoom = {
@@ -87,11 +87,20 @@ export const useChatWebSocket = () => {
         setChatRoomsInfo((prevChatRoomsInfo) => {
           return prevChatRoomsInfo.map((info) => {
             if (info.chatRoomId === parsedMessage.chatRoomId) {
-              return {
-                ...info,
-                unreadMessagesCount: (info.unreadMessagesCount || 0) + 1, // 기존 수에 1 추가
-                lastMessageContent: parsedMessage.content, // 마지막 메시지 내용 업데이트
-                lastMessageTimestamp: parsedMessage.timestamp, // 현재 시간 업데이트
+              if (parsedMessage.sender === nickname) {
+                return {
+                  ...info,
+                  unreadMessagesCount: 0,
+                  lastMessageContent: parsedMessage.content, // 마지막 메시지 내용 업데이트
+                  lastMessageTimestamp: parsedMessage.timestamp, // 현재 시간 업데이트
+                }
+              } else {
+                return {
+                  ...info,
+                  unreadMessagesCount: (info.unreadMessagesCount || 0) + 1, // 기존 수에 1 추가
+                  lastMessageContent: parsedMessage.content, // 마지막 메시지 내용 업데이트
+                  lastMessageTimestamp: parsedMessage.timestamp, // 현재 시간 업데이트
+                }
               }
             }
             return info
