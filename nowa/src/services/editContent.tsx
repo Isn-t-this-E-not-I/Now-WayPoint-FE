@@ -12,13 +12,14 @@ export interface Post {
   nickname: string
   createdAt: string
   likeCount: number
+  removeMedia?: string[]
 }
 
 export const getPostById = async (postId: number): Promise<Post> => {
   const token = localStorage.getItem('token')
 
   if (!token) {
-    throw new Error('Authorization token not found')
+    throw new Error('인증 토큰을 찾을 수 없습니다')
   }
 
   try {
@@ -30,7 +31,7 @@ export const getPostById = async (postId: number): Promise<Post> => {
 
     return response.data
   } catch (error) {
-    console.error('Error fetching the post data:', error)
+    console.error('게시물 데이터를 가져오는 중 오류가 발생했습니다:', error)
     throw error
   }
 }
@@ -39,7 +40,7 @@ export const deletePostById = async (postId: number): Promise<void> => {
   const token = localStorage.getItem('token')
 
   if (!token) {
-    throw new Error('Authorization token not found')
+    throw new Error('인증 토큰을 찾을 수 없습니다')
   }
 
   try {
@@ -49,7 +50,7 @@ export const deletePostById = async (postId: number): Promise<void> => {
       },
     })
   } catch (error) {
-    console.error('Error deleting the post:', error)
+    console.error('게시물을 삭제하는 중 오류가 발생했습니다:', error)
     throw error
   }
 }
@@ -61,10 +62,10 @@ export const updateContent = async (
   tags: string[],
   category: string,
   token: string | null,
-  deletedUrls: string[]
+  removeMedia: string[]
 ): Promise<{ success: boolean }> => {
   if (!token) {
-    throw new Error('Authorization token not found')
+    throw new Error('인증 토큰을 찾을 수 없습니다')
   }
 
   try {
@@ -75,7 +76,9 @@ export const updateContent = async (
       content: content,
       hashtags: tags,
       category: category,
+      removeMedia: removeMedia,
     }
+    console.log(removeMedia)
 
     formData.append(
       'data',
@@ -91,7 +94,7 @@ export const updateContent = async (
 
     return { success: response.status === 200 }
   } catch (error) {
-    console.error('Error updating content:', error)
+    console.error('콘텐츠를 업데이트하는 중 오류가 발생했습니다:', error)
     throw error
   }
 }

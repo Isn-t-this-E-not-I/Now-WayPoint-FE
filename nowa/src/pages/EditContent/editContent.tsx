@@ -10,12 +10,12 @@ import { useParams, useNavigate } from 'react-router-dom'
 const EditContent = () => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
-  const [existingUrls, setExistingUrls] = useState<string[]>([]) // 기존 이미지 URL 관리
-  const [deletedUrls, setDeletedUrls] = useState<string[]>([]) // 삭제된 이미지 URL 관리
+  const [existingUrls, setExistingUrls] = useState<string[]>([])
+  const [removeMedia, setRemoveMedia] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [content, setContent] = useState<string>('')
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
-  const [newFiles, setNewFiles] = useState<File[]>([]) // 새로 추가된 파일 관리
+  const [newFiles, setNewFiles] = useState<File[]>([])
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -33,9 +33,9 @@ const EditContent = () => {
         setTags(postData.hashtags || [])
         setSelectedOption(postData.category || 'PHOTO')
         setPreviewSrcs(postData.mediaUrls || [])
-        setExistingUrls(postData.mediaUrls || []) // 기존 이미지 URL 설정
+        setExistingUrls(postData.mediaUrls || [])
       } catch (error) {
-        console.error('Failed to fetch post data:', error)
+        console.error('게시물 데이터를 가져오는 데 실패했습니다:', error)
       }
     }
 
@@ -54,7 +54,6 @@ const EditContent = () => {
 
   const handleFiles = (files: FileList | null) => {
     if (files) {
-      console.log(selectedOption)
       const totalFilesCount =
         existingUrls.length + newFiles.length + files.length
       if (totalFilesCount > 10) {
@@ -99,7 +98,7 @@ const EditContent = () => {
             if (reader.result) {
               resolve(reader.result as string)
             } else {
-              reject(new Error('Failed to read file'))
+              reject(new Error('파일을 읽는 데 실패했습니다'))
             }
           }
         })
@@ -117,13 +116,11 @@ const EditContent = () => {
 
   const handleRemoveFile = (index: number) => {
     if (index < existingUrls.length) {
-      // 기존 파일을 제거하는 경우
       const urlToRemove = existingUrls[index]
       setExistingUrls((prevUrls) => prevUrls.filter((_, i) => i !== index))
-      setDeletedUrls((prevUrls) => [...prevUrls, urlToRemove]) // 삭제된 URL 추가
+      setRemoveMedia((prevUrls) => [...prevUrls, urlToRemove])
       setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
     } else {
-      // 새 파일을 제거하는 경우
       const adjustedIndex = index - existingUrls.length
       setNewFiles((prevFiles) =>
         prevFiles.filter((_, i) => i !== adjustedIndex)
@@ -166,11 +163,9 @@ const EditContent = () => {
       return
     }
 
-    // 각 미디어 URL의 파일 확장자를 확인하여 카테고리와 일치하는지 확인
     const isValid = previewSrcs.every((url, index) => {
       const isExistingUrl = index < existingUrls.length
       if (isExistingUrl) {
-        // 기존 URL의 확장자 확인
         if (selectedOption === 'PHOTO') {
           return /\.(jpg|jpeg|png|gif)$/i.test(url)
         } else if (selectedOption === 'VIDEO') {
@@ -179,7 +174,6 @@ const EditContent = () => {
           return /\.(mp3)$/i.test(url)
         }
       } else {
-        // 새로 추가된 파일의 확장자 확인
         const file = newFiles[index - existingUrls.length]
         if (selectedOption === 'PHOTO') {
           return file.type.startsWith('image/')
@@ -211,13 +205,13 @@ const EditContent = () => {
         tags,
         selectedOption,
         token,
-        deletedUrls
+        removeMedia
       )
       if (response.success) {
         navigate(`/detailContent/${id}`)
       }
     } catch (error) {
-      console.error('Error updating content:', error)
+      console.error('콘텐츠를 업데이트하는 중 오류가 발생했습니다:', error)
     }
   }
 

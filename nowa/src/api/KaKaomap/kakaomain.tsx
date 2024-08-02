@@ -20,7 +20,7 @@ const MainPage: React.FC = () => {
   const [locate, setLocate] = useState('')
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null)
-  const [mapLevel, setMapLevel] = useState<number>(11)
+  const [mapLevel, setMapLevel] = useState<number>(7)
   const [isInitialized, setIsInitialized] = useState(false)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
