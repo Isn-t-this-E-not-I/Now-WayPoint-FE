@@ -54,6 +54,13 @@ const EditContent = () => {
 
   const handleFiles = (files: FileList | null) => {
     if (files) {
+      const totalFilesCount =
+        existingUrls.length + newFiles.length + files.length
+      if (totalFilesCount > 10) {
+        alert('최대 10개의 파일만 업로드할 수 있습니다.')
+        return
+      }
+
       const validFileArray: File[] = []
       const invalidFileNames: string[] = []
 

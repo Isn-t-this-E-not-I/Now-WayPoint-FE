@@ -35,6 +35,12 @@ const MakeContent = () => {
 
   const handleFiles = (files: FileList | null) => {
     if (files) {
+      const currentFileCount = files.length + previewSrcs.length
+      if (currentFileCount > 10) {
+        alert('최대 10개의 파일만 업로드할 수 있습니다.')
+        return
+      }
+
       const validFileArray: File[] = []
       const invalidFileNames: string[] = []
 
