@@ -141,8 +141,12 @@ const DetailContent: React.FC = () => {
   }
 
   // 새로운 댓글을 작성하는 함수
-  const handleCommentSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
-    if (e) e.preventDefault()
+  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (newComment.trim() === '') {
+      alert('내용을 입력해주세요.')
+      return
+    }
     try {
       const newCommentData = await createComment(Number(id), newComment)
       await fetchComments()
@@ -156,9 +160,13 @@ const DetailContent: React.FC = () => {
   // 대댓글을 작성하는 함수
   const handleReplySubmit = async (
     parentCommentId: number,
-    e?: React.FormEvent<HTMLFormElement>
+    e: React.FormEvent<HTMLFormElement>
   ) => {
-    if (e) e.preventDefault()
+    e.preventDefault()
+    if (replyContent.trim() === '') {
+      alert('내용을 입력해주세요.')
+      return
+    }
     try {
       const newReplyData = await createComment(
         Number(id),
@@ -288,27 +296,6 @@ const DetailContent: React.FC = () => {
     )
   }
 
-  // 엔터키 눌렀을 때 댓글 작성 함수 호출
-  const handleCommentKeyPress = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>
-  ) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleCommentSubmit()
-    }
-  }
-
-  // 엔터키 눌렀을 때 대댓글 작성 함수 호출
-  const handleReplyKeyPress = (
-    e: React.KeyboardEvent<HTMLTextAreaElement>,
-    commentId: number
-  ) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleReplySubmit(commentId)
-    }
-  }
-
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -385,8 +372,10 @@ const DetailContent: React.FC = () => {
                 id="detail_reply_content"
                 value={replyContent}
                 onChange={handleMention}
-                onKeyDown={(e) => handleReplyKeyPress(e, comment.id)} // 엔터키 눌렀을 때 대댓글 작성
               ></TextArea>
+              <div id="detail_reply_write_button">
+                <button type="submit">답글 게시</button>
+              </div>
               {mentionList.length > 0 && (
                 <div className="mention-list">
                   {mentionList.map((user) => (
@@ -403,9 +392,6 @@ const DetailContent: React.FC = () => {
                   ))}
                 </div>
               )}
-              <div id="detail_reply_write_button">
-                <button type="submit">답글 게시</button>
-              </div>
             </form>
           )}
           {comment.children && comment.children.length > 0 && (
@@ -508,7 +494,6 @@ const DetailContent: React.FC = () => {
               id="detail_coment_content_content"
               value={newComment}
               onChange={handleNewCommentMention}
-              onKeyDown={handleCommentKeyPress} // 엔터키 눌렀을 때 댓글 작성
             ></textarea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
@@ -526,23 +511,23 @@ const DetailContent: React.FC = () => {
                 ))}
               </div>
             )}
-            {currentUser === post.nickname && (
-              <div id="detail_content_edit">
-                <DropDown
-                  id={'detail_Dropdown'}
-                  buttonText={con_Text}
-                  items={con_drop}
-                  onItemSelect={(item) => {
-                    if (item === '게시글 삭제') {
-                      handlePostDelete()
-                    } else if (item === '게시글 수정') {
-                      navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
-                    }
-                  }}
-                />
-              </div>
-            )}
             <div id="detail_coment_write_button">
+              {currentUser === post.nickname && (
+                <div id="detail_content_edit">
+                  <DropDown
+                    id={'detail_Dropdown'}
+                    buttonText={con_Text}
+                    items={con_drop}
+                    onItemSelect={(item) => {
+                      if (item === '게시글 삭제') {
+                        handlePostDelete()
+                      } else if (item === '게시글 수정') {
+                        navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
+                      }
+                    }}
+                  />
+                </div>
+              )}
               <button type="submit">게시</button>
             </div>
           </form>

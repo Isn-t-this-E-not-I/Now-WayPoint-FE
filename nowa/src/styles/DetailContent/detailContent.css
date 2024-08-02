@@ -120,9 +120,7 @@
 
 /* 게시글 수정 삭제 아이콘 */
 #detail_content_edit {
-  position: absolute;
-  bottom: 100px;
-  right: 0px;
+  margin-bottom: 15px;
 }
 
 /* 게시글 수정 삭제 조정 */
@@ -260,7 +258,7 @@
 
 .mention_profile:hover {
   cursor: pointer;
-  background-color: #ccc;
+  background-color: #7a7a7a;
 }
 
 .mention_profile img {
@@ -273,12 +271,17 @@
 .mention-list-parent {
   position: absolute;
   bottom: 2px;
+  right: 80px;
   font-size: 12px;
-  max-height: 130px;
-  width: 250px;
+  max-height: 250px;
+  width: 150px;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  background-color: rgba(189, 189, 189, 0.7);
+  border-radius: 12px;
+  z-index: 10000;
+  box-shadow: 4px 2px 2px;
 }
 
 .mention_name {
@@ -339,20 +342,22 @@
 }
 
 #detail_coment_write_button {
+  display: grid;
   position: absolute;
   right: 0;
+  bottom: 20px;
   margin-right: 15px;
   color: rgb(0, 0, 0);
   font-size: 14px;
   border-radius: 5px;
 }
 
-#detail_coment_write_button:hover {
+#detail_coment_write_button button:hover {
   background-color: #ccc;
   border: 1px solid gray;
 }
 
-#detail_coment_write_button:hover {
+#detail_coment_write_button button:hover {
   color: rgb(255, 255, 255);
   transition: 0.25s;
 }
