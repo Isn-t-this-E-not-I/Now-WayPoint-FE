@@ -17,7 +17,7 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate()
 
   const isNicknameValid = (nickname: string) => {
-    const regex = /^[a-zA-Z0-9]*$/;
+    const regex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$/;
     return regex.test(nickname);
   };
 

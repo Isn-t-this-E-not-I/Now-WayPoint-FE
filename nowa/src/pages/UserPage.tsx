@@ -235,7 +235,7 @@ const UserPage: React.FC = () => {
           if (!prevUserInfo) return prevUserInfo;
           return {
             ...prevUserInfo,
-            followings: prevUserInfo.followings + 1,
+            // followings: prevUserInfo.followings + 1,
             followingsList: prevUserInfo.followingsList.map((user) =>
               user.nickname === nickname ? { ...user, isFollowing: true } : user
             ),
@@ -273,7 +273,7 @@ const UserPage: React.FC = () => {
           if (!prevUserInfo) return prevUserInfo;
           return {
             ...prevUserInfo,
-            followings: prevUserInfo.followings - 1,
+            // followings: prevUserInfo.followings - 1,  //*
             followingsList: prevUserInfo.followingsList.map((user) =>
               user.nickname === nickname ? { ...user, isFollowing: false } : user
             ),
