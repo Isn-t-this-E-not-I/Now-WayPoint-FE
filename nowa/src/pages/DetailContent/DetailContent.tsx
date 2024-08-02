@@ -490,11 +490,11 @@ const DetailContent: React.FC = () => {
           </div>
 
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
-            <textarea
+            <TextArea
               id="detail_coment_content_content"
               value={newComment}
               onChange={handleNewCommentMention}
-            ></textarea>
+            ></TextArea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
                 {newMentionList.map((user) => (
