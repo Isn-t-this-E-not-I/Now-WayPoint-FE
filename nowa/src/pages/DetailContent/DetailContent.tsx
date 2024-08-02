@@ -141,8 +141,8 @@ const DetailContent: React.FC = () => {
   }
 
   // 새로운 댓글을 작성하는 함수
-  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleCommentSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
+    if (e) e.preventDefault()
     try {
       const newCommentData = await createComment(Number(id), newComment)
       await fetchComments()
@@ -156,9 +156,9 @@ const DetailContent: React.FC = () => {
   // 대댓글을 작성하는 함수
   const handleReplySubmit = async (
     parentCommentId: number,
-    e: React.FormEvent<HTMLFormElement>
+    e?: React.FormEvent<HTMLFormElement>
   ) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     try {
       const newReplyData = await createComment(
         Number(id),
@@ -288,6 +288,27 @@ const DetailContent: React.FC = () => {
     )
   }
 
+  // 엔터키 눌렀을 때 댓글 작성 함수 호출
+  const handleCommentKeyPress = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleCommentSubmit()
+    }
+  }
+
+  // 엔터키 눌렀을 때 대댓글 작성 함수 호출
+  const handleReplyKeyPress = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+    commentId: number
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleReplySubmit(commentId)
+    }
+  }
+
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -364,6 +385,7 @@ const DetailContent: React.FC = () => {
                 id="detail_reply_content"
                 value={replyContent}
                 onChange={handleMention}
+                onKeyDown={(e) => handleReplyKeyPress(e, comment.id)} // 엔터키 눌렀을 때 대댓글 작성
               ></TextArea>
               {mentionList.length > 0 && (
                 <div className="mention-list">
@@ -486,6 +508,7 @@ const DetailContent: React.FC = () => {
               id="detail_coment_content_content"
               value={newComment}
               onChange={handleNewCommentMention}
+              onKeyDown={handleCommentKeyPress} // 엔터키 눌렀을 때 댓글 작성
             ></textarea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
