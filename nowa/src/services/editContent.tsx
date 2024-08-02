@@ -60,7 +60,8 @@ export const updateContent = async (
   content: string,
   tags: string[],
   category: string,
-  token: string | null
+  token: string | null,
+  deletedUrls: string[]
 ): Promise<{ success: boolean }> => {
   if (!token) {
     throw new Error('Authorization token not found')

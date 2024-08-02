@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react'
+import React, { ChangeEvent, useState, DragEvent } from 'react'
 import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
@@ -30,18 +30,43 @@ const MakeContent = () => {
   }
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files
+    handleFiles(event.target.files)
+  }
+
+  const handleFiles = (files: FileList | null) => {
     if (files) {
-      const fileArray = Array.from(files).filter(
-        (file) =>
-          file.type.startsWith('image/') ||
-          file.type.startsWith('video/') ||
-          file.type === 'audio/mpeg' ||
-          file.type === 'audio/mp3' ||
-          file.type === 'video/mp4'
-      )
-      setFiles((prevFiles) => [...prevFiles, ...fileArray])
-      const fileReaders = fileArray.map((file) => {
+      const currentFileCount = files.length + previewSrcs.length
+      if (currentFileCount > 10) {
+        alert('최대 10개의 파일만 업로드할 수 있습니다.')
+        return
+      }
+
+      const validFileArray: File[] = []
+      const invalidFileNames: string[] = []
+
+      Array.from(files).forEach((file) => {
+        if (selectedOption === 'PHOTO' && file.type.startsWith('image/')) {
+          validFileArray.push(file)
+        } else if (
+          selectedOption === 'VIDEO' &&
+          (file.type === 'video/mp4' || file.type === 'video/x-msvideo')
+        ) {
+          validFileArray.push(file)
+        } else if (selectedOption === 'MP3' && file.type === 'audio/mpeg') {
+          validFileArray.push(file)
+        } else {
+          invalidFileNames.push(file.name)
+        }
+      })
+
+      if (invalidFileNames.length > 0) {
+        alert(
+          `다음 파일 형식은 허용되지 않습니다: ${invalidFileNames.join(', ')}`
+        )
+      }
+
+      setFiles((prevFiles) => [...prevFiles, ...validFileArray])
+      const fileReaders = validFileArray.map((file) => {
         const reader = new FileReader()
         reader.readAsDataURL(file)
         return reader
@@ -104,6 +129,24 @@ const MakeContent = () => {
 
   const handleSubmit = async () => {
     const token = localStorage.getItem('token')
+
+    // 파일 타입과 카테고리를 검사
+    const isValid = files.every((file) => {
+      if (selectedOption === 'PHOTO') {
+        return file.type.startsWith('image/')
+      } else if (selectedOption === 'VIDEO') {
+        return file.type === 'video/mp4' || file.type === 'video/x-msvideo'
+      } else if (selectedOption === 'MP3') {
+        return file.type === 'audio/mpeg'
+      }
+      return false
+    })
+
+    if (!isValid) {
+      alert('선택한 카테고리와 일치하지 않는 파일이 있습니다.')
+      return
+    }
+
     try {
       const response = await uploadContent(
         files,
@@ -121,12 +164,43 @@ const MakeContent = () => {
     }
   }
 
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+  }
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    handleFiles(e.dataTransfer.files)
+  }
+
   return (
     <div>
-      <div id="upload_content">
+      <div id="upload_content" onDragOver={handleDragOver} onDrop={handleDrop}>
         <div id="upload_image">
           <div id="content_title">컨텐츠 작성</div>
           <hr />
+          <div id="content_dev">
+            <Textarea
+              id={'upload_content_dis'}
+              placeholder={'내용을 입력해주세요'}
+              value={content}
+              onChange={handleContentChange}
+            />
+            <div id="tag_previews">
+              {tags.map((tag, index) => (
+                <span key={index} className="tag_preview">
+                  {tag}
+                  <button
+                    className="remove_tag_button"
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    x
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
           <div id="upload_forder">
             <div id="image_preview_container">
               <img
@@ -144,6 +218,15 @@ const MakeContent = () => {
                 style={{ display: 'none' }}
                 onChange={handleFileChange}
                 multiple
+                accept={
+                  selectedOption === 'PHOTO'
+                    ? 'image/*'
+                    : selectedOption === 'VIDEO'
+                      ? 'video/mp4, video/x-msvideo'
+                      : selectedOption === 'MP3'
+                        ? 'audio/mpeg'
+                        : ''
+                }
               />
 
               {previewSrcs.map((src, index) => (
@@ -199,27 +282,6 @@ const MakeContent = () => {
             </div>
           </div>
           <p>최대 10개의 파일 첨부가 가능합니다</p>
-          <div id="content_dev">
-            <Textarea
-              id={'upload_content_dis'}
-              placeholder={'내용을 입력해주세요'}
-              value={content}
-              onChange={handleContentChange}
-            />
-            <div id="tag_previews">
-              {tags.map((tag, index) => (
-                <span key={index} className="tag_preview">
-                  {tag}
-                  <button
-                    className="remove_tag_button"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    x
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
         </div>
 
         <div id="upload_content_detail">
