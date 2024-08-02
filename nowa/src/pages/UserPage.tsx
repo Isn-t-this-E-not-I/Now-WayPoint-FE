@@ -118,6 +118,7 @@ const UserPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState('posts')
   const [searchQuery, setSearchQuery] = useState('')
   const location = import.meta.env.VITE_APP_API
+  const locations = useLocation();
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token')
@@ -225,7 +226,15 @@ const UserPage: React.FC = () => {
 
   useEffect(() => {
     fetchUserData()
+    setSelectedTab('posts');
   }, [nickname])
+
+  useEffect(() => {
+    const params = new URLSearchParams(locations.search);
+    const tab = params.get('tab');
+    setSelectedTab(tab || 'posts');
+  }, [location.search]);
+
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
