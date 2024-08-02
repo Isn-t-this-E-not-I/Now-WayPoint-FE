@@ -26,6 +26,10 @@ const MainPage: React.FC = () => {
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
   const client = useWebSocket().client
+  const currentLocationRef = useRef<{
+    latitude: number
+    longitude: number
+  } | null>(null) // 현재 위치를 저장하는 ref
 
   const formatDate = (dateString: string | number | Date) => {
     return moment(dateString).tz('Asia/Seoul').format('MM-DD HH:mm A')
@@ -57,6 +61,8 @@ const MainPage: React.FC = () => {
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
+    currentLocationRef.current = { latitude, longitude } // 현재 위치 저장
+
     const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
     script.onload = () => {
@@ -219,6 +225,24 @@ const MainPage: React.FC = () => {
     window.location.href = `detailContent/${postId}`
   }
 
+  const zoomIn = () => {
+    if (map && currentLocationRef.current) {
+      const { latitude, longitude } = currentLocationRef.current
+      map.setLevel(map.getLevel() - 1, {
+        anchor: new window.kakao.maps.LatLng(latitude, longitude),
+      })
+    }
+  }
+
+  const zoomOut = () => {
+    if (map && currentLocationRef.current) {
+      const { latitude, longitude } = currentLocationRef.current
+      map.setLevel(map.getLevel() + 1, {
+        anchor: new window.kakao.maps.LatLng(latitude, longitude),
+      })
+    }
+  }
+
   useEffect(() => {
     saveTokenToLocalStorage()
 
@@ -305,6 +329,10 @@ const MainPage: React.FC = () => {
         ref={mapContainer}
         style={{ width: '100%', height: '100vh', position: 'relative' }}
       />
+      <div className="custom_zoomcontrol">
+        <button onClick={zoomIn}>+</button>
+        <button onClick={zoomOut}>-</button>
+      </div>
       <div id="categoryBox">
         <button
           className="categoryButtons"
