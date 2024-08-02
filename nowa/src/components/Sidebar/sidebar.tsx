@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import {
   ChatIcon,
   ContentsIcon,
@@ -12,13 +12,13 @@ import {
   NotificationsIcon,
   NowaIcon,
   ExitIcon,
-} from '../icons/icons'
-import ThemeController from '../ThemeController/ThemeController'
-import Search from '../Search/search'
-import NotificationPage from '../../pages/notificationPage'
-import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
-import { ChatRoom, ChatRoomInfo } from '../../types'
-import { fetchChatRooms } from '../../api/chatApi'
+} from '../icons/icons';
+import ThemeController from '../ThemeController/ThemeController';
+import Search from '../Search/search';
+import NotificationPage from '../../pages/notificationPage';
+import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton';
+import { ChatRoom, ChatRoomInfo } from '../../types';
+import { fetchChatRooms } from '../../api/chatApi';
 import {
   connectAndSubscribe,
   disconnect,
@@ -34,23 +34,22 @@ import AllUserList from '../FollowList/AllUserList' //*
 import fetchAllUsers from '@/data/fetchAllUsers';
 import { handleLogout } from '../Logout/Logout';
 import MyPage from '@/pages/myPage';
-import NotificationPage2 from '@/pages/notificationPage2';
-import { useWebSocket } from '../WebSocketProvider/WebSocketProvider';
+import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider';
 
 interface SidebarProps {
-  chatRooms: ChatRoom[]
-  theme: 'light' | 'dark'
-  onChatItemClick: (chatRoom: ChatRoom) => void
-  setSelectedPage: (page: string) => void
-  onExitChatRoom: (id: number) => void
-  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>
-  onCreateChat: (newChatRoom: ChatRoom) => void
+  chatRooms: ChatRoom[];
+  theme: 'light' | 'dark';
+  onChatItemClick: (chatRoom: ChatRoom) => void;
+  setSelectedPage: (page: string) => void;
+  onExitChatRoom: (id: number) => void;
+  setChatRooms: React.Dispatch<React.SetStateAction<ChatRoom[]>>;
+  onCreateChat: (newChatRoom: ChatRoom) => void;
 }
 
 const Wrapper = styled.div`
   display: flex;
   height: 100vh;
-`
+`;
 
 const LeftSidebar = styled.div`
   display: flex;
@@ -61,7 +60,7 @@ const LeftSidebar = styled.div`
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
   position: fixed;
-`
+`;
 
 const RightSidebar = styled.div`
   display: flex;
@@ -73,12 +72,12 @@ const RightSidebar = styled.div`
   z-index: 5;
   position: relative;
   margin-left: 2.6rem;
-`
+`;
 
 const Blank = styled.div`
   height: 45.5vh;
   width: 2.5rem;
-`
+`;
 
 const LogoIconButtonWrapper = styled.button`
   background: none;
@@ -93,7 +92,7 @@ const LogoIconButtonWrapper = styled.button`
   &:focus {
     outline: none;
   }
-`
+`;
 
 const IconButtonWrapper = styled.button`
   background: none;
@@ -108,7 +107,7 @@ const IconButtonWrapper = styled.button`
   &:focus {
     outline: none;
   }
-`
+`;
 
 const ContentDiv = styled.div`
   display: flex;
@@ -120,7 +119,7 @@ const ContentDiv = styled.div`
   padding: 10px;
   margin-top: 5px;
   position: relative;
-`
+`;
 
 const ContentPage = styled.div`
   display: flex;
@@ -129,14 +128,14 @@ const ContentPage = styled.div`
   justify-content: center;
   height: 100%;
   width: 100%;
-`
+`;
 
 const PageTitleWrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-`
+`;
 
 const PageTitle = styled.div`
   font-size: 25px;
@@ -144,12 +143,12 @@ const PageTitle = styled.div`
   margin-bottom: 10px;
   margin-left: 6px;
   align-self: flex-start;
-`
+`;
 
 const SearchContainer = styled.div`
   margin-left: 6px;
   width: 100%;
-`
+`;
 
 const NotificationList = styled.div`
   width: 100%;
@@ -159,7 +158,7 @@ const NotificationList = styled.div`
   border-radius: 5px;
   padding: 10px;
   margin-top: 10px;
-`
+`;
 
 const NotificationItem = styled.div`
   border-bottom: 1px solid #eee;
@@ -167,15 +166,15 @@ const NotificationItem = styled.div`
   &:last-child {
     border-bottom: none;
   }
-`
+`;
 
 const SearchInput = styled.input`
-  width: 95%;
+  width: 100%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
-`
+`;
 
 const Sidebar: React.FC<SidebarProps> = ({
   chatRooms,
@@ -185,10 +184,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   setChatRooms,
   onCreateChat,
 }) => {
-  const [activePage, setActivePage] = useState<string>('')
-  const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([])
-  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
-  const navigate = useNavigate()
+  const [activePage, setActivePage] = useState<string>('');
+  const [chatRoomsInfo, setChatRoomsInfo] = useState<ChatRoomInfo[]>([]);
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const [token] = useState<string>(localStorage.getItem('token') || '');
   const [userNickname] = useState<string>(localStorage.getItem('nickname') || '');
@@ -198,49 +197,49 @@ const Sidebar: React.FC<SidebarProps> = ({
   // 전체 유저 목록 가져오기
   useEffect(() => {
     const getAllUsers = async () => {
-      const users = await fetchAllUsers()
-      setAllUsers(users)
-    }
+      const users = await fetchAllUsers();
+      setAllUsers(users);
+    };
 
-    getAllUsers()
-  }, [])
+    getAllUsers();
+  }, []);
 
   // 채팅방 목록을 가져오는 useEffect 추가
   useEffect(() => {
     if (activePage === 'chat') {
       fetchChatRooms(token).then((data) => {
-        setChatRooms(data.chatRooms)
-        setChatRoomsInfo(data.chatRoomsInfo)
-      })
+        setChatRooms(data.chatRooms);
+        setChatRoomsInfo(data.chatRoomsInfo);
+      });
     }
-  }, [activePage, token])
+  }, [activePage, token]);
 
   useEffect(() => {
     if (activePage === 'chat' && !getStompClient()) {
       connectAndSubscribe(token, userNickname, setChatRooms, (error) =>
         console.error(error)
-      )
+      );
     }
-  }, [activePage, token, userNickname, setChatRooms])
+  }, [activePage, token, userNickname, setChatRooms]);
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
     if (activePage !== 'chat') {
-      disconnect()
-    }
-  }, [activePage])
-
-  useEffect(() => {
-
-    if (activePage !== 'notifications') {
-      
+      disconnect();
     }
   }, [activePage]);
 
+  // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
       case 'notifications':
-        return <NotificationPage2 />;
+        return (
+          <div>
+            <WebSocketProvider>
+              <NotificationPage />
+            </WebSocketProvider>
+          </div>
+        );
       case 'chat':
         return (
           <ChatListPage
@@ -248,106 +247,104 @@ const Sidebar: React.FC<SidebarProps> = ({
             chatRoomsInfo={chatRoomsInfo}
             onChatItemClick={onChatItemClick}
           />
-        )
-      case 'contents':
-        return <div>Contents Page</div>
-      case 'followContents':
-        return <div>Follow Contents Page</div>  //*
-      case 'myPage':
-        return
-      default:
-        return <div>Welcome! This is default!</div>
-    }
-  }
+        );
+        case 'contents':
+          return <div>Contents Page</div>;
+        case 'followContents':
+          return <div>Follow Contents Page</div>;
+        default:
+          return <div>Welcome! This is default!</div>;
+      }
+    };
+  
+    // 검색창 보여주기 여부
+    const shouldShowSearch = () => {
+      return (
+        activePage !== 'notifications' &&
+        activePage !== 'chat' &&
+        activePage !== 'myPage' &&
+        activePage !== ''
+      );
+    };
+  
+    // 현재 페이지 제목
+    const getPageTitle = () => {
+      switch (activePage) {
+        case 'notifications':
+          return '알림';
+        case 'chat':
+          return '메시지';
+        case 'contents':
+          return '콘텐츠';
+        case 'followContents':
+          return '팔로우 컨텐츠';
+        case 'myPage':
+          return '마이페이지'
+        default:
+          return '';
+      }
+    };
+  
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    };
 
-  // 검색창 보여주기 여부
-  const shouldShowSearch = () => {
+    const handleNavigate = (page: string) => {
+      navigate(`/${page}`)
+    }
+  
     return (
-      activePage !== 'notifications' &&
-      activePage !== 'chat' &&
-      activePage !== 'myPage' &&
-      activePage !== ''
-    )
-  }
-
-  // 현재 페이지 제목
-  const getPageTitle = () => {
-    switch (activePage) {
-      case 'notifications':
-        return '알림'
-      case 'chat':
-        return '메시지'
-      case 'contents':
-        return '콘텐츠'
-      case 'followContents':  //*
-        return '팔로우 컨텐츠'
-      case 'myPage':
-        return '마이페이지'
-      default:
-        return ''
-    }
-  }
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
-
-  const handleNavigate = (page: string) => {
-    navigate(`/${page}`)
-  }
-
-  return (
-    <Wrapper>
-      <LeftSidebar>
-        <LogoIconButtonWrapper
-          onClick={() => {
-            handleNavigate('main')
-          }}
-        >
-          <LogoIcon theme={theme} />
-        </LogoIconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            handleNavigate('main')
-          }}
-        >
-          <MainIcon theme={theme} />
+      <Wrapper>
+        <LeftSidebar>
+          <LogoIconButtonWrapper
+            onClick={() => {
+              handleNavigate('main')
+            }}
+          >
+            <LogoIcon theme={theme} />
+          </LogoIconButtonWrapper>
+          <IconButtonWrapper
+            onClick={() => {
+              handleNavigate('main')
+            }}
+          >
+            <MainIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
             handleNavigate('uploadContent')
           }}
         >
-          <NewCreateIcon theme={theme} />
-        </IconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            setActivePage('notifications')
-          }}
-        >
-          <NotificationsIcon theme={theme} />
-        </IconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            connectAndSubscribe
-            setActivePage('chat')
-          }}
-        >
-          <ChatIcon theme={theme} />
-        </IconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            setActivePage('contents')
-          }}
-        >
-          <ContentsIcon theme={theme} />
-        </IconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            setActivePage('followContents') //*
-          }}
-        >
-          <FollowContentsIcon theme={theme} />
+            <NewCreateIcon theme={theme} />
+          </IconButtonWrapper>
+          <IconButtonWrapper
+            onClick={() => {
+              setActivePage('notifications');
+            }}
+          >
+            <NotificationsIcon theme={theme} />
+          </IconButtonWrapper>
+          <IconButtonWrapper
+            onClick={() => {
+              connectAndSubscribe;
+              setActivePage('chat');
+            }}
+          >
+            <ChatIcon theme={theme} />
+          </IconButtonWrapper>
+          <IconButtonWrapper
+            onClick={() => {
+              setActivePage('contents');
+            }}
+          >
+            <ContentsIcon theme={theme} />
+          </IconButtonWrapper>
+          <IconButtonWrapper
+            onClick={() => {
+              setActivePage('followContents');
+            }}
+          >
+            <FollowContentsIcon theme={theme} />
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
@@ -355,38 +352,38 @@ const Sidebar: React.FC<SidebarProps> = ({
             handleNavigate('mypage')
           }}
         >
-          <MyPageIcon theme={theme} />
-        </IconButtonWrapper>
-        <IconButtonWrapper
-          onClick={() => {
-            setLogoutModalOpen(true)
-          }}
-        >
-          <ExitIcon theme={theme} />
-        </IconButtonWrapper>
-        <Blank />
-        <ThemeController />
-      </LeftSidebar>
-      {/* ----------------------------------- */}
-      <RightSidebar>
-        <NowaIcon theme={theme} />
-        <ContentDiv>
-          <PageTitleWrapper>
-            <PageTitle>{getPageTitle()}</PageTitle>
-            {activePage === 'chat' && (
-              <CreateChatRoomButton
-                theme={theme}
-                token={token}
-                onCreateChat={onCreateChat}
-              />
+            <MyPageIcon theme={theme} />
+          </IconButtonWrapper>
+          <IconButtonWrapper
+            onClick={() => {
+              setLogoutModalOpen(true);
+            }}
+          >
+            <ExitIcon theme={theme} />
+          </IconButtonWrapper>
+          <Blank />
+          <ThemeController />
+        </LeftSidebar>
+        {/* ----------------------------------- */}
+        <RightSidebar>
+          <NowaIcon theme={theme} />
+          <ContentDiv>
+            <PageTitleWrapper>
+              <PageTitle>{getPageTitle()}</PageTitle>
+              {activePage === 'chat' && (
+                <CreateChatRoomButton
+                  theme={theme}
+                  token={token}
+                  onCreateChat={onCreateChat}
+                />
+              )}
+            </PageTitleWrapper>
+            {shouldShowSearch() && (
+              <SearchContainer>
+                <Search />
+              </SearchContainer>
             )}
-          </PageTitleWrapper>
-          {shouldShowSearch() && (
-            <SearchContainer>
-              <Search />
-            </SearchContainer>
-          )}
-          {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
+            {activePage === 'myPage' && ( // myPage일 때만 전체 유저 검색 기능 표시
             <SearchContainer>
             <SearchInput
               type="text"
@@ -418,5 +415,5 @@ const Sidebar: React.FC<SidebarProps> = ({
     </Wrapper>
   )
 }
-
-export default Sidebar
+  
+  export default Sidebar;
