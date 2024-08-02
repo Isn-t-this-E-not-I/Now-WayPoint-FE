@@ -49,18 +49,14 @@ interface FollowListProps {
   searchQuery: string;
   onFollow: (nickname: string) => void;
   onUnfollow: (nickname: string) => void;
-  priorityList: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
-  allUsers: { isFollowing: boolean; name: string; nickname: string; profileImageUrl: string }[];
-  showFollowButtons: boolean; // 팔로우 버튼을 표시할지 여부
+  showFollowButtons: boolean;
 }
 
-const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow, priorityList, allUsers, showFollowButtons }) => {
+const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, onUnfollow, showFollowButtons }) => {
   const navigate = useNavigate();
 
-  const filteredList = searchQuery ? allUsers.filter((user) => user.nickname.includes(searchQuery)) : users;
-
-  const prioritizedList = searchQuery
-    ? [...priorityList, ...filteredList.filter(user => !priorityList.some(pUser => pUser.nickname === user.nickname))]
+  const filteredList = searchQuery
+    ? users.filter((user) => user.nickname.toLowerCase().includes(searchQuery.toLowerCase()))
     : users;
 
   const handleProfileClick = (nickname: string) => {
@@ -69,7 +65,7 @@ const FollowList: React.FC<FollowListProps> = ({ users, searchQuery, onFollow, o
 
   return (
     <FollowListWrapper>
-      {prioritizedList.map((user, index) => (
+      {filteredList.map((user, index) => (
         <FollowItem key={index}>
           <FollowName onClick={() => handleProfileClick(user.nickname)}>
             <ProfileImage src={user.profileImageUrl || '/defaultprofile.png'} alt="Profile" />

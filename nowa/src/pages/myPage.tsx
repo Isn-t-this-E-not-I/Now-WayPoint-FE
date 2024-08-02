@@ -328,6 +328,16 @@ const MyPage: React.FC = () => {
     setSearchQuery(e.target.value)
   }
 
+  const filteredFollowings =
+    userInfo?.followingsList.filter((user) =>
+      user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || []
+
+  const filteredFollowers =
+    userInfo?.followersList.filter((user) =>
+      user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || []
+
   if (loading) {
     return <div>Loading...</div>
   }
@@ -376,12 +386,10 @@ const MyPage: React.FC = () => {
               onChange={handleSearchChange}
             />
             <FollowList
-              users={userInfo.followingsList}
+              users={filteredFollowings}
               searchQuery={searchQuery}
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
-              priorityList={userInfo.followingsList}
-              allUsers={userInfo.allUsers}
               showFollowButtons={true}
             />
           </>
@@ -396,12 +404,10 @@ const MyPage: React.FC = () => {
               onChange={handleSearchChange}
             />
             <FollowList
-              users={userInfo.followersList}
+              users={filteredFollowers}
               searchQuery={searchQuery}
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
-              priorityList={userInfo.followersList}
-              allUsers={userInfo.allUsers}
               showFollowButtons={false}
             />
           </>

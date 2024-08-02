@@ -113,12 +113,11 @@ interface UserProfile {
 
 const UserPage: React.FC = () => {
   const { nickname } = useParams<{ nickname: string }>()
-  const location = useLocation()
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState('posts')
   const [searchQuery, setSearchQuery] = useState('')
-  const apiLocation = import.meta.env.VITE_APP_API
+  const location = import.meta.env.VITE_APP_API
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token')
@@ -127,7 +126,7 @@ const UserPage: React.FC = () => {
     try {
       console.log('Fetching user data...')
       const response = await axios.get(
-        `${apiLocation}/user?nickname=${nickname}`,
+        `${location}/user?nickname=${nickname}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -140,7 +139,7 @@ const UserPage: React.FC = () => {
 
       console.log(`Fetching following data for ${nickname}...`)
       const followingResponse = await axios.get(
-        `${apiLocation}/follow/following?nickname=${nickname}`,
+        `${location}/follow/following?nickname=${nickname}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -151,7 +150,7 @@ const UserPage: React.FC = () => {
 
       console.log(`Fetching follower data for ${nickname}...`)
       const followerResponse = await axios.get(
-        `${apiLocation}/follow/follower?nickname=${nickname}`,
+        `${location}/follow/follower?nickname=${nickname}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -161,7 +160,7 @@ const UserPage: React.FC = () => {
       console.log('Follower API Response:', followerResponse)
 
       console.log('Fetching all users...')
-      const allUsersResponse = await axios.get(`${apiLocation}/user/all`, {
+      const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -226,18 +225,19 @@ const UserPage: React.FC = () => {
 
   useEffect(() => {
     fetchUserData()
-    setSelectedTab('posts')
   }, [nickname])
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search)
-    const tab = params.get('tab')
-    setSelectedTab(tab || 'posts')
-  }, [location.search])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
+
+  const filteredFollowings = userInfo?.followingsList.filter((user) =>
+    user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  const filteredFollowers = userInfo?.followersList.filter((user) =>
+    user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   if (loading) {
     return <div>Loading...</div>
@@ -284,10 +284,8 @@ const UserPage: React.FC = () => {
               onChange={handleSearchChange}
             />
             <UserFollowList
-              users={userInfo.followingsList}
+              users={filteredFollowings || userInfo.followingsList}
               searchQuery={searchQuery}
-              priorityList={userInfo.followingsList}
-              allUsers={userInfo.allUsers}
               onFollow={() => {}}
               onUnfollow={() => {}}
             />
@@ -303,10 +301,8 @@ const UserPage: React.FC = () => {
               onChange={handleSearchChange}
             />
             <UserFollowList
-              users={userInfo.followersList}
+              users={filteredFollowers || userInfo.followersList}
               searchQuery={searchQuery}
-              priorityList={userInfo.followersList}
-              allUsers={userInfo.allUsers}
               onFollow={() => {}}
               onUnfollow={() => {}}
             />
