@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import defaultProfileImage from '../../../defaultprofile.png'
 import Posts from '../components/Posts/Posts'
 import UserFollowList from '../components/FollowList/UserFollowList'
-import { getCommentsByPostId } from '../services/comments' // Import the getCommentsByPostId function
+import { getCommentsByPostId } from '../services/comments'
 
 const Container = styled.div`
   display: flex;
