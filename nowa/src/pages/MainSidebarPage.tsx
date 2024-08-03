@@ -162,9 +162,13 @@ const MainSidebarPage: React.FC = () => {
             )}
             <ContentDisplay content={selectContent.content} />
             <HashTags>
-              {selectContent.hashtags.map((hashtag, index) => (
-                <span key={index}>{hashtag} </span>
-              ))}
+              {selectContent?.hashtags && selectContent.hashtags.length > 0 ? (
+                selectContent.hashtags.map((hashtag, index) => (
+                  <span key={index}>{hashtag} </span>
+                ))
+              ) : (
+                <span></span>
+              )}
             </HashTags>
             <LikeCount>❤ {selectContent.likeCount}</LikeCount>
             <TimeAgo>{formatDate(selectContent.createdAt)}</TimeAgo>
