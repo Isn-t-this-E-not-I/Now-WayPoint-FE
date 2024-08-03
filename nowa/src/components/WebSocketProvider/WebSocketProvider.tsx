@@ -27,6 +27,7 @@ interface WebSocketContextProps {
   client: Client | null;
   notifications: Notification[];
   followContents : FollowContent[];
+  selectContents : FollowContent[];
   isLoading: boolean;
   getStompClient: () => Client | null;
 }
@@ -35,6 +36,7 @@ const WebSocketContext = createContext<WebSocketContextProps>({
   client: null,
   notifications: [],
   followContents: [],
+  selectContents: [],
   isLoading: true,
   getStompClient: () => null
 });
@@ -49,6 +51,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [client, setClient] = useState<Client | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [followContents, setFollowContents] = useState<FollowContent[]>([]);
+  const [selectContents, setSelectContents] = useState<FollowContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const clientRef = useRef<Client | null>(null);
   const location = import.meta.env.VITE_APP_API;
@@ -121,8 +124,29 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 username: data.username,
                 profileImageUrl: data.profileImageUrl 
               };
-              console.log('New follow content:', newFollowContent);
+              
               setFollowContents((prev) => !prev.some((f) => f.id === newFollowContent.id) ? [newFollowContent, ...prev] : prev);
+            });
+
+            stompClient.subscribe(`/queue/category/${localStorage.getItem('nickname') || ''}`, (messageOutput: IMessage) => {
+              // JSON 파싱 및 배열 형태로 변환
+              const data: FollowContent[] = JSON.parse(messageOutput.body);
+              
+              // 각 항목을 newSelectContent로 변환하고 상태 업데이트
+              const newSelectContents = data.map((item) => ({
+                id: item.id,
+                content: item.content,
+                hashtags: item.hashtags,
+                category: item.category,
+                createdAt: item.createdAt,
+                likeCount: item.likeCount || 0,
+                mediaUrls: item.mediaUrls,
+                username: item.username,
+                profileImageUrl: item.profileImageUrl
+              }));
+            
+              // 기존의 selectContents 배열에 새로운 데이터를 추가
+              setSelectContents(newSelectContents);
             });
   
             setIsLoading(false);
@@ -163,7 +187,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   }, [followContents]);
 
   return (
-    <WebSocketContext.Provider value={{ client, notifications, followContents, isLoading, getStompClient }}>
+    <WebSocketContext.Provider value={{ client, notifications, followContents, selectContents, isLoading, getStompClient }}>
       {children}
     </WebSocketContext.Provider>
   );

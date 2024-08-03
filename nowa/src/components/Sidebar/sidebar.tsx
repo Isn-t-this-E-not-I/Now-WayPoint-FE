@@ -37,6 +37,7 @@ import MyPage from '@/pages/myPage';
 import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider';
 import FollowContentsPage from '@/pages/FollowContentsPage';
 import MainPage from '@/api/KaKaomap/kakaomain';
+import MainSidebarPage from '@/pages/MainSidebarPage';
 
 interface SidebarProps {
   chatRooms: ChatRoom[];
@@ -231,9 +232,18 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [activePage]);
 
+
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
+      case 'main':
+        return (
+          <div>
+            <WebSocketProvider>
+              <MainSidebarPage />
+            </WebSocketProvider>
+          </div>
+        );
       case 'notifications':
         return (
           <div>
@@ -251,7 +261,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           />
         );
         case 'contents':
-          return <div>Contents Page</div>;
+          return (
+            <div>
+              <WebSocketProvider>
+                <MainSidebarPage />
+              </WebSocketProvider>
+            </div>
+          );
         case 'followContents':
           return (
             <div>
@@ -261,7 +277,13 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
           );
         default:
-          return <div>Welcome! This is default!</div>;
+          return (
+            <div>
+              <WebSocketProvider>
+                <MainSidebarPage />
+              </WebSocketProvider>
+            </div>
+          );
       }
     };
   
@@ -272,6 +294,8 @@ const Sidebar: React.FC<SidebarProps> = ({
         activePage !== 'followContents' &&
         activePage !== 'chat' &&
         activePage !== 'myPage' &&
+        activePage !== 'main' &&
+        activePage !== 'contents' &&
         activePage !== ''
       );
     };
@@ -279,12 +303,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     // 현재 페이지 제목
     const getPageTitle = () => {
       switch (activePage) {
+        case 'main':
+          return '메인';
         case 'notifications':
           return '알림';
         case 'chat':
           return '메시지';
         case 'contents':
-          return '콘텐츠';
+          return '주변 컨텐츠';
         case 'followContents':
           return '팔로우 컨텐츠';
         case 'myPage':
@@ -308,6 +334,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <LogoIconButtonWrapper
             onClick={() => {
               handleNavigate('main');
+              setActivePage('main');
             }}
           >
             <LogoIcon theme={theme} />
@@ -315,6 +342,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <IconButtonWrapper
             onClick={() => {
               handleNavigate('main');
+              setActivePage('main');
             }}
           >
             <MainIcon theme={theme} />
