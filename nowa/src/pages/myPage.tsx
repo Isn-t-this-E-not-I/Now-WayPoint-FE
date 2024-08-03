@@ -22,6 +22,9 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  border: 1px solid black;
+  border-radius: 12px;
+  background-color: white;
 `
 
 const ContentSection = styled.div`

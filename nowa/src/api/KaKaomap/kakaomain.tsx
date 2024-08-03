@@ -134,7 +134,7 @@ const MainPage: React.FC = () => {
       const [lng, lat] = item.locationTag.split(',').map(Number)
       const position = new window.kakao.maps.LatLng(lat, lng)
 
-      const markerImageSrc = getMarkerImageSrc(item.category)
+      const markerImageSrc = getMarkerImageSrc(item.category, item.mediaUrls)
       const markerImageSize = new window.kakao.maps.Size(35, 35)
       const markerImage = new window.kakao.maps.MarkerImage(
         markerImageSrc,
@@ -162,10 +162,10 @@ const MainPage: React.FC = () => {
     }
   }
 
-  const getMarkerImageSrc = (category: string) => {
+  const getMarkerImageSrc = (category: string, img: string) => {
     switch (category) {
       case 'PHOTO':
-        return 'https://cdn-icons-png.flaticon.com/128/4503/4503874.png'
+        return img
       case 'VIDEO':
         return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
       case 'MP3':
