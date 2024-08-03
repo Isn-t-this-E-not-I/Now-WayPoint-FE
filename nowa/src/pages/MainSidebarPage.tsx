@@ -110,9 +110,9 @@ const CategoryLabel = styled.div`
   border-radius: 3px;
 `;
 
-const FollowContentsPage: React.FC = () => {
-  const { followContents, isLoading } = useWebSocket();
-  const [displayFollowContents, setDisplayFollowContents] = useState<FollowContent[]>([]);
+const MainSidebarPage: React.FC = () => {
+  const { selectContents , isLoading } = useWebSocket();
+  const [displaySelectContents, setDisplaySelectContents] = useState<FollowContent[]>([]);
   const navigate = useNavigate();
 
   const handleProfileClick = (nickname: string) => {
@@ -129,45 +129,45 @@ const FollowContentsPage: React.FC = () => {
 
   useEffect(() => {
     if (!isLoading) {
-      setDisplayFollowContents(followContents);
+        setDisplaySelectContents(selectContents.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-  }, [followContents, isLoading]);
+  }, [selectContents, isLoading]);
 
   return (
     <FollowContentWrapper>
       {isLoading ? (
         <div>Loading...</div> // 로딩 상태 표시
       ) : (
-        displayFollowContents.map((followContent) => (
-          <ContentItem key={followContent.id}>
+        displaySelectContents.map((selectContent) => (
+          <ContentItem key={selectContent.id}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <ProfilePic
-                src={followContent.profileImageUrl}
+                src={selectContent.profileImageUrl}
                 alt="Profile"
-                onClick={() => handleProfileClick(followContent.username)}
+                onClick={() => handleProfileClick(selectContent.username)}
               />
-              <CategoryLabel>{followContent.category}</CategoryLabel>
-              <Username onClick={() => handleProfileClick(followContent.username)}>
-                {followContent.username}
+              <CategoryLabel>{selectContent.category}</CategoryLabel>
+              <Username onClick={() => handleProfileClick(selectContent.username)}>
+                {selectContent.username}
               </Username>
             </div>
-            {followContent.mediaUrls.length > 0 && (
+            {selectContent.mediaUrls.length > 0 && (
               <InnerImageWrapper>
                 <InnerImage 
-                  src={followContent.mediaUrls[0]} 
+                  src={selectContent.mediaUrls[0]} 
                   alt="Content" 
-                  onClick={() => handleContentImageClick(followContent.id)}
+                  onClick={() => handleContentImageClick(selectContent.id)}
                 />
               </InnerImageWrapper>
             )}
-            <ContentDisplay content={followContent.content} />
+            <ContentDisplay content={selectContent.content} />
             <HashTags>
-              {followContent.hashtags.map((hashtag, index) => (
+              {selectContent.hashtags.map((hashtag, index) => (
                 <span key={index}>{hashtag} </span>
               ))}
             </HashTags>
-            <LikeCount>❤ {followContent.likeCount}</LikeCount>
-            <TimeAgo>{formatDate(followContent.createdAt)}</TimeAgo>
+            <LikeCount>❤ {selectContent.likeCount}</LikeCount>
+            <TimeAgo>{formatDate(selectContent.createdAt)}</TimeAgo>
           </ContentItem>
         ))
       )}
@@ -197,4 +197,4 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
   );
 };
 
-export default FollowContentsPage;
+export default MainSidebarPage;
