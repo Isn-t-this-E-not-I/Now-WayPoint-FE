@@ -35,6 +35,8 @@ import fetchAllUsers from '@/data/fetchAllUsers';
 import { handleLogout } from '../Logout/Logout';
 import MyPage from '@/pages/myPage';
 import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider';
+import FollowContentsPage from '@/pages/FollowContentsPage';
+import MainPage from '@/api/KaKaomap/kakaomain';
 
 interface SidebarProps {
   chatRooms: ChatRoom[];
@@ -251,7 +253,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         case 'contents':
           return <div>Contents Page</div>;
         case 'followContents':
-          return <div>Follow Contents Page</div>;
+          return (
+            <div>
+              <WebSocketProvider>
+                <FollowContentsPage />
+              </WebSocketProvider>
+            </div>
+          );
         default:
           return <div>Welcome! This is default!</div>;
       }
@@ -261,6 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     const shouldShowSearch = () => {
       return (
         activePage !== 'notifications' &&
+        activePage !== 'followContents' &&
         activePage !== 'chat' &&
         activePage !== 'myPage' &&
         activePage !== ''
@@ -298,14 +307,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         <LeftSidebar>
           <LogoIconButtonWrapper
             onClick={() => {
-              handleNavigate('main')
+              handleNavigate('main');
             }}
           >
             <LogoIcon theme={theme} />
           </LogoIconButtonWrapper>
           <IconButtonWrapper
             onClick={() => {
-              handleNavigate('main')
+              handleNavigate('main');
             }}
           >
             <MainIcon theme={theme} />
