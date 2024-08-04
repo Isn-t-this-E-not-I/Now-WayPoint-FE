@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import TextInput from '../components/TextInput/textInput'
 import { register, sendVerificationCode } from '../api/userApi'
 
+
 const RegisterPage: React.FC = () => {
   const [loginId, setLoginId] = useState('')
   const [email, setEmail] = useState('')
@@ -17,15 +18,24 @@ const RegisterPage: React.FC = () => {
   const navigate = useNavigate()
 
   const isNicknameValid = (nickname: string) => {
-    const regex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$/;
-    return regex.test(nickname);
-  };
+    const regex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]+$/
+    return regex.test(nickname)
+  }
+
+  const isEmailValid = (email: string) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return regex.test(email)
+  }
 
   const handleSendCode = async () => {
     if (loginId && email && password && name && nickname) {
+      if (!isEmailValid(loginId)) {
+        setMessage('아이디는 이메일 형식이어야 합니다.')
+        return
+      }
       if (!isNicknameValid(nickname)) {
-        setMessage('닉네임에는 공백이나 특수 문자를 포함할 수 없습니다.');
-        return;
+        setMessage('닉네임에는 공백이나 특수 문자를 포함할 수 없습니다.')
+        return
       }
       try {
         const verificationResponse = await sendVerificationCode(
@@ -33,7 +43,7 @@ const RegisterPage: React.FC = () => {
           '회원가입',
           ''
         )
-        console.log(loginId);
+        console.log(loginId)
         if (verificationResponse.message) {
           setReceivedCode(verificationResponse.message)
           setMessage(
@@ -79,7 +89,7 @@ const RegisterPage: React.FC = () => {
         <h2 className="text-lg font-bold mb-4">회원가입</h2>
         <TextInput
           type="text"
-          placeholder="아이디"
+          placeholder="아이디 (이메일 형식)"
           onChange={(e) => setLoginId(e.target.value)}
           value={loginId}
           className="mb-4"
