@@ -176,6 +176,10 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       return
     }
 
+    if (content == '') {
+      alert('내용을 입력해주세요!')
+    }
+
     try {
       const response = await uploadContent(
         files,
