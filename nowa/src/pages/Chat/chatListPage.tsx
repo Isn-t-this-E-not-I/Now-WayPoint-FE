@@ -4,9 +4,12 @@ import { useChat } from '../../context/chatContext'
 import styled from 'styled-components'
 
 const Container = styled.div`
-  padding: 20px;
   background-color: #f4f4f4;
-  height: 100vh;
+  height: 78vh;
+  width: 100%;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 `
 
 const ChatList = styled.ul`
@@ -16,16 +19,14 @@ const ChatList = styled.ul`
 `
 
 const ChatListItem = styled.li`
-  background-color: #fff;
+  border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  margin-bottom: 10px;
+  background-color: #fff;
+  margin: 10px auto;
   cursor: pointer;
   transition:
     background-color 0.3s,
     transform 0.3s;
-
   &:hover {
     background-color: #e0e0e0;
     transform: scale(1.02);
@@ -75,6 +76,26 @@ const ChatListPage: React.FC = () => {
     return timestampB - timestampA // 내림차순 정렬
   })
 
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
+  }
+
   return (
     <Container>
       <ChatList>
@@ -90,15 +111,13 @@ const ChatListPage: React.FC = () => {
               <RoomName>{room.chatRoomName}</RoomName>
               {roomInfo && (
                 <RoomDetails>
-                  <RoomDetail>Users: {room.userCount}</RoomDetail>
-                  <RoomDetail>
+                  {/* <RoomDetail>Users: {room.userCount}</RoomDetail> */}
+                  {/* <RoomDetail>
                     Unread Messages: {roomInfo.unreadMessagesCount}
-                  </RoomDetail>
+                  </RoomDetail> */}
+                  <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
                   <RoomDetail>
-                    Last Message: {roomInfo.lastMessageContent}
-                  </RoomDetail>
-                  <RoomDetail>
-                    Timestamp: {roomInfo.lastMessageTimestamp}
+                    {formatRelativeTime(roomInfo.lastMessageTimestamp)}
                   </RoomDetail>
                 </RoomDetails>
               )}

@@ -328,6 +328,27 @@ const DetailContent: React.FC = () => {
     )
   }
 
+  // 상대적인 시간 형식으로 변환하는 함수
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
+  }
+
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -338,14 +359,6 @@ const DetailContent: React.FC = () => {
 
   const con_Text = '='
   const con_drop = ['게시글 수정', '게시글 삭제']
-
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    return `${year}.${month}.${day}`
-  }
 
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment) => (
@@ -366,7 +379,9 @@ const DetailContent: React.FC = () => {
             {formatContentWithMentions(comment.content)}
           </div>
           <div id="detail_coment_edit_line">
-            <div id="detail_coment_date">{formatDate(comment.createdAt)}</div>
+            <div id="detail_coment_date">
+              {formatRelativeTime(comment.createdAt)}
+            </div>
             {/* 답글 달기 버튼 조건부 렌더링 */}
             {comment.parentId === null && (
               <div
@@ -521,7 +536,9 @@ const DetailContent: React.FC = () => {
                 alt="좋아요"
               />
             </div>
-            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
+            <div id="detail_heart_write_date">
+              {formatRelativeTime(post.createdAt)}
+            </div>
           </div>
 
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>

@@ -26,6 +26,10 @@ const ContentItem = styled.div`
   border-radius: 12px;
   padding: 15px;
   position: relative;
+  border: 1px solid #ddd;
+  &:hover {
+    border: 1px solid black;
+  }
 `
 
 const ProfilePic = styled.img`
@@ -45,12 +49,11 @@ const Username = styled.span`
   cursor: pointer;
 `
 
-const InnerImageWrapper = styled.div`
+const InnerMediaWrapper = styled.div`
   position: relative;
   max-width: 100%;
   max-height: 300px; /* 필요한 최대 높이 설정 */
   overflow: hidden; /* 콘텐츠가 넘치는 것을 숨김 */
-  border-radius: 12px;
 `
 
 const InnerImage = styled.img`
@@ -60,6 +63,18 @@ const InnerImage = styled.img`
   margin: auto auto 18px auto;
   object-fit: contain;
   cursor: pointer; /* 이미지를 포함하도록 설정 */
+`
+
+const InnerVideo = styled.video`
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: auto auto 18px auto;
+  object-fit: contain;
+  cursor: pointer;
+  &:hover {
+    controls: true;
+  }
 `
 
 const ContentText = styled.div`
@@ -83,8 +98,8 @@ const TimeAgo = styled.span`
 const LikeCount = styled.span`
   font-size: 14px;
   color: #333;
-  margin-top: 10px;
   font-weight: bold;
+  flex: 1;
 `
 
 const ShowMoreButton = styled.button`
@@ -94,7 +109,6 @@ const ShowMoreButton = styled.button`
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
-
   &:hover {
     color: #07476f;
   }
@@ -123,12 +137,28 @@ const FollowContentsPage: React.FC = () => {
     navigate(`/user/${nickname}?tab=posts`)
   }
 
-  const handleContentImageClick = (id: number) => {
+  const handleContentClick = (id: number) => {
     navigate(`/detailContent/${id}`)
   }
 
-  const formatDate = (dateString: string | number | Date) => {
-    return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
   }
 
   useEffect(() => {
@@ -158,13 +188,31 @@ const FollowContentsPage: React.FC = () => {
               </Username>
             </div>
             {followContent.mediaUrls.length > 0 && (
-              <InnerImageWrapper>
-                <InnerImage
-                  src={followContent.mediaUrls[0]}
-                  alt="Content"
-                  onClick={() => handleContentImageClick(followContent.id)}
-                />
-              </InnerImageWrapper>
+              <InnerMediaWrapper>
+                {followContent.mediaUrls[0].endsWith('.mp4') ? (
+                  <InnerVideo
+                    src={followContent.mediaUrls[0]}
+                    muted
+                    controls={false}
+                    onMouseEnter={(e) => e.currentTarget.play()}
+                    onMouseLeave={(e) => e.currentTarget.pause()}
+                    onContextMenu={(e) => e.preventDefault()}
+                    onClick={() => handleContentClick(followContent.id)}
+                  />
+                ) : followContent.mediaUrls[0].endsWith('.mp3') ? (
+                  <InnerImage
+                    src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
+                    alt="Music Icon"
+                    onClick={() => handleContentClick(followContent.id)}
+                  />
+                ) : (
+                  <InnerImage
+                    src={followContent.mediaUrls[0]}
+                    alt="Content"
+                    onClick={() => handleContentClick(followContent.id)}
+                  />
+                )}
+              </InnerMediaWrapper>
             )}
             <ContentDisplay content={followContent.content} />
             <HashTags>
@@ -172,10 +220,10 @@ const FollowContentsPage: React.FC = () => {
                 <span key={index}>{hashtag} </span>
               ))}
             </HashTags>
-            <span>
+            <div style={{ display: 'flex' }}>
               <LikeCount>❤ {followContent.likeCount}</LikeCount>
-              <TimeAgo>{formatDate(followContent.createdAt)}</TimeAgo>
-            </span>
+              <TimeAgo>{formatRelativeTime(followContent.createdAt)}</TimeAgo>
+            </div>
           </ContentItem>
         ))
       )}

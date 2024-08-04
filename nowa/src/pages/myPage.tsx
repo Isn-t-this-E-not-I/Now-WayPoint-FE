@@ -29,7 +29,6 @@ const ProfileSection = styled.div`
 
 const ContentSection = styled.div`
   flex: 5;
-  padding: 20px;
   margin-left: 30px;
   margin-right: 30px;
 `

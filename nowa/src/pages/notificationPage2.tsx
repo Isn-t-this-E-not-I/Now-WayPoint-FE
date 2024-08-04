@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import styled from 'styled-components';
-import { Notification } from '@/components/WebSocketProvider/WebSocketProvider';
+import React, { useEffect, useState } from 'react'
+import styled from 'styled-components'
+import { Notification } from '@/components/WebSocketProvider/WebSocketProvider'
 
 const NotificationWrapper = styled.div`
   text-align: left;
-`;
+`
 
 const NotificationItem = styled.div`
   display: flex;
@@ -18,14 +18,14 @@ const NotificationItem = styled.div`
   font-size: 15px;
   background-color: wheat;
   position: relative;
-`;
+`
 
 const ProfilePic = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
-`;
+`
 
 const NotificationContent = styled.div`
   display: flex;
@@ -34,7 +34,7 @@ const NotificationContent = styled.div`
   margin-right: auto;
   position: relative;
   padding-bottom: 20px;
-`;
+`
 
 const TimeAgo = styled.span`
   color: #129fe1;
@@ -42,7 +42,7 @@ const TimeAgo = styled.span`
   bottom: 0;
   right: 5px;
   font-size: 12px;
-`;
+`
 
 const CloseButton = styled.button`
   background: none;
@@ -53,19 +53,21 @@ const CloseButton = styled.button`
   position: absolute;
   top: -3px;
   right: 6px;
-`;
+`
 
 const NotificationPage2: React.FC = () => {
-  const [displayNotifications, setDisplayNotifications] = useState<Notification[]>([]);
+  const [displayNotifications, setDisplayNotifications] = useState<
+    Notification[]
+  >([])
   const location = import.meta.env.VITE_APP_API
 
   useEffect(() => {
     // API 호출
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem('token'); // 토큰 가져오기
+        const token = localStorage.getItem('token') // 토큰 가져오기
         if (!token) {
-          throw new Error('No token found');
+          throw new Error('No token found')
         }
 
         const response = await fetch(`${location}/notify`, {
@@ -73,27 +75,29 @@ const NotificationPage2: React.FC = () => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           },
-        });
+        })
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok')
         }
-        const data: Notification[] = await response.json();
+        const data: Notification[] = await response.json()
         // notifications를 id 기준으로 역순 정렬
-        const sortedNotifications = data.sort((a, b) => b.id - a.id);
-        setDisplayNotifications(sortedNotifications);
+        const sortedNotifications = data.sort((a, b) => b.id - a.id)
+        setDisplayNotifications(sortedNotifications)
       } catch (error) {
-        console.error('Failed to fetch notifications:', error);
+        console.error('Failed to fetch notifications:', error)
       }
-    };
+    }
 
-    fetchNotifications();
-  }, []);
+    fetchNotifications()
+  }, [])
 
   const handleDelete = (id: number) => {
-    setDisplayNotifications(displayNotifications.filter(notification => notification.id !== id));
-  };
+    setDisplayNotifications(
+      displayNotifications.filter((notification) => notification.id !== id)
+    )
+  }
 
-  console.log('Display notifications:', displayNotifications);
+  console.log('Display notifications:', displayNotifications)
 
   return (
     <NotificationWrapper>
@@ -104,11 +108,13 @@ const NotificationPage2: React.FC = () => {
             <span>{notification.message}</span>
             <TimeAgo>{notification.createDate}</TimeAgo>
           </NotificationContent>
-          <CloseButton onClick={() => handleDelete(notification.id)}>x</CloseButton>
+          <CloseButton onClick={() => handleDelete(notification.id)}>
+            x
+          </CloseButton>
         </NotificationItem>
       ))}
     </NotificationWrapper>
-  );
-};
+  )
+}
 
-export default NotificationPage2;
+export default NotificationPage2

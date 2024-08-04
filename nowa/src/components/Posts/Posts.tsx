@@ -7,7 +7,7 @@ const PostsContainer = styled.div`
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
   justify-content: center;
-  max-height: 88vh;
+  max-height: 90vh;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;

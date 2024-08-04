@@ -405,6 +405,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
         <Blank />
         <ThemeController />
       </LeftSidebar>
+
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
