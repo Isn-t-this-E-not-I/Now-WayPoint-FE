@@ -76,6 +76,11 @@ const SearchInput = styled.input`
   border-radius: 8px;
 `;
 
+const ButtonGroup = styled.div` /* 팔로우/언팔로우 버튼 & 메시지 버튼 간격 조절용으로 넣었습니다 */
+  display: flex;
+  gap: 10px; /* 간격을 추가 */
+`;
+
 interface Post {
   id: number;
   mediaUrls: string[];
@@ -385,15 +390,18 @@ const UserPage: React.FC = () => {
             </StatItem>
           </Stats>
           <Description>{userInfo.description}</Description>
-          {isFollowing ? (
-            <Button onClick={handleUnfollowUser} className="btn-secondary">
-              언팔로우
-            </Button>
-          ) : (
-            <Button onClick={handleFollowUser} className="btn-primary">
-              팔로우
-            </Button>
-          )}
+          <ButtonGroup>
+            {isFollowing ? (
+              <Button onClick={handleUnfollowUser} className="btn-secondary">
+                언팔로우
+              </Button>
+            ) : (
+              <Button onClick={handleFollowUser} className="btn-primary">
+                팔로우
+              </Button>
+            )}
+            <Button className="btn-primary">메시지</Button>
+          </ButtonGroup>
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
