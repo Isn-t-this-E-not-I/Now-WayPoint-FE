@@ -220,7 +220,7 @@ const ProfileEditPage: React.FC = () => {
         <div className="w-full max-w-md">
           <div className="mb-4">
             <label className="block text-gray-700">아이디</label>
-            <p className="input input-bordered w-full">{userInfo.loginId}</p>
+            <p className="input input-bordered w-full flex items-center h-12">{userInfo.loginId}</p>
           </div>
           <div className="relative mb-4">
             <TextInput
@@ -256,7 +256,7 @@ const ProfileEditPage: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">Email</label>
-            <p className="input input-bordered w-full">{userInfo.email}</p>
+            <p className="input input-bordered w-full flex items-center h-12">{userInfo.email}</p>
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">소개</label>
