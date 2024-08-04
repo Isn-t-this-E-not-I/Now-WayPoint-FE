@@ -1,5 +1,4 @@
 import React, { useState, ReactNode, useEffect } from 'react'
-import useModal from '@/hooks/modal'
 import styled from 'styled-components'
 
 interface ModalProps {
@@ -36,10 +35,9 @@ const Modal: React.FC<ModalProps> = ({
   children,
   showCloseButton = true,
 }) => {
-  const { isOpen: isOpenHook, open, close } = useModal()
 
   useEffect(() => {
-    if (isOpen || isOpenHook) {
+    if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'auto'
@@ -48,12 +46,18 @@ const Modal: React.FC<ModalProps> = ({
     return () => {
       document.body.style.overflow = 'auto'
     }
-  }, [isOpen, isOpenHook])
+  }, [isOpen])
 
-  if (!isOpen && !isOpenHook) return null
+  if (!isOpen) return null
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
 
   return (
-    <Overlay>
+    <Overlay onClick={handleOverlayClick}>
       <ModalBox>
         {children ? (
           children
@@ -67,7 +71,7 @@ const Modal: React.FC<ModalProps> = ({
         )}
         {showCloseButton && (
           <div className="modal-action">
-            <button className="btn" onClick={onClose || close}>
+            <button className="btn" onClick={onClose}>
               Close
             </button>
           </div>

@@ -288,10 +288,14 @@ const ProfileEditPage: React.FC = () => {
           </div>
         </div>
         {isModalOpen && (
-          <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-            <p>정말로 계정을 삭제하시겠습니까?</p>
-            <Button onClick={handleDeleteAccount}>삭제</Button>
-            <Button onClick={() => setModalOpen(false)}>취소</Button>
+          <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} showCloseButton={false}>
+            <div className="flex flex-col items-center">
+              <p className="mb-4">정말로 계정을 삭제하시겠습니까?</p>
+              <div className="flex space-x-4">
+                <Button onClick={handleDeleteAccount}>삭제</Button>
+                <Button onClick={() => setModalOpen(false)}>취소</Button>
+              </div>
+            </div>
           </Modal>
         )}
         {isPasswordModalOpen && (
