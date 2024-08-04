@@ -37,7 +37,7 @@ const getPostById = async (postId: number): Promise<Post> => {
       },
     })
 
-    console.log(response)
+    console.log(response.data.hashtags)
     return response.data
   } catch (error) {
     console.error('Error fetching the post data:', error)

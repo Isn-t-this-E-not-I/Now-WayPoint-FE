@@ -1,5 +1,5 @@
 import React from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import MyPage from '../pages/myPage'
 import ProfileEditPage from '../pages/ProfileEditPage'
@@ -12,11 +12,10 @@ import FindPasswordPage from '@/pages/FindPasswordPage'
 import DetailContent from '@/pages/DetailContent/DetailContent'
 import UploadContent from '@/pages/MakeContent/makeContent'
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
-import UserPage from '@/pages/UserPage';
+import UserPage from '@/pages/UserPage'
 import EditContent from '@/pages/EditContent/editContent'
 import { WebSocketProvider } from '@/components/WebSocketProvider/WebSocketProvider'
 import ChattingPage from '@/pages/Chat/chattingPage'
-
 
 const Routers: React.FC = () => {
   return (
@@ -34,6 +33,7 @@ const Routers: React.FC = () => {
           </WebSocketProvider>
         }
       >
+        <Route path="/" element={<Navigate to="/main" />} />{' '}
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />
@@ -48,7 +48,7 @@ const Routers: React.FC = () => {
         <Route path="/user/:nickname" element={<UserPage />} />
       </Route>
     </Routes>
-  );
+  )
 }
 
 export default Routers

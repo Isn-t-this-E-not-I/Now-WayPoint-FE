@@ -21,7 +21,6 @@ const App: React.FC = () => {
           <Sidebar
             theme={'light'}
             setSelectedPage={setSelectedPage}
-            onExitChatRoom={() => { }}
           />
         )}
         <div style={{ flex: 1 }}>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, KeyboardEvent } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import {
@@ -143,6 +143,10 @@ const DetailContent: React.FC = () => {
   // 새로운 댓글을 작성하는 함수
   const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+    if (newComment.trim() === '') {
+      alert('내용을 입력해주세요.')
+      return
+    }
     try {
       const newCommentData = await createComment(Number(id), newComment)
       await fetchComments()
@@ -156,9 +160,13 @@ const DetailContent: React.FC = () => {
   // 대댓글을 작성하는 함수
   const handleReplySubmit = async (
     parentCommentId: number,
-    e: React.FormEvent<HTMLFormElement>
+    e?: React.FormEvent<HTMLFormElement>
   ) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
+    if (replyContent.trim() === '') {
+      alert('내용을 입력해주세요.')
+      return
+    }
     try {
       const newReplyData = await createComment(
         Number(id),
@@ -171,6 +179,25 @@ const DetailContent: React.FC = () => {
     } catch (error) {
       console.error('Failed to submit reply:', error)
       alert('답글 작성에 실패했습니다.')
+    }
+  }
+
+  // 댓글 작성 시 Enter 키 핸들러
+  const handleCommentKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleCommentSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
+    }
+  }
+
+  // 답글 작성 시 Enter 키 핸들러
+  const handleReplyKeyDown = (
+    e: KeyboardEvent<HTMLTextAreaElement>,
+    parentCommentId: number
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleReplySubmit(parentCommentId)
     }
   }
 
@@ -364,7 +391,11 @@ const DetailContent: React.FC = () => {
                 id="detail_reply_content"
                 value={replyContent}
                 onChange={handleMention}
+                onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
               ></TextArea>
+              <div id="detail_reply_write_button">
+                <button type="submit">답글 게시</button>
+              </div>
               {mentionList.length > 0 && (
                 <div className="mention-list">
                   {mentionList.map((user) => (
@@ -381,9 +412,6 @@ const DetailContent: React.FC = () => {
                   ))}
                 </div>
               )}
-              <div id="detail_reply_write_button">
-                <button type="submit">답글 게시</button>
-              </div>
             </form>
           )}
           {comment.children && comment.children.length > 0 && (
@@ -468,7 +496,6 @@ const DetailContent: React.FC = () => {
 
           <div id="detail_content_heart">
             <div id="detail_heart_count">{post.likeCount}</div>
-            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
             <div id="detail_like_button" onClick={handleLikeToggle}>
               <img
                 src={
@@ -479,14 +506,16 @@ const DetailContent: React.FC = () => {
                 alt="좋아요"
               />
             </div>
+            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
           </div>
 
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
-            <textarea
+            <TextArea
               id="detail_coment_content_content"
               value={newComment}
               onChange={handleNewCommentMention}
-            ></textarea>
+              onKeyDown={handleCommentKeyDown}
+            ></TextArea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
                 {newMentionList.map((user) => (
@@ -503,23 +532,23 @@ const DetailContent: React.FC = () => {
                 ))}
               </div>
             )}
-            {currentUser === post.nickname && (
-              <div id="detail_content_edit">
-                <DropDown
-                  id={'detail_Dropdown'}
-                  buttonText={con_Text}
-                  items={con_drop}
-                  onItemSelect={(item) => {
-                    if (item === '게시글 삭제') {
-                      handlePostDelete()
-                    } else if (item === '게시글 수정') {
-                      navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
-                    }
-                  }}
-                />
-              </div>
-            )}
             <div id="detail_coment_write_button">
+              {currentUser === post.nickname && (
+                <div id="detail_content_edit">
+                  <DropDown
+                    id={'detail_Dropdown'}
+                    buttonText={con_Text}
+                    items={con_drop}
+                    onItemSelect={(item) => {
+                      if (item === '게시글 삭제') {
+                        handlePostDelete()
+                      } else if (item === '게시글 수정') {
+                        navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
+                      }
+                    }}
+                  />
+                </div>
+              )}
               <button type="submit">게시</button>
             </div>
           </form>

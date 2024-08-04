@@ -20,15 +20,19 @@ const MainPage: React.FC = () => {
   const [locate, setLocate] = useState('')
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null)
-  const [mapLevel, setMapLevel] = useState<number>(11)
+  const [mapLevel, setMapLevel] = useState<number>(7)
   const [isInitialized, setIsInitialized] = useState(false)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
   const client = useWebSocket().client
+  const currentLocationRef = useRef<{
+    latitude: number
+    longitude: number
+  } | null>(null) // 현재 위치를 저장하는 ref
 
   const formatDate = (dateString: string | number | Date) => {
-    return moment(dateString).tz('Asia/Seoul').format('MM-DD HH:mm A')
+    return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
   }
 
   const saveTokenToLocalStorage = () => {
@@ -57,6 +61,8 @@ const MainPage: React.FC = () => {
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
+    currentLocationRef.current = { latitude, longitude } // 현재 위치 저장
+
     const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
     script.onload = () => {
@@ -128,7 +134,7 @@ const MainPage: React.FC = () => {
       const [lng, lat] = item.locationTag.split(',').map(Number)
       const position = new window.kakao.maps.LatLng(lat, lng)
 
-      const markerImageSrc = getMarkerImageSrc(item.category)
+      const markerImageSrc = getMarkerImageSrc(item.category, item.mediaUrls)
       const markerImageSize = new window.kakao.maps.Size(35, 35)
       const markerImage = new window.kakao.maps.MarkerImage(
         markerImageSrc,
@@ -156,10 +162,10 @@ const MainPage: React.FC = () => {
     }
   }
 
-  const getMarkerImageSrc = (category: string) => {
+  const getMarkerImageSrc = (category: string, img: string) => {
     switch (category) {
       case 'PHOTO':
-        return 'https://cdn-icons-png.flaticon.com/128/4503/4503874.png'
+        return img
       case 'VIDEO':
         return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
       case 'MP3':
@@ -188,8 +194,10 @@ const MainPage: React.FC = () => {
          <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/4110/4110234.png'}' onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/128/4110/4110234.png';">
       </div>
       <div id="main_maker_content">
-        <div id="main_maker_name">이름 : ${item.username}</div>
-        <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+        <div id="main_maker_name">작성자 : ${item.username}</div> 
+      </div>
+      <div id="main_maker_content2">
+        <div id="main_maker_create">${formatDate(item.createdAt)}</div>   
       </div>
     `
 
@@ -217,6 +225,24 @@ const MainPage: React.FC = () => {
 
   const detail_navigate = (postId: any) => {
     window.location.href = `detailContent/${postId}`
+  }
+
+  const zoomIn = () => {
+    if (map && currentLocationRef.current) {
+      const { latitude, longitude } = currentLocationRef.current
+      map.setLevel(map.getLevel() - 1, {
+        anchor: new window.kakao.maps.LatLng(latitude, longitude),
+      })
+    }
+  }
+
+  const zoomOut = () => {
+    if (map && currentLocationRef.current) {
+      const { latitude, longitude } = currentLocationRef.current
+      map.setLevel(map.getLevel() + 1, {
+        anchor: new window.kakao.maps.LatLng(latitude, longitude),
+      })
+    }
   }
 
   useEffect(() => {
@@ -305,6 +331,10 @@ const MainPage: React.FC = () => {
         ref={mapContainer}
         style={{ width: '100%', height: '100vh', position: 'relative' }}
       />
+      <div className="custom_zoomcontrol">
+        <button onClick={zoomIn}>+</button>
+        <button onClick={zoomOut}>-</button>
+      </div>
       <div id="categoryBox">
         <button
           className="categoryButtons"
