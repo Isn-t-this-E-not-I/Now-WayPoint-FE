@@ -8,6 +8,33 @@ import TextArea from '../components/TextArea/textArea'
 import FileInput from '../components/FileInput/fileInput'
 import defaultProfileImage from '../../../defaultprofile.png'
 import { updatePassword, uploadProfileImage } from '../api/userApi'
+import styled from 'styled-components';
+import { EditIcon } from '../components/icons/icons';
+
+
+const ProfileImageWrapper = styled.div`
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+`;
+
+const EditIconWrapper = styled.div`
+  position: absolute;
+  bottom: -3px;
+  right: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 
 const ProfileEditPage: React.FC = () => {
@@ -133,12 +160,13 @@ const ProfileEditPage: React.FC = () => {
   
     const handleUploadProfileImage = async () => {
       if (!selectedFile) return
-  
+    
       try {
         const response = await uploadProfileImage(selectedFile)
-  
+    
         setUserInfo({ ...userInfo, profileImageUrl: response.profileImageUrl })
         alert('프로필 사진이 성공적으로 업데이트되었습니다.')
+        setSelectedFile(null);
       } catch (error) {
         console.error('프로필 사진 업데이트에 실패했습니다:', error)
       }
@@ -165,18 +193,16 @@ const ProfileEditPage: React.FC = () => {
   
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={userInfo.profileImageUrl}
-            alt="Profile"
-            className="w-24 h-24 rounded-full bg-gray-300"
-          />
-          <Button
-            className="mt-2"
-            onClick={() => document.getElementById('fileInput')?.click()}
-          >
-            사진 변경
-          </Button>
+        <div className="relative flex flex-col items-center mb-6">
+          <ProfileImageWrapper>
+            <ProfileImage
+              src={userInfo.profileImageUrl}
+              alt="Profile"
+            />
+            <EditIconWrapper onClick={() => document.getElementById('fileInput')?.click()}>
+              <EditIcon theme="light" />
+            </EditIconWrapper>
+          </ProfileImageWrapper>
           <input
             id="fileInput"
             type="file"
