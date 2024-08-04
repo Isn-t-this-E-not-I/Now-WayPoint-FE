@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
@@ -26,6 +26,16 @@ const PostWrapper = styled.div`
 `
 
 const PostThumbnail = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+`
+
+const PostVideo = styled.video`
   position: absolute;
   top: 0;
   left: 0;
@@ -84,42 +94,70 @@ const Posts: React.FC<PostsProps> = ({ posts }) => {
     navigate(`/detailContent/${postId}`)
   }
 
-  const getImageUrl = (post: Post) => {
-    if (post.category === 'PHOTO') {
-      return post.mediaUrls && post.mediaUrls[0]
-        ? post.mediaUrls[0]
-        : 'https://cdn-icons-png.flaticon.com/128/4456/4456159.png'
-    } else if (post.category === 'VIDEO') {
-      return 'https://cdn-icons-png.flaticon.com/128/9327/9327129.png'
-    } else if (post.category === 'MUSIC') {
-      return 'https://cdn-icons-png.flaticon.com/128/1187/1187534.png'
+  const handleVideoHover = (videoElement: HTMLVideoElement, play: boolean) => {
+    if (play) {
+      videoElement.play()
     } else {
-      return 'https://cdn-icons-png.flaticon.com/128/4456/4456159.png'
+      videoElement.pause()
     }
+  }
+
+  const preventContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault()
   }
 
   return (
     <PostsContainer>
       {sortedPosts.map((post, index) => {
-        const imageUrl = getImageUrl(post)
+        const imageUrl = post.mediaUrls && post.mediaUrls[0]
+
         return (
-          <PostWrapper key={index} onClick={() => handlePostClick(post.id)}>
-            <PostThumbnail
-              src={imageUrl}
-              alt={`Post ${index + 1}`}
-              onError={(e) => {
-                if (post.category === 'PHOTO') {
+          <PostWrapper
+            key={index}
+            onClick={() => handlePostClick(post.id)}
+            onMouseEnter={(e) => {
+              const videoElement = e.currentTarget.querySelector('video')
+              if (videoElement) handleVideoHover(videoElement, true)
+            }}
+            onMouseLeave={(e) => {
+              const videoElement = e.currentTarget.querySelector('video')
+              if (videoElement) handleVideoHover(videoElement, false)
+            }}
+          >
+            {post.category === 'VIDEO' ? (
+              <PostVideo
+                src={imageUrl}
+                muted
+                controls={false}
+                onContextMenu={preventContextMenu}
+              />
+            ) : (
+              <PostThumbnail
+                src={imageUrl}
+                alt={`Post ${index + 1}`}
+                onError={(e) => {
                   e.currentTarget.src =
                     'https://cdn-icons-png.flaticon.com/128/4456/4456159.png'
-                }
-              }}
-            />
+                }}
+                onContextMenu={preventContextMenu}
+              />
+            )}
             <PostOverlay className="overlay">
               <OverlayText>
-                <span>❤️{post.likeCount}</span>
+                <img
+                  style={{ width: 40, height: 40 }}
+                  src="https://cdn-icons-png.flaticon.com/128/833/833472.png"
+                  alt="좋아요"
+                ></img>
+                {post.likeCount}
               </OverlayText>
               <OverlayText>
-                <span>💬{post.commentCount}</span>
+                <img
+                  style={{ width: 45, height: 45 }}
+                  src="https://cdn-icons-png.flaticon.com/128/7579/7579686.png"
+                  alt="댓글 수"
+                ></img>
+                {post.commentCount}
               </OverlayText>
             </PostOverlay>
           </PostWrapper>

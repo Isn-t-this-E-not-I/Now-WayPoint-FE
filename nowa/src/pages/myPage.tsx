@@ -84,7 +84,7 @@ interface Post {
   createdAt: string
   category: string
   likeCount: number
-  commentCount: number // 댓글 수 추가
+  commentCount: number
 }
 
 interface UserProfile {
