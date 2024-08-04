@@ -335,6 +335,7 @@ const MainPage: React.FC = () => {
         <button onClick={zoomIn}>+</button>
         <button onClick={zoomOut}>-</button>
       </div>
+
       <div id="categoryBox">
         <button
           className="categoryButtons"
