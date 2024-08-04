@@ -5,6 +5,7 @@ import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
+import Select from '@/components/Select/select'
 
 declare global {
   interface Window {
@@ -22,6 +23,8 @@ const MainPage: React.FC = () => {
   const [map, setMap] = useState<any>(null)
   const [mapLevel, setMapLevel] = useState<number>(7)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
+  const [selectedDistance, setSelectedDistance] = useState<number>(10)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
@@ -29,7 +32,22 @@ const MainPage: React.FC = () => {
   const currentLocationRef = useRef<{
     latitude: number
     longitude: number
-  } | null>(null) // 현재 위치를 저장하는 ref
+  } | null>(null)
+
+  const categoryOptions = [
+    { id: 'PHOTO', label: '사진' },
+    { id: 'VIDEO', label: '동영상' },
+    { id: 'MP3', label: '음악' },
+    { id: 'ALL', label: '전체' },
+  ]
+
+  const distanceOptions = [
+    { id: '10', label: '10km' },
+    { id: '30', label: '30km' },
+    { id: '50', label: '50km' },
+    { id: '100', label: '100km' },
+    { id: '0', label: '전체' },
+  ]
 
   const formatDate = (dateString: string | number | Date) => {
     return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
@@ -306,15 +324,15 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (isInitialized && client) {
-      selectCategory('ALL')
+      selectCategory(selectedCategory, selectedDistance)
     }
   }, [isInitialized, client])
 
-  const selectCategory = (category: string) => {
+  const selectCategory = (category: string, distance: number) => {
     if (client) {
       client.publish({
         destination: '/app/main/category',
-        body: JSON.stringify({ category: category }),
+        body: JSON.stringify({ category: category, distance: distance }),
       })
       // 카테고리 선택 시 지도의 확대/축소 레벨 고정
       if (map) {
@@ -323,6 +341,17 @@ const MainPage: React.FC = () => {
     } else {
       console.error('Not connected to WebSocket')
     }
+  }
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value)
+    selectCategory(value, selectedDistance)
+  }
+
+  const handleDistanceChange = (value: string) => {
+    const newDistance = parseInt(value)
+    setSelectedDistance(newDistance)
+    selectCategory(selectedCategory, newDistance)
   }
 
   return (
@@ -336,35 +365,22 @@ const MainPage: React.FC = () => {
         <button onClick={zoomOut}>-</button>
       </div>
 
-      <div id="categoryBox">
-        <button
-          className="categoryButtons"
-          id="categorybtn1"
-          onClick={() => selectCategory('PHOTO')}
-        >
-          사진
-        </button>
-        <button
-          className="categoryButtons"
-          id="categorybtn2"
-          onClick={() => selectCategory('VIDEO')}
-        >
-          동영상
-        </button>
-        <button
-          className="categoryButtons"
-          id="categorybtn3"
-          onClick={() => selectCategory('MP3')}
-        >
-          음악
-        </button>
-        <button
-          className="categoryButtons"
-          id="categorybtn4"
-          onClick={() => selectCategory('ALL')}
-        >
-          전체
-        </button>
+      <div id="category-select">
+        <Select
+          options={categoryOptions}
+          classN="category-select"
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+        />
+      </div>
+
+      <div id="distance-select">
+        <Select
+          options={distanceOptions}
+          classN="distance-select"
+          value={selectedDistance.toString()}
+          onChange={handleDistanceChange}
+        />
       </div>
     </div>
   )
