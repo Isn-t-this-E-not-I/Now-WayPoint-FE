@@ -25,8 +25,8 @@ import Modal from '../Modal/modal'
 import axios from 'axios'
 import SockJS from 'sockjs-client'
 import { Client, IMessage } from '@stomp/stompjs'
-import FollowList from '../FollowList/FollowList' //*
-import AllUserList from '../FollowList/AllUserList' //*
+import FollowList from '../FollowList/FollowList'
+import AllUserList from '../FollowList/AllUserList'
 import fetchAllUsers from '@/data/fetchAllUsers'
 import { handleLogout } from '../Logout/Logout'
 import MyPage from '@/pages/myPage'
@@ -97,6 +97,7 @@ const IconButtonWrapper = styled.button`
   justify-content: center;
   align-items: center;
   margin-top: 8px;
+  position: relative; /* Add this line */
 
   &:focus {
     outline: none;
@@ -170,9 +171,33 @@ const SearchInput = styled.input`
   border-radius: 8px;
 `
 
+const LogoutDropdown = styled.div`
+  position: absolute;
+  top: 15px;
+  left: 40px;
+  width: 200px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 10;
+  transition: transform 0.5s ease;
+
+  h3 {
+    margin: 0 0 10px 0;
+  }
+
+  button {
+    margin: auto 15px;
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+`
+
 const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
   const [activePage, setActivePage] = useState<string>('')
-  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
+  const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
@@ -361,10 +386,21 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
         </IconButtonWrapper>
         <IconButtonWrapper
           onClick={() => {
-            setLogoutModalOpen(true)
+            setLogoutDropdownOpen(!isLogoutDropdownOpen)
           }}
         >
           <ExitIcon theme={theme} />
+          {isLogoutDropdownOpen && (
+            <LogoutDropdown>
+              <h3>로그아웃 하시겠습니까?</h3>
+              <button onClick={() => handleLogout(setLogoutDropdownOpen)}>
+                넵!
+              </button>
+              <button onClick={() => setLogoutDropdownOpen(false)}>
+                아니요..
+              </button>
+            </LogoutDropdown>
+          )}
         </IconButtonWrapper>
         <Blank />
         <ThemeController />
@@ -395,18 +431,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
-      {isLogoutModalOpen && (
-        <Modal
-          isOpen={isLogoutModalOpen}
-          onClose={() => setLogoutModalOpen(false)}
-        >
-          <div>
-            <h3>로그아웃 하시겠습니까?</h3>
-            <button onClick={() => handleLogout(setLogoutModalOpen)}>네</button>
-            <button onClick={() => setLogoutModalOpen(false)}>아니오</button>
-          </div>
-        </Modal>
-      )}
       {isUploadModalOpen && (
         <Modal isOpen={isUploadModalOpen} showCloseButton={false}>
           <div>

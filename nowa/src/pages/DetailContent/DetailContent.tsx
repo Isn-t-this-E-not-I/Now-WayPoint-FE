@@ -49,7 +49,23 @@ const DetailContent: React.FC = () => {
       const postData = await getPostById(Number(id))
       setPost(postData)
       const commentsData = await getCommentsByPostId(Number(id))
-      setComments(buildCommentTree(commentsData))
+      const parentComments = commentsData.filter((comment) => !comment.parentId)
+      const sortedParentComments = parentComments.sort(
+        (a, b) => b.likeCount - a.likeCount
+      )
+
+      const childComments = commentsData.filter((comment) => comment.parentId)
+      const sortedChildComments = childComments.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const combinedComments = sortedParentComments.flatMap((parent) => [
+        parent,
+        ...sortedChildComments.filter((child) => child.parentId === parent.id),
+      ])
+
+      setComments(combinedComments)
 
       if (postData.locationTag) {
         const [longitude, latitude] = postData.locationTag
@@ -81,33 +97,27 @@ const DetailContent: React.FC = () => {
     setCurrentUser(user)
   }, [id])
 
-  // 댓글을 트리 구조로 변환하는 함수
-  const buildCommentTree = (comments: Comment[]): Comment[] => {
-    const map: { [key: number]: Comment } = {}
-    const roots: Comment[] = []
-
-    comments.forEach((comment) => {
-      map[comment.id] = { ...comment, children: [] }
-    })
-
-    comments.forEach((comment) => {
-      if (comment.parentId) {
-        if (map[comment.parentId]) {
-          map[comment.parentId].children?.push(map[comment.id])
-        }
-      } else {
-        roots.push(map[comment.id])
-      }
-    })
-
-    return roots
-  }
-
   // 댓글 목록을 갱신하는 함수
   const fetchComments = async () => {
     try {
       const commentsData = await getCommentsByPostId(Number(id))
-      setComments(buildCommentTree(commentsData))
+      const parentComments = commentsData.filter((comment) => !comment.parentId)
+      const sortedParentComments = parentComments.sort(
+        (a, b) => b.likeCount - a.likeCount
+      )
+
+      const childComments = commentsData.filter((comment) => comment.parentId)
+      const sortedChildComments = childComments.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const combinedComments = sortedParentComments.flatMap((parent) => [
+        parent,
+        ...sortedChildComments.filter((child) => child.parentId === parent.id),
+      ])
+
+      setComments(combinedComments)
     } catch (error) {
       console.error('Failed to fetch comments data:', error)
     }
@@ -339,7 +349,11 @@ const DetailContent: React.FC = () => {
 
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment) => (
-      <div key={comment.id} id="detail_coment_deep">
+      <div
+        key={comment.id}
+        id="detail_coment_deep"
+        style={{ marginLeft: comment.parentId ? '20px' : '0' }} // 들여쓰기 적용
+      >
         <div
           id="test_coment_img"
           onClick={() => handleProfileClick(comment.nickname)}
@@ -353,12 +367,15 @@ const DetailContent: React.FC = () => {
           </div>
           <div id="detail_coment_edit_line">
             <div id="detail_coment_date">{formatDate(comment.createdAt)}</div>
-            <div
-              id="detail_coment_recoment"
-              onClick={() => toggleReplyComment(comment.id)}
-            >
-              답글 달기
-            </div>
+            {/* 답글 달기 버튼 조건부 렌더링 */}
+            {comment.parentId === null && (
+              <div
+                id="detail_coment_recoment"
+                onClick={() => toggleReplyComment(comment.id)}
+              >
+                답글 달기
+              </div>
+            )}
             <div id="detail_coment_delete">
               {currentUser === comment.nickname && (
                 <a
@@ -417,11 +434,6 @@ const DetailContent: React.FC = () => {
               )}
             </form>
           )}
-          {comment.children && comment.children.length > 0 && (
-            <div className="comment-children">
-              {renderComments(comment.children)}
-            </div>
-          )}
         </div>
       </div>
     ))
@@ -437,11 +449,11 @@ const DetailContent: React.FC = () => {
                 {post.mediaUrls.map((url: string, index: number) => (
                   <div id="preview_container" key={index}>
                     {url.endsWith('.mp4') ? (
-                      <video controls>
+                      <video controls controlsList="nodownload">
                         <source src={url} type="video/mp4" />
                       </video>
                     ) : url.endsWith('.mp3') ? (
-                      <audio controls>
+                      <audio controls controlsList="nodownload">
                         <source src={url} type="audio/mp3" />
                       </audio>
                     ) : (
