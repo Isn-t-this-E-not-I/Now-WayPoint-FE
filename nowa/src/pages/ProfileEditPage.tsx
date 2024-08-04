@@ -54,6 +54,8 @@ const ProfileEditPage: React.FC = () => {
       description: string
     }>(null)
     const navigate = useNavigate()
+    const [description, setDescription] = useState(userInfo?.description || '');
+    const maxDescriptionLength = 150;
   
     useEffect(() => {
       const fetchUserData = async () => {
@@ -260,12 +262,18 @@ const ProfileEditPage: React.FC = () => {
             <label className="block text-gray-700">소개</label>
             <TextArea
               id="description"
-              value={userInfo.description}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setUserInfo({ ...userInfo, description: e.target.value })
-              }
+              value={description}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+                if (e.target.value.length <= maxDescriptionLength) {
+                  setDescription(e.target.value);
+                  setUserInfo({ ...userInfo, description: e.target.value });
+                }
+              }}
               className="w-full"
             />
+            <div className="text-right text-gray-500">
+              {description.length} / {maxDescriptionLength}
+            </div>
           </div>
           <div className="flex justify-between">
             <Button
