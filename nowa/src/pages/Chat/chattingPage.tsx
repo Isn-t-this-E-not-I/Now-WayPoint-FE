@@ -177,6 +177,11 @@ const ChattingPage: React.FC = () => {
           value={messageContent}
           onChange={(e) => setMessageContent(e.target.value)}
           placeholder="메시지를 입력하세요..."
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              sendMessage()
+            }
+          }}
         />
         <SendButton onClick={sendMessage}>보내기</SendButton>
       </InputContainer>
