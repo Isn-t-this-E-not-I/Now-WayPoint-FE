@@ -1,10 +1,9 @@
-import React, { useState, ReactNode, useEffect } from 'react'
-import useModal from '@/hooks/modal'
+import React, { useEffect, ReactNode } from 'react'
 import styled from 'styled-components'
 
 interface ModalProps {
   isOpen: boolean
-  onClose: () => void
+  onClose?: () => void
   children?: ReactNode
   showCloseButton?: boolean
 }
@@ -30,16 +29,25 @@ const ModalBox = styled.div`
   position: relative;
 `
 
+const CloseBtn = styled.button`
+  background-color: lightblue;
+  padding: 10px;
+  border: 1px solid blue;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`
+
 const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
   children,
   showCloseButton = true,
 }) => {
-  const { isOpen: isOpenHook, open, close } = useModal()
-
   useEffect(() => {
-    if (isOpen || isOpenHook) {
+    if (isOpen) {
       document.body.style.overflow = 'hidden'
     } else {
       document.body.style.overflow = 'auto'
@@ -48,30 +56,15 @@ const Modal: React.FC<ModalProps> = ({
     return () => {
       document.body.style.overflow = 'auto'
     }
-  }, [isOpen, isOpenHook])
+  }, [isOpen])
 
-  if (!isOpen && !isOpenHook) return null
+  if (!isOpen) return null
 
   return (
     <Overlay>
       <ModalBox>
-        {children ? (
-          children
-        ) : (
-          <>
-            <h3 className="font-bold text-lg">Hello!</h3>
-            <p className="py-4">
-              Press ESC key or click the button below to close
-            </p>
-          </>
-        )}
-        {showCloseButton && (
-          <div className="modal-action">
-            <button className="btn" onClick={onClose || close}>
-              Close
-            </button>
-          </div>
-        )}
+        {children}
+        {showCloseButton && <CloseBtn onClick={onClose}>Close</CloseBtn>}
       </ModalBox>
     </Overlay>
   )

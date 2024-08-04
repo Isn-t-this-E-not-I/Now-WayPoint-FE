@@ -24,33 +24,7 @@
   height: 30px;
   line-height: 10px;
   font-size: 12px;
-}
-
-#categorybtn1 {
-  position: absolute;
-  top: 10px;
-  left: 190px;
-  z-index: 10;
-}
-
-#categorybtn2 {
-  position: absolute;
-  top: 10px;
-  left: 260px;
-  z-index: 10;
-}
-
-#categorybtn3 {
-  position: absolute;
-  top: 10px;
-  left: 330px;
-  z-index: 10;
-}
-#categorybtn4 {
-  position: absolute;
-  top: 10px;
-  left: 400px;
-  z-index: 10;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .overlaybox {

@@ -29,13 +29,15 @@ const SelectButton = styled.div<{ isOpen: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 16px;
+  border-radius: 10px;
   transition: border-color 0.3s ease;
   font-size: 12px;
   &hover: {
     border: 1px solid black;
   }
 `
+
+// box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 
 const SelectDropdown = styled.div<{ isOpen: boolean }>`
   display: ${({ isOpen }) => (isOpen ? 'block' : 'none')};
@@ -46,7 +48,7 @@ const SelectDropdown = styled.div<{ isOpen: boolean }>`
   overflow-y: auto;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 10;
-  border-radius: 16px;
+  border-radius: 10px;
   margin-top: 5px;
   font-size: 12px;
 `

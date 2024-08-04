@@ -20,6 +20,8 @@ import { getAddressFromCoordinates } from '@/services/getAddress'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
 import TextArea from '@/components/TextArea/textArea'
+import Modal from '@/components/Modal/modal'
+import EditContent from '@/pages/EditContent/editContent'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
 // 현재 로그인한 유저의 닉네임을 가져오는 함수
@@ -38,29 +40,30 @@ const DetailContent: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]) // 모든 유저 상태
   const [mentionList, setMentionList] = useState<User[]>([]) // 멘션 목록 상태
   const [newMentionList, setNewMentionList] = useState<User[]>([]) // 새로운 댓글 멘션 목록 상태
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false) // Edit modal 상태 추가
   const { id } = useParams()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchPostAndComments = async () => {
-      try {
-        const postData = await getPostById(Number(id))
-        setPost(postData)
-        const commentsData = await getCommentsByPostId(Number(id))
-        setComments(buildCommentTree(commentsData))
+  const fetchPostAndComments = async () => {
+    try {
+      const postData = await getPostById(Number(id))
+      setPost(postData)
+      const commentsData = await getCommentsByPostId(Number(id))
+      setComments(buildCommentTree(commentsData))
 
-        if (postData.locationTag) {
-          const [longitude, latitude] = postData.locationTag
-            .split(',')
-            .map(Number)
-          const address = await getAddressFromCoordinates(latitude, longitude)
-          setAddress(address)
-        }
-      } catch (error) {
-        console.error('Failed to fetch post or comments data:', error)
+      if (postData.locationTag) {
+        const [longitude, latitude] = postData.locationTag
+          .split(',')
+          .map(Number)
+        const address = await getAddressFromCoordinates(latitude, longitude)
+        setAddress(address)
       }
+    } catch (error) {
+      console.error('Failed to fetch post or comments data:', error)
     }
+  }
 
+  useEffect(() => {
     fetchPostAndComments()
 
     const fetchUsers = async () => {
@@ -543,7 +546,7 @@ const DetailContent: React.FC = () => {
                       if (item === '게시글 삭제') {
                         handlePostDelete()
                       } else if (item === '게시글 수정') {
-                        navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
+                        setIsEditModalOpen(true)
                       }
                     }}
                   />
@@ -554,6 +557,12 @@ const DetailContent: React.FC = () => {
           </form>
         </div>
       </div>
+      <Modal showCloseButton={false} isOpen={isEditModalOpen}>
+        <EditContent
+          onClose={() => setIsEditModalOpen(false)}
+          refreshPost={fetchPostAndComments}
+        />
+      </Modal>
     </div>
   )
 }
