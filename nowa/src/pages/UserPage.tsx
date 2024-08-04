@@ -6,6 +6,8 @@ import defaultProfileImage from '../../../defaultprofile.png';
 import Posts from '../components/Posts/Posts';
 import UserFollowList from '../components/FollowList/UserFollowList';
 import { getCommentsByPostId } from '../services/comments';
+import Button from '../components/Button/button';
+
 
 const Container = styled.div`
   display: flex;
@@ -119,6 +121,7 @@ const UserPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const location = import.meta.env.VITE_APP_API;
   const locations = useLocation();
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
@@ -235,7 +238,6 @@ const UserPage: React.FC = () => {
           if (!prevUserInfo) return prevUserInfo;
           return {
             ...prevUserInfo,
-            // followings: prevUserInfo.followings + 1,
             followingsList: prevUserInfo.followingsList.map((user) =>
               user.nickname === nickname ? { ...user, isFollowing: true } : user
             ),
@@ -273,7 +275,6 @@ const UserPage: React.FC = () => {
           if (!prevUserInfo) return prevUserInfo;
           return {
             ...prevUserInfo,
-            // followings: prevUserInfo.followings - 1,  //*
             followingsList: prevUserInfo.followingsList.map((user) =>
               user.nickname === nickname ? { ...user, isFollowing: false } : user
             ),
@@ -291,6 +292,26 @@ const UserPage: React.FC = () => {
     }
   };
 
+
+  const checkIfFollowing = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+  
+    try {
+      const response = await axios.get(`${location}/follow/following`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const followingData = response.data;
+      setIsFollowing(followingData.some((user: any) => user.nickname === nickname));
+    } catch (error) {
+      console.error('Failed to check if following:', error);
+    }
+  };
+
+
   useEffect(() => {
     fetchUserData();
     setSelectedTab('posts');
@@ -301,6 +322,12 @@ const UserPage: React.FC = () => {
     const tab = params.get('tab');
     setSelectedTab(tab || 'posts');
   }, [locations.search]);
+
+  useEffect(() => {
+    if (nickname) {
+      checkIfFollowing();
+    }
+  }, [nickname]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -313,6 +340,24 @@ const UserPage: React.FC = () => {
   const filteredFollowers = userInfo?.followersList.filter((user) =>
     user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleFollowUser = async () => {
+    if (nickname) {
+      await handleFollow(nickname);
+      setIsFollowing(true);
+    } else {
+      console.error("Nickname is undefined");
+    }
+  };
+  
+  const handleUnfollowUser = async () => {
+    if (nickname) {
+      await handleUnfollow(nickname);
+      setIsFollowing(false);
+    } else {
+      console.error("Nickname is undefined");
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -340,6 +385,15 @@ const UserPage: React.FC = () => {
             </StatItem>
           </Stats>
           <Description>{userInfo.description}</Description>
+          {isFollowing ? (
+            <Button onClick={handleUnfollowUser} className="btn-secondary">
+              언팔로우
+            </Button>
+          ) : (
+            <Button onClick={handleFollowUser} className="btn-primary">
+              팔로우
+            </Button>
+          )}
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
