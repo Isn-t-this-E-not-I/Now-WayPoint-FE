@@ -56,10 +56,29 @@ const ChatListPage: React.FC = () => {
     navigate(`/chatting/${chatRoomId}`)
   }
 
+  // 최근 메시지 기준으로 chatRooms를 정렬
+  const sortedChatRooms = chatRooms.sort((a, b) => {
+    const roomAInfo = chatRoomsInfo.find(
+      (info) => info.chatRoomId === a.chatRoomId
+    )
+    const roomBInfo = chatRoomsInfo.find(
+      (info) => info.chatRoomId === b.chatRoomId
+    )
+
+    const timestampA = roomAInfo
+      ? new Date(roomAInfo.lastMessageTimestamp).getTime()
+      : 0
+    const timestampB = roomBInfo
+      ? new Date(roomBInfo.lastMessageTimestamp).getTime()
+      : 0
+
+    return timestampB - timestampA // 내림차순 정렬
+  })
+
   return (
     <Container>
       <ChatList>
-        {chatRooms.map((room) => {
+        {sortedChatRooms.map((room) => {
           const roomInfo = chatRoomsInfo.find(
             (info) => info.chatRoomId === room.chatRoomId
           )
