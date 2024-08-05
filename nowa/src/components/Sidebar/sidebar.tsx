@@ -50,11 +50,12 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 2.6rem;
+  width: 4.5rem;
   height: 100%;
-  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 10;
   position: fixed;
+  border-right: 2px solid #4943ff;
+  background-color: #f8faff;
 `
 
 const RightSidebar = styled.div`
@@ -62,11 +63,12 @@ const RightSidebar = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 19.5rem;
+  width: 19rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
-  margin-left: 2.6rem;
+  margin-left: 4.4rem;
+  background-color: #f8faff;
 `
 
 const Blank = styled.div`
@@ -82,26 +84,59 @@ const LogoIconButtonWrapper = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  margin-bottom: 25px;
 
   &:focus {
     outline: none;
   }
 `
 
-const IconButtonWrapper = styled.button`
+const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
+  active: props.active,
+}))<{ active: boolean }>`
+  background: ${({ active }) => (active ? '#4943ff' : 'none')};
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 4.4rem;
+  height: 70px;
+
+  &:focus {
+    outline: none;
+    background-color: #4943ff;
+  }
+
+  svg {
+    fill: ${({ active }) => (active ? '#FFCE65' : 'currentColor')};
+  }
+`
+
+const IconSpan = styled.span<{ active: boolean }>`
+  margin-top: 2px;
+  margin-bottom: 23px;
+  font-size: 12px;
+  font-weight: bold;
+  color: ${({ active }) => (active ? '#FFCE65' : 'currentColor')};
+`
+
+const LogOutIconButtonWrapper = styled.button`
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   margin-top: 8px;
-  position: relative; /* Add this line */
-
-  &:focus {
-    outline: none;
-  }
+  position: relative;
+  width: 4.2rem;
+  height: 55px;
 `
 
 const ContentDiv = styled.div`
@@ -125,24 +160,9 @@ const ContentPage = styled.div`
   width: 100%;
 `
 
-const PageTitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-`
-
-const PageTitle = styled.div`
-  font-size: 25px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  margin-left: 6px;
-  align-self: flex-start;
-`
-
 const SearchContainer = styled.div`
   margin-left: 6px;
-  width: 100%;
+  width: 96%;
 `
 
 const NotificationList = styled.div`
@@ -324,28 +344,35 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
           <LogoIcon theme={theme} />
         </LogoIconButtonWrapper>
         <IconButtonWrapper
+          active={activePage === 'main'}
           onClick={() => {
             handleNavigate('main')
             setActivePage('main')
           }}
         >
           <MainIcon theme={theme} />
+          <IconSpan active={activePage === 'main'}>메인</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          active={isUploadModalOpen}
           onClick={() => {
             setUploadModalOpen(true) // 모달 열기
           }}
         >
           <NewCreateIcon theme={theme} />
+          <IconSpan active={isUploadModalOpen}>새 게시물</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          active={activePage === 'notifications'}
           onClick={() => {
             setActivePage('notifications')
           }}
         >
           <NotificationsIcon theme={theme} />
+          <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          active={activePage === 'chat'}
           onClick={() => {
             if (getStompClient() == null) {
               connectAndSubscribe()
@@ -361,30 +388,39 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
           }}
         >
           <ChatIcon theme={theme} />
+          <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          active={activePage === 'contents'}
           onClick={() => {
             setActivePage('contents')
           }}
         >
           <ContentsIcon theme={theme} />
+          <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          active={activePage === 'followContents'}
           onClick={() => {
             setActivePage('followContents')
           }}
         >
           <FollowContentsIcon theme={theme} />
+          <IconSpan active={activePage === 'followContents'}>
+            팔로우 컨텐츠
+          </IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          active={activePage === 'myPage'}
           onClick={() => {
             setActivePage('myPage')
             handleNavigate('mypage')
           }}
         >
           <MyPageIcon theme={theme} />
+          <IconSpan active={activePage === 'myPage'}>마이 페이지</IconSpan>
         </IconButtonWrapper>
-        <IconButtonWrapper
+        <LogOutIconButtonWrapper
           onClick={() => {
             setLogoutDropdownOpen(!isLogoutDropdownOpen)
           }}
@@ -401,7 +437,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
               </button>
             </LogoutDropdown>
           )}
-        </IconButtonWrapper>
+        </LogOutIconButtonWrapper>
         <Blank />
         <ThemeController />
       </LeftSidebar>
@@ -409,10 +445,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
       <RightSidebar>
         <NowaIcon theme={theme} />
         <ContentDiv>
-          <PageTitleWrapper>
-            <PageTitle>{getPageTitle()}</PageTitle>
-            {activePage === 'chat' && <CreateChatRoomButton />}
-          </PageTitleWrapper>
           {shouldShowSearch() && (
             <SearchContainer>
               <Search />
