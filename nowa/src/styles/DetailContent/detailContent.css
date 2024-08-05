@@ -263,19 +263,19 @@
 }
 
 .mention-list-parent {
+  border: 1px solid #ddd;
   position: absolute;
   bottom: 2px;
-  right: 80px;
+  right: -180px;
   font-size: 12px;
-  max-height: 250px;
-  width: 150px;
+  max-height: 50%;
+  width: 170px;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  background-color: rgba(189, 189, 189, 0.7);
+  background-color: white;
   border-radius: 12px;
   z-index: 10000;
-  box-shadow: 4px 2px 2px;
 }
 
 .mention_name {
