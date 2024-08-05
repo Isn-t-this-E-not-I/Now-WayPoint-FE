@@ -23,6 +23,7 @@ import TextArea from '@/components/TextArea/textArea'
 import Modal from '@/components/Modal/modal'
 import EditContent from '@/pages/EditContent/editContent'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
+import { styled } from 'styled-components'
 
 interface DetailContentProps {
   postId: Number
@@ -32,6 +33,17 @@ interface DetailContentProps {
 const getCurrentUser = (): string | null => {
   return localStorage.getItem('nickname')
 }
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 1001;
+`;
 
 const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
   const [post, setPost] = useState<Post | null>(null)
@@ -49,6 +61,12 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
     new Set()
   ) // 댓글 확장 상태
   const navigate = useNavigate()
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+
+  const handleCloseModal = () => {  // 닫기 버튼
+    setIsEditModalOpen(false)
+  }
 
   const fetchPostAndComments = async () => {
     try {
@@ -497,7 +515,6 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
   }
 
   return (
-    <div>
       <div className="detail_container">
         <div id="detail_picture">
           <div id="detail_picture_item1">
@@ -627,19 +644,22 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
             </div>
           </form>
         </div>
-      </div>
+      {isEditModalOpen && (
+        <CloseButton onClick={handleCloseModal}>×</CloseButton>
+      )}
       <Modal
-        showCloseButton={true}
+        showCloseButton={false}
         isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
+        onClose={handleCloseModal}
       >
         <EditContent
-          onClose={() => setIsEditModalOpen(false)}
-          refreshPost={fetchPostAndComments}
+           onClose={handleCloseModal}
+           refreshPost={fetchPostAndComments}
         />
       </Modal>
     </div>
   )
 }
+
 
 export default DetailContent
