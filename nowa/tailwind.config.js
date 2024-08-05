@@ -13,7 +13,7 @@ export default {
       {
         light: {
           ...defaultTheme['[data-theme=light]'],
-          'base-100': '#F5F5F5',
+          'base-100': '#F8FAFF',
         },
         dark: {
           ...defaultTheme['[data-theme=dark]'],
