@@ -1,4 +1,4 @@
-import React, { useEffect, ReactNode } from 'react'
+import React, { useState, ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 
 interface ModalProps {
@@ -46,6 +46,7 @@ const Modal: React.FC<ModalProps> = ({
   children,
   showCloseButton = true,
 }) => {
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -60,11 +61,33 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+
   return (
-    <Overlay>
+    <Overlay onClick={handleOverlayClick}>
       <ModalBox>
-        {children}
-        {showCloseButton && <CloseBtn onClick={onClose}>Close</CloseBtn>}
+        {children ? (
+          children
+        ) : (
+          <>
+            <h3 className="font-bold text-lg">Hello!</h3>
+            <p className="py-4">
+              Press ESC key or click the button below to close
+            </p>
+          </>
+        )}
+        {showCloseButton && (
+          <div className="modal-action">
+            <button className="btn" onClick={onClose}>
+              Close
+            </button>
+          </div>
+        )}
       </ModalBox>
     </Overlay>
   )
