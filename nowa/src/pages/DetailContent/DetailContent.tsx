@@ -17,19 +17,24 @@ import {
   User,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
 import TextArea from '@/components/TextArea/textArea'
 import Modal from '@/components/Modal/modal'
 import EditContent from '@/pages/EditContent/editContent'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
+interface DetailContentProps {
+  postId: Number
+  onClose?: () => void // 추가: 모달을 닫는 함수
+}
+
 // 현재 로그인한 유저의 닉네임을 가져오는 함수
 const getCurrentUser = (): string | null => {
   return localStorage.getItem('nickname')
 }
 
-const DetailContent: React.FC = () => {
+const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
@@ -41,14 +46,18 @@ const DetailContent: React.FC = () => {
   const [mentionList, setMentionList] = useState<User[]>([]) // 멘션 목록 상태
   const [newMentionList, setNewMentionList] = useState<User[]>([]) // 새로운 댓글 멘션 목록 상태
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false) // Edit modal 상태 추가
-  const { id } = useParams()
+  const [expandedComments, setExpandedComments] = useState<Set<number>>(
+    new Set()
+  ) // 댓글 확장 상태
   const navigate = useNavigate()
+  const [id, setId] = useState<Number>()
 
   const fetchPostAndComments = async () => {
     try {
-      const postData = await getPostById(Number(id))
+      const postData = await getPostById(Number(postId))
       setPost(postData)
-      const commentsData = await getCommentsByPostId(Number(id))
+      setId(postData.id)
+      const commentsData = await getCommentsByPostId(Number(postId))
       const parentComments = commentsData.filter((comment) => !comment.parentId)
       const sortedParentComments = parentComments.sort(
         (a, b) => b.likeCount - a.likeCount
@@ -57,7 +66,7 @@ const DetailContent: React.FC = () => {
       const childComments = commentsData.filter((comment) => comment.parentId)
       const sortedChildComments = childComments.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       )
 
       const combinedComments = sortedParentComments.flatMap((parent) => [
@@ -95,12 +104,12 @@ const DetailContent: React.FC = () => {
 
     const user = getCurrentUser()
     setCurrentUser(user)
-  }, [id])
+  }, [postId])
 
   // 댓글 목록을 갱신하는 함수
   const fetchComments = async () => {
     try {
-      const commentsData = await getCommentsByPostId(Number(id))
+      const commentsData = await getCommentsByPostId(Number(postId))
       const parentComments = commentsData.filter((comment) => !comment.parentId)
       const sortedParentComments = parentComments.sort(
         (a, b) => b.likeCount - a.likeCount
@@ -109,7 +118,7 @@ const DetailContent: React.FC = () => {
       const childComments = commentsData.filter((comment) => comment.parentId)
       const sortedChildComments = childComments.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       )
 
       const combinedComments = sortedParentComments.flatMap((parent) => [
@@ -126,7 +135,7 @@ const DetailContent: React.FC = () => {
   // 댓글을 삭제하는 함수
   const handleCommentDelete = async (commentId: number) => {
     try {
-      const result = await deleteCommentById(Number(id), commentId)
+      const result = await deleteCommentById(Number(postId), commentId)
       if (typeof result === 'string') {
         alert(result)
       } else {
@@ -143,9 +152,13 @@ const DetailContent: React.FC = () => {
     const confirmed = window.confirm('정말로 게시글을 삭제하시겠습니까?')
     if (confirmed) {
       try {
-        await deletePostById(Number(id))
+        await deletePostById(Number(postId))
         alert('게시글이 삭제되었습니다.')
         navigate('/mypage') // 삭제 후 메인 페이지로 리다이렉트
+        if (onClose) {
+          onClose() // 모달 창 닫기
+        }
+        window.location.reload()
       } catch (error) {
         console.error('Failed to delete post:', error)
         alert('게시글을 삭제하는 중 오류가 발생했습니다.')
@@ -161,7 +174,7 @@ const DetailContent: React.FC = () => {
       return
     }
     try {
-      const newCommentData = await createComment(Number(id), newComment)
+      const newCommentData = await createComment(Number(postId), newComment)
       await fetchComments()
       setNewComment('')
     } catch (error) {
@@ -182,7 +195,7 @@ const DetailContent: React.FC = () => {
     }
     try {
       const newReplyData = await createComment(
-        Number(id),
+        Number(postId),
         replyContent,
         parentCommentId
       )
@@ -217,7 +230,7 @@ const DetailContent: React.FC = () => {
   // 게시글 좋아요를 토글하는 함수
   const handleLikeToggle = async () => {
     try {
-      await likePostById(Number(id))
+      await likePostById(Number(postId))
       setPost((prevPost) =>
         prevPost
           ? {
@@ -238,7 +251,7 @@ const DetailContent: React.FC = () => {
   // 댓글 좋아요를 토글하는 함수
   const handleCommentLikeToggle = async (commentId: number) => {
     try {
-      await toggleCommentLike(Number(id), commentId)
+      await toggleCommentLike(Number(postId), commentId)
       await fetchComments()
     } catch (error) {
       console.error('Failed to like/unlike comment:', error)
@@ -349,6 +362,19 @@ const DetailContent: React.FC = () => {
     }
   }
 
+  // 댓글 확장/축소 핸들러
+  const handleToggleExpand = (commentId: number) => {
+    setExpandedComments((prev) => {
+      const newExpandedComments = new Set(prev)
+      if (newExpandedComments.has(commentId)) {
+        newExpandedComments.delete(commentId)
+      } else {
+        newExpandedComments.add(commentId)
+      }
+      return newExpandedComments
+    })
+  }
+
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -361,97 +387,120 @@ const DetailContent: React.FC = () => {
   const con_drop = ['게시글 수정', '게시글 삭제']
 
   const renderComments = (comments: Comment[]) => {
-    return comments.map((comment) => (
-      <div
-        key={comment.id}
-        id="detail_coment_deep"
-        style={{ marginLeft: comment.parentId ? '20px' : '0' }} // 들여쓰기 적용
-      >
+    return comments.map((comment) => {
+      const isExpanded = expandedComments.has(comment.id)
+      const content = isExpanded
+        ? comment.content
+        : comment.content.slice(0, 100)
+
+      return (
         <div
-          id="test_coment_img"
-          onClick={() => handleProfileClick(comment.nickname)}
+          key={comment.id}
+          id="detail_coment_deep"
+          style={{ marginLeft: comment.parentId ? '20px' : '0' }} // 들여쓰기 적용
         >
-          <img id="d_d" alt="프로필 이미지" src={comment.profileImageUrl} />
-        </div>
-        <div>
-          <div id="detail_coment_id">{comment.nickname}</div>
-          <div id="detail_coment_content">
-            {formatContentWithMentions(comment.content)}
+          <div
+            id="test_coment_img"
+            onClick={() => handleProfileClick(comment.nickname)}
+          >
+            <img id="d_d" alt="프로필 이미지" src={comment.profileImageUrl} />
           </div>
-          <div id="detail_coment_edit_line">
-            <div id="detail_coment_date">
-              {formatRelativeTime(comment.createdAt)}
-            </div>
-            {/* 답글 달기 버튼 조건부 렌더링 */}
-            {comment.parentId === null && (
-              <div
-                id="detail_coment_recoment"
-                onClick={() => toggleReplyComment(comment.id)}
-              >
-                답글 달기
-              </div>
-            )}
-            <div id="detail_coment_delete">
-              {currentUser === comment.nickname && (
-                <a
-                  href=""
-                  onClick={(e) => {
-                    e.preventDefault()
-                    handleCommentDelete(comment.id)
-                  }}
+          <div>
+            <div id="detail_coment_id">{comment.nickname}</div>
+            <div id="detail_coment_content">
+              {formatContentWithMentions(content)}
+              {comment.content.length > 100 && !isExpanded && (
+                <span
+                  onClick={() => handleToggleExpand(comment.id)}
+                  style={{ color: 'rgb(87, 193, 255)', cursor: 'pointer' }}
                 >
-                  삭제
-                </a>
+                  ...더보기
+                </span>
+              )}
+              {isExpanded && (
+                <span
+                  onClick={() => handleToggleExpand(comment.id)}
+                  style={{ color: 'rgb(87, 193, 255)', cursor: 'pointer' }}
+                >
+                  접기
+                </span>
               )}
             </div>
-          </div>
-          <div id="detail_comment_like">
-            <img
-              src={
-                comment.likedByUser
-                  ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
-                  : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
-              }
-              alt="좋아요"
-              onClick={() => handleCommentLikeToggle(comment.id)}
-            />
-            <div id="detail_comment_like_count">{comment.likeCount}</div>
-          </div>
-          {replyCommentId === comment.id && (
-            <form
-              id="detail_reply_write"
-              onSubmit={(e) => handleReplySubmit(comment.id, e)}
-            >
-              <TextArea
-                id="detail_reply_content"
-                value={replyContent}
-                onChange={handleMention}
-                onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
-              ></TextArea>
-              <div id="detail_reply_write_button">
-                <button type="submit">답글 게시</button>
+            <div id="detail_coment_edit_line">
+              <div id="detail_coment_date">
+                {formatRelativeTime(comment.createdAt)}
               </div>
-              {mentionList.length > 0 && (
-                <div className="mention-list">
-                  {mentionList.map((user) => (
-                    <div
-                      key={user.id}
-                      className="mention-item"
-                      onClick={() => addMention(user.nickname)}
-                    >
-                      <div className="mention_profile">
-                        <img src={`${user.profileImageUrl}`}></img>
-                        <div className="mention_name">{user.nickname}</div>
-                      </div>
-                    </div>
-                  ))}
+              {/* 답글 달기 버튼 조건부 렌더링 */}
+              {comment.parentId === null && (
+                <div
+                  id="detail_coment_recoment"
+                  onClick={() => toggleReplyComment(comment.id)}
+                >
+                  답글 달기
                 </div>
               )}
-            </form>
-          )}
+              <div id="detail_coment_delete">
+                {currentUser === comment.nickname && (
+                  <a
+                    href=""
+                    onClick={(e) => {
+                      e.preventDefault()
+                      handleCommentDelete(comment.id)
+                    }}
+                  >
+                    삭제
+                  </a>
+                )}
+              </div>
+            </div>
+            <div id="detail_comment_like">
+              <img
+                src={
+                  comment.likedByUser
+                    ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
+                    : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
+                }
+                alt="좋아요"
+                onClick={() => handleCommentLikeToggle(comment.id)}
+              />
+              <div id="detail_comment_like_count">{comment.likeCount}</div>
+            </div>
+            {replyCommentId === comment.id && (
+              <form
+                id="detail_reply_write"
+                onSubmit={(e) => handleReplySubmit(comment.id, e)}
+              >
+                <TextArea
+                  id="detail_reply_content"
+                  value={replyContent}
+                  onChange={handleMention}
+                  onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
+                ></TextArea>
+                <div id="detail_reply_write_button">
+                  <button type="submit">답글 게시</button>
+                </div>
+                {mentionList.length > 0 && (
+                  <div className="mention-list">
+                    {mentionList.map((user) => (
+                      <div
+                        key={user.id}
+                        className="mention-item"
+                        onClick={() => addMention(user.nickname)}
+                      >
+                        <div className="mention_profile">
+                          <img src={`${user.profileImageUrl}`}></img>
+                          <div className="mention_name">{user.nickname}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </form>
+            )}
+          </div>
         </div>
-      </div>
-    ))
+      )
+    })
   }
 
   return (
@@ -586,8 +635,13 @@ const DetailContent: React.FC = () => {
           </form>
         </div>
       </div>
-      <Modal showCloseButton={false} isOpen={isEditModalOpen}>
+      <Modal
+        showCloseButton={true}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      >
         <EditContent
+          postId={id}
           onClose={() => setIsEditModalOpen(false)}
           refreshPost={fetchPostAndComments}
         />

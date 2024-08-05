@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { useParams, useLocation } from 'react-router-dom'
-import axios from 'axios'
-import styled from 'styled-components'
-import defaultProfileImage from '../../../defaultprofile.png'
-import Posts from '../components/Posts/Posts'
-import UserFollowList from '../components/FollowList/UserFollowList'
-import { getCommentsByPostId } from '../services/comments'
+import React, { useEffect, useState } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
+import axios from 'axios';
+import styled from 'styled-components';
+import defaultProfileImage from '../../../defaultprofile.png';
+import Posts from '../components/Posts/Posts';
+import UserFollowList from '../components/FollowList/UserFollowList';
+import { getCommentsByPostId } from '../services/comments';
+import Button from '../components/Button/button';
+
 
 const Container = styled.div`
   display: flex;
@@ -13,7 +15,7 @@ const Container = styled.div`
   align-items: flex-start;
   height: 100vh;
   padding: 20px;
-`
+`;
 
 const ProfileSection = styled.div`
   flex: 1;
@@ -21,14 +23,14 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
-`
+`;
 
 const ContentSection = styled.div`
   flex: 5;
   padding: 20px;
   margin-left: 30px;
   margin-right: 30px;
-`
+`;
 
 const ProfileImage = styled.img`
   width: 100px;
@@ -36,35 +38,35 @@ const ProfileImage = styled.img`
   border-radius: 50%;
   margin-top: 30px;
   margin-bottom: 30px;
-`
+`;
 
 const ProfileInfo = styled.div`
   text-align: center;
   margin-top: 20px;
-`
+`;
 
 const Stats = styled.div`
   margin-top: 10px;
   margin-bottom: 20px;
-`
+`;
 
 const StatItem = styled.div`
   margin-bottom: 5px;
   cursor: pointer;
-`
+`;
 
 const Description = styled.p`
   margin-top: 10px;
-`
+`;
 
 const SectionTitle = styled.h2`
   font-size: 20px;
   margin-bottom: 20px;
-`
+`;
 
 const NicknameTitle = styled.h3`
   font-size: 16px;
-`
+`;
 
 const SearchInput = styled.input`
   width: 100%;
@@ -72,113 +74,110 @@ const SearchInput = styled.input`
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
-`
+`;
+
+const ButtonGroup = styled.div` /* 팔로우/언팔로우 버튼 & 메시지 버튼 간격 조절용으로 넣었습니다 */
+  display: flex;
+  gap: 10px; /* 간격을 추가 */
+`;
 
 interface Post {
-  id: number
-  mediaUrls: string[]
-  createdAt: string
-  category: string
-  likeCount: number
-  commentCount: number // 댓글 수 추가
+  id: number;
+  mediaUrls: string[];
+  createdAt: string;
+  category: string;
+  likeCount: number;
+  commentCount: number; // 댓글 수 추가
 }
 
 interface UserProfile {
-  nickname: string
-  profileImageUrl: string
-  description: string
-  followers: number
-  followings: number
-  postCount: number
-  posts: Post[]
+  nickname: string;
+  profileImageUrl: string;
+  description: string;
+  followers: number;
+  followings: number;
+  postCount: number;
+  posts: Post[];
   followersList: {
-    isFollowing: boolean
-    name: string
-    nickname: string
-    profileImageUrl: string
-  }[]
+    isFollowing: boolean;
+    name: string;
+    nickname: string;
+    profileImageUrl: string;
+  }[];
   followingsList: {
-    isFollowing: boolean
-    name: string
-    nickname: string
-    profileImageUrl: string
-  }[]
+    isFollowing: boolean;
+    name: string;
+    nickname: string;
+    profileImageUrl: string;
+  }[];
   allUsers: {
-    isFollowing: boolean
-    name: string
-    nickname: string
-    profileImageUrl: string
-  }[]
+    isFollowing: boolean;
+    name: string;
+    nickname: string;
+    profileImageUrl: string;
+  }[];
 }
 
 const UserPage: React.FC = () => {
-  const { nickname } = useParams<{ nickname: string }>()
-  const [userInfo, setUserInfo] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedTab, setSelectedTab] = useState('posts')
-  const [searchQuery, setSearchQuery] = useState('')
-  const location = import.meta.env.VITE_APP_API
+  const { nickname } = useParams<{ nickname: string }>();
+  const [userInfo, setUserInfo] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedTab, setSelectedTab] = useState('posts');
+  const [searchQuery, setSearchQuery] = useState('');
+  const location = import.meta.env.VITE_APP_API;
   const locations = useLocation();
+  const [isFollowing, setIsFollowing] = useState(false);
 
   const fetchUserData = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return
+    const token = localStorage.getItem('token');
+    if (!token) return;
 
     try {
-      console.log('Fetching user data...')
-      const response = await axios.get(
-        `${location}/user?nickname=${nickname}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      console.log('User API Response:', response)
+      console.log('Fetching user data...');
+      const response = await axios.get(`${location}/user?nickname=${nickname}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('User API Response:', response);
 
-      const userData = response.data
+      const userData = response.data;
 
-      console.log(`Fetching following data for ${nickname}...`)
-      const followingResponse = await axios.get(
-        `${location}/follow/following?nickname=${nickname}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      console.log('Following API Response:', followingResponse)
+      console.log(`Fetching following data for ${nickname}...`);
+      const followingResponse = await axios.get(`${location}/follow/following?nickname=${nickname}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Following API Response:', followingResponse);
 
-      console.log(`Fetching follower data for ${nickname}...`)
-      const followerResponse = await axios.get(
-        `${location}/follow/follower?nickname=${nickname}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      console.log('Follower API Response:', followerResponse)
+      console.log(`Fetching follower data for ${nickname}...`);
+      const followerResponse = await axios.get(`${location}/follow/follower?nickname=${nickname}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('Follower API Response:', followerResponse);
 
-      console.log('Fetching all users...')
+      console.log('Fetching all users...');
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      console.log('All Users API Response:', allUsersResponse)
+      });
+      console.log('All Users API Response:', allUsersResponse);
 
       const allUsers = allUsersResponse.data.map((user: any) => ({
         isFollowing: followingResponse.data.some(
           (followingUser: any) => followingUser.nickname === user.nickname
         ),
         ...user,
-      }))
+      }));
 
       // 각 게시글의 댓글 수를 가져와서 posts 배열에 추가
       const postsWithCommentCounts = await Promise.all(
         userData.posts.map(async (post: any) => {
-          const comments = await getCommentsByPostId(post.id)
+          const comments = await getCommentsByPostId(post.id);
           return {
             id: post.id,
             mediaUrls: post.mediaUrls,
@@ -186,9 +185,9 @@ const UserPage: React.FC = () => {
             category: post.category,
             likeCount: post.likeCount,
             commentCount: comments.length, // 댓글 수 추가
-          }
+          };
         })
-      )
+      );
 
       setUserInfo({
         nickname: userData.nickname,
@@ -215,45 +214,162 @@ const UserPage: React.FC = () => {
             }))
           : [],
         allUsers,
-      })
+      });
 
-      setLoading(false)
+      setLoading(false);
     } catch (error) {
-      console.error('Failed to fetch user data:', error)
-      setLoading(false)
+      console.error('Failed to fetch user data:', error);
+      setLoading(false);
     }
-  }
+  };
+
+  const handleFollow = async (nickname: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const location = import.meta.env.VITE_APP_API;
+      const response = await fetch(`${location}/follow/add`, {
+        method: 'PUT',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nickname }),
+      });
+
+      if (response.ok) {
+        setUserInfo((prevUserInfo) => {
+          if (!prevUserInfo) return prevUserInfo;
+          return {
+            ...prevUserInfo,
+            followingsList: prevUserInfo.followingsList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: true } : user
+            ),
+            followersList: prevUserInfo.followersList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: true } : user
+            ),
+            allUsers: prevUserInfo.allUsers.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: true } : user
+            ),
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+  const handleUnfollow = async (nickname: string) => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const location = import.meta.env.VITE_APP_API;
+      const response = await fetch(`${location}/follow/cancel`, {
+        method: 'PUT',
+        headers: {
+          Authorization: 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ nickname }),
+      });
+
+      if (response.ok) {
+        setUserInfo((prevUserInfo) => {
+          if (!prevUserInfo) return prevUserInfo;
+          return {
+            ...prevUserInfo,
+            followingsList: prevUserInfo.followingsList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: false } : user
+            ),
+            followersList: prevUserInfo.followersList.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: false } : user
+            ),
+            allUsers: prevUserInfo.allUsers.map((user) =>
+              user.nickname === nickname ? { ...user, isFollowing: false } : user
+            ),
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+
+
+  const checkIfFollowing = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+  
+    try {
+      const response = await axios.get(`${location}/follow/following`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      const followingData = response.data;
+      setIsFollowing(followingData.some((user: any) => user.nickname === nickname));
+    } catch (error) {
+      console.error('Failed to check if following:', error);
+    }
+  };
+
 
   useEffect(() => {
-    fetchUserData()
+    fetchUserData();
     setSelectedTab('posts');
-  }, [nickname])
+  }, [nickname]);
 
   useEffect(() => {
     const params = new URLSearchParams(locations.search);
     const tab = params.get('tab');
     setSelectedTab(tab || 'posts');
-  }, [location.search]);
+  }, [locations.search]);
 
+  useEffect(() => {
+    if (nickname) {
+      checkIfFollowing();
+    }
+  }, [nickname]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
+    setSearchQuery(e.target.value);
+  };
 
   const filteredFollowings = userInfo?.followingsList.filter((user) =>
     user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  );
 
   const filteredFollowers = userInfo?.followersList.filter((user) =>
     user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  );
+
+  const handleFollowUser = async () => {
+    if (nickname) {
+      await handleFollow(nickname);
+      setIsFollowing(true);
+    } else {
+      console.error("Nickname is undefined");
+    }
+  };
+  
+  const handleUnfollowUser = async () => {
+    if (nickname) {
+      await handleUnfollow(nickname);
+      setIsFollowing(false);
+    } else {
+      console.error("Nickname is undefined");
+    }
+  };
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>Loading...</div>;
   }
 
   if (!userInfo) {
-    return <div>Failed to load user data</div>
+    return <div>Failed to load user data</div>;
   }
 
   return (
@@ -274,6 +390,18 @@ const UserPage: React.FC = () => {
             </StatItem>
           </Stats>
           <Description>{userInfo.description}</Description>
+          <ButtonGroup>
+            {isFollowing ? (
+              <Button onClick={handleUnfollowUser} className="btn-secondary">
+                언팔로우
+              </Button>
+            ) : (
+              <Button onClick={handleFollowUser} className="btn-primary">
+                팔로우
+              </Button>
+            )}
+            <Button className="btn-primary">메시지</Button>
+          </ButtonGroup>
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
@@ -295,8 +423,8 @@ const UserPage: React.FC = () => {
             <UserFollowList
               users={filteredFollowings || userInfo.followingsList}
               searchQuery={searchQuery}
-              onFollow={() => {}}
-              onUnfollow={() => {}}
+              onFollow={handleFollow}
+              onUnfollow={handleUnfollow}
             />
           </>
         )}
@@ -312,14 +440,14 @@ const UserPage: React.FC = () => {
             <UserFollowList
               users={filteredFollowers || userInfo.followersList}
               searchQuery={searchQuery}
-              onFollow={() => {}}
-              onUnfollow={() => {}}
+              onFollow={handleFollow}
+              onUnfollow={handleUnfollow}
             />
           </>
         )}
       </ContentSection>
     </Container>
-  )
-}
+  );
+};
 
-export default UserPage
+export default UserPage;

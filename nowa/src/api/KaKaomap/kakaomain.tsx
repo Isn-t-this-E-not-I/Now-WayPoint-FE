@@ -6,6 +6,7 @@ import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
 import Select from '@/components/Select/select'
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 declare global {
   interface Window {
@@ -25,6 +26,8 @@ const MainPage: React.FC = () => {
   const [isInitialized, setIsInitialized] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
   const [selectedDistance, setSelectedDistance] = useState<number>(10)
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [isModalOpen, setModalOpen] = useState(false)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
@@ -122,6 +125,27 @@ const MainPage: React.FC = () => {
     document.head.appendChild(script)
   }
 
+  // 상대적인 시간 형식으로 변환하는 함수
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
+  }
+
   const adjustMarkerPosition = (markers: any[]) => {
     const adjustedPositions = new Set()
     const OFFSET = 0.0001 // 마커를 이동시킬 거리
@@ -162,7 +186,6 @@ const MainPage: React.FC = () => {
           markerImageSrc,
           markerImageSize
         )
-        console.log(item, 123123131231)
 
         const marker = new window.kakao.maps.Marker({
           position,
@@ -240,25 +263,42 @@ const MainPage: React.FC = () => {
     map: any,
     marker: { getPosition: () => any },
     item: {
+      profileImageUrl: string | any[]
       mediaUrls: string | any[]
       username: any
-      createdAt: string | number | Date
+      createdAt: string
       id: any
-      category: string // 추가: category 속성
+      category: string
+      likeCount: Number
+      hashtages: string[]
+      locationTag: string
+      content: string
     }
   ) => {
     const content = document.createElement('div')
     content.className = 'overlaybox'
     content.innerHTML = `
-      <div class="closeBtn">x</div>
+      <div class="main_maker_header">
+        <div class="main_maker_label">${item.category}</div>
+        <div class="closeBtn">x</div>
+      </div>
+      <div id="main_maker_content">
+        <div id="main_maker_profile">
+          <div><img id="main_profile" alt="프로필" src="${item.profileImageUrl}"></img></div>
+          <div id="main_maker_name">${item.username}</div>
+        </div> 
+      </div>
       <div id="main_maker_img">
          <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/4110/4110234.png'}' onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/128/4110/4110234.png';">
       </div>
-      <div id="main_maker_content">
-        <div id="main_maker_name">작성자 : ${item.username}</div> 
+      <div>
+        <div id="main_maker_content_semi">${item.content}</div>
+      </div>
+
       </div>
       <div id="main_maker_content2">
-        <div id="main_maker_create">${formatDate(item.createdAt)}</div>   
+        <div id="main_maker_like">♥ ${item.likeCount}</div>
+        <div id="main_maker_create">${formatRelativeTime(item.createdAt)}</div>   
       </div>
     `
 
@@ -285,7 +325,8 @@ const MainPage: React.FC = () => {
   }
 
   const detail_navigate = (postId: any) => {
-    window.location.href = `detailContent/${postId}`
+    setSelectedPostId(postId)
+    setModalOpen(true)
   }
 
   const zoomIn = () => {
@@ -344,8 +385,6 @@ const MainPage: React.FC = () => {
           console.log('Message received:', messageOutput.body)
           const receivedData = JSON.parse(messageOutput.body)
           setData(receivedData)
-          console.log('Parsed data:', receivedData)
-          // 데이터를 받아온 후에 마커 추가
           if (map) {
             addMarkers(map, receivedData)
           }
@@ -430,6 +469,15 @@ const MainPage: React.FC = () => {
           onChange={handleDistanceChange}
         />
       </div>
+
+      {selectedPostId !== null && (
+        <DetailContentModal
+          isOpen={isModalOpen}
+          onClose={() => setModalOpen(false)}
+          postId={selectedPostId}
+          showCloseButton={true}
+        />
+      )}
     </div>
   )
 }

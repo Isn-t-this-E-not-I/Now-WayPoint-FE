@@ -1,3 +1,7 @@
+#upload_content {
+  min-width: 500px;
+}
+
 /* 업로드 컨텐츠 헤더영역 */
 #upload_content_header {
   display: flex;

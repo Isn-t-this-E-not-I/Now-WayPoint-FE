@@ -5,6 +5,7 @@ import {
 } from '@/components/WebSocketProvider/WebSocketProvider'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 const NotificationWrapper = styled.div`
   max-height: 90vh;
@@ -68,6 +69,8 @@ const NotificationPage: React.FC = () => {
   const [displayNotifications, setDisplayNotifications] = useState<
     Notification[]
   >([])
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [isModalOpen, setModalOpen] = useState(false)
   const location = import.meta.env.VITE_APP_API
   const navigate = useNavigate()
 
@@ -75,12 +78,18 @@ const NotificationPage: React.FC = () => {
     navigate(`/user/${nickname}?tab=posts`)
   }
 
-  const handleContentClick = (notification : Notification) => {
+  const handleContentClick = (notification: Notification) => {
     if (notification.postId) {
-      navigate(`/detailContent/${notification.postId}`);
+      setSelectedPostId(notification.postId)
+      setModalOpen(true)
     } else {
-      navigate(`/user/${notification.nickname}?tab=posts`);
+      navigate(`/user/${notification.nickname}?tab=posts`)
     }
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setSelectedPostId(null)
   }
 
   useEffect(() => {
@@ -149,31 +158,39 @@ const NotificationPage: React.FC = () => {
     <NotificationWrapper>
       {displayNotifications.map((notification) => (
         <NotificationItem
-        key={notification.id}
-        onClick={() => handleContentClick(notification)}
-      >
-        <ProfilePic
-          src={notification.profileImageUrl}
-          alt="Profile"
-          onClick={(e) => {
-            e.stopPropagation(); // 이벤트 버블링 중지
-            handleProfileClick(notification.nickname);
-          }}
-        />
-        <NotificationContent>
-          <span>{notification.message}</span>
-          <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
-        </NotificationContent>
-        <CloseButton
-          onClick={(e) => {
-            e.stopPropagation(); // 이벤트 버블링 중지
-            handleDelete(notification.id);
-          }}
+          key={notification.id}
+          onClick={() => handleContentClick(notification)}
         >
-          x
-        </CloseButton>
-      </NotificationItem>
+          <ProfilePic
+            src={notification.profileImageUrl}
+            alt="Profile"
+            onClick={(e) => {
+              e.stopPropagation() // 이벤트 버블링 중지
+              handleProfileClick(notification.nickname)
+            }}
+          />
+          <NotificationContent>
+            <span>{notification.message}</span>
+            <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
+          </NotificationContent>
+          <CloseButton
+            onClick={(e) => {
+              e.stopPropagation() // 이벤트 버블링 중지
+              handleDelete(notification.id)
+            }}
+          >
+            x
+          </CloseButton>
+        </NotificationItem>
       ))}
+      {selectedPostId !== null && (
+        <DetailContentModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          postId={selectedPostId}
+          showCloseButton={true}
+        />
+      )}
     </NotificationWrapper>
   )
 }

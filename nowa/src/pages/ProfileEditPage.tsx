@@ -8,6 +8,33 @@ import TextArea from '../components/TextArea/textArea'
 import FileInput from '../components/FileInput/fileInput'
 import defaultProfileImage from '../../../defaultprofile.png'
 import { updatePassword, uploadProfileImage } from '../api/userApi'
+import styled from 'styled-components';
+import { EditIcon } from '../components/icons/icons';
+
+
+const ProfileImageWrapper = styled.div`
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-top: 30px;
+  margin-bottom: 30px;
+`;
+
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+`;
+
+const EditIconWrapper = styled.div`
+  position: absolute;
+  bottom: -3px;
+  right: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
 
 const ProfileEditPage: React.FC = () => {
@@ -27,6 +54,8 @@ const ProfileEditPage: React.FC = () => {
       description: string
     }>(null)
     const navigate = useNavigate()
+    const [description, setDescription] = useState(userInfo?.description || '');
+    const maxDescriptionLength = 150;
   
     useEffect(() => {
       const fetchUserData = async () => {
@@ -133,12 +162,13 @@ const ProfileEditPage: React.FC = () => {
   
     const handleUploadProfileImage = async () => {
       if (!selectedFile) return
-  
+    
       try {
         const response = await uploadProfileImage(selectedFile)
-  
+    
         setUserInfo({ ...userInfo, profileImageUrl: response.profileImageUrl })
         alert('프로필 사진이 성공적으로 업데이트되었습니다.')
+        setSelectedFile(null);
       } catch (error) {
         console.error('프로필 사진 업데이트에 실패했습니다:', error)
       }
@@ -165,18 +195,16 @@ const ProfileEditPage: React.FC = () => {
   
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-white p-6">
-        <div className="flex flex-col items-center mb-6">
-          <img
-            src={userInfo.profileImageUrl}
-            alt="Profile"
-            className="w-24 h-24 rounded-full bg-gray-300"
-          />
-          <Button
-            className="mt-2"
-            onClick={() => document.getElementById('fileInput')?.click()}
-          >
-            사진 변경
-          </Button>
+        <div className="relative flex flex-col items-center mb-6">
+          <ProfileImageWrapper>
+            <ProfileImage
+              src={userInfo.profileImageUrl}
+              alt="Profile"
+            />
+            <EditIconWrapper onClick={() => document.getElementById('fileInput')?.click()}>
+              <EditIcon theme="light" />
+            </EditIconWrapper>
+          </ProfileImageWrapper>
           <input
             id="fileInput"
             type="file"
@@ -192,7 +220,7 @@ const ProfileEditPage: React.FC = () => {
         <div className="w-full max-w-md">
           <div className="mb-4">
             <label className="block text-gray-700">아이디</label>
-            <p className="input input-bordered w-full">{userInfo.loginId}</p>
+            <p className="input input-bordered w-full flex items-center h-12">{userInfo.loginId}</p>
           </div>
           <div className="relative mb-4">
             <TextInput
@@ -228,18 +256,24 @@ const ProfileEditPage: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">Email</label>
-            <p className="input input-bordered w-full">{userInfo.email}</p>
+            <p className="input input-bordered w-full flex items-center h-12">{userInfo.email}</p>
           </div>
           <div className="mb-4">
             <label className="block text-gray-700">소개</label>
             <TextArea
               id="description"
-              value={userInfo.description}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setUserInfo({ ...userInfo, description: e.target.value })
-              }
+              value={description}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
+                if (e.target.value.length <= maxDescriptionLength) {
+                  setDescription(e.target.value);
+                  setUserInfo({ ...userInfo, description: e.target.value });
+                }
+              }}
               className="w-full"
             />
+            <div className="text-right text-gray-500">
+              {description.length} / {maxDescriptionLength}
+            </div>
           </div>
           <div className="flex justify-between">
             <Button
@@ -254,10 +288,14 @@ const ProfileEditPage: React.FC = () => {
           </div>
         </div>
         {isModalOpen && (
-          <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-            <p>정말로 계정을 삭제하시겠습니까?</p>
-            <Button onClick={handleDeleteAccount}>삭제</Button>
-            <Button onClick={() => setModalOpen(false)}>취소</Button>
+          <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)} showCloseButton={false}>
+            <div className="flex flex-col items-center">
+              <p className="mb-4">정말로 계정을 삭제하시겠습니까?</p>
+              <div className="flex space-x-4">
+                <Button onClick={handleDeleteAccount}>삭제</Button>
+                <Button onClick={() => setModalOpen(false)}>취소</Button>
+              </div>
+            </div>
           </Modal>
         )}
         {isPasswordModalOpen && (
