@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
+import fetchAllUsers from '@/data/fetchAllUsers';
+import AllUserList from '../FollowList/AllUserList'
 
 const Overlay = styled.div`
   position: fixed;
@@ -76,15 +78,25 @@ const SubmitButton = styled.button<{ $themeMode: string }>`
   }
   margin-top: 10px;
 `
+const SearchContainer = styled.div`
+  margin-left: 6px;
+  width: 100%;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+`;
 
 interface InviteModalProps {
   isOpen: boolean
   onClose: () => void
   selectedUsers: string
   setSelectedUsers: React.Dispatch<React.SetStateAction<string>>
-  chatRoomName: string
-  setChatRoomName: React.Dispatch<React.SetStateAction<string>>
-  handleCreateChat: (e: React.FormEvent) => void
+  handleSubmit: (e: React.FormEvent) => void
   theme: string
   showCloseButton?: boolean
 }
@@ -94,12 +106,25 @@ const InviteModal: React.FC<InviteModalProps> = ({
   onClose,
   selectedUsers,
   setSelectedUsers,
-  chatRoomName,
-  setChatRoomName,
-  handleCreateChat,
+  handleSubmit,
   theme,
   showCloseButton = true,
 }) => {
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
+
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const users = await fetchAllUsers()
+      setAllUsers(users)
+    }
+    getAllUsers()
+  }, [])
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -120,15 +145,20 @@ const InviteModal: React.FC<InviteModalProps> = ({
         <div style={{ position: 'relative' }}>
           <CloseButton onClick={onClose}>&times;</CloseButton>
           <h3 className="font-bold text-lg">새 채팅방 생성</h3>
-          <Form onSubmit={handleCreateChat}>
-            <Label htmlFor="chatRoomName">채팅방명</Label>
-            <Input
-              type="text"
-              value={chatRoomName}
-              onChange={(e) => setChatRoomName(e.target.value)}
-              placeholder="채팅방명 입력 (공란 가능)"
-            />
+          <Form onSubmit={handleSubmit}>
             <Label htmlFor="invitedUsers">유저 초대</Label>
+            {/* <SearchContainer>
+              <SearchInput
+                type="text"
+                placeholder="전체 유저 검색"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <AllUserList
+                users={allUsers}
+                searchQuery={searchQuery}
+              />
+            </SearchContainer> */}
             <Input
               type="text"
               value={selectedUsers}

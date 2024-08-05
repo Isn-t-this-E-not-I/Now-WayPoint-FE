@@ -22,22 +22,15 @@ import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage';
 import Modal from '../Modal/modal';
-import axios from 'axios';
-import SockJS from 'sockjs-client';
-import { Client, IMessage } from '@stomp/stompjs';
-import FollowList from '../FollowList/FollowList';  //*
-import AllUserList from '../FollowList/AllUserList' //*
+import AllUserList from '../FollowList/AllUserList'
 import fetchAllUsers from '@/data/fetchAllUsers';
 import { handleLogout } from '../Logout/Logout';
-import MyPage from '@/pages/myPage';
 import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider';
 import FollowContentsPage from '@/pages/FollowContentsPage';
-import MainPage from '@/api/KaKaomap/kakaomain';
 import MainSidebarPage from '@/pages/MainSidebarPage';
 
 interface SidebarProps {
   theme: 'light' | 'dark';
-  setSelectedPage: (page: string) => void;
 }
 
 const Wrapper = styled.div`
@@ -143,24 +136,6 @@ const SearchContainer = styled.div`
   width: 100%;
 `;
 
-const NotificationList = styled.div`
-  width: 100%;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  margin-top: 10px;
-`;
-
-const NotificationItem = styled.div`
-  border-bottom: 1px solid #eee;
-  padding: 10px 0;
-  &:last-child {
-    border-bottom: none;
-  }
-`;
-
 const SearchInput = styled.input`
   width: 100%;
   padding: 10px;
@@ -171,13 +146,12 @@ const SearchInput = styled.input`
 
 const Sidebar: React.FC<SidebarProps> = ({
   theme,
-  setSelectedPage,
 }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
-  const { setChatRooms, setChatRoomsInfo } = useChat()
+  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
 
   const [token] = useState<string>(localStorage.getItem('token') || '');
   const [allUsers, setAllUsers] = useState<any[]>([]);
@@ -195,7 +169,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
     if (activePage !== 'chat') {
-      disconnect();
+      disconnect()
+      setActiveChatRoomId(null)
     }
   }, [activePage]);
 

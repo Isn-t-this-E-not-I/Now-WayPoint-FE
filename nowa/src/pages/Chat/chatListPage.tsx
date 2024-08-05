@@ -22,9 +22,7 @@ const ChatListItem = styled.li`
   padding: 15px;
   margin-bottom: 10px;
   cursor: pointer;
-  transition:
-    background-color 0.3s,
-    transform 0.3s;
+  transition: background-color 0.3s, transform 0.3s;
 
   &:hover {
     background-color: #e0e0e0;
@@ -50,37 +48,66 @@ const RoomDetail = styled.p`
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate()
-  const { chatRooms, chatRoomsInfo } = useChat()
+  const { chatRooms, chatRoomsInfo, setActiveChatRoomId } = useChat()
+  const nickname = localStorage.getItem('nickname') || ''
 
   const handleChatRoomClick = (chatRoomId: number) => {
+    setActiveChatRoomId(chatRoomId);
     navigate(`/chatting/${chatRoomId}`)
   }
+
+  // 최근 메시지 기준으로 chatRooms를 정렬
+  const sortedChatRooms = chatRooms.sort((a, b) => {
+    const roomAInfo = chatRoomsInfo.find(info => info.chatRoomId === a.chatRoomId)
+    const roomBInfo = chatRoomsInfo.find(info => info.chatRoomId === b.chatRoomId)
+
+    const timestampA = roomAInfo ? new Date(roomAInfo.lastMessageTimestamp).getTime() : 0
+    const timestampB = roomBInfo ? new Date(roomBInfo.lastMessageTimestamp).getTime() : 0
+
+    return timestampB - timestampA // 내림차순 정렬
+  })
 
   return (
     <Container>
       <ChatList>
-        {chatRooms.map((room) => {
+        {sortedChatRooms.map((room) => {
           const roomInfo = chatRoomsInfo.find(
             (info) => info.chatRoomId === room.chatRoomId
           )
+
+          let displayName: string
+          if (room.userResponses.length === 1) {
+            displayName = '알수없음'
+          } else if (room.userResponses.length === 2) {
+            const otherUser = room.userResponses.find(user => user.userNickname !== nickname)
+            displayName = otherUser ? otherUser.userNickname : '알수없음'
+          } else {
+            displayName = room.chatRoomName
+          }
           return (
             <ChatListItem
               key={room.chatRoomId}
               onClick={() => handleChatRoomClick(room.chatRoomId)}
             >
-              <RoomName>{room.chatRoomName}</RoomName>
+              <RoomName>{displayName}</RoomName>
               {roomInfo && (
                 <RoomDetails>
-                  <RoomDetail>Users: {room.userCount}</RoomDetail>
-                  <RoomDetail>
-                    Unread Messages: {roomInfo.unreadMessagesCount}
-                  </RoomDetail>
-                  <RoomDetail>
-                    Last Message: {roomInfo.lastMessageContent}
-                  </RoomDetail>
-                  <RoomDetail>
-                    Timestamp: {roomInfo.lastMessageTimestamp}
-                  </RoomDetail>
+                  <RoomDetail>Users: {room.userResponses.length}</RoomDetail>
+                  {roomInfo.unreadMessagesCount > 0 && (
+                    <RoomDetail>
+                      Unread Messages: {roomInfo.unreadMessagesCount}
+                    </RoomDetail>
+                  )}
+                  {roomInfo.lastMessageContent && (
+                    <RoomDetail>
+                      Last Message: {roomInfo.lastMessageContent}
+                    </RoomDetail>
+                  )}
+                  {roomInfo.lastMessageTimestamp && (
+                    <RoomDetail>
+                      Timestamp: {roomInfo.lastMessageTimestamp}
+                    </RoomDetail>
+                  )}
                 </RoomDetails>
               )}
             </ChatListItem>

@@ -60,7 +60,7 @@ const CreateChatRoomButton: React.FC = () => {
           showCloseButton={false}
           selectedUsers={selectedUsers}
           setSelectedUsers={setSelectedUsers}
-          handleCreateChat={handleCreateChat}
+          handleSubmit={handleCreateChat}
           theme={theme}
         />
       )}

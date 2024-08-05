@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
@@ -12,16 +12,13 @@ const App: React.FC = () => {
   const noSidebarPaths = ['/login', '/register', '/find-id', '/find-password'] // Sidebar가 보이지 않아야 하는 경로
 
   const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
-  const [selectedPage, setSelectedPage] = useState<string>('main')
+
 
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <ChatProvider>
         {!isNoSidebarPage && (
-          <Sidebar
-            theme={'light'}
-            setSelectedPage={setSelectedPage}
-          />
+          <Sidebar theme={'light'} />
         )}
         <div style={{ flex: 1 }}>
           <Routers />
