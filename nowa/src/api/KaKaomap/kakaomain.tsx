@@ -46,7 +46,7 @@ const MainPage: React.FC = () => {
     { id: '30', label: '30km' },
     { id: '50', label: '50km' },
     { id: '100', label: '100km' },
-    { id: '999', label: '전체' },
+    { id: '500', label: '전체' },
   ]
 
   const formatDate = (dateString: string | number | Date) => {
