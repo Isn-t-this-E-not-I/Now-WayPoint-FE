@@ -66,7 +66,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       const childComments = commentsData.filter((comment) => comment.parentId)
       const sortedChildComments = childComments.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       )
 
       const combinedComments = sortedParentComments.flatMap((parent) => [
@@ -118,7 +118,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       const childComments = commentsData.filter((comment) => comment.parentId)
       const sortedChildComments = childComments.sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       )
 
       const combinedComments = sortedParentComments.flatMap((parent) => [
