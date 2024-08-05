@@ -99,12 +99,12 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   cursor: pointer;
   padding: 0;
   display: flex;
+  width: 4.5rem;
+  height: 80px;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative;
-  width: 4.4rem;
-  height: 70px;
+  position: relative; /* Add this line */
 
   &:focus {
     outline: none;
@@ -135,15 +135,8 @@ const LogOutIconButtonWrapper = styled.button`
   align-items: center;
   margin-top: 8px;
   position: relative;
-<<<<<<< HEAD
   width: 4.2rem;
   height: 55px;
-=======
-
-  &:focus {
-    outline: none;
-  }
->>>>>>> 581b9635df5f1c257be899706b244395249a019e
 `
 
 const ContentDiv = styled.div`
