@@ -22,11 +22,13 @@ const ProfileSection = styled.div`
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  border: 1px solid black;
+  border-radius: 12px;
+  background-color: white;
 `
 
 const ContentSection = styled.div`
   flex: 5;
-  padding: 20px;
   margin-left: 30px;
   margin-right: 30px;
 `
@@ -81,7 +83,7 @@ interface Post {
   createdAt: string
   category: string
   likeCount: number
-  commentCount: number // 댓글 수 추가
+  commentCount: number
 }
 
 interface UserProfile {

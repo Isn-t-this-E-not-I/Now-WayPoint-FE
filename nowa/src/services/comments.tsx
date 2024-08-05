@@ -108,7 +108,7 @@ const toggleCommentLike = async (
   try {
     await axios.post(
       `${API_URL}/posts/${postId}/comments/${commentId}/like`,
-      {},
+      { postId },
       {
         headers: {
           Authorization: `Bearer ${token}`,

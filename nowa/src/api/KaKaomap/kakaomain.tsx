@@ -5,6 +5,7 @@ import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
+import Select from '@/components/Select/select'
 
 declare global {
   interface Window {
@@ -20,8 +21,10 @@ const MainPage: React.FC = () => {
   const [locate, setLocate] = useState('')
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null)
-  const [mapLevel, setMapLevel] = useState<number>(11)
+  const [mapLevel, setMapLevel] = useState<number>(7)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
+  const [selectedDistance, setSelectedDistance] = useState<number>(10)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
@@ -29,10 +32,25 @@ const MainPage: React.FC = () => {
   const currentLocationRef = useRef<{
     latitude: number
     longitude: number
-  } | null>(null) // 현재 위치를 저장하는 ref
+  } | null>(null)
+
+  const categoryOptions = [
+    { id: 'PHOTO', label: '사진' },
+    { id: 'VIDEO', label: '동영상' },
+    { id: 'MP3', label: '음악' },
+    { id: 'ALL', label: '전체' },
+  ]
+
+  const distanceOptions = [
+    { id: '10', label: '10km' },
+    { id: '30', label: '30km' },
+    { id: '50', label: '50km' },
+    { id: '100', label: '100km' },
+    { id: '1000', label: '전체' },
+  ]
 
   const formatDate = (dateString: string | number | Date) => {
-    return moment(dateString).tz('Asia/Seoul').format('MM-DD HH:mm A')
+    return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
   }
 
   const saveTokenToLocalStorage = () => {
@@ -125,34 +143,39 @@ const MainPage: React.FC = () => {
     })
   }
 
-  const addMarkers = (map: any, data: any[]) => {
+  const addMarkers = async (map: any, data: any[]) => {
     if (clustererRef.current) {
       clustererRef.current.clear()
     }
 
-    const markers = data.map((item) => {
-      const [lng, lat] = item.locationTag.split(',').map(Number)
-      const position = new window.kakao.maps.LatLng(lat, lng)
+    const markers = await Promise.all(
+      data.map(async (item) => {
+        const [lng, lat] = item.locationTag.split(',').map(Number)
+        const position = new window.kakao.maps.LatLng(lat, lng)
 
-      const markerImageSrc = getMarkerImageSrc(item.category)
-      const markerImageSize = new window.kakao.maps.Size(35, 35)
-      const markerImage = new window.kakao.maps.MarkerImage(
-        markerImageSrc,
-        markerImageSize
-      )
-      console.log(item, 123123131231)
+        const markerImageSrc = await getMarkerImageSrc(
+          item.category,
+          item.mediaUrls
+        )
+        const markerImageSize = new window.kakao.maps.Size(35, 35)
+        const markerImage = new window.kakao.maps.MarkerImage(
+          markerImageSrc,
+          markerImageSize
+        )
+        console.log(item, 123123131231)
 
-      const marker = new window.kakao.maps.Marker({
-        position,
-        image: markerImage,
+        const marker = new window.kakao.maps.Marker({
+          position,
+          image: markerImage,
+        })
+
+        window.kakao.maps.event.addListener(marker, 'click', () => {
+          displayCustomOverlay(map, marker, item)
+        })
+
+        return marker
       })
-
-      window.kakao.maps.event.addListener(marker, 'click', () => {
-        displayCustomOverlay(map, marker, item)
-      })
-
-      return marker
-    })
+    )
 
     adjustMarkerPosition(markers)
 
@@ -161,18 +184,56 @@ const MainPage: React.FC = () => {
       clustererRef.current.addMarkers(markers)
     }
   }
-
-  const getMarkerImageSrc = (category: string) => {
+  const getMarkerImageSrc = async (category: string, mediaUrls: string[]) => {
     switch (category) {
       case 'PHOTO':
-        return 'https://cdn-icons-png.flaticon.com/128/4503/4503874.png'
+        return mediaUrls && mediaUrls.length > 0
+          ? mediaUrls[0]
+          : 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
+
       case 'VIDEO':
-        return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
+        if (mediaUrls && mediaUrls.length > 0) {
+          const videoUrl = mediaUrls[0]
+          return await generateVideoThumbnail(videoUrl)
+        } else {
+          return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
+        }
+
       case 'MP3':
         return 'https://cdn-icons-png.flaticon.com/128/6527/6527906.png'
+
       default:
         return 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
     }
+  }
+
+  const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video')
+      video.src = videoUrl
+      video.crossOrigin = 'anonymous' // 필요한 경우 CORS 설정
+
+      video.addEventListener('loadeddata', () => {
+        video.currentTime = Math.min(1, video.duration - 1) // 첫 프레임이나 중간 프레임을 선택
+      })
+
+      video.addEventListener('seeked', () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const context = canvas.getContext('2d')
+        if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height)
+          resolve(canvas.toDataURL('image/png'))
+        } else {
+          reject(new Error('Failed to get canvas context'))
+        }
+      })
+
+      video.addEventListener('error', (error) => {
+        reject(error)
+      })
+    })
   }
 
   const displayCustomOverlay = (
@@ -194,8 +255,10 @@ const MainPage: React.FC = () => {
          <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/4110/4110234.png'}' onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/128/4110/4110234.png';">
       </div>
       <div id="main_maker_content">
-        <div id="main_maker_name">이름 : ${item.username}</div>
-        <div id="main_maker_create">${formatDate(item.createdAt)}</div>    
+        <div id="main_maker_name">작성자 : ${item.username}</div> 
+      </div>
+      <div id="main_maker_content2">
+        <div id="main_maker_create">${formatDate(item.createdAt)}</div>   
       </div>
     `
 
@@ -304,15 +367,15 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (isInitialized && client) {
-      selectCategory('ALL')
+      selectCategory(selectedCategory, selectedDistance)
     }
   }, [isInitialized, client])
 
-  const selectCategory = (category: string) => {
+  const selectCategory = (category: string, distance: number) => {
     if (client) {
       client.publish({
         destination: '/app/main/category',
-        body: JSON.stringify({ category: category }),
+        body: JSON.stringify({ category: category, distance: distance }),
       })
       // 카테고리 선택 시 지도의 확대/축소 레벨 고정
       if (map) {
@@ -321,6 +384,21 @@ const MainPage: React.FC = () => {
     } else {
       console.error('Not connected to WebSocket')
     }
+  }
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value)
+    selectCategory(value, selectedDistance)
+    console.log(value)
+    console.log(selectedDistance)
+  }
+
+  const handleDistanceChange = (value: string) => {
+    const newDistance = parseInt(value)
+    setSelectedDistance(newDistance)
+    selectCategory(selectedCategory, newDistance)
+    console.log(value)
+    console.log(selectedDistance)
   }
 
   return (
@@ -333,35 +411,23 @@ const MainPage: React.FC = () => {
         <button onClick={zoomIn}>+</button>
         <button onClick={zoomOut}>-</button>
       </div>
-      <div id="categoryBox">
-        <button
-          className="categoryButtons"
-          id="categorybtn1"
-          onClick={() => selectCategory('PHOTO')}
-        >
-          사진
-        </button>
-        <button
-          className="categoryButtons"
-          id="categorybtn2"
-          onClick={() => selectCategory('VIDEO')}
-        >
-          동영상
-        </button>
-        <button
-          className="categoryButtons"
-          id="categorybtn3"
-          onClick={() => selectCategory('MP3')}
-        >
-          음악
-        </button>
-        <button
-          className="categoryButtons"
-          id="categorybtn4"
-          onClick={() => selectCategory('ALL')}
-        >
-          전체
-        </button>
+
+      <div id="category-select">
+        <Select
+          options={categoryOptions}
+          classN="category-select"
+          value={selectedCategory}
+          onChange={handleCategoryChange}
+        />
+      </div>
+
+      <div id="distance-select">
+        <Select
+          options={distanceOptions}
+          classN="distance-select"
+          value={selectedDistance.toString()}
+          onChange={handleDistanceChange}
+        />
       </div>
     </div>
   )

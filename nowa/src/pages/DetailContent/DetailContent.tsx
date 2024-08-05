@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, KeyboardEvent } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import {
@@ -20,6 +20,8 @@ import { getAddressFromCoordinates } from '@/services/getAddress'
 import { useParams, useNavigate } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
 import TextArea from '@/components/TextArea/textArea'
+import Modal from '@/components/Modal/modal'
+import EditContent from '@/pages/EditContent/editContent'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
 // 현재 로그인한 유저의 닉네임을 가져오는 함수
@@ -38,29 +40,46 @@ const DetailContent: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]) // 모든 유저 상태
   const [mentionList, setMentionList] = useState<User[]>([]) // 멘션 목록 상태
   const [newMentionList, setNewMentionList] = useState<User[]>([]) // 새로운 댓글 멘션 목록 상태
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false) // Edit modal 상태 추가
   const { id } = useParams()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchPostAndComments = async () => {
-      try {
-        const postData = await getPostById(Number(id))
-        setPost(postData)
-        const commentsData = await getCommentsByPostId(Number(id))
-        setComments(buildCommentTree(commentsData))
+  const fetchPostAndComments = async () => {
+    try {
+      const postData = await getPostById(Number(id))
+      setPost(postData)
+      const commentsData = await getCommentsByPostId(Number(id))
+      const parentComments = commentsData.filter((comment) => !comment.parentId)
+      const sortedParentComments = parentComments.sort(
+        (a, b) => b.likeCount - a.likeCount
+      )
 
-        if (postData.locationTag) {
-          const [longitude, latitude] = postData.locationTag
-            .split(',')
-            .map(Number)
-          const address = await getAddressFromCoordinates(latitude, longitude)
-          setAddress(address)
-        }
-      } catch (error) {
-        console.error('Failed to fetch post or comments data:', error)
+      const childComments = commentsData.filter((comment) => comment.parentId)
+      const sortedChildComments = childComments.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const combinedComments = sortedParentComments.flatMap((parent) => [
+        parent,
+        ...sortedChildComments.filter((child) => child.parentId === parent.id),
+      ])
+
+      setComments(combinedComments)
+
+      if (postData.locationTag) {
+        const [longitude, latitude] = postData.locationTag
+          .split(',')
+          .map(Number)
+        const address = await getAddressFromCoordinates(latitude, longitude)
+        setAddress(address)
       }
+    } catch (error) {
+      console.error('Failed to fetch post or comments data:', error)
     }
+  }
 
+  useEffect(() => {
     fetchPostAndComments()
 
     const fetchUsers = async () => {
@@ -78,33 +97,27 @@ const DetailContent: React.FC = () => {
     setCurrentUser(user)
   }, [id])
 
-  // 댓글을 트리 구조로 변환하는 함수
-  const buildCommentTree = (comments: Comment[]): Comment[] => {
-    const map: { [key: number]: Comment } = {}
-    const roots: Comment[] = []
-
-    comments.forEach((comment) => {
-      map[comment.id] = { ...comment, children: [] }
-    })
-
-    comments.forEach((comment) => {
-      if (comment.parentId) {
-        if (map[comment.parentId]) {
-          map[comment.parentId].children?.push(map[comment.id])
-        }
-      } else {
-        roots.push(map[comment.id])
-      }
-    })
-
-    return roots
-  }
-
   // 댓글 목록을 갱신하는 함수
   const fetchComments = async () => {
     try {
       const commentsData = await getCommentsByPostId(Number(id))
-      setComments(buildCommentTree(commentsData))
+      const parentComments = commentsData.filter((comment) => !comment.parentId)
+      const sortedParentComments = parentComments.sort(
+        (a, b) => b.likeCount - a.likeCount
+      )
+
+      const childComments = commentsData.filter((comment) => comment.parentId)
+      const sortedChildComments = childComments.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )
+
+      const combinedComments = sortedParentComments.flatMap((parent) => [
+        parent,
+        ...sortedChildComments.filter((child) => child.parentId === parent.id),
+      ])
+
+      setComments(combinedComments)
     } catch (error) {
       console.error('Failed to fetch comments data:', error)
     }
@@ -160,9 +173,9 @@ const DetailContent: React.FC = () => {
   // 대댓글을 작성하는 함수
   const handleReplySubmit = async (
     parentCommentId: number,
-    e: React.FormEvent<HTMLFormElement>
+    e?: React.FormEvent<HTMLFormElement>
   ) => {
-    e.preventDefault()
+    if (e) e.preventDefault()
     if (replyContent.trim() === '') {
       alert('내용을 입력해주세요.')
       return
@@ -179,6 +192,25 @@ const DetailContent: React.FC = () => {
     } catch (error) {
       console.error('Failed to submit reply:', error)
       alert('답글 작성에 실패했습니다.')
+    }
+  }
+
+  // 댓글 작성 시 Enter 키 핸들러
+  const handleCommentKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleCommentSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
+    }
+  }
+
+  // 답글 작성 시 Enter 키 핸들러
+  const handleReplyKeyDown = (
+    e: KeyboardEvent<HTMLTextAreaElement>,
+    parentCommentId: number
+  ) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleReplySubmit(parentCommentId)
     }
   }
 
@@ -296,6 +328,27 @@ const DetailContent: React.FC = () => {
     )
   }
 
+  // 상대적인 시간 형식으로 변환하는 함수
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
+  }
+
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -307,17 +360,13 @@ const DetailContent: React.FC = () => {
   const con_Text = '='
   const con_drop = ['게시글 수정', '게시글 삭제']
 
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString)
-    const year = date.getFullYear()
-    const month = date.getMonth() + 1
-    const day = date.getDate()
-    return `${year}.${month}.${day}`
-  }
-
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment) => (
-      <div key={comment.id} id="detail_coment_deep">
+      <div
+        key={comment.id}
+        id="detail_coment_deep"
+        style={{ marginLeft: comment.parentId ? '20px' : '0' }} // 들여쓰기 적용
+      >
         <div
           id="test_coment_img"
           onClick={() => handleProfileClick(comment.nickname)}
@@ -330,13 +379,18 @@ const DetailContent: React.FC = () => {
             {formatContentWithMentions(comment.content)}
           </div>
           <div id="detail_coment_edit_line">
-            <div id="detail_coment_date">{formatDate(comment.createdAt)}</div>
-            <div
-              id="detail_coment_recoment"
-              onClick={() => toggleReplyComment(comment.id)}
-            >
-              답글 달기
+            <div id="detail_coment_date">
+              {formatRelativeTime(comment.createdAt)}
             </div>
+            {/* 답글 달기 버튼 조건부 렌더링 */}
+            {comment.parentId === null && (
+              <div
+                id="detail_coment_recoment"
+                onClick={() => toggleReplyComment(comment.id)}
+              >
+                답글 달기
+              </div>
+            )}
             <div id="detail_coment_delete">
               {currentUser === comment.nickname && (
                 <a
@@ -372,6 +426,7 @@ const DetailContent: React.FC = () => {
                 id="detail_reply_content"
                 value={replyContent}
                 onChange={handleMention}
+                onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
               ></TextArea>
               <div id="detail_reply_write_button">
                 <button type="submit">답글 게시</button>
@@ -394,11 +449,6 @@ const DetailContent: React.FC = () => {
               )}
             </form>
           )}
-          {comment.children && comment.children.length > 0 && (
-            <div className="comment-children">
-              {renderComments(comment.children)}
-            </div>
-          )}
         </div>
       </div>
     ))
@@ -414,11 +464,11 @@ const DetailContent: React.FC = () => {
                 {post.mediaUrls.map((url: string, index: number) => (
                   <div id="preview_container" key={index}>
                     {url.endsWith('.mp4') ? (
-                      <video controls>
+                      <video controls controlsList="nodownload">
                         <source src={url} type="video/mp4" />
                       </video>
                     ) : url.endsWith('.mp3') ? (
-                      <audio controls>
+                      <audio controls controlsList="nodownload">
                         <source src={url} type="audio/mp3" />
                       </audio>
                     ) : (
@@ -476,7 +526,6 @@ const DetailContent: React.FC = () => {
 
           <div id="detail_content_heart">
             <div id="detail_heart_count">{post.likeCount}</div>
-            <div id="detail_heart_write_date">{formatDate(post.createdAt)}</div>
             <div id="detail_like_button" onClick={handleLikeToggle}>
               <img
                 src={
@@ -487,6 +536,9 @@ const DetailContent: React.FC = () => {
                 alt="좋아요"
               />
             </div>
+            <div id="detail_heart_write_date">
+              {formatRelativeTime(post.createdAt)}
+            </div>
           </div>
 
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
@@ -494,6 +546,7 @@ const DetailContent: React.FC = () => {
               id="detail_coment_content_content"
               value={newComment}
               onChange={handleNewCommentMention}
+              onKeyDown={handleCommentKeyDown}
             ></TextArea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
@@ -522,7 +575,7 @@ const DetailContent: React.FC = () => {
                       if (item === '게시글 삭제') {
                         handlePostDelete()
                       } else if (item === '게시글 수정') {
-                        navigate(`/editContent/${id}`) // 게시글 수정 페이지로 이동
+                        setIsEditModalOpen(true)
                       }
                     }}
                   />
@@ -533,6 +586,12 @@ const DetailContent: React.FC = () => {
           </form>
         </div>
       </div>
+      <Modal showCloseButton={false} isOpen={isEditModalOpen}>
+        <EditContent
+          onClose={() => setIsEditModalOpen(false)}
+          refreshPost={fetchPostAndComments}
+        />
+      </Modal>
     </div>
   )
 }

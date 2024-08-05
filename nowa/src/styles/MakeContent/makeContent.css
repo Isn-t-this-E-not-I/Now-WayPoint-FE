@@ -1,231 +1,130 @@
-/* 전체 크기 조정 */
-#upload_content {
+/* 업로드 컨텐츠 헤더영역 */
+#upload_content_header {
   display: flex;
-  height: 100%;
-  width: 100%;
-  margin: 0;
+  margin-bottom: 10px;
 }
 
-/* 업로드 이미지 조정 */
-#upload_image {
-  height: 100vh;
-  width: 100%;
+/* 닫기버튼 */
+#upload_close_btn {
+  flex: 1;
+  width: 10px;
+  height: 10px;
+  margin-left: auto;
+  margin-bottom: 20px;
 }
 
-#upload_image hr {
-  width: 90%;
-  margin-left: 50px;
-}
-
-#upload_image p {
-  margin-left: 50px;
-}
-
+/* 제목 */
 #content_title {
-  font-size: 26px;
+  flex: 3;
   font-weight: bold;
-  margin: 50px auto 15px 50px;
+  padding-top: 15px;
 }
 
-/* 업로드 내용 크기 조정 */
-#upload_content_detail {
-  height: 100vh;
-  width: 30%;
+/* 게시하기버튼 */
+#upload_btn {
+  background-color: white;
 }
 
-/* 업로드 버튼위 이미지 크기 조정 */
-#upload_content_right_logo {
-  position: relative;
-  height: 100px;
-  margin-top: 100px;
+#upload_btn:hover {
+  background-color: #ddd;
 }
 
-/* 업로드 버튼위 이미지 위치 조정 */
-#upload_content_detail img {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 100px;
-  height: 100px;
-  margin-right: 30px;
+/* 파일업로드 버튼 */
+#upload_img {
+  width: 40px;
+  height: 40px;
 }
 
-/* 업로드 버튼 크기 조정 */
-#upload_btn_1 {
-  border-radius: 12px;
-  width: 450px;
-  height: 45px;
-  margin: 15px 0px 15px 5px;
-  font-weight: bold;
-  font-size: 12px;
-  box-shadow: 4px 4px 2px rgb(180, 180, 180);
-}
-#upload_btn_2 {
-  border-radius: 12px;
-  width: 455px;
-  height: 45px;
-  margin: 15px 0px 15px 5px;
-  font-weight: bold;
-  font-size: 12px;
-  box-shadow: 4px 4px 2px rgb(180, 180, 180);
-}
-
-#upload_btn_1 {
-  background-color: #dfdfdf;
-}
-#upload_btn_2 {
-  background-color: #404040;
-  color: white;
-}
-
-/* 업로드 인풋 크기 조정 */
-.upload_input {
-  background-color: #f8ececd0;
-  border-radius: 12px;
-  width: 500px;
-  height: 45px;
-  margin: 15px;
-  font-weight: bold;
-  font-size: 12px;
-  box-shadow: 4px 4px 2px rgb(180, 180, 180);
-  text-align: center;
-}
-
-#upload_set th {
-  display: grid;
+/* 바디영역 */
+#upload_content_body {
   margin: 10px auto;
 }
 
-#upload_set td {
+/* 카테고리 업로드 버튼 영역 */
+#upload_img_btn {
+  display: flex;
+}
+
+/* 카테고리 */
+#upload_category_select {
+  flex: 3;
+}
+
+/* 업로드 버튼 */
+#upload_img_btn {
+  margin-right: auto;
+}
+
+/* 파일 제한 설명 */
+#upload_explanation {
+  font-size: 13px;
+  text-align: right;
   margin: 5px auto;
 }
-/* 게시글 설정 end */
 
-/* 업로드 dev */
-#upload_forder {
-  display: flex;
-  margin: 20px auto auto auto;
-}
-
-/* 업로드 이미지 버튼 */
-#upload_img {
-  width: 70px;
-  height: 70px;
-  margin: 15px 15px 15px 50px;
-}
-
-#image_preview_container {
-  display: flex;
-}
-
+/* 파일 미리보기 */
 #image_preview {
-  margin: 10px auto 10px 10px;
-  width: 70px;
-  height: 70px;
-}
-
-#content_dev {
-  margin: 30px auto auto 50px;
-}
-
-#upload_content_dis {
-  position: relative;
-  width: 93.5%;
-  height: 60vh;
-}
-
-.upload_select {
-  width: 450px;
-  height: 45px;
-  margin: 15px 10px 15px 5px;
-  border-radius: 12px;
-  background-color: #dfdfdf;
-  box-shadow: 4px 4px 2px rgb(180, 180, 180);
-  font-weight: bold;
-  font-size: 12px;
-  text-align: center;
-}
-
-.upload_select option {
-  font-weight: bold;
-}
-
-#content_dev {
-  position: relative;
-}
-
-#tag_previews {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  color: #858585;
-}
-
-.tag_preview {
-  display: inline-block;
-  background-color: #e0e0e0;
-  border-radius: 3px;
-  padding: 3px 5px;
-  margin: 2px;
-}
-
-.remove_tag_button {
-  background: none;
-  border: none;
-  color: rgba(70, 70, 70, 0.692);
-  font-weight: bold;
-  margin-left: 5px;
-  cursor: pointer;
-}
-
-/* 이미지 업로드 제거 */
-.image_preview_wrapper {
-  display: inline-block;
-  position: relative;
-}
-
-.remove_image_button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: none;
-  border: none;
-  color: rgb(255, 0, 0);
-  font-weight: bold;
-  cursor: pointer;
-  padding: 10px 5px 0px 0px;
-}
-
-/* 파일업로드 미리보기 */
-.file_preview_wrapper {
-  display: inline-block;
-  position: relative;
-  margin: 5px;
-}
-
-.remove_file_button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: none;
-  border: none;
-  color: red;
-  font-weight: bold;
-  cursor: pointer;
-  padding: 5px;
-}
-
-#image_preview {
-  max-width: 80px;
-  max-height: 80px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
 }
 
 #video_preview,
 #audio_preview {
-  margin-top: 10px;
-  max-width: 60px;
-  max-height: 60px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+}
+
+/* 미리보기 컨테이너 */
+.image_preview_wrapper {
+  position: relative;
+  margin: auto 10px auto auto;
+}
+
+/* 미리보기 제거 버튼 위치 */
+.remove_image_button {
+  top: -5px;
+  right: -20px;
+}
+
+/* 미리보기 제거 버튼 */
+.remove_image_button img {
+  width: 15px;
+  height: 15px;
+}
+
+/* 큰 미리보기 위치*/
+#selected_image_preview {
+  display: flex;
+  max-height: 400px;
+}
+
+/* 큰 미리보기 이미지*/
+#selected_image_preview img {
+  flex: 1;
+  max-height: 400px;
+  border-radius: 8px;
+}
+/* 해쉬태그 */
+
+#tag_previews {
+  margin: 10px auto 5px auto;
+}
+
+.tag_preview {
+  color: rgb(59 130 246);
+}
+
+/* 내용 입력 */
+#upload_content_dis {
+  width: 100%;
+  margin: 5px auto auto auto;
+}
+
+/* 태그 삭제 버튼 */
+.remove_tag_button img {
+  margin: auto 2px;
+  width: 12px;
+  height: 12px;
 }

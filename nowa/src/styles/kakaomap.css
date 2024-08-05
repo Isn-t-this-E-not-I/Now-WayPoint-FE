@@ -1,9 +1,15 @@
-#categoryBox {
+#category-select {
   position: absolute;
-  top: 10px;
-  left: 200px;
+  top: 20px;
+  left: 380px;
   z-index: 10;
-  flex-direction: column;
+}
+
+#distance-select {
+  position: absolute;
+  top: 20px;
+  left: 490px;
+  z-index: 10;
 }
 
 .categoryButtons {
@@ -18,39 +24,13 @@
   height: 30px;
   line-height: 10px;
   font-size: 12px;
-}
-
-#categorybtn1 {
-  position: absolute;
-  top: 10px;
-  left: 190px;
-  z-index: 10;
-}
-
-#categorybtn2 {
-  position: absolute;
-  top: 10px;
-  left: 260px;
-  z-index: 10;
-}
-
-#categorybtn3 {
-  position: absolute;
-  top: 10px;
-  left: 330px;
-  z-index: 10;
-}
-#categorybtn4 {
-  position: absolute;
-  top: 10px;
-  left: 400px;
-  z-index: 10;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
 
 .overlaybox {
   position: relative;
-  width: 200px;
-  height: 100px;
+  width: 500px;
+  height: 350px;
   background-color: white;
   border-radius: 10px;
   box-shadow: 8px 8px 5px;
@@ -73,9 +53,7 @@
 
 #main_maker_img {
   position: absolute;
-  width: 80px;
-  height: 80px;
-  top: 10px;
+  top: 25px;
   left: 10px;
 }
 
@@ -84,23 +62,29 @@
 }
 
 #main_maker_img img {
-  width: 80px;
-  height: 80px;
+  width: 300px;
+  height: 300px;
   border-radius: 10px;
 }
 
 #main_maker_content {
   position: absolute;
   top: 30px;
-  right: 10px;
+  right: 70px;
+}
+
+#main_maker_content2 {
+  position: absolute;
+  bottom: 20px;
+  right: 15px;
 }
 
 #main_maker_name {
-  font-size: 11px;
+  font-size: 16px;
 }
 
 #main_maker_create {
-  font-size: 10px;
+  font-size: 14px;
 }
 
 /* 줌 인 아웃 */

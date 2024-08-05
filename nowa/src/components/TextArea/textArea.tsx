@@ -18,16 +18,14 @@ const TextArea: React.FC<TextareaProps> = ({
   className = '',
 }) => {
   return (
-    <div>
-      <textarea
-        id={id}
-        className={`textarea textarea-bordered resize-none ${className}`}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        onKeyDown={onKeyDown} // onKeyDown 추가
-      />
-    </div>
+    <textarea
+      id={id}
+      className={`textarea textarea-bordered resize-none ${className}`}
+      placeholder={placeholder}
+      value={value}
+      onChange={onChange}
+      onKeyDown={onKeyDown} // onKeyDown 추가
+    />
   )
 }
 

@@ -3,21 +3,25 @@ import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
-import Modal from '@/components/Modal/modals'
 import { getPostById, updateContent, Post } from '@/services/editContent'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-const EditContent = () => {
+interface EditContentProps {
+  onClose: () => void
+  refreshPost: () => void
+}
+
+const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
-  const [existingUrls, setExistingUrls] = useState<string[]>([]) // 기존 이미지 URL 관리
-  const [deletedUrls, setDeletedUrls] = useState<string[]>([]) // 삭제된 이미지 URL 관리
+  const [existingUrls, setExistingUrls] = useState<string[]>([])
+  const [removeMedia, setRemoveMedia] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [content, setContent] = useState<string>('')
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
-  const [newFiles, setNewFiles] = useState<File[]>([]) // 새로 추가된 파일 관리
+  const [newFiles, setNewFiles] = useState<File[]>([])
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
 
   const photoOptions = [
     { id: 'PHOTO', label: '사진' },
@@ -33,9 +37,9 @@ const EditContent = () => {
         setTags(postData.hashtags || [])
         setSelectedOption(postData.category || 'PHOTO')
         setPreviewSrcs(postData.mediaUrls || [])
-        setExistingUrls(postData.mediaUrls || []) // 기존 이미지 URL 설정
+        setExistingUrls(postData.mediaUrls || [])
       } catch (error) {
-        console.error('Failed to fetch post data:', error)
+        console.error('게시물 데이터를 가져오는 데 실패했습니다:', error)
       }
     }
 
@@ -50,11 +54,14 @@ const EditContent = () => {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(event.target.files)
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const handleFiles = (files: FileList | null) => {
     if (files) {
-      console.log(selectedOption)
       const totalFilesCount =
         existingUrls.length + newFiles.length + files.length
       if (totalFilesCount > 10) {
@@ -87,48 +94,59 @@ const EditContent = () => {
       }
 
       setNewFiles((prevFiles) => [...prevFiles, ...validFileArray])
-      const fileReaders = validFileArray.map((file) => {
-        const reader = new FileReader()
-        reader.readAsDataURL(file)
-        return reader
-      })
 
-      const promises = fileReaders.map((reader) => {
-        return new Promise<string>((resolve, reject) => {
+      validFileArray.forEach((file) => {
+        if (file.type.startsWith('video/')) {
+          generateThumbnail(file)
+        } else {
+          const reader = new FileReader()
+          reader.readAsDataURL(file)
           reader.onloadend = () => {
             if (reader.result) {
-              resolve(reader.result as string)
-            } else {
-              reject(new Error('Failed to read file'))
+              setPreviewSrcs((prevSrcs) => [
+                ...prevSrcs,
+                reader.result as string,
+              ])
             }
           }
-        })
+        }
       })
-
-      Promise.all(promises)
-        .then((results) => {
-          setPreviewSrcs((prevSrcs) => [...prevSrcs, ...results])
-        })
-        .catch((error) => {
-          console.error(error)
-        })
     }
   }
 
+  const generateThumbnail = (file: File) => {
+    const video = document.createElement('video')
+    video.src = URL.createObjectURL(file)
+    video.currentTime = 1
+    video.addEventListener('loadeddata', () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const thumbnail = canvas.toDataURL('image/png')
+        setPreviewSrcs((prevSrcs) => [...prevSrcs, thumbnail])
+      }
+      URL.revokeObjectURL(video.src)
+    })
+  }
+
   const handleRemoveFile = (index: number) => {
+    const removedSrc = previewSrcs[index]
     if (index < existingUrls.length) {
-      // 기존 파일을 제거하는 경우
       const urlToRemove = existingUrls[index]
       setExistingUrls((prevUrls) => prevUrls.filter((_, i) => i !== index))
-      setDeletedUrls((prevUrls) => [...prevUrls, urlToRemove]) // 삭제된 URL 추가
-      setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+      setRemoveMedia((prevUrls) => [...prevUrls, urlToRemove])
     } else {
-      // 새 파일을 제거하는 경우
       const adjustedIndex = index - existingUrls.length
       setNewFiles((prevFiles) =>
         prevFiles.filter((_, i) => i !== adjustedIndex)
       )
-      setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+    }
+    setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+    if (selectedImage === removedSrc) {
+      setSelectedImage(null)
     }
   }
 
@@ -140,20 +158,25 @@ const EditContent = () => {
     event.preventDefault()
   }
 
-  const handleAddTag = (tag: string) => {
-    if (tags.length >= 5) {
-      alert('태그는 최대 5개까지 입력할 수 있습니다.')
-      return
-    }
-    setTags((prevTags) => [...prevTags, `#${tag}`])
-  }
-
   const handleRemoveTag = (tag: string) => {
     setTags((prevTags) => prevTags.filter((t) => t !== tag))
   }
 
   const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    setContent(e.target.value)
+    let inputValue = e.target.value
+
+    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
+    const newTags: string[] = []
+    let match
+
+    while ((match = tagPattern.exec(inputValue)) !== null) {
+      newTags.push(match[1].trim())
+      inputValue = inputValue.replace(match[0], ' ')
+    }
+
+    const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 5)
+    setTags(updatedTags)
+    setContent(inputValue)
   }
 
   const handleOptionChange = (selected: string) => {
@@ -166,11 +189,14 @@ const EditContent = () => {
       return
     }
 
-    // 각 미디어 URL의 파일 확장자를 확인하여 카테고리와 일치하는지 확인
+    if (existingUrls.length === 0 && newFiles.length === 0) {
+      alert('최소 하나의 파일을 업로드해주세요.')
+      return
+    }
+
     const isValid = previewSrcs.every((url, index) => {
       const isExistingUrl = index < existingUrls.length
       if (isExistingUrl) {
-        // 기존 URL의 확장자 확인
         if (selectedOption === 'PHOTO') {
           return /\.(jpg|jpeg|png|gif)$/i.test(url)
         } else if (selectedOption === 'VIDEO') {
@@ -179,7 +205,6 @@ const EditContent = () => {
           return /\.(mp3)$/i.test(url)
         }
       } else {
-        // 새로 추가된 파일의 확장자 확인
         const file = newFiles[index - existingUrls.length]
         if (selectedOption === 'PHOTO') {
           return file.type.startsWith('image/')
@@ -197,7 +222,7 @@ const EditContent = () => {
       return
     }
 
-    const confirmed = window.confirm('정말로 게시글을 수정하시겠습니까?')
+    const confirmed = window.confirm('게시글을 수정하시겠습니까?')
     if (!confirmed) {
       return
     }
@@ -211,13 +236,14 @@ const EditContent = () => {
         tags,
         selectedOption,
         token,
-        deletedUrls
+        removeMedia
       )
       if (response.success) {
-        navigate(`/detailContent/${id}`)
+        refreshPost()
+        onClose()
       }
     } catch (error) {
-      console.error('Error updating content:', error)
+      console.error('콘텐츠를 업데이트하는 중 오류가 발생했습니다:', error)
     }
   }
 
@@ -230,6 +256,10 @@ const EditContent = () => {
     handleFiles(e.dataTransfer.files)
   }
 
+  const handlePreviewClick = (src: string) => {
+    setSelectedImage(src)
+  }
+
   if (!content && !tags.length && !selectedOption && !previewSrcs.length) {
     return <div>Loading...</div>
   }
@@ -237,34 +267,35 @@ const EditContent = () => {
   return (
     <div>
       <div id="upload_content" onDragOver={handleDragOver} onDrop={handleDrop}>
-        <div id="upload_image">
-          <div id="content_title">컨텐츠 수정</div>
-          <hr />
-
-          <div id="content_dev">
-            <Textarea
-              id={'upload_content_dis'}
-              placeholder={'내용을 입력해주세요'}
-              value={content}
-              onChange={handleContentChange}
+        <div id="upload_close_btn">
+          <button onClick={onClose}>
+            <img
+              src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+              alt="close Icon"
             />
-            <div id="tag_previews">
-              {tags.map((tag, index) => (
-                <span key={index} className="tag_preview">
-                  {tag}
-                  <button
-                    className="remove_tag_button"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    x
-                  </button>
-                </span>
-              ))}
+          </button>
+        </div>
+        <div id="upload_content_header">
+          <div id="content_title">컨텐츠 수정</div>
+          <Button
+            id={'upload_btn'}
+            children={'수정 하기'}
+            onClick={handleSubmit}
+          />
+        </div>
+        <hr />
+        <div id="upload_content_body">
+          <div id="upload_img_btn">
+            <div id="upload_category_select">
+              <Select
+                options={photoOptions}
+                classN={'upload_select'}
+                value={selectedOption}
+                onChange={handleOptionChange}
+              />
             </div>
-          </div>
 
-          <div id="upload_forder">
-            <div id="image_preview_container">
+            <div id="upload_img_btn">
               <img
                 id="upload_img"
                 src="https://cdn-icons-png.flaticon.com/128/401/401061.png"
@@ -290,94 +321,82 @@ const EditContent = () => {
                         : ''
                 }
               />
+            </div>
+          </div>
 
+          <div id="upload_explanation">
+            <p>최대 10개의 파일 첨부가 가능합니다</p>
+          </div>
+
+          <div id="upload_image">
+            <div id="content_dev"></div>
+
+            <div id="upload_preview_container">
               {previewSrcs.map((src, index) => (
-                <div key={index} className="file_preview_wrapper">
-                  {src.startsWith('data:image/') ||
-                  src.endsWith('.jpg') ||
-                  src.endsWith('.jpeg') ||
-                  src.endsWith('.png') ? (
-                    <div className="image_preview_wrapper">
+                <div
+                  key={index}
+                  className="file_preview_wrapper"
+                  onClick={() => handlePreviewClick(src)}
+                >
+                  <div className="image_preview_wrapper">
+                    <img
+                      id="image_preview"
+                      src={src}
+                      alt={`Image Preview ${index + 1}`}
+                      onContextMenu={handleContextMenu}
+                    />
+                    <button
+                      className="remove_image_button"
+                      onClick={() => handleRemoveFile(index)}
+                    >
                       <img
-                        id="image_preview"
-                        src={src}
-                        alt={`Image Preview ${index + 1}`}
-                        onContextMenu={handleContextMenu}
+                        src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+                        alt="Remove Icon"
                       />
-                      <button
-                        className="remove_image_button"
-                        onClick={() => handleRemoveFile(index)}
-                      >
-                        x
-                      </button>
-                    </div>
-                  ) : src.startsWith('data:video/') ||
-                    src.endsWith('.mp4') ||
-                    src.endsWith('.avi') ? (
-                    <div className="image_preview_wrapper">
-                      <img
-                        id="video_preview"
-                        src="https://cdn-icons-png.flaticon.com/128/16296/16296287.png"
-                        alt="Video Icon"
-                        onContextMenu={handleContextMenu}
-                      />
-                      <button
-                        className="remove_image_button"
-                        onClick={() => handleRemoveFile(index)}
-                      >
-                        x
-                      </button>
-                    </div>
-                  ) : src.startsWith('data:audio/') || src.endsWith('.mp3') ? (
-                    <div className="image_preview_wrapper">
-                      <img
-                        id="audio_preview"
-                        src="https://cdn-icons-png.flaticon.com/128/6119/6119310.png"
-                        alt="Audio Icon"
-                        onContextMenu={handleContextMenu}
-                      />
-                      <button
-                        className="remove_image_button"
-                        onClick={() => handleRemoveFile(index)}
-                      >
-                        x
-                      </button>
-                    </div>
-                  ) : null}
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-          <p>최대 10개의 파일 첨부가 가능합니다</p>
-        </div>
 
-        <div id="upload_content_detail">
-          <div id="upload_content_right_logo">
-            <img
-              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRC3-kxZlPzhbz0xONeHwz0aoiM1GytsRzXxw&usqp=CAU"
-              alt="이미지"
-            />
-          </div>
-
-          <div>
-            <div id="upload_button_list">
-              <Select
-                options={photoOptions}
-                classN={'upload_select'}
-                value={selectedOption}
-                onChange={handleOptionChange}
-              />
-              <Modal
-                id={'upload_btn_1'}
-                title={'태그 입력'}
-                onAddTag={handleAddTag}
-              />
-              <Button
-                id={'upload_btn_2'}
-                children={'수정 하기'}
-                onClick={handleSubmit}
+          {selectedImage && (
+            <div
+              id="selected_image_preview"
+              onClick={() => setSelectedImage(null)}
+            >
+              <img
+                src={selectedImage}
+                alt="Selected Preview"
+                onContextMenu={handleContextMenu}
+                onDragStart={(e) => e.preventDefault()}
               />
             </div>
+          )}
+
+          <div id="upload_content">
+            <div id="tag_previews">
+              {tags.map((tag, index) => (
+                <span key={index} className="tag_preview">
+                  {tag}
+                  <button
+                    className="remove_tag_button"
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    <img
+                      src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+                      alt="Remove Icon"
+                    />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <Textarea
+              id={'upload_content_dis'}
+              placeholder={'내용을 입력해주세요'}
+              value={content}
+              onChange={handleContentChange}
+            />
           </div>
         </div>
       </div>

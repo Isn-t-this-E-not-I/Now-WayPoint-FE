@@ -15,6 +15,44 @@
 //       return
 //     }
 
+<<<<<<< HEAD
+    // SockJS와 Stomp 클라이언트 구성
+    // const sock = new SockJS('https://ain.now-waypoint.store:8080/main')
+    const sock = new SockJS('https://localhost:8080/main')
+    console.log(token)
+    const stompClient = new Client({
+      webSocketFactory: () => sock,
+      connectHeaders: {
+        // 헤더에 토큰값 넣어줌
+        Authorization: `Bearer ${token}`,
+      },
+      onConnect: () => {
+        console.log('Websocket connected!')
+        stompClient.subscribe(
+          '/queue/notify/' + nickname,
+          function (messageOutput) {
+            console.log(messageOutput.body)
+          }
+        )
+        stompClient.subscribe(
+          '/queue/posts/' + nickname,
+          function (messageOutput) {
+            console.log(messageOutput.body)
+          }
+        )
+        // stompClient.subscribe('/topic/messages', (message) => {
+        //   console.log('Received:', message.body);
+        // });
+      },
+      onStompError: (frame) => {
+        console.error('Broker reported error: ' + frame.headers['message'])
+        console.error('Additional details: ' + frame.body)
+      },
+      debug: (str) => {
+        console.log('STOMP Debug:', str)
+      },
+    })
+=======
 //     // SockJS와 Stomp 클라이언트 구성
 //     const sock = new SockJS('https://subdomain.now-waypoint.store:8080/main')
 //     console.log(token)
@@ -50,6 +88,7 @@
 //         console.log('STOMP Debug:', str)
 //       },
 //     })
+>>>>>>> origin
 
 //     stompClient.activate() // 웹소켓 연결 활성화
 

@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 interface ModalProps {
   isOpen: boolean
-  onClose: () => void
+  onClose?: () => void
   children?: ReactNode
   showCloseButton?: boolean
 }
@@ -27,6 +27,17 @@ const ModalBox = styled.div`
   border-radius: 8px;
   width: 500px;
   position: relative;
+`
+
+const CloseBtn = styled.button`
+  background-color: lightblue;
+  padding: 10px;
+  border: 1px solid blue;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
 `
 
 const Modal: React.FC<ModalProps> = ({
@@ -55,6 +66,7 @@ const Modal: React.FC<ModalProps> = ({
       onClose();
     }
   };
+
 
   return (
     <Overlay onClick={handleOverlayClick}>
