@@ -360,6 +360,7 @@ const MainPage: React.FC = () => {
             await getKakaoApiData(`${latitude},${longitude}`)
             initializeMap(latitude, longitude)
             setLocate(`${longitude},${latitude}`)
+            localStorage.setItem('locate', `${longitude},${latitude}`);
           } catch (error) {
             console.error('지도 초기화 실패:', error)
           }
