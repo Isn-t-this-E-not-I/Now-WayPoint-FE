@@ -148,7 +148,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             });
 
             stompClient.subscribe(`/queue/category/${localStorage.getItem('nickname') || ''}`, (messageOutput: IMessage) => {
-              console.log(messageOutput.body)
               // JSON 파싱 및 배열 형태로 변환
               const data: selectContent[] = JSON.parse(messageOutput.body);
 
@@ -206,8 +205,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 return distance;
               };
             
-              console.log(newSelectContents.locationTag);
-              console.log(locate);
               let calculatedDistance = NaN;
 
               // Extract user location
@@ -217,12 +214,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 // Extract post location
                 const [postLongitude, postLatitude] = newSelectContents.locationTag.split(',').map(coord => parseFloat(coord.trim()));
                 // Calculate distance between user and post
-                console.log(userLongitude, userLatitude, postLongitude, postLatitude)
                 calculatedDistance = haversineDistance(userLatitude, userLongitude, postLatitude, postLongitude);
               }
 
-              console.log(currentDistance);
-              console.log(calculatedDistance);
 
               if (calculatedDistance <= currentDistance) {
                 if (currentCategory === newSelectContents.category || currentCategory === "ALL") {
