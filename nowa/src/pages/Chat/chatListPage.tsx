@@ -51,9 +51,11 @@ const RoomDetail = styled.p`
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate()
-  const { chatRooms, chatRoomsInfo } = useChat()
+  const { chatRooms, chatRoomsInfo, setActiveChatRoomId } = useChat()
+  const nickname = localStorage.getItem('nickname') || ''
 
   const handleChatRoomClick = (chatRoomId: number) => {
+    setActiveChatRoomId(chatRoomId)
     navigate(`/chatting/${chatRoomId}`)
   }
 
@@ -103,12 +105,24 @@ const ChatListPage: React.FC = () => {
           const roomInfo = chatRoomsInfo.find(
             (info) => info.chatRoomId === room.chatRoomId
           )
+
+          let displayName: string
+          if (room.userResponses.length === 1) {
+            displayName = '알수없음'
+          } else if (room.userResponses.length === 2) {
+            const otherUser = room.userResponses.find(
+              (user) => user.userNickname !== nickname
+            )
+            displayName = otherUser ? otherUser.userNickname : '알수없음'
+          } else {
+            displayName = room.chatRoomName
+          }
           return (
             <ChatListItem
               key={room.chatRoomId}
               onClick={() => handleChatRoomClick(room.chatRoomId)}
             >
-              <RoomName>{room.chatRoomName}</RoomName>
+              <RoomName>{displayName}</RoomName>
               {roomInfo && (
                 <RoomDetails>
                   {/* <RoomDetail>Users: {room.userCount}</RoomDetail> */}

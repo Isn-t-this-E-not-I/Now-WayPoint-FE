@@ -1,9 +1,12 @@
-import { ReactNode } from 'react'
+interface UserInfo {
+  userNickname: string
+  profileImageUrl?: string
+}
 
 export interface ChatRoom {
   chatRoomId: number
   chatRoomName: string
-  userCount: number
+  userResponses: UserInfo[]
 }
 
 export interface ChatRoomInfo {

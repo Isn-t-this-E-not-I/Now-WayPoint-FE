@@ -22,23 +22,16 @@ import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 import Modal from '../Modal/modal'
-import axios from 'axios'
-import SockJS from 'sockjs-client'
-import { Client, IMessage } from '@stomp/stompjs'
-import FollowList from '../FollowList/FollowList'
 import AllUserList from '../FollowList/AllUserList'
 import fetchAllUsers from '@/data/fetchAllUsers'
 import { handleLogout } from '../Logout/Logout'
-import MyPage from '@/pages/myPage'
 import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
 import FollowContentsPage from '@/pages/FollowContentsPage'
-import MainPage from '@/api/KaKaomap/kakaomain'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
-  setSelectedPage: (page: string) => void
 }
 
 const Wrapper = styled.div`
@@ -193,24 +186,6 @@ const SearchContainer = styled.div`
   width: 99.5%;
 `
 
-const NotificationList = styled.div`
-  width: 100%;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  margin-top: 10px;
-`
-
-const NotificationItem = styled.div`
-  border-bottom: 1px solid #eee;
-  padding: 10px 0;
-  &:last-child {
-    border-bottom: none;
-  }
-`
-
 const SearchInput = styled.input`
   width: 100%;
   padding: 10px;
@@ -243,13 +218,13 @@ const LogoutDropdown = styled.div`
   }
 `
 
-const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
+const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
-  const { setChatRooms, setChatRoomsInfo } = useChat()
+  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
 
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
@@ -268,6 +243,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
   useEffect(() => {
     if (activePage !== 'chat') {
       disconnect()
+      setActiveChatRoomId(null)
     }
   }, [activePage])
 
@@ -332,26 +308,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
     )
   }
 
-  // 현재 페이지 제목
-  const getPageTitle = () => {
-    switch (activePage) {
-      case 'main':
-        return '메인'
-      case 'notifications':
-        return '알림'
-      case 'chat':
-        return '메시지'
-      case 'contents':
-        return '주변 컨텐츠'
-      case 'followContents':
-        return '팔로우 컨텐츠'
-      case 'myPage':
-        return '마이페이지'
-      default:
-        return ''
-    }
-  }
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
@@ -407,9 +363,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
             }
             setActivePage('chat')
             fetchChatRooms(token).then((data) => {
+              // 데이터 구조를 확인하고 필요한 데이터만 추출
               const chatRooms = data.chatRooms
               const chatRoomsInfo = data.chatRoomsInfo
 
+              // state나 context에 데이터를 설정
               setChatRooms(chatRooms)
               setChatRoomsInfo(chatRoomsInfo)
             })
