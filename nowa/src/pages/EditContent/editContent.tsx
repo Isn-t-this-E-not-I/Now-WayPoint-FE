@@ -222,7 +222,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
       return
     }
 
-    const confirmed = window.confirm('정말로 게시글을 수정하시겠습니까?')
+    const confirmed = window.confirm('게시글을 수정하시겠습니까?')
     if (!confirmed) {
       return
     }
