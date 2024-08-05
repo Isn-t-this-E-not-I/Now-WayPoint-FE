@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import {
   useWebSocket,
-  FollowContent,
+  selectContent,
 } from '@/components/WebSocketProvider/WebSocketProvider'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import moment from 'moment-timezone'
 
 const FollowContentWrapper = styled.div`
   text-align: left;
@@ -118,7 +117,7 @@ const CategoryLabel = styled.div`
 const MainSidebarPage: React.FC = () => {
   const { selectContents, isLoading } = useWebSocket()
   const [displaySelectContents, setDisplaySelectContents] = useState<
-    FollowContent[]
+    selectContent[]
   >([])
   const navigate = useNavigate()
 
@@ -128,10 +127,6 @@ const MainSidebarPage: React.FC = () => {
 
   const handleContentImageClick = (id: number) => {
     navigate(`/detailContent/${id}`)
-  }
-
-  const formatDate = (dateString: string | number | Date) => {
-    return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
   }
 
   const formatRelativeTime = (timestamp: string) => {
@@ -162,6 +157,7 @@ const MainSidebarPage: React.FC = () => {
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
       )
+      console.log(selectContents);
     }
   }, [selectContents, isLoading])
 
