@@ -2,14 +2,14 @@
   position: absolute;
   top: 20px;
   left: 380px;
-  z-index: 10;
+  z-index: 2;
 }
 
 #distance-select {
   position: absolute;
   top: 20px;
   left: 490px;
-  z-index: 10;
+  z-index: 2;
 }
 
 .categoryButtons {
@@ -92,7 +92,7 @@
   position: absolute;
   top: 40%;
   right: 40px;
-  z-index: 10;
+  z-index: 2;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 3px;

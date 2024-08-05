@@ -101,11 +101,13 @@
 /* 큰 미리보기 위치*/
 #selected_image_preview {
   display: flex;
+  max-height: 400px;
 }
 
 /* 큰 미리보기 이미지*/
 #selected_image_preview img {
   flex: 1;
+  max-height: 400px;
   border-radius: 8px;
 }
 /* 해쉬태그 */

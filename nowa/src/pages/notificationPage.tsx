@@ -3,7 +3,9 @@ import {
   useWebSocket,
   Notification,
 } from '@/components/WebSocketProvider/WebSocketProvider'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 const NotificationWrapper = styled.div`
   max-height: 90vh;
@@ -25,6 +27,7 @@ const NotificationItem = styled.div`
   width: 17.5rem;
   font-size: 15px;
   border: 1px solid #ddd;
+  cursor: pointer;
   &:hover {
     border: 1px solid black;
   }
@@ -35,6 +38,7 @@ const ProfilePic = styled.img`
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
+  cursor: pointer;
 `
 
 const NotificationContent = styled.div`
@@ -65,7 +69,28 @@ const NotificationPage: React.FC = () => {
   const [displayNotifications, setDisplayNotifications] = useState<
     Notification[]
   >([])
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [isModalOpen, setModalOpen] = useState(false)
   const location = import.meta.env.VITE_APP_API
+  const navigate = useNavigate()
+
+  const handleProfileClick = (nickname: string) => {
+    navigate(`/user/${nickname}?tab=posts`)
+  }
+
+  const handleContentClick = (notification: Notification) => {
+    if (notification.postId) {
+      setSelectedPostId(notification.postId)
+      setModalOpen(true)
+    } else {
+      navigate(`/user/${notification.nickname}?tab=posts`)
+    }
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setSelectedPostId(null)
+  }
 
   useEffect(() => {
     if (!isLoading) {
@@ -132,17 +157,40 @@ const NotificationPage: React.FC = () => {
   return (
     <NotificationWrapper>
       {displayNotifications.map((notification) => (
-        <NotificationItem key={notification.id}>
-          <ProfilePic src={notification.profileImageUrl} alt="Profile" />
+        <NotificationItem
+          key={notification.id}
+          onClick={() => handleContentClick(notification)}
+        >
+          <ProfilePic
+            src={notification.profileImageUrl}
+            alt="Profile"
+            onClick={(e) => {
+              e.stopPropagation() // 이벤트 버블링 중지
+              handleProfileClick(notification.nickname)
+            }}
+          />
           <NotificationContent>
             <span>{notification.message}</span>
             <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
           </NotificationContent>
-          <CloseButton onClick={() => handleDelete(notification.id)}>
+          <CloseButton
+            onClick={(e) => {
+              e.stopPropagation() // 이벤트 버블링 중지
+              handleDelete(notification.id)
+            }}
+          >
             x
           </CloseButton>
         </NotificationItem>
       ))}
+      {selectedPostId !== null && (
+        <DetailContentModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          postId={selectedPostId}
+          showCloseButton={true}
+        />
+      )}
     </NotificationWrapper>
   )
 }

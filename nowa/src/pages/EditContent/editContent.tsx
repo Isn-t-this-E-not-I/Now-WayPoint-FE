@@ -165,7 +165,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
   const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let inputValue = e.target.value
 
-    const tagPattern = /(?:^|\s)(#[\w가-힣]+)\s/g
+    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
     const newTags: string[] = []
     let match
 

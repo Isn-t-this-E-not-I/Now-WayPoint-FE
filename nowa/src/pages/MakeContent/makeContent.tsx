@@ -137,7 +137,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     let inputValue = e.target.value
 
     // 태그가 공백 또는 문자열의 시작으로부터 시작하는지 확인
-    const tagPattern = /(?:^|\s)(#[\w가-힣]+)\s/g
+    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
     const newTags: string[] = []
     let match
 
@@ -174,6 +174,10 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     if (!isValid) {
       alert('선택한 카테고리와 일치하지 않는 파일이 있습니다.')
       return
+    }
+
+    if (content == '') {
+      alert('내용을 입력해주세요!')
     }
 
     try {

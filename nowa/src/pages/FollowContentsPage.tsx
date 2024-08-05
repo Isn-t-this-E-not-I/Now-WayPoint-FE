@@ -16,7 +16,7 @@ const FollowContentWrapper = styled.div`
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  background-color: #f5f5f5;
+  background-color: #f8faff;
 `
 
 const ContentItem = styled.div`

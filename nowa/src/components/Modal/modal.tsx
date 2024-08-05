@@ -1,4 +1,4 @@
-import React, { useEffect, ReactNode } from 'react'
+import React, { useState, ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 
 interface ModalProps {
@@ -60,8 +60,10 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {}
+
   return (
-    <Overlay>
+    <Overlay onClick={handleOverlayClick}>
       <ModalBox>
         {showCloseButton && <CloseBtn onClick={onClose}>Close</CloseBtn>}
         {children}

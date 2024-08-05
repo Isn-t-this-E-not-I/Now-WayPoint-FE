@@ -1,7 +1,6 @@
-import React, { useState } from 'react'
-import SockJS from 'sockjs-client'
-import Stomp from 'stompjs'
-import { login, loginWithKakao } from '../api/userApi'
+import React, { useState, useEffect } from 'react'
+import { useCookies } from 'react-cookie'
+import { login } from '../api/userApi'
 import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 
@@ -13,17 +12,29 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string>('')
   const navigate = useNavigate()
   const location = import.meta.env.VITE_APP_API
+  const [cookies, setCookie, removeCookie] = useCookies(['rememberedLoginId'])
+
+  useEffect(() => {
+    if (cookies.rememberedLoginId) {
+      setLoginId(cookies.rememberedLoginId)
+      setRememberMe(true)
+    }
+  }, [cookies])
 
   const handleLogin = async () => {
     try {
       const data = await login({ loginId, password })
-      // console.log('API 응답 전체:', data);
       console.log('로그인 성공:', data.token)
-      navigate('/main', { replace: true }) // *
+      navigate('/main', { replace: true })
       localStorage.setItem('token', data.token)
       localStorage.setItem('nickname', data.nickname)
       setNickname(data.nickname)
-      // navigate('/main', { replace: true, state: { token: data.token } });
+
+      if (rememberMe) {
+        setCookie('rememberedLoginId', loginId, { path: '/', maxAge: 30 * 24 * 60 * 60 })
+      } else {
+        removeCookie('rememberedLoginId')
+      }
     } catch (error) {
       console.error('로그인 실패:', error)
       setError('로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인하세요.')
@@ -61,15 +72,15 @@ const LoginPage: React.FC = () => {
           value={password}
           className="mb-4"
         />
-        <label className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 mb-4">
           <input
             type="checkbox"
             checked={rememberMe}
             onChange={() => setRememberMe(!rememberMe)}
-            className="checkbox checkbox-primary"
+            className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
           />
-          <span className="label-text">아이디 저장</span>
-        </label>
+          <label className="block text-gray-700">아이디 저장</label>
+        </div>
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         <button className="btn btn-primary mt-4 mb-2" onClick={handleLogin}>
           로그인
@@ -86,7 +97,6 @@ const LoginPage: React.FC = () => {
         <button className="btn btn-outline mt-2" onClick={goToFindPassword}>
           비밀번호 찾기
         </button>
-        {/* <button className="btn btn-outline mt-2" onClick={goToResetPassword}>비밀번호 재설정</button> */}
       </div>
     </div>
   )

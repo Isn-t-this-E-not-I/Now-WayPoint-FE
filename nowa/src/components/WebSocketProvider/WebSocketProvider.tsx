@@ -9,6 +9,7 @@ export interface Notification {
   profileImageUrl: string;
   message: string;
   createDate: string;
+  postId : number;
 }
 
 export interface FollowContent {
@@ -107,6 +108,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 profileImageUrl: data.profileImageUrl,
                 message: data.message,
                 createDate: data.createDate,
+                postId : data.postId
               };
               setNotifications((prev) => !prev.some((n) => n.id === newNotification.id) ? [newNotification, ...prev] : prev);
             });
