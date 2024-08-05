@@ -31,7 +31,10 @@ const LoginPage: React.FC = () => {
       setNickname(data.nickname)
 
       if (rememberMe) {
-        setCookie('rememberedLoginId', loginId, { path: '/', maxAge: 30 * 24 * 60 * 60 })
+        setCookie('rememberedLoginId', loginId, {
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60,
+        })
       } else {
         removeCookie('rememberedLoginId')
       }

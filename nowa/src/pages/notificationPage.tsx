@@ -19,14 +19,19 @@ const NotificationItem = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  margin-left: 10px;
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 12px;
   height: 5.5rem;
-  width: 17.5rem;
+  width: 18rem;
   font-size: 15px;
-  border: 1px solid #ddd;
+  border: 2.3px solid transparent;
+  background:
+    linear-gradient(to right, #f8faff, #f8faff) padding-box,
+    linear-gradient(to top left, #ae74bc, #01317b) border-box;
   cursor: pointer;
+
   &:hover {
     border: 1px solid black;
   }
@@ -47,10 +52,12 @@ const NotificationContent = styled.div`
   margin-right: auto;
   padding-bottom: 20px;
   font-size: 14px;
+  color: #151515;
+  width: 18rem;
 `
 
 const TimeAgo = styled.span`
-  color: #129fe1;
+  color: #01317b;
   font-size: 11px;
   margin-left: auto;
 `
@@ -60,7 +67,7 @@ const CloseButton = styled.button`
   border: none;
   font-size: 15px;
   cursor: pointer;
-  color: red;
+  color: #000947;
 `
 
 const NotificationPage: React.FC = () => {
@@ -75,11 +82,11 @@ const NotificationPage: React.FC = () => {
     navigate(`/user/${nickname}?tab=posts`)
   }
 
-  const handleContentClick = (notification : Notification) => {
+  const handleContentClick = (notification: Notification) => {
     if (notification.postId) {
-      navigate(`/detailContent/${notification.postId}`);
+      navigate(`/detailContent/${notification.postId}`)
     } else {
-      navigate(`/user/${notification.nickname}?tab=posts`);
+      navigate(`/user/${notification.nickname}?tab=posts`)
     }
   }
 
@@ -149,30 +156,30 @@ const NotificationPage: React.FC = () => {
     <NotificationWrapper>
       {displayNotifications.map((notification) => (
         <NotificationItem
-        key={notification.id}
-        onClick={() => handleContentClick(notification)}
-      >
-        <ProfilePic
-          src={notification.profileImageUrl}
-          alt="Profile"
-          onClick={(e) => {
-            e.stopPropagation(); // 이벤트 버블링 중지
-            handleProfileClick(notification.nickname);
-          }}
-        />
-        <NotificationContent>
-          <span>{notification.message}</span>
-          <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
-        </NotificationContent>
-        <CloseButton
-          onClick={(e) => {
-            e.stopPropagation(); // 이벤트 버블링 중지
-            handleDelete(notification.id);
-          }}
+          key={notification.id}
+          onClick={() => handleContentClick(notification)}
         >
-          x
-        </CloseButton>
-      </NotificationItem>
+          <ProfilePic
+            src={notification.profileImageUrl}
+            alt="Profile"
+            onClick={(e) => {
+              e.stopPropagation() // 이벤트 버블링 중지
+              handleProfileClick(notification.nickname)
+            }}
+          />
+          <NotificationContent>
+            <span>{notification.message}</span>
+            <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
+          </NotificationContent>
+          <CloseButton
+            onClick={(e) => {
+              e.stopPropagation() // 이벤트 버블링 중지
+              handleDelete(notification.id)
+            }}
+          >
+            x
+          </CloseButton>
+        </NotificationItem>
       ))}
     </NotificationWrapper>
   )

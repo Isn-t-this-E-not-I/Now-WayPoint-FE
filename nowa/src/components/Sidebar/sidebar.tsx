@@ -50,11 +50,11 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 4.5rem;
+  width: 5rem;
   height: 100%;
   z-index: 10;
   position: fixed;
-  border-right: 2px solid #4943ff;
+
   background-color: #f8faff;
 `
 
@@ -62,13 +62,23 @@ const RightSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 19rem;
+  justify-content: flex-start;
+  width: 20rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
   margin-left: 4.4rem;
   background-color: #f8faff;
+`
+
+const Line = styled.div`
+  width: 1.4px;
+  height: 97.5%;
+  margin-top: 13px;
+  background: #c9c9c9;
+  position: absolute;
+  left: 5rem;
+  z-index: 10000;
 `
 
 const Blank = styled.div`
@@ -94,25 +104,27 @@ const LogoIconButtonWrapper = styled.button`
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
 }))<{ active: boolean }>`
-  background: ${({ active }) => (active ? '#4943ff' : 'none')};
+  background: ${({ active }) =>
+    active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
   border: none;
   cursor: pointer;
   padding: 0;
   display: flex;
   width: 4.5rem;
-  height: 80px;
+  height: 70px;
+  border-radius: 20%;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative; /* Add this line */
+  position: relative;
 
   &:focus {
     outline: none;
-    background-color: #4943ff;
+    background-color: #f8faff;
   }
 
   svg {
-    fill: ${({ active }) => (active ? '#FFCE65' : 'currentColor')};
+    fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
   }
 `
 
@@ -121,7 +133,7 @@ const IconSpan = styled.span<{ active: boolean }>`
   margin-bottom: 23px;
   font-size: 12px;
   font-weight: bold;
-  color: ${({ active }) => (active ? '#FFCE65' : 'currentColor')};
+  color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
 `
 
 const LogOutIconButtonWrapper = styled.button`
@@ -137,6 +149,22 @@ const LogOutIconButtonWrapper = styled.button`
   position: relative;
   width: 4.2rem;
   height: 55px;
+`
+
+const CreateChatRoomButtonWrapeer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 14px;
+  margin-left: -155px;
+`
+
+const CreateChatRoomButtonSpan = styled.span`
+  margin-top: -6px;
+  margin-left: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #151515;
 `
 
 const ContentDiv = styled.div`
@@ -162,7 +190,7 @@ const ContentPage = styled.div`
 
 const SearchContainer = styled.div`
   margin-left: 6px;
-  width: 96%;
+  width: 99.5%;
 `
 
 const NotificationList = styled.div`
@@ -442,8 +470,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
         <ThemeController />
       </LeftSidebar>
 
+      <Line />
+
       <RightSidebar>
         <NowaIcon theme={theme} />
+        {activePage === 'chat' && (
+          <CreateChatRoomButtonWrapeer>
+            <CreateChatRoomButton />
+            <CreateChatRoomButtonSpan>새 채팅방 생성</CreateChatRoomButtonSpan>
+          </CreateChatRoomButtonWrapeer>
+        )}
         <ContentDiv>
           {shouldShowSearch() && (
             <SearchContainer>

@@ -4,8 +4,8 @@ import { useChat } from '../../context/chatContext'
 import styled from 'styled-components'
 
 const Container = styled.div`
-  background-color: #f8faff;
-  height: 90vh;
+  max-height: 90vh;
+  padding: 10px;
   width: 100%;
   overflow-y: scroll;
   scrollbar-width: none;
