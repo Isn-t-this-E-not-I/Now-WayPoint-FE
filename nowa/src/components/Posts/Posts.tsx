@@ -1,6 +1,6 @@
-import React, { useRef } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 const PostsContainer = styled.div`
   display: grid;
@@ -84,14 +84,21 @@ interface PostsProps {
 }
 
 const Posts: React.FC<PostsProps> = ({ posts }) => {
-  const navigate = useNavigate()
+  const [isModalOpen, setModalOpen] = useState(false)
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
 
   const sortedPosts = [...posts].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   )
 
   const handlePostClick = (postId: number) => {
-    navigate(`/detailContent/${postId}`)
+    setSelectedPostId(postId)
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setSelectedPostId(null)
   }
 
   const handleVideoHover = (videoElement: HTMLVideoElement, play: boolean) => {
@@ -107,63 +114,73 @@ const Posts: React.FC<PostsProps> = ({ posts }) => {
   }
 
   return (
-    <PostsContainer>
-      {sortedPosts.map((post, index) => {
-        const imageUrl = post.mediaUrls && post.mediaUrls[0]
+    <>
+      <PostsContainer>
+        {sortedPosts.map((post, index) => {
+          const imageUrl = post.mediaUrls && post.mediaUrls[0]
 
-        return (
-          <PostWrapper
-            key={index}
-            onClick={() => handlePostClick(post.id)}
-            onMouseEnter={(e) => {
-              const videoElement = e.currentTarget.querySelector('video')
-              if (videoElement) handleVideoHover(videoElement, true)
-            }}
-            onMouseLeave={(e) => {
-              const videoElement = e.currentTarget.querySelector('video')
-              if (videoElement) handleVideoHover(videoElement, false)
-            }}
-          >
-            {post.category === 'VIDEO' ? (
-              <PostVideo
-                src={imageUrl}
-                muted
-                controls={false}
-                onContextMenu={preventContextMenu}
-              />
-            ) : (
-              <PostThumbnail
-                src={imageUrl}
-                alt={`Post ${index + 1}`}
-                onError={(e) => {
-                  e.currentTarget.src =
-                    'https://cdn-icons-png.flaticon.com/128/4456/4456159.png'
-                }}
-                onContextMenu={preventContextMenu}
-              />
-            )}
-            <PostOverlay className="overlay">
-              <OverlayText>
-                <img
-                  style={{ width: 40, height: 40 }}
-                  src="https://cdn-icons-png.flaticon.com/128/833/833472.png"
-                  alt="좋아요"
-                ></img>
-                {post.likeCount}
-              </OverlayText>
-              <OverlayText>
-                <img
-                  style={{ width: 45, height: 45 }}
-                  src="https://cdn-icons-png.flaticon.com/128/7579/7579686.png"
-                  alt="댓글 수"
-                ></img>
-                {post.commentCount}
-              </OverlayText>
-            </PostOverlay>
-          </PostWrapper>
-        )
-      })}
-    </PostsContainer>
+          return (
+            <PostWrapper
+              key={index}
+              onClick={() => handlePostClick(post.id)}
+              onMouseEnter={(e) => {
+                const videoElement = e.currentTarget.querySelector('video')
+                if (videoElement) handleVideoHover(videoElement, true)
+              }}
+              onMouseLeave={(e) => {
+                const videoElement = e.currentTarget.querySelector('video')
+                if (videoElement) handleVideoHover(videoElement, false)
+              }}
+            >
+              {post.category === 'VIDEO' ? (
+                <PostVideo
+                  src={imageUrl}
+                  muted
+                  controls={false}
+                  onContextMenu={preventContextMenu}
+                />
+              ) : (
+                <PostThumbnail
+                  src={imageUrl}
+                  alt={`Post ${index + 1}`}
+                  onError={(e) => {
+                    e.currentTarget.src =
+                      'https://cdn-icons-png.flaticon.com/128/4456/4456159.png'
+                  }}
+                  onContextMenu={preventContextMenu}
+                />
+              )}
+              <PostOverlay className="overlay">
+                <OverlayText>
+                  <img
+                    style={{ width: 40, height: 40 }}
+                    src="https://cdn-icons-png.flaticon.com/128/833/833472.png"
+                    alt="좋아요"
+                  ></img>
+                  {post.likeCount}
+                </OverlayText>
+                <OverlayText>
+                  <img
+                    style={{ width: 45, height: 45 }}
+                    src="https://cdn-icons-png.flaticon.com/128/7579/7579686.png"
+                    alt="댓글 수"
+                  ></img>
+                  {post.commentCount}
+                </OverlayText>
+              </PostOverlay>
+            </PostWrapper>
+          )
+        })}
+      </PostsContainer>
+      {selectedPostId !== null && (
+        <DetailContentModal
+          showCloseButton={false}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          postId={selectedPostId}
+        />
+      )}
+    </>
   )
 }
 

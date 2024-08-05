@@ -1,15 +1,15 @@
 #category-select {
   position: absolute;
   top: 20px;
-  left: 380px;
-  z-index: 10;
+  left: 400px;
+  z-index: 2;
 }
 
 #distance-select {
   position: absolute;
   top: 20px;
-  left: 490px;
-  z-index: 10;
+  left: 510px;
+  z-index: 2;
 }
 
 .categoryButtons {
@@ -28,23 +28,25 @@
 }
 
 .overlaybox {
-  position: relative;
-  width: 500px;
-  height: 350px;
+  width: 350px;
+  height: 450px;
   background-color: white;
   border-radius: 10px;
-  box-shadow: 8px 8px 5px;
-  border: 0.5px solid gray;
+  border: 1px solid #ddd;
+}
+
+.main_maker_header {
+  display: flex;
+  margin-bottom: 10px;
 }
 
 .closeBtn {
-  position: absolute;
-  top: 0px;
-  right: 8px;
   width: 10px;
   height: 10px;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 20px;
+  margin-left: auto;
+  margin-right: 10px;
 }
 
 .closeBtn:hover {
@@ -52,13 +54,27 @@
 }
 
 #main_maker_img {
-  position: absolute;
-  top: 25px;
-  left: 10px;
+  margin-left: 24px;
 }
 
 #main_maker_img:hover {
   cursor: pointer;
+}
+
+.main_maker_label {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  padding: 8px;
+  margin-left: 25px;
+  font-size: 14px;
+  border-radius: 0px 0px 10px 10px;
+}
+
+#main_profile {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-left: 15px;
 }
 
 #main_maker_img img {
@@ -67,24 +83,37 @@
   border-radius: 10px;
 }
 
-#main_maker_content {
-  position: absolute;
-  top: 30px;
-  right: 70px;
+#main_maker_profile {
+  display: flex;
+  font-size: 16px;
+  margin: 5px auto 10px 10px;
 }
 
-#main_maker_content2 {
-  position: absolute;
-  bottom: 20px;
-  right: 15px;
+#main_profile {
+  margin-right: 10px;
 }
 
 #main_maker_name {
-  font-size: 16px;
+  padding-top: 7px;
+}
+
+#main_maker_content2 {
+  display: flex;
+  font-size: 14px;
+}
+
+#main_maker_content_semi {
+  margin: 5px auto auto 25px;
+  font-size: 14px;
+}
+
+#main_maker_like {
+  margin-left: 25px;
 }
 
 #main_maker_create {
-  font-size: 14px;
+  margin-left: auto;
+  margin-right: 25px;
 }
 
 /* 줌 인 아웃 */
@@ -92,7 +121,7 @@
   position: absolute;
   top: 40%;
   right: 40px;
-  z-index: 10;
+  z-index: 2;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 3px;

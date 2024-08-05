@@ -24,11 +24,25 @@ export interface FollowContent {
   profileImageUrl: string; // 사용자 프로필 이미지 URL
 }
 
+export interface selectContent {
+  id: number; // 게시물 ID
+  content: string; // 게시물 내용
+  hashtags: string[]; // 해시태그 배열
+  category: string; // 카테고리
+  createdAt: string; // 생성 날짜 및 시간 (문자열 표현)
+  likeCount: number; // 좋아요 수 (숫자)
+  mediaUrls: string[]; // 미디어 URL 배열
+  username: string; // 사용자 이름
+  profileImageUrl: string; // 사용자 프로필 이미지 URL
+  distance : number;
+  locationTag : string;
+}
+
 interface WebSocketContextProps {
   client: Client | null;
   notifications: Notification[];
   followContents: FollowContent[];
-  selectContents: FollowContent[];
+  selectContents: selectContent[];
   isLoading: boolean;
   getStompClient: () => Client | null;
 }
@@ -52,11 +66,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [client, setClient] = useState<Client | null>(null);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [followContents, setFollowContents] = useState<FollowContent[]>([]);
-  const [selectContents, setSelectContents] = useState<FollowContent[]>([]);
+  const [selectContents, setSelectContents] = useState<selectContent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const clientRef = useRef<Client | null>(null);
   const location = import.meta.env.VITE_APP_API;
   const getStompClient = () => clientRef.current;
+  const [currentCategory, setCurrentCategory] = useState("ALL");
+  const locate = localStorage.getItem('locate');
+  let currentDistance: number;
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -132,7 +149,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
             stompClient.subscribe(`/queue/category/${localStorage.getItem('nickname') || ''}`, (messageOutput: IMessage) => {
               // JSON 파싱 및 배열 형태로 변환
-              const data: FollowContent[] = JSON.parse(messageOutput.body);
+              const data: selectContent[] = JSON.parse(messageOutput.body);
 
               // 각 항목을 newSelectContent로 변환하고 상태 업데이트
               const newSelectContents = data.map((item) => ({
@@ -144,11 +161,68 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 likeCount: item.likeCount || 0,
                 mediaUrls: item.mediaUrls,
                 username: item.username,
-                profileImageUrl: item.profileImageUrl
+                profileImageUrl: item.profileImageUrl,
+                distance : item.distance,
+                locationTag : item.locationTag
               }));
+              setSelectContents([]);
+              
+              setCurrentCategory(newSelectContents[0].category);
+              currentDistance = newSelectContents[0].distance;
 
-              // 기존의 selectContents 배열에 새로운 데이터를 추가
               setSelectContents(newSelectContents);
+            });
+
+            stompClient.subscribe('/topic/category', (messageOutput: IMessage) => {
+              console.log(messageOutput.body)
+              const data= JSON.parse(messageOutput.body);
+
+              // 각 항목을 newSelectContent로 변환하고 상태 업데이트
+              const newSelectContents: selectContent = {
+                id: data.id,
+                content: data.content,
+                hashtags: data.hashtags,
+                category: data.category,
+                createdAt: data.createdAt,
+                likeCount: data.likeCount || 0,
+                mediaUrls: data.mediaUrls,
+                username: data.username,
+                profileImageUrl: data.profileImageUrl,
+                distance : data.distance,
+                locationTag : data.locationTag
+              };
+
+              const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+                const R = 6371; // Earth's radius in km
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a =
+                  Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                const distance = R * c; // Distance in km
+                return distance;
+              };
+            
+              let calculatedDistance = NaN;
+
+              // Extract user location
+              if(locate != null){
+                const [userLongitude, userLatitude] = locate.split(',').map(coord => parseFloat(coord.trim()));
+
+                // Extract post location
+                const [postLongitude, postLatitude] = newSelectContents.locationTag.split(',').map(coord => parseFloat(coord.trim()));
+                // Calculate distance between user and post
+                calculatedDistance = haversineDistance(userLatitude, userLongitude, postLatitude, postLongitude);
+              }
+
+
+              if (calculatedDistance <= currentDistance) {
+                if (currentCategory === newSelectContents.category || currentCategory === "ALL") {
+                  setSelectContents((prev) => !prev.some((f) => f.id === newSelectContents.id) ? [newSelectContents, ...prev] : prev);
+                }
+              }
             });
 
             setIsLoading(false);

@@ -5,6 +5,7 @@ import {
 } from '@/components/WebSocketProvider/WebSocketProvider'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 const NotificationWrapper = styled.div`
   max-height: 90vh;
@@ -75,6 +76,8 @@ const NotificationPage: React.FC = () => {
   const [displayNotifications, setDisplayNotifications] = useState<
     Notification[]
   >([])
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [isModalOpen, setModalOpen] = useState(false)
   const location = import.meta.env.VITE_APP_API
   const navigate = useNavigate()
 
@@ -84,10 +87,16 @@ const NotificationPage: React.FC = () => {
 
   const handleContentClick = (notification: Notification) => {
     if (notification.postId) {
-      navigate(`/detailContent/${notification.postId}`)
+      setSelectedPostId(notification.postId)
+      setModalOpen(true)
     } else {
       navigate(`/user/${notification.nickname}?tab=posts`)
     }
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setSelectedPostId(null)
   }
 
   useEffect(() => {
@@ -181,6 +190,14 @@ const NotificationPage: React.FC = () => {
           </CloseButton>
         </NotificationItem>
       ))}
+      {selectedPostId !== null && (
+        <DetailContentModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          postId={selectedPostId}
+          showCloseButton={true}
+        />
+      )}
     </NotificationWrapper>
   )
 }

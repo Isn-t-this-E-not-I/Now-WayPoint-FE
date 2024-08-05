@@ -12,8 +12,8 @@ const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
   height: 100%;
+  width: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -24,9 +24,9 @@ const Overlay = styled.div`
 const ModalBox = styled.div`
   background: #fff;
   padding: 20px;
-  border-radius: 8px;
-  width: 500px;
+  border-radius: 14px;
   position: relative;
+  max-width: 65%;
 `
 
 const CloseBtn = styled.button`
@@ -46,7 +46,6 @@ const Modal: React.FC<ModalProps> = ({
   children,
   showCloseButton = true,
 }) => {
-
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -61,33 +60,13 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {}
 
   return (
     <Overlay onClick={handleOverlayClick}>
       <ModalBox>
-        {children ? (
-          children
-        ) : (
-          <>
-            <h3 className="font-bold text-lg">Hello!</h3>
-            <p className="py-4">
-              Press ESC key or click the button below to close
-            </p>
-          </>
-        )}
-        {showCloseButton && (
-          <div className="modal-action">
-            <button className="btn" onClick={onClose}>
-              Close
-            </button>
-          </div>
-        )}
+        {showCloseButton && <CloseBtn onClick={onClose}>Close</CloseBtn>}
+        {children}
       </ModalBox>
     </Overlay>
   )

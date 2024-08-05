@@ -83,10 +83,12 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
           reader.readAsDataURL(file)
           reader.onloadend = () => {
             if (reader.result) {
-              setPreviewSrcs((prevSrcs) => [
-                ...prevSrcs,
-                reader.result as string,
-              ])
+              setPreviewSrcs((prevSrcs) => {
+                const newSrcs = [...prevSrcs, reader.result as string]
+                // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+                setSelectedImage(newSrcs[newSrcs.length - 1])
+                return newSrcs
+              })
             }
           }
         }
@@ -106,7 +108,12 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
         const thumbnail = canvas.toDataURL('image/png')
-        setPreviewSrcs((prevSrcs) => [...prevSrcs, thumbnail])
+        setPreviewSrcs((prevSrcs) => {
+          const newSrcs = [...prevSrcs, thumbnail]
+          // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+          setSelectedImage(newSrcs[newSrcs.length - 1])
+          return newSrcs
+        })
       }
       URL.revokeObjectURL(video.src)
     })
@@ -190,7 +197,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       )
       const id = response.id
       if (id) {
-        navigate(`/detailContent/${id}`)
+        navigate(`/mypage`)
         onClose() // 게시가 완료되면 모달을 닫습니다.
       }
     } catch (error) {
@@ -226,11 +233,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
         </div>
         <div id="upload_content_header">
           <div id="content_title">컨텐츠 작성</div>
-          <Button
-            id={'upload_btn'}
-            children={'게시 하기'}
-            onClick={handleSubmit}
-          />
+          <Button id={'upload_btn'} children={'작성'} onClick={handleSubmit} />
         </div>
         <hr />
         <div id="upload_content_body">
