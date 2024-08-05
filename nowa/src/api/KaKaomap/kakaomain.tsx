@@ -46,7 +46,7 @@ const MainPage: React.FC = () => {
     { id: '30', label: '30km' },
     { id: '50', label: '50km' },
     { id: '100', label: '100km' },
-    { id: '500', label: '전체' },
+    { id: '1000', label: '전체' },
   ]
 
   const formatDate = (dateString: string | number | Date) => {
@@ -143,34 +143,39 @@ const MainPage: React.FC = () => {
     })
   }
 
-  const addMarkers = (map: any, data: any[]) => {
+  const addMarkers = async (map: any, data: any[]) => {
     if (clustererRef.current) {
       clustererRef.current.clear()
     }
 
-    const markers = data.map((item) => {
-      const [lng, lat] = item.locationTag.split(',').map(Number)
-      const position = new window.kakao.maps.LatLng(lat, lng)
+    const markers = await Promise.all(
+      data.map(async (item) => {
+        const [lng, lat] = item.locationTag.split(',').map(Number)
+        const position = new window.kakao.maps.LatLng(lat, lng)
 
-      const markerImageSrc = getMarkerImageSrc(item.category, item.mediaUrls)
-      const markerImageSize = new window.kakao.maps.Size(35, 35)
-      const markerImage = new window.kakao.maps.MarkerImage(
-        markerImageSrc,
-        markerImageSize
-      )
-      console.log(item, 123123131231)
+        const markerImageSrc = await getMarkerImageSrc(
+          item.category,
+          item.mediaUrls
+        )
+        const markerImageSize = new window.kakao.maps.Size(35, 35)
+        const markerImage = new window.kakao.maps.MarkerImage(
+          markerImageSrc,
+          markerImageSize
+        )
+        console.log(item, 123123131231)
 
-      const marker = new window.kakao.maps.Marker({
-        position,
-        image: markerImage,
+        const marker = new window.kakao.maps.Marker({
+          position,
+          image: markerImage,
+        })
+
+        window.kakao.maps.event.addListener(marker, 'click', () => {
+          displayCustomOverlay(map, marker, item)
+        })
+
+        return marker
       })
-
-      window.kakao.maps.event.addListener(marker, 'click', () => {
-        displayCustomOverlay(map, marker, item)
-      })
-
-      return marker
-    })
+    )
 
     adjustMarkerPosition(markers)
 
@@ -179,18 +184,56 @@ const MainPage: React.FC = () => {
       clustererRef.current.addMarkers(markers)
     }
   }
-
-  const getMarkerImageSrc = (category: string, img: string) => {
+  const getMarkerImageSrc = async (category: string, mediaUrls: string[]) => {
     switch (category) {
       case 'PHOTO':
-        return img
+        return mediaUrls && mediaUrls.length > 0
+          ? mediaUrls[0]
+          : 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
+
       case 'VIDEO':
-        return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
+        if (mediaUrls && mediaUrls.length > 0) {
+          const videoUrl = mediaUrls[0]
+          return await generateVideoThumbnail(videoUrl)
+        } else {
+          return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
+        }
+
       case 'MP3':
         return 'https://cdn-icons-png.flaticon.com/128/6527/6527906.png'
+
       default:
         return 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
     }
+  }
+
+  const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video')
+      video.src = videoUrl
+      video.crossOrigin = 'anonymous' // 필요한 경우 CORS 설정
+
+      video.addEventListener('loadeddata', () => {
+        video.currentTime = Math.min(1, video.duration - 1) // 첫 프레임이나 중간 프레임을 선택
+      })
+
+      video.addEventListener('seeked', () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const context = canvas.getContext('2d')
+        if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height)
+          resolve(canvas.toDataURL('image/png'))
+        } else {
+          reject(new Error('Failed to get canvas context'))
+        }
+      })
+
+      video.addEventListener('error', (error) => {
+        reject(error)
+      })
+    })
   }
 
   const displayCustomOverlay = (
@@ -346,12 +389,16 @@ const MainPage: React.FC = () => {
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value)
     selectCategory(value, selectedDistance)
+    console.log(value)
+    console.log(selectedDistance)
   }
 
   const handleDistanceChange = (value: string) => {
     const newDistance = parseInt(value)
     setSelectedDistance(newDistance)
     selectCategory(selectedCategory, newDistance)
+    console.log(value)
+    console.log(selectedDistance)
   }
 
   return (

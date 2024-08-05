@@ -97,7 +97,7 @@ const IconButtonWrapper = styled.button`
   justify-content: center;
   align-items: center;
   margin-top: 8px;
-  position: relative; /* Add this line */
+  position: relative;
 
   &:focus {
     outline: none;

@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { useWebSocket, FollowContent } from '@/components/WebSocketProvider/WebSocketProvider';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react'
+import {
+  useWebSocket,
+  FollowContent,
+} from '@/components/WebSocketProvider/WebSocketProvider'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import moment from 'moment-timezone'
 
 const FollowContentWrapper = styled.div`
@@ -13,7 +16,7 @@ const FollowContentWrapper = styled.div`
   scrollbar-width: none;
   -ms-overflow-style: none;
   background-color: #f5f5f5;
-`;
+`
 
 const ContentItem = styled.div`
   display: flex;
@@ -24,7 +27,10 @@ const ContentItem = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
   position: relative;
-`;
+  div {
+    display: flex;
+  }
+`
 
 const ProfilePic = styled.img`
   width: 30px;
@@ -34,14 +40,14 @@ const ProfilePic = styled.img`
   margin-bottom: 10px;
   border: 1px solid #ddd;
   cursor: pointer;
-`;
+`
 
 const Username = styled.span`
   font-weight: bold;
   margin-right: 10px;
   margin-bottom: 10px;
   cursor: pointer;
-`;
+`
 
 const InnerImageWrapper = styled.div`
   position: relative;
@@ -49,7 +55,7 @@ const InnerImageWrapper = styled.div`
   max-height: 300px; /* 필요한 최대 높이 설정 */
   overflow: hidden; /* 콘텐츠가 넘치는 것을 숨김 */
   border-radius: 12px;
-`;
+`
 
 const InnerImage = styled.img`
   width: 100%;
@@ -58,32 +64,31 @@ const InnerImage = styled.img`
   margin: auto;
   object-fit: contain;
   cursor: pointer; /* 이미지를 포함하도록 설정 */
-`;
+`
 
 const ContentText = styled.div`
   margin-top: 10px;
   font-size: 14px;
-`;
+`
 
 const HashTags = styled.div`
   color: #129fe1;
   margin-top: 5px;
   font-size: 12px;
-`;
+`
 
 const TimeAgo = styled.span`
   font-size: 12px;
   color: #aaa;
   margin-top: 5px;
-  margin-left: 90px;
-`;
+  margin-left: auto;
+`
 
 const LikeCount = styled.span`
   font-size: 14px;
   color: #333;
-  margin-top: 10px;
   font-weight: bold;
-`;
+`
 
 const ShowMoreButton = styled.button`
   background: none;
@@ -96,7 +101,7 @@ const ShowMoreButton = styled.button`
   &:hover {
     color: #07476f;
   }
-`;
+`
 
 const CategoryLabel = styled.div`
   position: absolute;
@@ -108,30 +113,57 @@ const CategoryLabel = styled.div`
   background-color: rgba(0, 0, 0, 0.5);
   padding: 5px 10px;
   border-radius: 3px;
-`;
+`
 
 const MainSidebarPage: React.FC = () => {
-  const { selectContents , isLoading } = useWebSocket();
-  const [displaySelectContents, setDisplaySelectContents] = useState<FollowContent[]>([]);
-  const navigate = useNavigate();
+  const { selectContents, isLoading } = useWebSocket()
+  const [displaySelectContents, setDisplaySelectContents] = useState<
+    FollowContent[]
+  >([])
+  const navigate = useNavigate()
 
   const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}?tab=posts`);
-  };
+    navigate(`/user/${nickname}?tab=posts`)
+  }
 
   const handleContentImageClick = (id: number) => {
-    navigate(`/detailContent/${id}`);
-  };
+    navigate(`/detailContent/${id}`)
+  }
 
   const formatDate = (dateString: string | number | Date) => {
     return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
   }
 
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
+  }
+
   useEffect(() => {
     if (!isLoading) {
-        setDisplaySelectContents(selectContents.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+      setDisplaySelectContents(
+        selectContents.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      )
     }
-  }, [selectContents, isLoading]);
+  }, [selectContents, isLoading])
 
   return (
     <FollowContentWrapper>
@@ -147,15 +179,17 @@ const MainSidebarPage: React.FC = () => {
                 onClick={() => handleProfileClick(selectContent.username)}
               />
               <CategoryLabel>{selectContent.category}</CategoryLabel>
-              <Username onClick={() => handleProfileClick(selectContent.username)}>
+              <Username
+                onClick={() => handleProfileClick(selectContent.username)}
+              >
                 {selectContent.username}
               </Username>
             </div>
             {selectContent.mediaUrls.length > 0 && (
               <InnerImageWrapper>
-                <InnerImage 
-                  src={selectContent.mediaUrls[0]} 
-                  alt="Content" 
+                <InnerImage
+                  src={selectContent.mediaUrls[0]}
+                  alt="Content"
                   onClick={() => handleContentImageClick(selectContent.id)}
                 />
               </InnerImageWrapper>
@@ -170,25 +204,27 @@ const MainSidebarPage: React.FC = () => {
                 <span></span>
               )}
             </HashTags>
-            <LikeCount>❤ {selectContent.likeCount}</LikeCount>
-            <TimeAgo>{formatDate(selectContent.createdAt)}</TimeAgo>
+            <div>
+              <LikeCount>❤ {selectContent.likeCount}</LikeCount>
+              <TimeAgo>{formatRelativeTime(selectContent.createdAt)}</TimeAgo>
+            </div>
           </ContentItem>
         ))
       )}
     </FollowContentWrapper>
-  );
-};
+  )
+}
 
 const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const limit = 30; // 표시할 최대 글자 수
+  const [isExpanded, setIsExpanded] = useState(false)
+  const limit = 30 // 표시할 최대 글자 수
 
   const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+    setIsExpanded(!isExpanded)
+  }
 
   if (content.length <= limit) {
-    return <ContentText>{content}</ContentText>;
+    return <ContentText>{content}</ContentText>
   }
 
   return (
@@ -198,7 +234,7 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
         {isExpanded ? '접기' : '더보기'}
       </ShowMoreButton>
     </ContentText>
-  );
-};
+  )
+}
 
-export default MainSidebarPage;
+export default MainSidebarPage
