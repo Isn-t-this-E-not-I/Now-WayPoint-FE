@@ -3,6 +3,7 @@ import {
   useWebSocket,
   Notification,
 } from '@/components/WebSocketProvider/WebSocketProvider'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 const NotificationWrapper = styled.div`
@@ -25,6 +26,7 @@ const NotificationItem = styled.div`
   width: 17.5rem;
   font-size: 15px;
   border: 1px solid #ddd;
+  cursor: pointer;
   &:hover {
     border: 1px solid black;
   }
@@ -35,6 +37,7 @@ const ProfilePic = styled.img`
   height: 40px;
   border-radius: 50%;
   margin-right: 10px;
+  cursor: pointer;
 `
 
 const NotificationContent = styled.div`
@@ -66,6 +69,19 @@ const NotificationPage: React.FC = () => {
     Notification[]
   >([])
   const location = import.meta.env.VITE_APP_API
+  const navigate = useNavigate()
+
+  const handleProfileClick = (nickname: string) => {
+    navigate(`/user/${nickname}?tab=posts`)
+  }
+
+  const handleContentClick = (notification : Notification) => {
+    if (notification.postId) {
+      navigate(`/detailContent/${notification.postId}`);
+    } else {
+      navigate(`/user/${notification.nickname}?tab=posts`);
+    }
+  }
 
   useEffect(() => {
     if (!isLoading) {
@@ -132,16 +148,31 @@ const NotificationPage: React.FC = () => {
   return (
     <NotificationWrapper>
       {displayNotifications.map((notification) => (
-        <NotificationItem key={notification.id}>
-          <ProfilePic src={notification.profileImageUrl} alt="Profile" />
-          <NotificationContent>
-            <span>{notification.message}</span>
-            <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
-          </NotificationContent>
-          <CloseButton onClick={() => handleDelete(notification.id)}>
-            x
-          </CloseButton>
-        </NotificationItem>
+        <NotificationItem
+        key={notification.id}
+        onClick={() => handleContentClick(notification)}
+      >
+        <ProfilePic
+          src={notification.profileImageUrl}
+          alt="Profile"
+          onClick={(e) => {
+            e.stopPropagation(); // 이벤트 버블링 중지
+            handleProfileClick(notification.nickname);
+          }}
+        />
+        <NotificationContent>
+          <span>{notification.message}</span>
+          <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
+        </NotificationContent>
+        <CloseButton
+          onClick={(e) => {
+            e.stopPropagation(); // 이벤트 버블링 중지
+            handleDelete(notification.id);
+          }}
+        >
+          x
+        </CloseButton>
+      </NotificationItem>
       ))}
     </NotificationWrapper>
   )
