@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment-timezone'
+import DetailContentModal from '@/components/Modal/ContentModal' // DetailContentModal 컴포넌트 가져오기
 
 const FollowContentWrapper = styled.div`
   text-align: left;
@@ -120,6 +121,8 @@ const MainSidebarPage: React.FC = () => {
   const [displaySelectContents, setDisplaySelectContents] = useState<
     FollowContent[]
   >([])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
   const navigate = useNavigate()
 
   const handleProfileClick = (nickname: string) => {
@@ -127,7 +130,13 @@ const MainSidebarPage: React.FC = () => {
   }
 
   const handleContentImageClick = (id: number) => {
-    navigate(`/detailContent/${id}`)
+    setSelectedPostId(id)
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setSelectedPostId(null)
   }
 
   const formatDate = (dateString: string | number | Date) => {
@@ -211,6 +220,11 @@ const MainSidebarPage: React.FC = () => {
           </ContentItem>
         ))
       )}
+      <DetailContentModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        postId={selectedPostId}
+      />
     </FollowContentWrapper>
   )
 }

@@ -190,7 +190,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       )
       const id = response.id
       if (id) {
-        navigate(`/detailContent/${id}`)
+        navigate(`/mypage`)
         onClose() // 게시가 완료되면 모달을 닫습니다.
       }
     } catch (error) {

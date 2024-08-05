@@ -26,6 +26,7 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css'
 
 interface DetailContentProps {
   postId: Number
+  onClose?: () => void // 추가: 모달을 닫는 함수
 }
 
 // 현재 로그인한 유저의 닉네임을 가져오는 함수
@@ -33,7 +34,7 @@ const getCurrentUser = (): string | null => {
   return localStorage.getItem('nickname')
 }
 
-const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
+const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
@@ -49,11 +50,13 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
     new Set()
   ) // 댓글 확장 상태
   const navigate = useNavigate()
+  const [id, setId] = useState<Number>()
 
   const fetchPostAndComments = async () => {
     try {
       const postData = await getPostById(Number(postId))
       setPost(postData)
+      setId(postData.id)
       const commentsData = await getCommentsByPostId(Number(postId))
       const parentComments = commentsData.filter((comment) => !comment.parentId)
       const sortedParentComments = parentComments.sort(
@@ -152,6 +155,10 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
         await deletePostById(Number(postId))
         alert('게시글이 삭제되었습니다.')
         navigate('/mypage') // 삭제 후 메인 페이지로 리다이렉트
+        if (onClose) {
+          onClose() // 모달 창 닫기
+        }
+        window.location.reload()
       } catch (error) {
         console.error('Failed to delete post:', error)
         alert('게시글을 삭제하는 중 오류가 발생했습니다.')
@@ -634,6 +641,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId }) => {
         onClose={() => setIsEditModalOpen(false)}
       >
         <EditContent
+          postId={id}
           onClose={() => setIsEditModalOpen(false)}
           refreshPost={fetchPostAndComments}
         />
