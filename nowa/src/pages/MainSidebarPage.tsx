@@ -27,6 +27,9 @@ const ContentItem = styled.div`
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
   position: relative;
+  div {
+    display: flex;
+  }
 `
 
 const ProfilePic = styled.img`
@@ -78,13 +81,12 @@ const TimeAgo = styled.span`
   font-size: 12px;
   color: #aaa;
   margin-top: 5px;
-  margin-left: 90px;
+  margin-left: auto;
 `
 
 const LikeCount = styled.span`
   font-size: 14px;
   color: #333;
-  margin-top: 10px;
   font-weight: bold;
 `
 
@@ -130,6 +132,26 @@ const MainSidebarPage: React.FC = () => {
 
   const formatDate = (dateString: string | number | Date) => {
     return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
+  }
+
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date().getTime()
+    const time = new Date(timestamp).getTime()
+    const diff = now - time
+
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+    if (days > 0) {
+      return `${days}일 전`
+    } else if (hours > 0) {
+      return `${hours}시간 전`
+    } else if (minutes > 0) {
+      return `${minutes}분 전`
+    } else {
+      return '방금 전'
+    }
   }
 
   useEffect(() => {
@@ -182,8 +204,10 @@ const MainSidebarPage: React.FC = () => {
                 <span></span>
               )}
             </HashTags>
-            <LikeCount>❤ {selectContent.likeCount}</LikeCount>
-            <TimeAgo>{formatDate(selectContent.createdAt)}</TimeAgo>
+            <div>
+              <LikeCount>❤ {selectContent.likeCount}</LikeCount>
+              <TimeAgo>{formatRelativeTime(selectContent.createdAt)}</TimeAgo>
+            </div>
           </ContentItem>
         ))
       )}

@@ -165,7 +165,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
   const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let inputValue = e.target.value
 
-    const tagPattern = /(?:^|\s)(#[\w가-힣]+)\s/g
+    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
     const newTags: string[] = []
     let match
 
@@ -222,7 +222,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
       return
     }
 
-    const confirmed = window.confirm('정말로 게시글을 수정하시겠습니까?')
+    const confirmed = window.confirm('게시글을 수정하시겠습니까?')
     if (!confirmed) {
       return
     }

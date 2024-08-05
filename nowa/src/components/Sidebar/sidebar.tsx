@@ -135,8 +135,15 @@ const LogOutIconButtonWrapper = styled.button`
   align-items: center;
   margin-top: 8px;
   position: relative;
+<<<<<<< HEAD
   width: 4.2rem;
   height: 55px;
+=======
+
+  &:focus {
+    outline: none;
+  }
+>>>>>>> 581b9635df5f1c257be899706b244395249a019e
 `
 
 const ContentDiv = styled.div`
