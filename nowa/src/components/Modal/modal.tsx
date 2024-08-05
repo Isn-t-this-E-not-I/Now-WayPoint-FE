@@ -12,8 +12,8 @@ const Overlay = styled.div`
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
   height: 100%;
+  width: 100%;
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
@@ -24,9 +24,9 @@ const Overlay = styled.div`
 const ModalBox = styled.div`
   background: #fff;
   padding: 20px;
-  border-radius: 8px;
-  width: 500px;
+  border-radius: 14px;
   position: relative;
+  max-width: 60%;
 `
 
 const CloseBtn = styled.button`
@@ -63,8 +63,8 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <Overlay>
       <ModalBox>
-        {children}
         {showCloseButton && <CloseBtn onClick={onClose}>Close</CloseBtn>}
+        {children}
       </ModalBox>
     </Overlay>
   )

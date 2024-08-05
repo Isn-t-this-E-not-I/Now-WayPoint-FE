@@ -8,7 +8,7 @@
 
 /* 게시글 이미지 관련 */
 #detail_picture {
-  height: 100vh;
+  height: 80vh;
   flex: 2;
   display: flex;
   justify-content: center;
@@ -16,7 +16,7 @@
 
 /* 게시글 이미지 */
 #detail_picture_item1 img {
-  height: 100vh;
+  height: 80vh;
   object-fit: contain;
 }
 
@@ -25,7 +25,7 @@
   flex: 1;
   display: grid;
   grid-template-rows: 10% 20% 1fr auto auto;
-  height: 100vh;
+  height: 80vh;
   border: 1px solid black;
 }
 
@@ -111,6 +111,7 @@
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  padding-right: 10px;
 }
 
 #detail_content_coment::-webkit-scrollbar {
@@ -154,7 +155,7 @@
 /* 댓글 내용 */
 #detail_coment_content {
   font-size: 12px;
-  width: 390px;
+  width: 100%;
 }
 
 /* 댓글 작성 날짜  */
@@ -389,7 +390,7 @@
   display: flex;
   justify-content: center;
   background-color: black;
-  height: 100vh;
+  height: 80vh;
 }
 
 #image_preview {
@@ -407,6 +408,8 @@ audio {
 
 #d_d {
   width: 40px;
+  min-width: 40px;
   height: 40px;
+  min-height: 40px;
   border-radius: 50px;
 }

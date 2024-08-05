@@ -222,11 +222,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
         </div>
         <div id="upload_content_header">
           <div id="content_title">컨텐츠 작성</div>
-          <Button
-            id={'upload_btn'}
-            children={'게시 하기'}
-            onClick={handleSubmit}
-          />
+          <Button id={'upload_btn'} children={'작성'} onClick={handleSubmit} />
         </div>
         <hr />
         <div id="upload_content_body">

@@ -279,7 +279,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
           <div id="content_title">컨텐츠 수정</div>
           <Button
             id={'upload_btn'}
-            children={'수정 하기'}
+            children={'수정하기'}
             onClick={handleSubmit}
           />
         </div>

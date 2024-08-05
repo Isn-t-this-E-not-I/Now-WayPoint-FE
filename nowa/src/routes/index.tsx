@@ -38,9 +38,29 @@ const Routers: React.FC = () => {
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/mypage/profileEdit" element={<ProfileEditPage />} />
-        <Route path="/UploadContent" element={<UploadContent />} />
-        <Route path="/detailContent/:id" element={<DetailContent />} />
-        <Route path="/editContent/:id" element={<EditContent />} />
+        <Route
+          path="/UploadContent"
+          element={
+            <UploadContent
+              onClose={function (): void {
+                throw new Error('에러가 발생했습니다')
+              }}
+            />
+          }
+        />
+        <Route
+          path="/editContent/:id"
+          element={
+            <EditContent
+              onClose={function (): void {
+                throw new Error('에러가 발생했습니다')
+              }}
+              refreshPost={function (): void {
+                throw new Error('게시글 수정에 실패하셨습니다')
+              }}
+            />
+          }
+        />
         <Route path="/profileEdit" element={<></>} />
         <Route path="/chat" element={<></>} />
         <Route path="/chatting/:chatRoomId" element={<ChattingPage />} />

@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment-timezone'
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 const FollowContentWrapper = styled.div`
   text-align: left;
@@ -131,6 +132,8 @@ const FollowContentsPage: React.FC = () => {
   const [displayFollowContents, setDisplayFollowContents] = useState<
     FollowContent[]
   >([])
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [isModalOpen, setModalOpen] = useState(false)
   const navigate = useNavigate()
 
   const handleProfileClick = (nickname: string) => {
@@ -138,7 +141,13 @@ const FollowContentsPage: React.FC = () => {
   }
 
   const handleContentClick = (id: number) => {
-    navigate(`/detailContent/${id}`)
+    setSelectedPostId(id)
+    setModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setModalOpen(false)
+    setSelectedPostId(null)
   }
 
   const formatRelativeTime = (timestamp: string) => {
@@ -226,6 +235,14 @@ const FollowContentsPage: React.FC = () => {
             </div>
           </ContentItem>
         ))
+      )}
+      {selectedPostId !== null && (
+        <DetailContentModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          postId={selectedPostId}
+          showCloseButton={true}
+        />
       )}
     </FollowContentWrapper>
   )

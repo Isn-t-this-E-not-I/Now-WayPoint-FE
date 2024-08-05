@@ -26,6 +26,7 @@ const getCookieValue = (name: number): string | null => {
 const getPostById = async (postId: number): Promise<Post> => {
   const token = localStorage.getItem('token')
 
+  console.log(postId)
   if (!token) {
     throw new Error('Authorization token not found')
   }
