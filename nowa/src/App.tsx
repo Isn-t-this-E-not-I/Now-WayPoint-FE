@@ -18,26 +18,49 @@ const App: React.FC = () => {
     <div style={{ display: 'flex', height: '100vh' }}>
       <ChatProvider>
         {!isNoSidebarPage && (
-          <Sidebar
-            theme={'light'}
-            setSelectedPage={setSelectedPage}
-          />
+          <Sidebar theme={'light'} setSelectedPage={setSelectedPage} />
         )}
         <div style={{ flex: 1 }}>
           <Routers />
         </div>
       </ChatProvider>
-    </div >
+    </div>
   )
 }
 
-const AppWrapper: React.FC = () => (
-  <BrowserRouter>
-    <AppProvider>
-      <App />
-    </AppProvider>
-  </BrowserRouter>
-)
+const AppWrapper: React.FC = () => {
+  const globalStyle = `
+    @font-face {
+      font-family: 'Pretendard-Regular';
+      src: url('https://fastly.jsdelivr.net/gh/Project-Noonnu/noonfonts_2107@1.1/Pretendard-Regular.woff') format('woff');
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    body {
+      font-family: 'Pretendard-Regular', sans-serif;
+    }
+  `
+
+  React.useEffect(() => {
+    const styleSheet = document.createElement('style')
+    styleSheet.type = 'text/css'
+    styleSheet.innerText = globalStyle
+    document.head.appendChild(styleSheet)
+
+    return () => {
+      document.head.removeChild(styleSheet)
+    }
+  }, [])
+
+  return (
+    <BrowserRouter>
+      <AppProvider>
+        <App />
+      </AppProvider>
+    </BrowserRouter>
+  )
+}
 
 const rootElement = document.getElementById('root')
 if (rootElement) {
