@@ -9,9 +9,14 @@ import { useParams } from 'react-router-dom'
 interface EditContentProps {
   onClose: () => void
   refreshPost: () => void
+  postId?: Number
 }
 
-const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
+const EditContent: React.FC<EditContentProps> = ({
+  onClose,
+  refreshPost,
+  postId,
+}) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
   const [existingUrls, setExistingUrls] = useState<string[]>([])
@@ -21,7 +26,6 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
   const [newFiles, setNewFiles] = useState<File[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
-  const { id } = useParams<{ id: string }>()
 
   const photoOptions = [
     { id: 'PHOTO', label: '사진' },
@@ -32,7 +36,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
   useEffect(() => {
     const fetchPostData = async () => {
       try {
-        const postData: Post = await getPostById(Number(id))
+        const postData: Post = await getPostById(Number(postId))
         setContent(postData.content || '')
         setTags(postData.hashtags || [])
         setSelectedOption(postData.category || 'PHOTO')
@@ -44,7 +48,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
     }
 
     fetchPostData()
-  }, [id])
+  }, [postId])
 
   const handleImageClick = () => {
     if (fileInputRef.current) {
@@ -103,10 +107,12 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
           reader.readAsDataURL(file)
           reader.onloadend = () => {
             if (reader.result) {
-              setPreviewSrcs((prevSrcs) => [
-                ...prevSrcs,
-                reader.result as string,
-              ])
+              setPreviewSrcs((prevSrcs) => {
+                const newSrcs = [...prevSrcs, reader.result as string]
+                // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+                setSelectedImage(newSrcs[newSrcs.length - 1])
+                return newSrcs
+              })
             }
           }
         }
@@ -126,7 +132,12 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
         const thumbnail = canvas.toDataURL('image/png')
-        setPreviewSrcs((prevSrcs) => [...prevSrcs, thumbnail])
+        setPreviewSrcs((prevSrcs) => {
+          const newSrcs = [...prevSrcs, thumbnail]
+          // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+          setSelectedImage(newSrcs[newSrcs.length - 1])
+          return newSrcs
+        })
       }
       URL.revokeObjectURL(video.src)
     })
@@ -230,7 +241,7 @@ const EditContent: React.FC<EditContentProps> = ({ onClose, refreshPost }) => {
     const token = localStorage.getItem('token')
     try {
       const response = await updateContent(
-        Number(id),
+        Number(postId),
         newFiles,
         content,
         tags,

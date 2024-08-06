@@ -26,7 +26,7 @@ const ModalBox = styled.div`
   padding: 20px;
   border-radius: 14px;
   position: relative;
-  max-width: 60%;
+  max-width: 65%;
 `
 
 const CloseBtn = styled.button`
