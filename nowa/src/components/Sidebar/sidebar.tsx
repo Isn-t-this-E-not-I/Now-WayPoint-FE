@@ -449,7 +449,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         </ContentDiv>
       </RightSidebar>
       {isUploadModalOpen && (
-        <Modal isOpen={isUploadModalOpen} showCloseButton={false}>
+        <Modal isOpen={isUploadModalOpen} showCloseButton={false} onClose={() => setUploadModalOpen(false)}>
           <div>
             <MakeContent onClose={() => setUploadModalOpen(false)} />
           </div>
