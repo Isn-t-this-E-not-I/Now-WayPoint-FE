@@ -28,7 +28,7 @@ const ContentItem = styled.div`
   padding: 15px;
   position: relative;
   border: 1px solid #ddd;
-  cursor : pointer;
+  cursor: pointer;
   &:hover {
     border: 1px solid black;
   }
@@ -94,7 +94,7 @@ const TimeAgo = styled.span`
   font-size: 12px;
   color: #aaa;
   margin-top: 5px;
-  margin-left: 65px;
+  margin-left: auto;
 `
 
 const LikeCount = styled.span`
@@ -183,7 +183,8 @@ const FollowContentsPage: React.FC = () => {
         <div>Loading...</div> // 로딩 상태 표시
       ) : (
         displayFollowContents.map((followContent) => (
-          <ContentItem key={followContent.id}
+          <ContentItem
+            key={followContent.id}
             onClick={() => handleContentClick(followContent.id)}
           >
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -192,22 +193,21 @@ const FollowContentsPage: React.FC = () => {
                 alt="Profile"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleProfileClick(followContent.username)}
-                }
+                  handleProfileClick(followContent.username)
+                }}
               />
               <CategoryLabel>{followContent.category}</CategoryLabel>
               <Username
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleProfileClick(followContent.username)}
-                }
+                  handleProfileClick(followContent.username)
+                }}
               >
                 {followContent.username}
               </Username>
             </div>
             {followContent.mediaUrls.length > 0 && (
-              <InnerMediaWrapper
-              >
+              <InnerMediaWrapper>
                 {followContent.mediaUrls[0].endsWith('.mp4') ? (
                   <InnerVideo
                     src={followContent.mediaUrls[0]}
@@ -223,10 +223,7 @@ const FollowContentsPage: React.FC = () => {
                     alt="Music Icon"
                   />
                 ) : (
-                  <InnerImage
-                    src={followContent.mediaUrls[0]}
-                    alt="Content"
-                  />
+                  <InnerImage src={followContent.mediaUrls[0]} alt="Content" />
                 )}
               </InnerMediaWrapper>
             )}
