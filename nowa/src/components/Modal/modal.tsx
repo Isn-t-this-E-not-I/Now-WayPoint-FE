@@ -1,4 +1,4 @@
-import React, { useState, ReactNode, useEffect } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
 
 interface ModalProps {
@@ -30,13 +30,17 @@ const ModalBox = styled.div`
 `
 
 const CloseBtn = styled.button`
-  background-color: lightblue;
-  padding: 10px;
-  border: 1px solid blue;
-  transition: transform 0.3s ease;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #000;
 
   &:hover {
-    transform: scale(1.1);
+    color: #555;
   }
 `
 
@@ -60,12 +64,15 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null
 
-  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {}
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && onClose) {
+      onClose && onClose()
+    }
+  }
 
   return (
     <Overlay onClick={handleOverlayClick}>
       <ModalBox>
-        {showCloseButton && <CloseBtn onClick={onClose}>Close</CloseBtn>}
         {children}
       </ModalBox>
     </Overlay>
