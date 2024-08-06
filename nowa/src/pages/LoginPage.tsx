@@ -3,6 +3,8 @@ import { useCookies } from 'react-cookie'
 import { login } from '../api/userApi'
 import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+
 
 const LoginPage: React.FC = () => {
   const [loginId, setLoginId] = useState<string>('')
@@ -10,9 +12,11 @@ const LoginPage: React.FC = () => {
   const [nickname, setNickname] = useState('')
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
-  const navigate = useNavigate()
   const location = import.meta.env.VITE_APP_API
   const [cookies, setCookie, removeCookie] = useCookies(['rememberedLoginId'])
+  const [hidePassword, setHidePassword] = useState(true);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (cookies.rememberedLoginId) {
@@ -53,6 +57,10 @@ const LoginPage: React.FC = () => {
     }
   }
 
+  const onToggleHide = () => {
+    setHidePassword(!hidePassword);
+  };
+
   const goToRegister = () => navigate('/register')
   const goToFindId = () => navigate('/find-id')
   const goToFindPassword = () => navigate('/find-password')
@@ -68,14 +76,19 @@ const LoginPage: React.FC = () => {
           value={loginId}
           className="mb-4"
         />
+        <div className="relative w-full mb-2">
         <TextInput
-          type="password"
+          type={hidePassword ? 'password' : 'text'}
           placeholder="비밀번호"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
           className="mb-4"
         />
-        <div className="flex items-center space-x-2 mb-4">
+        <div className="absolute inset-y-0 right-0 mb-4 mr-2 pr-3 flex items-center cursor-pointer" onClick={onToggleHide}>
+            {hidePassword ? <AiFillEye /> : <AiFillEyeInvisible />}
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={rememberMe}
