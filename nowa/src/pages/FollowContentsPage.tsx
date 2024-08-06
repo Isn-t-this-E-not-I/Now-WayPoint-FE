@@ -28,6 +28,7 @@ const ContentItem = styled.div`
   padding: 15px;
   position: relative;
   border: 1px solid #ddd;
+  cursor : pointer;
   &:hover {
     border: 1px solid black;
   }
@@ -182,22 +183,31 @@ const FollowContentsPage: React.FC = () => {
         <div>Loading...</div> // 로딩 상태 표시
       ) : (
         displayFollowContents.map((followContent) => (
-          <ContentItem key={followContent.id}>
+          <ContentItem key={followContent.id}
+            onClick={() => handleContentClick(followContent.id)}
+          >
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <ProfilePic
                 src={followContent.profileImageUrl}
                 alt="Profile"
-                onClick={() => handleProfileClick(followContent.username)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleProfileClick(followContent.username)}
+                }
               />
               <CategoryLabel>{followContent.category}</CategoryLabel>
               <Username
-                onClick={() => handleProfileClick(followContent.username)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleProfileClick(followContent.username)}
+                }
               >
                 {followContent.username}
               </Username>
             </div>
             {followContent.mediaUrls.length > 0 && (
-              <InnerMediaWrapper>
+              <InnerMediaWrapper
+              >
                 {followContent.mediaUrls[0].endsWith('.mp4') ? (
                   <InnerVideo
                     src={followContent.mediaUrls[0]}
@@ -206,19 +216,16 @@ const FollowContentsPage: React.FC = () => {
                     onMouseEnter={(e) => e.currentTarget.play()}
                     onMouseLeave={(e) => e.currentTarget.pause()}
                     onContextMenu={(e) => e.preventDefault()}
-                    onClick={() => handleContentClick(followContent.id)}
                   />
                 ) : followContent.mediaUrls[0].endsWith('.mp3') ? (
                   <InnerImage
                     src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
                     alt="Music Icon"
-                    onClick={() => handleContentClick(followContent.id)}
                   />
                 ) : (
                   <InnerImage
                     src={followContent.mediaUrls[0]}
                     alt="Content"
-                    onClick={() => handleContentClick(followContent.id)}
                   />
                 )}
               </InnerMediaWrapper>
