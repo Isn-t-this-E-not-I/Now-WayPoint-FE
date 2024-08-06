@@ -73,6 +73,7 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <Overlay onClick={handleOverlayClick}>
       <ModalBox>
+        {showCloseButton && <CloseBtn onClick={onClose}>×</CloseBtn>}
         {children}
       </ModalBox>
     </Overlay>

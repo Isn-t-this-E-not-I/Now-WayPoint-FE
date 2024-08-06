@@ -30,6 +30,7 @@ import FollowContentsPage from '@/pages/FollowContentsPage'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
 import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
+import Button from '../Button/button'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -403,15 +404,15 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <ExitIcon theme={theme} />
           {isLogoutDropdownOpen && (
-            <LogoutDropdown>
-              <h3>로그아웃 하시겠습니까?</h3>
-              <button onClick={() => handleLogout(setLogoutDropdownOpen)}>
-                넵!
-              </button>
-              <button onClick={() => setLogoutDropdownOpen(false)}>
-                아니요..
-              </button>
-            </LogoutDropdown>
+            <Modal isOpen={isLogoutDropdownOpen} showCloseButton={false} onClose={() => setLogoutDropdownOpen(false)}>
+              <div style={{ textAlign: 'center' }}>
+                <h3>로그아웃 하시겠습니까?</h3>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
+                  <Button onClick={() => handleLogout(setLogoutDropdownOpen)}>네</Button>
+                  <Button onClick={() => setLogoutDropdownOpen(false)}>아니오</Button>
+                </div>
+              </div>
+            </Modal>
           )}
         </LogOutIconButtonWrapper>
         <Blank />
@@ -449,7 +450,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         </ContentDiv>
       </RightSidebar>
       {isUploadModalOpen && (
-        <Modal isOpen={isUploadModalOpen} showCloseButton={false}>
+        <Modal isOpen={isUploadModalOpen} showCloseButton={false} onClose={() => setUploadModalOpen(false)}>
           <div>
             <MakeContent onClose={() => setUploadModalOpen(false)} />
           </div>
