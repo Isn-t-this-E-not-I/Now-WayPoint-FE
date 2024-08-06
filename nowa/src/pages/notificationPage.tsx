@@ -25,7 +25,7 @@ const NotificationItem = styled.div`
   padding: 10px;
   border-radius: 12px;
   height: 5.5rem;
-  width: 18rem;
+  width: 17rem;
   font-size: 15px;
   border: 2.3px solid transparent;
   background:
@@ -71,8 +71,26 @@ const CloseButton = styled.button`
   color: #000947;
 `
 
+const ContentText = styled.div`
+  margin-top: 10px;
+  font-size: 14px;
+`
+
+const ShowMoreButton = styled.button`
+  background: none;
+  border: none;
+  color: #129fe1;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 14px;
+
+  &:hover {
+    color: #07476f;
+  }
+`
+
 const NotificationPage: React.FC = () => {
-  const { notifications, isLoading } = useWebSocket()
+  const { notifications, isLoading, resetNotifyCount } = useWebSocket()
   const [displayNotifications, setDisplayNotifications] = useState<
     Notification[]
   >([])
@@ -98,6 +116,10 @@ const NotificationPage: React.FC = () => {
     setModalOpen(false)
     setSelectedPostId(null)
   }
+
+  useEffect(() => {
+    resetNotifyCount();
+  }, [resetNotifyCount]);
 
   useEffect(() => {
     if (!isLoading) {
@@ -177,7 +199,7 @@ const NotificationPage: React.FC = () => {
             }}
           />
           <NotificationContent>
-            <span>{notification.message}</span>
+          <ContentDisplay content={notification.message} />
             <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
           </NotificationContent>
           <CloseButton
@@ -201,5 +223,14 @@ const NotificationPage: React.FC = () => {
     </NotificationWrapper>
   )
 }
+
+const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
+  const limit = 50; // 표시할 최대 글자 수
+
+  // 콘텐츠 길이가 limit을 초과하면 잘라내고 '...' 추가
+  const truncatedContent = content.length > limit ? `${content.substring(0, limit)}...` : content;
+
+  return <ContentText>{truncatedContent}</ContentText>;
+};
 
 export default NotificationPage

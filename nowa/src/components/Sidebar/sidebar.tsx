@@ -29,6 +29,7 @@ import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
 import FollowContentsPage from '@/pages/FollowContentsPage'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
+import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -218,6 +219,22 @@ const LogoutDropdown = styled.div`
   }
 `
 
+const Badge = styled.span`
+  position: absolute;
+  top: 7px;
+  right: 15px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
@@ -229,9 +246,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const { notifyCount } = useWebSocket();
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
+    console.log('notifyCount :', notifyCount);
     const getAllUsers = async () => {
       const users = await fetchAllUsers()
       setAllUsers(users)
@@ -251,49 +270,19 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const renderContentPage = () => {
     switch (activePage) {
       case 'main':
-        return (
-          <div>
-            <WebSocketProvider>
-              <MainSidebarPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <MainSidebarPage />;
       case 'notifications':
-        return (
-          <div>
-            <WebSocketProvider>
-              <NotificationPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <NotificationPage />;
       case 'chat':
-        return <ChatListPage />
+        return <ChatListPage />;
       case 'contents':
-        return (
-          <div>
-            <WebSocketProvider>
-              <MainSidebarPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <MainSidebarPage />;
       case 'followContents':
-        return (
-          <div>
-            <WebSocketProvider>
-              <FollowContentsPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <FollowContentsPage />;
       default:
-        return (
-          <div>
-            <WebSocketProvider>
-              <MainSidebarPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <MainSidebarPage />;
     }
-  }
+  };
 
   // 검색창 보여주기 여부
   const shouldShowSearch = () => {
@@ -354,6 +343,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
+          {notifyCount > 0 && <Badge>{notifyCount / 2}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
           active={activePage === 'chat'}
