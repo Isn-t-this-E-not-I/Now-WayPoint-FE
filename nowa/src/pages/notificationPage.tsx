@@ -90,7 +90,7 @@ const ShowMoreButton = styled.button`
 `
 
 const NotificationPage: React.FC = () => {
-  const { notifications, isLoading, resetNotifyCount } = useWebSocket()
+  const { notifications, isLoading, resetNotifyCount, deleteSocketNotification } = useWebSocket()
   const [displayNotifications, setDisplayNotifications] = useState<
     Notification[]
   >([])
@@ -134,6 +134,9 @@ const NotificationPage: React.FC = () => {
     setDisplayNotifications(
       displayNotifications.filter((notification) => notification.id !== id)
     )
+
+    //notifications에 데이터 제거
+    deleteSocketNotification(id);
 
     // 알림 삭제를 위한 API 호출
     const deleteNotification = async () => {
