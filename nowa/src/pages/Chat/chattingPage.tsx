@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom'
 import { useApp } from '@/context/appContext'
 import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
+import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
 
 const ChatContainer = styled.div`
@@ -132,8 +133,8 @@ const ChattingPage: React.FC = () => {
   const { subscribeToChatRoom } = useChatWebSocket()
 
   const [messageContent, setMessageContent] = useState('')
-  const [showInviteModal, setShowInviteModal] = useState(false)
-  const [selectedUsers, setSelectedUsers] = useState('') // 추가된 부분: 선택된 사용자 상태
+  const { isOpen, open, close } = useModal()
+  const [selectedUsers, setSelectedUsers] = useState('')
 
   const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null
   const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
@@ -186,7 +187,7 @@ const ChattingPage: React.FC = () => {
     const usernames = selectedUsers.split(',').map((user) => user.trim())
     const payload = {
       chatRoomId: roomId,
-      usernames,
+      nicknames: usernames,
     }
     const stompClient = getStompClient()
     if (stompClient) {
@@ -199,7 +200,6 @@ const ChattingPage: React.FC = () => {
       console.error('StompClient is not connected.')
     }
     setSelectedUsers('')
-    setShowInviteModal(false)
   }
 
   // 채팅방 나가기 함수
@@ -255,9 +255,18 @@ const ChattingPage: React.FC = () => {
       <Header>
         <Title>{displayName}</Title>
         <ButtonContainer>
-          <ActionButton onClick={() => setShowInviteModal(true)}>
-            채팅방에 초대
-          </ActionButton>
+          <ActionButton onClick={open}>채팅방 초대</ActionButton>
+          {isOpen && (
+            <InviteModal
+              isOpen={isOpen}
+              onClose={close}
+              showCloseButton={false}
+              selectedUsers={selectedUsers}
+              setSelectedUsers={setSelectedUsers}
+              handleSubmit={inviteToChatRoom}
+              theme={theme}
+            />
+          )}
           <ActionButton onClick={leaveChatRoom}>채팅방 나가기</ActionButton>
         </ButtonContainer>
       </Header>
@@ -286,16 +295,6 @@ const ChattingPage: React.FC = () => {
         />
         <SendButton onClick={sendMessage}>보내기</SendButton>
       </InputContainer>
-      {showInviteModal && (
-        <InviteModal
-          isOpen={showInviteModal}
-          onClose={() => setShowInviteModal(false)}
-          selectedUsers={selectedUsers}
-          setSelectedUsers={setSelectedUsers}
-          handleSubmit={inviteToChatRoom}
-          theme={theme}
-        />
-      )}
     </ChatContainer>
   )
 }
