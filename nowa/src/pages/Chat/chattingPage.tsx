@@ -22,26 +22,31 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
+  height: 60px;
   border-bottom: 1px solid #ccc;
   background-color: #f9f9f9;
 `
 
 const Title = styled.h1`
   font-size: 1.5rem;
-  margin: 0;
+  font-weight: bold;
+  margin-left: 0.5rem;
 `
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 20px;
+  align-items: center;
 `
 
 const ActionButton = styled.button`
-  padding: 10px 15px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   color: white;
+  align-items: center;
+  justify-content: center;
+  margin-top: -20px;
   transition: transform 0.2s ease;
 
   &:hover {
@@ -242,13 +247,11 @@ const ChattingPage: React.FC = () => {
   let displayName: string
   if (chatRoom.userResponses.length === 1) {
     displayName = '알수없음'
-  } else if (chatRoom.userResponses.length === 2) {
-    const otherUser = chatRoom.userResponses.find(
-      (user) => user.userNickname !== nickname
-    )
-    displayName = otherUser ? otherUser.userNickname : '알수없음'
   } else {
-    displayName = chatRoom.chatRoomName
+    displayName = chatRoom.userResponses
+      .filter((user) => user.userNickname !== nickname)
+      .map((user) => user.userNickname)
+      .join(', ')
   }
 
   return (

@@ -50,8 +50,11 @@ const RoomNameWrapper = styled.div`
   align-items: center;
   width: 100%;
 `
+interface RoomNameProps {
+  istruncated: boolean
+}
 
-const RoomName = styled.h2`
+const RoomName = styled.h2<RoomNameProps>`
   font-size: 1.3rem;
   font-weight: bold;
   color: #01317b;
@@ -61,13 +64,37 @@ const RoomName = styled.h2`
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
+
+  &:after {
+    content: '...';
+    display: ${(props) => (props.istruncated ? 'inline' : 'none')};
+  }
+`
+
+const UserCountWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
 `
 
 const UserCount = styled.span`
   font-size: 1rem;
   color: #666;
   margin-left: 5px;
-  margin-top: 5px;
+`
+
+const Badge = styled.span`
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 4px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
 `
 
 const RoomDetails = styled.div`
@@ -78,22 +105,40 @@ const RoomDetails = styled.div`
 `
 
 const RoomDetail = styled.p`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin: 5px 0;
+  margin: 5px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `
 
 const TimeAgo = styled.span`
   color: #01317b;
   font-size: 12px;
-  margin-left: 210px;
+  margin-left: auto;
 `
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate()
-  const { chatRooms, chatRoomsInfo, setActiveChatRoomId } = useChat()
+  const { chatRooms, chatRoomsInfo, setActiveChatRoomId, setChatRoomsInfo } =
+    useChat()
   const nickname = localStorage.getItem('nickname') || ''
 
   const handleChatRoomClick = (chatRoomId: number) => {
     setActiveChatRoomId(chatRoomId)
+
+    // Unread Messages 초기화 로직
+    const updatedChatRoomsInfo = chatRoomsInfo.map((roomInfo) => {
+      if (roomInfo.chatRoomId === chatRoomId) {
+        return { ...roomInfo, unreadMessagesCount: 0 }
+      }
+      return roomInfo
+    })
+    setChatRoomsInfo(updatedChatRoomsInfo)
+
     navigate(`/chatting/${chatRoomId}`)
   }
 
@@ -147,30 +192,37 @@ const ChatListPage: React.FC = () => {
           let displayName: string
           if (room.userResponses.length === 1) {
             displayName = '알수없음'
-          } else if (room.userResponses.length === 2) {
-            const otherUser = room.userResponses.find(
-              (user) => user.userNickname !== nickname
-            )
-            displayName = otherUser ? otherUser.userNickname : '알수없음'
           } else {
-            displayName = room.chatRoomName
+            displayName = room.userResponses
+              .filter((user) => user.userNickname !== nickname)
+              .map((user) => user.userNickname)
+              .join(', ')
           }
+          const isTruncated = displayName.length > 18
+
           return (
             <ChatListItem
               key={room.chatRoomId}
               onClick={() => handleChatRoomClick(room.chatRoomId)}
             >
               <RoomNameWrapper>
-                <RoomName>{displayName}</RoomName>
-                <UserCount>({room.userResponses.length})</UserCount>
+                <RoomName istruncated={isTruncated}>
+                  {isTruncated ? displayName.slice(0, 18) : displayName}
+                </RoomName>
+                <UserCountWrapper>
+                  <UserCount>({room.userResponses.length})</UserCount>
+                  {roomInfo && roomInfo.unreadMessagesCount > 0 && (
+                    <Badge>{roomInfo.unreadMessagesCount}</Badge>
+                  )}
+                </UserCountWrapper>
               </RoomNameWrapper>
               {roomInfo && (
                 <RoomDetails>
-                  {roomInfo.unreadMessagesCount > 0 && (
+                  {/* {roomInfo.unreadMessagesCount > 0 && (
                     <RoomDetail>
                       Unread Messages: {roomInfo.unreadMessagesCount}
                     </RoomDetail>
-                  )}
+                  )} */}
                   {roomInfo.lastMessageContent && (
                     <RoomDetail>
                       마지막 메시지 : {roomInfo.lastMessageContent}
