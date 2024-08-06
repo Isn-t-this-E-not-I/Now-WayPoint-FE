@@ -20,14 +20,19 @@ const NotificationItem = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  margin-left: 10px;
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 12px;
   height: 5.5rem;
-  width: 17.5rem;
+  width: 18rem;
   font-size: 15px;
-  border: 1px solid #ddd;
+  border: 2.3px solid transparent;
+  background:
+    linear-gradient(to right, #f8faff, #f8faff) padding-box,
+    linear-gradient(to top left, #ae74bc, #01317b) border-box;
   cursor: pointer;
+
   &:hover {
     border: 1px solid black;
   }
@@ -48,10 +53,12 @@ const NotificationContent = styled.div`
   margin-right: auto;
   padding-bottom: 20px;
   font-size: 14px;
+  color: #151515;
+  width: 18rem;
 `
 
 const TimeAgo = styled.span`
-  color: #129fe1;
+  color: #01317b;
   font-size: 11px;
   margin-left: auto;
 `
@@ -61,7 +68,7 @@ const CloseButton = styled.button`
   border: none;
   font-size: 15px;
   cursor: pointer;
-  color: red;
+  color: #000947;
 `
 
 const NotificationPage: React.FC = () => {

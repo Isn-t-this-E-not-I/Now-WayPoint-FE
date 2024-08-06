@@ -22,23 +22,16 @@ import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 import Modal from '../Modal/modal'
-import axios from 'axios'
-import SockJS from 'sockjs-client'
-import { Client, IMessage } from '@stomp/stompjs'
-import FollowList from '../FollowList/FollowList'
 import AllUserList from '../FollowList/AllUserList'
 import fetchAllUsers from '@/data/fetchAllUsers'
 import { handleLogout } from '../Logout/Logout'
-import MyPage from '@/pages/myPage'
 import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
 import FollowContentsPage from '@/pages/FollowContentsPage'
-import MainPage from '@/api/KaKaomap/kakaomain'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
-  setSelectedPage: (page: string) => void
 }
 
 const Wrapper = styled.div`
@@ -50,11 +43,11 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 4.5rem;
+  width: 5rem;
   height: 100%;
   z-index: 10;
   position: fixed;
-  border-right: 2px solid #4943ff;
+
   background-color: #f8faff;
 `
 
@@ -62,13 +55,23 @@ const RightSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 19rem;
+  justify-content: flex-start;
+  width: 20rem;
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
   margin-left: 4.4rem;
   background-color: #f8faff;
+`
+
+const Line = styled.div`
+  width: 1.4px;
+  height: 97.5%;
+  margin-top: 13px;
+  background: #c9c9c9;
+  position: absolute;
+  left: 5rem;
+  z-index: 10000;
 `
 
 const Blank = styled.div`
@@ -94,25 +97,27 @@ const LogoIconButtonWrapper = styled.button`
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
 }))<{ active: boolean }>`
-  background: ${({ active }) => (active ? '#4943ff' : 'none')};
+  background: ${({ active }) =>
+    active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
   border: none;
   cursor: pointer;
   padding: 0;
   display: flex;
   width: 4.5rem;
-  height: 80px;
+  height: 70px;
+  border-radius: 20%;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  position: relative; /* Add this line */
+  position: relative;
 
   &:focus {
     outline: none;
-    background-color: #4943ff;
+    background-color: #f8faff;
   }
 
   svg {
-    fill: ${({ active }) => (active ? '#FFCE65' : 'currentColor')};
+    fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
   }
 `
 
@@ -121,7 +126,7 @@ const IconSpan = styled.span<{ active: boolean }>`
   margin-bottom: 23px;
   font-size: 12px;
   font-weight: bold;
-  color: ${({ active }) => (active ? '#FFCE65' : 'currentColor')};
+  color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
 `
 
 const LogOutIconButtonWrapper = styled.button`
@@ -137,6 +142,22 @@ const LogOutIconButtonWrapper = styled.button`
   position: relative;
   width: 4.2rem;
   height: 55px;
+`
+
+const CreateChatRoomButtonWrapeer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 14px;
+  margin-left: -155px;
+`
+
+const CreateChatRoomButtonSpan = styled.span`
+  margin-top: -6px;
+  margin-left: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #151515;
 `
 
 const ContentDiv = styled.div`
@@ -162,25 +183,7 @@ const ContentPage = styled.div`
 
 const SearchContainer = styled.div`
   margin-left: 6px;
-  width: 96%;
-`
-
-const NotificationList = styled.div`
-  width: 100%;
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  margin-top: 10px;
-`
-
-const NotificationItem = styled.div`
-  border-bottom: 1px solid #eee;
-  padding: 10px 0;
-  &:last-child {
-    border-bottom: none;
-  }
+  width: 99.5%;
 `
 
 const SearchInput = styled.input`
@@ -215,13 +218,13 @@ const LogoutDropdown = styled.div`
   }
 `
 
-const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
+const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
-  const { setChatRooms, setChatRoomsInfo } = useChat()
+  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
 
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
@@ -240,6 +243,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
   useEffect(() => {
     if (activePage !== 'chat') {
       disconnect()
+      setActiveChatRoomId(null)
     }
   }, [activePage])
 
@@ -304,26 +308,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
     )
   }
 
-  // 현재 페이지 제목
-  const getPageTitle = () => {
-    switch (activePage) {
-      case 'main':
-        return '메인'
-      case 'notifications':
-        return '알림'
-      case 'chat':
-        return '메시지'
-      case 'contents':
-        return '주변 컨텐츠'
-      case 'followContents':
-        return '팔로우 컨텐츠'
-      case 'myPage':
-        return '마이페이지'
-      default:
-        return ''
-    }
-  }
-
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
   }
@@ -379,9 +363,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
             }
             setActivePage('chat')
             fetchChatRooms(token).then((data) => {
+              // 데이터 구조를 확인하고 필요한 데이터만 추출
               const chatRooms = data.chatRooms
               const chatRoomsInfo = data.chatRoomsInfo
 
+              // state나 context에 데이터를 설정
               setChatRooms(chatRooms)
               setChatRoomsInfo(chatRoomsInfo)
             })
@@ -442,8 +428,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme, setSelectedPage }) => {
         <ThemeController />
       </LeftSidebar>
 
+      <Line />
+
       <RightSidebar>
         <NowaIcon theme={theme} />
+        {activePage === 'chat' && (
+          <CreateChatRoomButtonWrapeer>
+            <CreateChatRoomButton />
+            <CreateChatRoomButtonSpan>새 채팅방 생성</CreateChatRoomButtonSpan>
+          </CreateChatRoomButtonWrapeer>
+        )}
         <ContentDiv>
           {shouldShowSearch() && (
             <SearchContainer>
