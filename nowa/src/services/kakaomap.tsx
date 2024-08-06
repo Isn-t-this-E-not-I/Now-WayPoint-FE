@@ -2,14 +2,6 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_APP_API
 
-const getCookieValue = (name: string): string | null => {
-  const value = `; ${document.cookie}`
-  console.log(document.cookie)
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
-  return null
-}
-
 export const getKakaoApiData = async (address: string): Promise<any> => {
   const token = localStorage.getItem('token')
   // const token = getCookieValue('Authorization')
