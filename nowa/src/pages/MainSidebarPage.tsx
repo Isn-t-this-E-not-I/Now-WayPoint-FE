@@ -28,7 +28,7 @@ const ContentItem = styled.div`
   padding: 15px;
   position: relative;
   border: 1px solid #ddd;
-  cursor : pointer;
+  cursor: pointer;
   &:hover {
     border: 1px solid black;
   }
@@ -57,6 +57,18 @@ const InnerImageWrapper = styled.div`
   max-height: 300px; /* 필요한 최대 높이 설정 */
   overflow: hidden; /* 콘텐츠가 넘치는 것을 숨김 */
   border-radius: 12px;
+`
+
+const InnerVideo = styled.video`
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: auto auto 18px auto;
+  object-fit: contain;
+  cursor: pointer;
+  &:hover {
+    controls: true;
+  }
 `
 
 const InnerImage = styled.img`
@@ -176,7 +188,8 @@ const MainSidebarPage: React.FC = () => {
         <div>Loading...</div> // 로딩 상태 표시
       ) : (
         displaySelectContents.map((selectContent) => (
-          <ContentItem key={selectContent.id}
+          <ContentItem
+            key={selectContent.id}
             onClick={() => handleContentImageClick(selectContent.id)}
           >
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -185,26 +198,35 @@ const MainSidebarPage: React.FC = () => {
                 alt="Profile"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleProfileClick(selectContent.username)}
-                }
+                  handleProfileClick(selectContent.username)
+                }}
               />
               <CategoryLabel>{selectContent.category}</CategoryLabel>
               <Username
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleProfileClick(selectContent.username)}
-                }
+                  handleProfileClick(selectContent.username)
+                }}
               >
                 {selectContent.username}
               </Username>
             </div>
-            {selectContent.mediaUrls.length > 0 && (
-              <InnerImageWrapper>
-                <InnerImage
-                  src={selectContent.mediaUrls[0]}
-                  alt="Content"
-                />
-              </InnerImageWrapper>
+            {selectContent.mediaUrls[0].endsWith('.mp4') ? (
+              <InnerVideo
+                src={selectContent.mediaUrls[0]}
+                muted
+                controls={false}
+                onMouseEnter={(e) => e.currentTarget.play()}
+                onMouseLeave={(e) => e.currentTarget.pause()}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+            ) : selectContent.mediaUrls[0].endsWith('.mp3') ? (
+              <InnerImage
+                src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
+                alt="Music Icon"
+              />
+            ) : (
+              <InnerImage src={selectContent.mediaUrls[0]} alt="Content" />
             )}
             <ContentDisplay content={selectContent.content} />
             <HashTags>

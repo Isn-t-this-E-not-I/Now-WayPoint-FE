@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
-import { getKakaoApiData } from '@/api/KaKaomap/kakaomap'
+import { getKakaoApiData } from '@/services/kakaomap'
 import { useLocation } from 'react-router-dom'
 import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
@@ -140,7 +140,7 @@ const MainPage: React.FC = () => {
     } else if (hours > 0) {
       return `${hours}시간 전`
     } else if (minutes > 0) {
-      return `${minutes}분 전`
+      return `${minutes}분 전}`
     } else {
       return '방금 전'
     }
@@ -207,13 +207,13 @@ const MainPage: React.FC = () => {
       clustererRef.current.addMarkers(markers)
     }
   }
+
   const getMarkerImageSrc = async (category: string, mediaUrls: string[]) => {
     switch (category) {
       case 'PHOTO':
         return mediaUrls && mediaUrls.length > 0
           ? mediaUrls[0]
           : 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
-
       case 'VIDEO':
         if (mediaUrls && mediaUrls.length > 0) {
           const videoUrl = mediaUrls[0]
@@ -221,10 +221,8 @@ const MainPage: React.FC = () => {
         } else {
           return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
         }
-
       case 'MP3':
         return 'https://cdn-icons-png.flaticon.com/128/6527/6527906.png'
-
       default:
         return 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
     }
@@ -259,7 +257,7 @@ const MainPage: React.FC = () => {
     })
   }
 
-  const displayCustomOverlay = (
+  const displayCustomOverlay = async (
     map: any,
     marker: { getPosition: () => any },
     item: {
@@ -275,6 +273,21 @@ const MainPage: React.FC = () => {
       content: string
     }
   ) => {
+    let mediaContent = ''
+
+    if (item.mediaUrls && item.mediaUrls.length > 0) {
+      if (item.mediaUrls[0].endsWith('.mp4')) {
+        const thumbnailUrl = await generateVideoThumbnail(item.mediaUrls[0])
+        mediaContent = `<img src="${thumbnailUrl}" alt="video thumbnail">`
+      } else if (item.mediaUrls[0].endsWith('.mp3')) {
+        mediaContent = `<img src="https://cdn-icons-png.flaticon.com/128/6527/6527906.png" alt="audio icon">`
+      } else {
+        mediaContent = `<img src="${item.mediaUrls[0]}" alt="content image">`
+      }
+    } else {
+      mediaContent = `<img src="https://cdn-icons-png.flaticon.com/128/4110/4110234.png" alt="default icon">`
+    }
+
     const content = document.createElement('div')
     content.className = 'overlaybox'
     content.innerHTML = `
@@ -289,7 +302,7 @@ const MainPage: React.FC = () => {
         </div> 
       </div>
       <div id="main_maker_img">
-         <img alt="게시글 이미지" src='${item.category === 'PHOTO' ? (item.mediaUrls && item.mediaUrls.length > 0 ? item.mediaUrls[0] : '') : 'https://cdn-icons-png.flaticon.com/128/4110/4110234.png'}' onerror="this.onerror=null; this.src='https://cdn-icons-png.flaticon.com/128/4110/4110234.png';">
+         ${mediaContent}
       </div>
       <div>
         <div id="main_maker_content_semi">${item.content}</div>
@@ -360,7 +373,7 @@ const MainPage: React.FC = () => {
             await getKakaoApiData(`${latitude},${longitude}`)
             initializeMap(latitude, longitude)
             setLocate(`${longitude},${latitude}`)
-            localStorage.setItem('locate', `${longitude},${latitude}`);
+            localStorage.setItem('locate', `${longitude},${latitude}`)
           } catch (error) {
             console.error('지도 초기화 실패:', error)
           }
@@ -398,9 +411,7 @@ const MainPage: React.FC = () => {
   }, [client, locate, nickname, map])
 
   useEffect(() => {
-    console.log(data)
     if (data.length > 0 && map) {
-      console.log(data)
       addMarkers(map, data)
     }
   }, [data, map])
@@ -418,8 +429,11 @@ const MainPage: React.FC = () => {
         body: JSON.stringify({ category: category, distance: distance }),
       })
       // 카테고리 선택 시 지도의 확대/축소 레벨 고정
-      if (map) {
-        map.setLevel(mapLevel)
+      if (map && currentLocationRef.current) {
+        const { latitude, longitude } = currentLocationRef.current
+        map.setLevel(mapLevel, {
+          anchor: new window.kakao.maps.LatLng(latitude, longitude),
+        })
       }
     } else {
       console.error('Not connected to WebSocket')
@@ -436,9 +450,41 @@ const MainPage: React.FC = () => {
   const handleDistanceChange = (value: string) => {
     const newDistance = parseInt(value)
     setSelectedDistance(newDistance)
+
+    // 거리에 따라 mapLevel 설정
+    let newMapLevel = 7 // 기본 레벨
+    switch (newDistance) {
+      case 10:
+        newMapLevel = 3
+        break
+      case 30:
+        newMapLevel = 5
+        break
+      case 50:
+        newMapLevel = 8
+        break
+      case 100:
+        newMapLevel = 10
+        break
+      case 1000:
+        newMapLevel = 12
+        break
+      default:
+        newMapLevel = 7
+    }
+    setMapLevel(newMapLevel)
+
     selectCategory(selectedCategory, newDistance)
     console.log(value)
     console.log(selectedDistance)
+
+    // 지도 레벨 및 위치 업데이트
+    if (map && currentLocationRef.current) {
+      const { latitude, longitude } = currentLocationRef.current
+      map.setLevel(newMapLevel, {
+        anchor: new window.kakao.maps.LatLng(latitude, longitude),
+      })
+    }
   }
 
   return (
