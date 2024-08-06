@@ -7,6 +7,7 @@ import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
+import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -41,10 +42,10 @@ const ActionButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   color: white;
-  background-color: #007bff;
+  transition: transform 0.2s ease;
 
   &:hover {
-    background-color: #0056b3;
+    transform: scale(1.05);
   }
 
   &:focus {
@@ -114,12 +115,12 @@ const SendButton = styled.button`
   padding: 10px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #01317b;
   color: white;
   cursor: pointer;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: #000947;
   }
 `
 
@@ -255,7 +256,9 @@ const ChattingPage: React.FC = () => {
       <Header>
         <Title>{displayName}</Title>
         <ButtonContainer>
-          <ActionButton onClick={open}>채팅방 초대</ActionButton>
+          <ActionButton onClick={open}>
+            <AddMemberIcon theme={theme} />
+          </ActionButton>
           {isOpen && (
             <InviteModal
               isOpen={isOpen}
@@ -267,7 +270,9 @@ const ChattingPage: React.FC = () => {
               theme={theme}
             />
           )}
-          <ActionButton onClick={leaveChatRoom}>채팅방 나가기</ActionButton>
+          <ActionButton onClick={leaveChatRoom}>
+            <ExitIcon theme={theme} />
+          </ActionButton>
         </ButtonContainer>
       </Header>
       <MessageList>
