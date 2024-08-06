@@ -25,11 +25,12 @@ const ContentItem = styled.div`
   margin-bottom: 20px;
   background-color: #fff;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
   position: relative;
-  div {
-    display: flex;
+  border: 1px solid #ddd;
+  cursor : pointer;
+  &:hover {
+    border: 1px solid black;
   }
 `
 
@@ -64,7 +65,6 @@ const InnerImage = styled.img`
   display: block;
   margin: auto;
   object-fit: contain;
-  cursor: pointer; /* 이미지를 포함하도록 설정 */
 `
 
 const ContentText = styled.div`
@@ -176,16 +176,24 @@ const MainSidebarPage: React.FC = () => {
         <div>Loading...</div> // 로딩 상태 표시
       ) : (
         displaySelectContents.map((selectContent) => (
-          <ContentItem key={selectContent.id}>
+          <ContentItem key={selectContent.id}
+            onClick={() => handleContentImageClick(selectContent.id)}
+          >
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <ProfilePic
                 src={selectContent.profileImageUrl}
                 alt="Profile"
-                onClick={() => handleProfileClick(selectContent.username)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleProfileClick(selectContent.username)}
+                }
               />
               <CategoryLabel>{selectContent.category}</CategoryLabel>
               <Username
-                onClick={() => handleProfileClick(selectContent.username)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleProfileClick(selectContent.username)}
+                }
               >
                 {selectContent.username}
               </Username>
@@ -195,7 +203,6 @@ const MainSidebarPage: React.FC = () => {
                 <InnerImage
                   src={selectContent.mediaUrls[0]}
                   alt="Content"
-                  onClick={() => handleContentImageClick(selectContent.id)}
                 />
               </InnerImageWrapper>
             )}
