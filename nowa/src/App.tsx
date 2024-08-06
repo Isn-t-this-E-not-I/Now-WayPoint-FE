@@ -17,9 +17,7 @@ const App: React.FC = () => {
   return (
     <div style={{ display: 'flex', height: '100vh' }}>
       <ChatProvider>
-        {!isNoSidebarPage && (
-          <Sidebar theme={'light'} setSelectedPage={setSelectedPage} />
-        )}
+        {!isNoSidebarPage && <Sidebar theme={'light'} />}
         <div style={{ flex: 1 }}>
           <Routers />
         </div>
