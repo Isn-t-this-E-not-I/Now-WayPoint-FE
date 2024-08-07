@@ -3,10 +3,15 @@ import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../context/chatContext'
 import styled from 'styled-components'
 
-const Container = styled.div`
+const ChatListWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 90vh;
   max-height: 90vh;
-  padding: 10px;
-  width: 100%;
+  padding-left: 18px;
+  padding-top: 3px;
+  width: 19.8rem;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -14,8 +19,8 @@ const Container = styled.div`
 
 const ChatList = styled.ul`
   list-style: none;
-  padding: 0;
-  margin: 0;
+  padding-left: 10px;
+  margin: -10px;
 `
 
 const ChatListItem = styled.li`
@@ -27,7 +32,7 @@ const ChatListItem = styled.li`
   border-radius: 12px;
   border: 2.3px solid transparent;
   height: 7rem;
-  width: 17rem;
+  width: 18.2rem;
   font-size: 15px;
   margin: 10px auto;
   background:
@@ -182,7 +187,7 @@ const ChatListPage: React.FC = () => {
   }
 
   return (
-    <Container>
+    <ChatListWrapper>
       <ChatList>
         {sortedChatRooms.map((room) => {
           const roomInfo = chatRoomsInfo.find(
@@ -224,9 +229,7 @@ const ChatListPage: React.FC = () => {
                     </RoomDetail>
                   )} */}
                   {roomInfo.lastMessageContent && (
-                    <RoomDetail>
-                      마지막 메시지 : {roomInfo.lastMessageContent}
-                    </RoomDetail>
+                    <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
                   )}
                   {roomInfo.lastMessageTimestamp && (
                     <RoomDetail>
@@ -239,7 +242,7 @@ const ChatListPage: React.FC = () => {
           )
         })}
       </ChatList>
-    </Container>
+    </ChatListWrapper>
   )
 }
 

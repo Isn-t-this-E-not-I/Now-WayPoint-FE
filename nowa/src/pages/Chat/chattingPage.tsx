@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useChatWebSocket } from '@/websocket/chatWebSocket'
 import { useParams } from 'react-router-dom'
@@ -8,6 +8,7 @@ import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
 import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
+import ChatBubble from '../../components/ChatBubble/chatBubble'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -15,6 +16,8 @@ const ChatContainer = styled.div`
   height: 100%;
   width: 100%;
   background-color: ${(props) => props.theme.backgroundColor || '#f0f0f0'};
+  position: relative;
+  overflow: hidden;
 `
 
 const Header = styled.div`
@@ -62,43 +65,25 @@ const MessageList = styled.ul`
   list-style: none;
   padding: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   flex-grow: 1;
   margin: 0;
-  padding: 10px;
+  padding: 10px 15px 10px 15px;
+  width: 100%;
 `
 
 const MessageItem = styled.li<{ $isSender: boolean }>`
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: ${(props) => (props.$isSender ? 'flex-end' : 'flex-start')};
-  background-color: ${(props) => (props.$isSender ? '#007bff' : '#f1f1f1')};
-  color: ${(props) => (props.$isSender ? 'white' : '#333')};
-  text-align: ${(props) => (props.$isSender ? 'right' : 'left')};
+  margin-right: ${(props) =>
+    props.$isSender ? '15px' : '0'}; /* 발신 메시지 오른쪽 마진 */
+  align-self: ${(props) => (props.$isSender ? 'flex-end' : 'flex-start')};
   position: relative;
+  margin: 15px 0;
 `
 
-const Sender = styled.strong`
-  font-size: 1rem;
+const AdminMessage = styled.div`
+  text-align: center;
   color: #333;
-`
-
-const Content = styled.p`
-  margin: 5px 0;
-  font-size: 1rem;
-`
-
-const Timestamp = styled.span<{ $isSender: boolean }>`
-  font-size: 0.8rem;
-  color: #999;
-  align-self: ${(props) =>
-    props.$isSender ? 'flex-start' : 'flex-end'}; /* 위치 조정 */
-  position: absolute;
-  bottom: 5px;
-  right: ${(props) => (props.$isSender ? '10px' : 'auto')};
-  left: ${(props) => (props.$isSender ? 'auto' : '10px')};
+  margin: 15px 0;
 `
 
 const InputContainer = styled.div`
@@ -129,6 +114,37 @@ const SendButton = styled.button`
   }
 `
 
+const MissingChatWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  z-index: 1000;
+`
+
+const MissingChatSpan = styled.span`
+  font-size: 1.5rem;
+  z-index: 1000;
+`
+
+const NewMessageButton = styled.button<{ show: boolean }>`
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: rgba(248, 250, 255, 0.7);
+  color: #151515;
+  border: 1px solid;
+  border-radius: 4px;
+  cursor: pointer;
+  display: ${(props) => (props.show ? 'block' : 'none')};
+
+  &:hover {
+    background-color: #f8faff;
+  }
+`
+
 const ChattingPage: React.FC = () => {
   const { chatRoomId } = useParams<{ chatRoomId: string }>()
   const { chatRooms, messages, setChatRooms, setChatRoomsInfo, setMessages } =
@@ -137,13 +153,46 @@ const ChattingPage: React.FC = () => {
   const token = localStorage.getItem('token') || ''
   const nickname = localStorage.getItem('nickname') || ''
   const { subscribeToChatRoom } = useChatWebSocket()
+  const messageListRef = useRef<HTMLUListElement>(null)
 
   const [messageContent, setMessageContent] = useState('')
   const { isOpen, open, close } = useModal()
   const [selectedUsers, setSelectedUsers] = useState('')
 
-  const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null
+  const roomId: number | null = chatRoomId ? parseInt(chatRoomId, 10) : null
   const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
+
+  // 서버에서 이전 메시지 가져오기 함수 추가
+  const fetchMessages = async (chatRoomId: number) => {
+    try {
+      const response = await fetch(`/api/messages?chatRoomId=${chatRoomId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await response.json()
+      setMessages(data.messages)
+    } catch (error) {
+      console.error('Failed to fetch messages:', error)
+    }
+  }
+
+  // 서버에 메시지 저장 함수 추가
+  const saveMessage = async (message: {
+    chatRoomId: number
+    content: string
+  }) => {
+    try {
+      await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(message),
+      })
+    } catch (error) {
+      console.error('Failed to save message:', error)
+    }
+  }
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
@@ -163,8 +212,11 @@ const ChattingPage: React.FC = () => {
     }
   }
 
+  const [showNewMessageButton, setShowNewMessageButton] = useState(false)
+
   // 메시지 전송
-  const sendMessage = () => {
+  const sendMessage = async () => {
+    // async 추가
     if (!messageContent.trim() || roomId === null) return
 
     const payload = {
@@ -181,11 +233,42 @@ const ChattingPage: React.FC = () => {
         body: JSON.stringify(payload),
       })
 
+      // 서버에 메시지 저장
+      await saveMessage(payload) // 메시지 저장 호출
+
       setMessageContent('')
+      setTimeout(() => scrollToBottom(), 100) // 메시지를 보낸 후 최하단으로 스크롤
+      setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
     } else {
       console.error('StompClient is not connected.')
     }
   }
+
+  // 최하단으로 스크롤 기능 함수
+  const scrollToBottom = () => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight
+    }
+  }
+
+  // 메시지 수신 시 'useEffect' 훅에 새 메시지 버튼 표시 로직
+  useEffect(() => {
+    if (messageListRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
+      const isScrolledToBottom =
+        Math.abs(scrollHeight - scrollTop - clientHeight) < 1
+
+      if (
+        !isScrolledToBottom &&
+        messages[messages.length - 1]?.sender !== nickname
+      ) {
+        setShowNewMessageButton(true)
+      } else {
+        scrollToBottom()
+        setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
+      }
+    }
+  }, [messages, nickname])
 
   // 채팅방 초대 함수
   const inviteToChatRoom = (e: React.FormEvent) => {
@@ -210,18 +293,46 @@ const ChattingPage: React.FC = () => {
 
   // 채팅방 나가기 함수
   const leaveChatRoom = () => {
-    const payload = {
-      chatRoomId: roomId,
+    console.log()
+    if (
+      confirm('채팅방에서 나가시겠습니까? 확인 시, 해당 채팅방이 삭제됩니다.')
+    ) {
+      const payload = {
+        chatRoomId: roomId,
+      }
+      const stompClient = getStompClient()
+      if (stompClient) {
+        stompClient.publish({
+          destination: '/app/chatRoom/leave',
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+        })
+      } else {
+        console.error('StompClient is not connected.')
+      }
     }
-    const stompClient = getStompClient()
-    if (stompClient) {
-      stompClient.publish({
-        destination: '/app/chatRoom/leave',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
-      })
-    } else {
-      console.error('StompClient is not connected.')
+  }
+
+  // 스크롤 위치 저장
+  const saveScrollPosition = () => {
+    if (roomId !== null && messageListRef.current) {
+      const scrollPosition = messageListRef.current.scrollTop
+      localStorage.setItem(
+        `chatScrollPosition_${roomId}`,
+        scrollPosition.toString()
+      )
+    }
+  }
+
+  // 스크롤 위치 복원
+  const restoreScrollPosition = () => {
+    if (roomId !== null && messageListRef.current) {
+      const scrollPosition = localStorage.getItem(
+        `chatScrollPosition_${roomId}`
+      )
+      if (scrollPosition !== null) {
+        messageListRef.current.scrollTop = parseInt(scrollPosition, 10)
+      }
     }
   }
 
@@ -229,21 +340,42 @@ const ChattingPage: React.FC = () => {
     if (roomId === null) return
 
     const subscription = subscribeToChatRoom(roomId)
+    fetchMessages(roomId) // 이전 메시지 불러오기
     getRecentMessages()
+    restoreScrollPosition()
 
     return () => {
       if (subscription) {
         subscription.unsubscribe()
       }
+      saveScrollPosition()
       setMessages([])
     }
   }, [roomId, token, setMessages])
 
+  useEffect(() => {
+    restoreScrollPosition()
+  }, [messages])
+
   if (!chatRoom) {
-    return <div>채팅방을 찾을 수 없습니다.</div>
+    return (
+      <MissingChatWrapper>
+        <MissingChatSpan>채팅방을 찾을 수 없습니다.</MissingChatSpan>
+      </MissingChatWrapper>
+    )
   }
 
-  // 채팅방 이름 결정
+  // 프로필 이미지를 결정하는 부분 수정
+  let displayProfileImages: string[] = []
+  if (chatRoom.userResponses.length === 1) {
+    displayProfileImages = ['default_profile_image_url'] // 1명일 경우 디폴트 이미지 설정
+  } else {
+    displayProfileImages = chatRoom.userResponses
+      .filter((user) => user.userNickname !== nickname)
+      .map((user) => user.profileImageUrl || 'default_profile_image_url') // 프로필 이미지가 없는 경우 디폴트 이미지 설정
+  }
+
+  // 채팅방 이름 결정 및 프로필 이미지 설정
   let displayName: string
   if (chatRoom.userResponses.length === 1) {
     displayName = '알수없음'
@@ -278,16 +410,53 @@ const ChattingPage: React.FC = () => {
           </ActionButton>
         </ButtonContainer>
       </Header>
-      <MessageList>
-        {messages.map((msg, index) => (
-          <MessageItem key={index} $isSender={msg.sender === nickname}>
-            {msg.sender !== 'admin' && <Sender>{msg.sender}</Sender>}
-            <Content>{msg.content}</Content>
-            <Timestamp $isSender={msg.sender === nickname}>
-              {new Date(msg.timestamp).toLocaleTimeString()}
-            </Timestamp>
-          </MessageItem>
-        ))}
+      {/* MessageList 컴포넌트에서 ChatBubble 사용 시 avatarSrc 전달 */}
+      <MessageList ref={messageListRef}>
+        {messages.map((msg, index) => {
+          if (msg.sender === 'admin') {
+            return (
+              <MessageItem key={index} $isSender={false}>
+                <AdminMessage>{msg.content}</AdminMessage>
+              </MessageItem>
+            )
+          }
+
+          if (msg.sender === nickname) {
+            return (
+              <MessageItem key={index} $isSender={true}>
+                <ChatBubble
+                  alignment="end"
+                  avatarSrc=""
+                  header=""
+                  time={new Date(msg.timestamp).toLocaleTimeString()}
+                  message={msg.content}
+                  footer={new Date(
+                    msg.timestamp
+                  ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+                />
+              </MessageItem>
+            )
+          }
+
+          return (
+            <MessageItem key={index} $isSender={false}>
+              <ChatBubble
+                alignment="start"
+                avatarSrc={
+                  chatRoom.userResponses.find(
+                    (user) => user.userNickname === msg.sender
+                  )?.profileImageUrl || 'default_profile_image_url'
+                }
+                header={msg.sender}
+                time=""
+                message={msg.content}
+                footer={new Date(
+                  msg.timestamp
+                ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+              />
+            </MessageItem>
+          )
+        })}
       </MessageList>
       <InputContainer>
         <InputField
@@ -303,6 +472,16 @@ const ChattingPage: React.FC = () => {
         />
         <SendButton onClick={sendMessage}>보내기</SendButton>
       </InputContainer>
+      {/* 새 메시지 확인 버튼 */}
+      <NewMessageButton
+        show={showNewMessageButton}
+        onClick={() => {
+          scrollToBottom()
+          setShowNewMessageButton(false)
+        }}
+      >
+        새 메시지 ↓
+      </NewMessageButton>
     </ChatContainer>
   )
 }

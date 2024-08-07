@@ -6,7 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment-timezone'
-import DetailContentModal from '@/components/Modal/ContentModal' // DetailContentModal 컴포넌트 가져오기
+import DetailContentModal from '@/components/Modal/ContentModal'
 
 const FollowContentWrapper = styled.div`
   text-align: left;
@@ -51,12 +51,20 @@ const Username = styled.span`
   cursor: pointer;
 `
 
-const InnerImageWrapper = styled.div`
+const InnerMediaWrapper = styled.div`
   position: relative;
   max-width: 100%;
-  max-height: 300px; /* 필요한 최대 높이 설정 */
-  overflow: hidden; /* 콘텐츠가 넘치는 것을 숨김 */
-  border-radius: 12px;
+  max-height: 300px;
+  overflow: hidden;
+`
+
+const InnerImage = styled.img`
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: auto auto 18px auto;
+  object-fit: contain;
+  cursor: pointer;
 `
 
 const InnerVideo = styled.video`
@@ -69,14 +77,6 @@ const InnerVideo = styled.video`
   &:hover {
     controls: true;
   }
-`
-
-const InnerImage = styled.img`
-  width: 100%;
-  height: auto;
-  display: block;
-  margin: auto;
-  object-fit: contain;
 `
 
 const ContentText = styled.div`
@@ -101,6 +101,7 @@ const LikeCount = styled.span`
   font-size: 14px;
   color: #333;
   font-weight: bold;
+  flex: 1;
 `
 
 const ShowMoreButton = styled.button`
@@ -110,7 +111,6 @@ const ShowMoreButton = styled.button`
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
-
   &:hover {
     color: #07476f;
   }
@@ -185,7 +185,7 @@ const MainSidebarPage: React.FC = () => {
   return (
     <FollowContentWrapper>
       {isLoading ? (
-        <div>Loading...</div> // 로딩 상태 표시
+        <div>Loading...</div>
       ) : (
         displaySelectContents.map((selectContent) => (
           <ContentItem
@@ -211,22 +211,26 @@ const MainSidebarPage: React.FC = () => {
                 {selectContent.username}
               </Username>
             </div>
-            {selectContent.mediaUrls[0].endsWith('.mp4') ? (
-              <InnerVideo
-                src={selectContent.mediaUrls[0]}
-                muted
-                controls={false}
-                onMouseEnter={(e) => e.currentTarget.play()}
-                onMouseLeave={(e) => e.currentTarget.pause()}
-                onContextMenu={(e) => e.preventDefault()}
-              />
-            ) : selectContent.mediaUrls[0].endsWith('.mp3') ? (
-              <InnerImage
-                src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
-                alt="Music Icon"
-              />
-            ) : (
-              <InnerImage src={selectContent.mediaUrls[0]} alt="Content" />
+            {selectContent.mediaUrls.length > 0 && (
+              <InnerMediaWrapper>
+                {selectContent.mediaUrls[0].endsWith('.mp4') ? (
+                  <InnerVideo
+                    src={selectContent.mediaUrls[0]}
+                    muted
+                    controls={false}
+                    onMouseEnter={(e) => e.currentTarget.play()}
+                    onMouseLeave={(e) => e.currentTarget.pause()}
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+                ) : selectContent.mediaUrls[0].endsWith('.mp3') ? (
+                  <InnerImage
+                    src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
+                    alt="Music Icon"
+                  />
+                ) : (
+                  <InnerImage src={selectContent.mediaUrls[0]} alt="Content" />
+                )}
+              </InnerMediaWrapper>
             )}
             <ContentDisplay content={selectContent.content} />
             <HashTags>
@@ -238,7 +242,7 @@ const MainSidebarPage: React.FC = () => {
                 <span></span>
               )}
             </HashTags>
-            <div>
+            <div style={{ display: 'flex' }}>
               <LikeCount>❤ {selectContent.likeCount}</LikeCount>
               <TimeAgo>{formatRelativeTime(selectContent.createdAt)}</TimeAgo>
             </div>
@@ -256,9 +260,10 @@ const MainSidebarPage: React.FC = () => {
 
 const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
   const [isExpanded, setIsExpanded] = useState(false)
-  const limit = 30 // 표시할 최대 글자 수
+  const limit = 30
 
-  const toggleExpanded = () => {
+  const toggleExpanded = (e: React.MouseEvent) => {
+    e.stopPropagation() // 이벤트 버블링 중지
     setIsExpanded(!isExpanded)
   }
 
