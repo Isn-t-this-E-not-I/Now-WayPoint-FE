@@ -4,7 +4,6 @@ import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
 import { getPostById, updateContent, Post } from '@/services/editContent'
-import { useParams } from 'react-router-dom'
 import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
 
