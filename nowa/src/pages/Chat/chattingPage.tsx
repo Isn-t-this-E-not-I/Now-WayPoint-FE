@@ -93,8 +93,7 @@ const Content = styled.p`
 const Timestamp = styled.span<{ $isSender: boolean }>`
   font-size: 0.8rem;
   color: #999;
-  align-self: ${(props) =>
-    props.$isSender ? 'flex-start' : 'flex-end'}; /* 위치 조정 */
+  align-self: ${(props) => (props.$isSender ? 'flex-start' : 'flex-end')};
   position: absolute;
   bottom: 5px;
   right: ${(props) => (props.$isSender ? '10px' : 'auto')};
@@ -172,8 +171,40 @@ const ChattingPage: React.FC = () => {
   const { isOpen, open, close } = useModal()
   const [selectedUsers, setSelectedUsers] = useState('')
 
-  const roomId = chatRoomId ? parseInt(chatRoomId, 10) : null
+  const roomId: number | null = chatRoomId ? parseInt(chatRoomId, 10) : null
   const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
+
+  // 서버에서 이전 메시지 가져오기 함수 추가
+  const fetchMessages = async (chatRoomId: number) => {
+    try {
+      const response = await fetch(`/api/messages?chatRoomId=${chatRoomId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await response.json()
+      setMessages(data.messages)
+    } catch (error) {
+      console.error('Failed to fetch messages:', error)
+    }
+  }
+
+  // 서버에 메시지 저장 함수 추가
+  const saveMessage = async (message: {
+    chatRoomId: number
+    content: string
+  }) => {
+    try {
+      await fetch('/api/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(message),
+      })
+    } catch (error) {
+      console.error('Failed to save message:', error)
+    }
+  }
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
@@ -196,7 +227,8 @@ const ChattingPage: React.FC = () => {
   const [showNewMessageButton, setShowNewMessageButton] = useState(false)
 
   // 메시지 전송
-  const sendMessage = () => {
+  const sendMessage = async () => {
+    // async 추가
     if (!messageContent.trim() || roomId === null) return
 
     const payload = {
@@ -212,6 +244,9 @@ const ChattingPage: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
       })
+
+      // 서버에 메시지 저장
+      await saveMessage(payload) // 메시지 저장 호출
 
       setMessageContent('')
       setTimeout(() => scrollToBottom(), 100) // 메시지를 보낸 후 최하단으로 스크롤
@@ -315,6 +350,7 @@ const ChattingPage: React.FC = () => {
     if (roomId === null) return
 
     const subscription = subscribeToChatRoom(roomId)
+    fetchMessages(roomId) // 이전 메시지 불러오기
     getRecentMessages()
     restoreScrollPosition()
 
