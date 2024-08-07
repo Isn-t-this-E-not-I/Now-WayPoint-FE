@@ -25,6 +25,19 @@ const LoginPage: React.FC = () => {
     }
   }, [cookies])
 
+  useEffect(() => {
+    const handleEnterPress = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        handleLogin();
+      }
+    };
+
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+    };
+  }, [loginId, password]);
+
   const handleLogin = async () => {
     try {
       const data = await login({ loginId, password })
@@ -98,10 +111,10 @@ const LoginPage: React.FC = () => {
           <label className="block text-gray-700">아이디 저장</label>
         </div>
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-        <button className="btn btn-primary mt-4 mb-2" onClick={handleLogin}>
+        <button className="btn btn-primary mt-4" onClick={handleLogin}>
           로그인
         </button>
-        <button className="btn btn-warning mt-4" onClick={handleKakaoLogin}>
+        <button className="btn btn-warning mt-2" onClick={handleKakaoLogin}>
           카카오 간편 로그인
         </button>
         <button className="btn btn-outline mt-4" onClick={goToRegister}>

@@ -5,7 +5,6 @@ import Modal from '../components/Modal/modal'
 import Button from '../components/Button/button'
 import TextInput from '../components/TextInput/textInput'
 import TextArea from '../components/TextArea/textArea'
-import FileInput from '../components/FileInput/fileInput'
 import defaultProfileImage from '../../../defaultprofile.png'
 import { updatePassword, uploadProfileImage } from '../api/userApi'
 import styled from 'styled-components';
@@ -36,7 +35,6 @@ const EditIconWrapper = styled.div`
   justify-content: center;
 `;
 
-
 const ProfileEditPage: React.FC = () => {
     const location = import.meta.env.VITE_APP_API
     const [isModalOpen, setModalOpen] = useState(false)
@@ -54,7 +52,7 @@ const ProfileEditPage: React.FC = () => {
       description: string
     }>(null)
     const navigate = useNavigate()
-    const [description, setDescription] = useState(userInfo?.description || '');
+    const [description, setDescription] = useState('');
     const maxDescriptionLength = 150;
   
     useEffect(() => {
@@ -79,9 +77,10 @@ const ProfileEditPage: React.FC = () => {
             name: response.data.name,
             nickname: response.data.nickname,
             email: response.data.email,
-            profileImageUrl: response.data.profileImageUrl || defaultProfileImage, // 프로필 사진 없으면 기본 이미지 사용
+            profileImageUrl: response.data.profileImageUrl || defaultProfileImage,
             description: response.data.description,
           })
+          setDescription(response.data.description); // 초기 설명 설정
         } catch (error) {
           console.error('유저 데이터를 가져오는데 실패했습니다:', error)
         }
@@ -89,6 +88,19 @@ const ProfileEditPage: React.FC = () => {
       fetchUserData()
     }, [navigate])
   
+    const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+      const newDescription = e.target.value;
+      if (newDescription.length <= maxDescriptionLength) {
+        setDescription(newDescription);
+      }
+    };
+
+    const handleDescriptionBlur = () => {
+      if (description === '') {
+        setDescription(userInfo?.description || '');
+      }
+    };
+    
     const handleUpdateProfile = async () => {
       if (!userInfo) return
   
@@ -98,7 +110,7 @@ const ProfileEditPage: React.FC = () => {
           {
             name: userInfo.name,
             profileImageUrl: userInfo.profileImageUrl,
-            description: userInfo.description,
+            description: description, // 업데이트할 설명
           },
           {
             headers: {
@@ -162,11 +174,19 @@ const ProfileEditPage: React.FC = () => {
   
     const handleUploadProfileImage = async () => {
       if (!selectedFile) return
-    
       try {
         const response = await uploadProfileImage(selectedFile)
-    
-        setUserInfo({ ...userInfo, profileImageUrl: response.profileImageUrl })
+        if (userInfo) {
+          setUserInfo({
+            ...userInfo,
+            profileImageUrl: response.profileImageUrl,
+            loginId: userInfo.loginId,
+            name: userInfo.name,
+            nickname: userInfo.nickname,
+            email: userInfo.email,
+            description: userInfo.description,
+          });
+        }
         alert('프로필 사진이 성공적으로 업데이트되었습니다.')
         setSelectedFile(null);
       } catch (error) {
@@ -219,7 +239,7 @@ const ProfileEditPage: React.FC = () => {
         </div>
         <div className="w-full max-w-md">
           <div className="mb-4">
-            <label className="block text-gray-700">아이디</label>
+            <label className="block text-gray-700 mb-2">아이디</label>
             <p className="input input-bordered w-full flex items-center h-12">{userInfo.loginId}</p>
           </div>
           <div className="relative mb-4">
@@ -233,14 +253,13 @@ const ProfileEditPage: React.FC = () => {
               placeholder=""
             />
             <Button
-              className="absolute right-0 top-0 h-full"
+              className="absolute right-0 top-0 h-full w-28"
               onClick={handleUpdateNickname}
             >
               닉네임 변경
             </Button>
           </div>
-          <div className="relative mb-4">
-            {/* <label className="block text-gray-700">비밀번호</label> */}
+          <div className="relative mb-6">
             <TextInput
               type="password"
               value="********"
@@ -248,32 +267,29 @@ const ProfileEditPage: React.FC = () => {
               placeholder=""
             />
             <Button
-              className="absolute right-0 top-0 h-full"
+              className="absolute right-0 top-0 h-full w-28"
               onClick={() => setPasswordModalOpen(true)}
             >
               비밀번호 변경
             </Button>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">Email</label>
+            <label className="block text-gray-700 mb-2">Email</label>
             <p className="input input-bordered w-full flex items-center h-12">{userInfo.email}</p>
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700">소개</label>
+            <label className="block text-gray-700 mb-2">소개</label>
             <TextArea
               id="description"
+              placeholder={userInfo?.description || ''}
               value={description}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => {
-                if (e.target.value.length <= maxDescriptionLength) {
-                  setDescription(e.target.value);
-                  setUserInfo({ ...userInfo, description: e.target.value });
-                }
-              }}
+              onChange={handleDescriptionChange}
+              onBlur={handleDescriptionBlur}
               className="w-full"
             />
             <div className="text-right text-gray-500">
               {description.length} / {maxDescriptionLength}
-            </div>
+              </div>
           </div>
           <div className="flex justify-between">
             <Button
