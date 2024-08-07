@@ -1,28 +1,33 @@
-import React, { ChangeEvent, useState, DragEvent, useEffect } from 'react'
+import React, { useEffect, useState, ChangeEvent, DragEvent } from 'react'
 import '@/styles/MakeContent/makeContent.css'
 import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
-import { uploadContent } from '@/services/makeContent'
-import { useNavigate } from 'react-router-dom'
+import { getPostById, updateContent, Post } from '@/services/editContent'
 import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
 
-interface MakeContentProps {
+interface EditContentProps {
   onClose: () => void
+  refreshPost: () => void
+  postId?: Number
 }
 
-const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
+const EditContent: React.FC<EditContentProps> = ({
+  onClose,
+  refreshPost,
+  postId,
+}) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null)
   const [previewSrcs, setPreviewSrcs] = useState<string[]>([])
+  const [existingUrls, setExistingUrls] = useState<string[]>([])
+  const [removeMedia, setRemoveMedia] = useState<string[]>([])
   const [tags, setTags] = useState<string[]>([])
   const [content, setContent] = useState<string>('')
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
-  const [files, setFiles] = useState<File[]>([])
+  const [newFiles, setNewFiles] = useState<File[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [showPicker, setShowPicker] = useState(false)
-
-  const navigate = useNavigate()
 
   const photoOptions = [
     { id: 'PHOTO', label: '사진' },
@@ -30,13 +35,36 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     { id: 'MP3', label: '음악' },
   ]
 
+  useEffect(() => {
+    const fetchPostData = async () => {
+      try {
+        const postData: Post = await getPostById(Number(postId))
+        setContent(postData.content || '')
+        setTags(postData.hashtags || [])
+        setSelectedOption(postData.category || 'PHOTO')
+        setExistingUrls(postData.mediaUrls || [])
+        postData.mediaUrls?.forEach((url) => {
+          if (selectedOption === 'VIDEO' && url.match(/\.(mp4|avi)$/)) {
+            generateThumbnailFromURL(url)
+          } else {
+            setPreviewSrcs((prevSrcs) => [...prevSrcs, url])
+          }
+        })
+      } catch (error) {
+        console.error('게시물 데이터를 가져오는 데 실패했습니다:', error)
+      }
+    }
+
+    fetchPostData()
+  }, [postId, selectedOption])
+
   const handleImageClick = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
   }
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(event.target.files)
 
     if (fileInputRef.current) {
@@ -46,8 +74,9 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
 
   const handleFiles = (files: FileList | null) => {
     if (files) {
-      const currentFileCount = files.length + previewSrcs.length
-      if (currentFileCount > 10) {
+      const totalFilesCount =
+        existingUrls.length + newFiles.length + files.length
+      if (totalFilesCount > 10) {
         alert('최대 10개의 파일만 업로드할 수 있습니다.')
         return
       }
@@ -76,7 +105,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
         )
       }
 
-      setFiles((prevFiles) => [...prevFiles, ...validFileArray])
+      setNewFiles((prevFiles) => [...prevFiles, ...validFileArray])
 
       validFileArray.forEach((file) => {
         if (file.type.startsWith('video/')) {
@@ -99,10 +128,11 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     }
   }
 
-  const generateThumbnail = (file: File) => {
+  const generateThumbnail = (file: File | null, url?: string) => {
     const video = document.createElement('video')
-    video.src = URL.createObjectURL(file)
+    video.src = url || URL.createObjectURL(file!)
     video.currentTime = 1
+    video.crossOrigin = 'anonymous' // CORS 문제 해결을 위한 설정
     video.addEventListener('loadeddata', () => {
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
@@ -122,14 +152,57 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     })
   }
 
+  const generateThumbnailFromURL = (url: string) => {
+    const video = document.createElement('video')
+    video.src = url
+    video.crossOrigin = 'anonymous' // CORS 문제 해결을 위한 설정
+    video.currentTime = 1
+    video.addEventListener('loadeddata', () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = video.videoWidth
+      canvas.height = video.videoHeight
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+        const thumbnail = canvas.toDataURL('image/png')
+        setPreviewSrcs((prevSrcs) => {
+          const newSrcs = [...prevSrcs, thumbnail]
+          // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+          setSelectedImage(newSrcs[newSrcs.length - 1])
+          return newSrcs
+        })
+      }
+    })
+  }
+
   const handleRemoveFile = (index: number) => {
     const removedSrc = previewSrcs[index]
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
+
+    if (index < existingUrls.length) {
+      const urlToRemove = existingUrls[index]
+      setExistingUrls((prevUrls) => prevUrls.filter((_, i) => i !== index))
+      setRemoveMedia((prevUrls) => [...prevUrls, urlToRemove])
+    } else {
+      const adjustedIndex = index - existingUrls.length
+      setNewFiles((prevFiles) =>
+        prevFiles.filter((_, i) => i !== adjustedIndex)
+      )
+    }
+
     setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+
+    // 만약 제거된 작은 미리보기가 현재 선택된 큰 미리보기라면, 큰 미리보기를 초기화
     if (selectedImage === removedSrc) {
       setSelectedImage(null)
     }
   }
+
+  useEffect(() => {
+    // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
+    if (!previewSrcs.includes(selectedImage as string)) {
+      setSelectedImage(previewSrcs.length > 0 ? previewSrcs[0] : null)
+    }
+  }, [previewSrcs, selectedImage])
 
   const handleContextMenu = (
     event: React.MouseEvent<
@@ -146,7 +219,6 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let inputValue = e.target.value
 
-    // 태그가 공백 또는 문자열의 시작으로부터 시작하는지 확인
     const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
     const newTags: string[] = []
     let match
@@ -156,7 +228,6 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       inputValue = inputValue.replace(match[0], ' ')
     }
 
-    // 기존 태그와 새로운 태그를 합쳐서 업데이트
     const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 5)
     setTags(updatedTags)
     setContent(inputValue)
@@ -167,16 +238,35 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   }
 
   const handleSubmit = async () => {
-    const token = localStorage.getItem('token')
+    if (!content) {
+      alert('내용을 입력해주세요.')
+      return
+    }
 
-    // 파일 타입과 카테고리를 검사
-    const isValid = files.every((file) => {
-      if (selectedOption === 'PHOTO') {
-        return file.type.startsWith('image/')
-      } else if (selectedOption === 'VIDEO') {
-        return file.type === 'video/mp4' || file.type === 'video/x-msvideo'
-      } else if (selectedOption === 'MP3') {
-        return file.type === 'audio/mpeg'
+    if (existingUrls.length === 0 && newFiles.length === 0) {
+      alert('최소 하나의 파일을 업로드해주세요.')
+      return
+    }
+
+    const isValid = previewSrcs.every((url, index) => {
+      const isExistingUrl = index < existingUrls.length
+      if (isExistingUrl) {
+        if (selectedOption === 'PHOTO') {
+          return /\.(jpg|jpeg|png|gif)$/i.test(url)
+        } else if (selectedOption === 'VIDEO') {
+          return /\.(mp4|avi)$/i.test(url)
+        } else if (selectedOption === 'MP3') {
+          return /\.(mp3)$/i.test(url)
+        }
+      } else {
+        const file = newFiles[index - existingUrls.length]
+        if (selectedOption === 'PHOTO') {
+          return file.type.startsWith('image/')
+        } else if (selectedOption === 'VIDEO') {
+          return file.type === 'video/mp4' || file.type === 'video/x-msvideo'
+        } else if (selectedOption === 'MP3') {
+          return file.type === 'audio/mpeg'
+        }
       }
       return false
     })
@@ -186,26 +276,28 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       return
     }
 
-    if (content == '') {
-      alert('내용을 입력해주세요!')
+    const confirmed = window.confirm('게시글을 수정하시겠습니까?')
+    if (!confirmed) {
+      return
     }
 
+    const token = localStorage.getItem('token')
     try {
-      const response = await uploadContent(
-        files,
+      const response = await updateContent(
+        Number(postId),
+        newFiles,
         content,
         tags,
         selectedOption,
-        token
+        token,
+        removeMedia
       )
-      const id = response.id
-      if (id) {
-        navigate(`/mypage`)
-        onClose() // 게시가 완료되면 모달을 닫습니다.
-        window.location.reload()
+      if (response.success) {
+        refreshPost()
+        onClose()
       }
     } catch (error) {
-      console.error('Error uploading content:', error)
+      console.error('콘텐츠를 업데이트하는 중 오류가 발생했습니다:', error)
     }
   }
 
@@ -219,30 +311,20 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   }
 
   const handlePreviewClick = (src: string) => {
-    if (src.startsWith('data:image/')) {
-      setSelectedImage(src)
-    }
+    setSelectedImage(src)
   }
 
   const addEmoji = (emoji: { native: string }) => {
     setContent(content + emoji.native)
   }
 
-  useEffect(() => {
-    // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
-    if (!previewSrcs.includes(selectedImage as string)) {
-      setSelectedImage(previewSrcs.length > 0 ? previewSrcs[0] : null)
-    }
-  }, [previewSrcs, selectedImage])
+  if (!content && !tags.length && !selectedOption && !previewSrcs.length) {
+    return <div>Loading...</div>
+  }
 
   return (
-    <div onClick={onClose} style={{ position: 'relative' }}>
-      <div
-        id="upload_content"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div>
+      <div id="upload_content" onDragOver={handleDragOver} onDrop={handleDrop}>
         <div id="upload_close_btn">
           <button onClick={onClose}>
             <img
@@ -252,8 +334,12 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
           </button>
         </div>
         <div id="upload_content_header">
-          <div id="content_title">컨텐츠 작성</div>
-          <Button id={'upload_btn'} children={'작성'} onClick={handleSubmit} />
+          <div id="content_title">컨텐츠 수정</div>
+          <Button
+            id={'upload_btn'}
+            children={'수정하기'}
+            onClick={handleSubmit}
+          />
         </div>
         <hr />
         <div id="upload_content_body">
@@ -388,4 +474,4 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   )
 }
 
-export default MakeContent
+export default EditContent

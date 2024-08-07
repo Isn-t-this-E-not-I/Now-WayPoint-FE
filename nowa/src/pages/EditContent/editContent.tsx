@@ -44,6 +44,13 @@ const EditContent: React.FC<EditContentProps> = ({
         setSelectedOption(postData.category || 'PHOTO')
         setPreviewSrcs(postData.mediaUrls || [])
         setExistingUrls(postData.mediaUrls || [])
+
+        // 기존 영상 썸네일 생성
+        postData.mediaUrls?.forEach((url, index) => {
+          if (url.match(/\.(mp4|avi)$/)) {
+            generateThumbnail(null, url, index)
+          }
+        })
       } catch (error) {
         console.error('게시물 데이터를 가져오는 데 실패했습니다:', error)
       }
@@ -101,9 +108,9 @@ const EditContent: React.FC<EditContentProps> = ({
 
       setNewFiles((prevFiles) => [...prevFiles, ...validFileArray])
 
-      validFileArray.forEach((file) => {
+      validFileArray.forEach((file, index) => {
         if (file.type.startsWith('video/')) {
-          generateThumbnail(file)
+          generateThumbnail(file, undefined, existingUrls.length + index)
         } else {
           const reader = new FileReader()
           reader.readAsDataURL(file)
@@ -122,26 +129,48 @@ const EditContent: React.FC<EditContentProps> = ({
     }
   }
 
-  const generateThumbnail = (file: File) => {
+  const generateThumbnail = (
+    file: File | null,
+    url?: string,
+    index?: number
+  ) => {
     const video = document.createElement('video')
-    video.src = URL.createObjectURL(file)
+    video.crossOrigin = 'anonymous' // crossOrigin 속성 설정
+    video.src = url || URL.createObjectURL(file!)
     video.currentTime = 1
-    video.addEventListener('loadeddata', () => {
+
+    video.addEventListener('canplay', () => {
       const canvas = document.createElement('canvas')
+      // 비디오 원본 크기를 가져와서 캔버스 크기를 설정
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
+
       const ctx = canvas.getContext('2d')
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
         const thumbnail = canvas.toDataURL('image/png')
+
+        // 썸네일이 생성된 후에 프리뷰 목록 업데이트
         setPreviewSrcs((prevSrcs) => {
-          const newSrcs = [...prevSrcs, thumbnail]
-          // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
-          setSelectedImage(newSrcs[newSrcs.length - 1])
+          const newSrcs = [...prevSrcs]
+          if (index !== undefined) {
+            newSrcs[index] = thumbnail // 특정 인덱스에 썸네일 추가
+          } else {
+            newSrcs.push(thumbnail) // 인덱스가 정의되지 않으면 새 썸네일 추가
+          }
           return newSrcs
         })
+
+        // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+        setSelectedImage((prevSelectedImage) =>
+          prevSelectedImage === null ? thumbnail : prevSelectedImage
+        )
       }
       URL.revokeObjectURL(video.src)
+    })
+
+    video.addEventListener('error', (e) => {
+      console.error('비디오 로드 중 오류 발생:', e)
     })
   }
 
@@ -300,6 +329,7 @@ const EditContent: React.FC<EditContentProps> = ({
             <img
               src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
               alt="close Icon"
+              crossOrigin="anonymous"
             />
           </button>
         </div>
@@ -330,6 +360,7 @@ const EditContent: React.FC<EditContentProps> = ({
                 alt="Upload Icon"
                 onClick={handleImageClick}
                 style={{ cursor: 'pointer' }}
+                crossOrigin="anonymous"
               />
 
               <input
@@ -372,6 +403,7 @@ const EditContent: React.FC<EditContentProps> = ({
                       src={src}
                       alt={`Image Preview ${index + 1}`}
                       onContextMenu={handleContextMenu}
+                      crossOrigin="anonymous"
                     />
                     <button
                       className="remove_image_button"
@@ -380,6 +412,7 @@ const EditContent: React.FC<EditContentProps> = ({
                       <img
                         src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
                         alt="Remove Icon"
+                        crossOrigin="anonymous"
                       />
                     </button>
                   </div>
@@ -395,6 +428,7 @@ const EditContent: React.FC<EditContentProps> = ({
                 alt="Selected Preview"
                 onContextMenu={handleContextMenu}
                 onDragStart={(e) => e.preventDefault()}
+                crossOrigin="anonymous"
               />
             </div>
           )}
@@ -411,6 +445,7 @@ const EditContent: React.FC<EditContentProps> = ({
                     <img
                       src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
                       alt="Remove Icon"
+                      crossOrigin="anonymous"
                     />
                   </button>
                 </span>
@@ -431,6 +466,7 @@ const EditContent: React.FC<EditContentProps> = ({
                 <img
                   src="https://cdn-icons-png.flaticon.com/128/569/569501.png"
                   alt="이모티콘"
+                  crossOrigin="anonymous"
                 ></img>
               </button>
               <div id="imoji_box_box">
