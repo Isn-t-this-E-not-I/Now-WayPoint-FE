@@ -51,12 +51,20 @@ const Username = styled.span`
   cursor: pointer;
 `
 
-const InnerImageWrapper = styled.div`
+const InnerMediaWrapper = styled.div`
   position: relative;
   max-width: 100%;
   max-height: 300px; /* 필요한 최대 높이 설정 */
   overflow: hidden; /* 콘텐츠가 넘치는 것을 숨김 */
-  border-radius: 12px;
+`
+
+const InnerImage = styled.img`
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: auto auto 18px auto;
+  object-fit: contain;
+  cursor: pointer; /* 이미지를 포함하도록 설정 */
 `
 
 const InnerVideo = styled.video`
@@ -69,14 +77,6 @@ const InnerVideo = styled.video`
   &:hover {
     controls: true;
   }
-`
-
-const InnerImage = styled.img`
-  width: 100%;
-  height: auto;
-  display: block;
-  margin: auto;
-  object-fit: contain;
 `
 
 const ContentText = styled.div`
@@ -101,6 +101,7 @@ const LikeCount = styled.span`
   font-size: 14px;
   color: #333;
   font-weight: bold;
+  flex: 1;
 `
 
 const ShowMoreButton = styled.button`
@@ -110,7 +111,6 @@ const ShowMoreButton = styled.button`
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
-
   &:hover {
     color: #07476f;
   }
@@ -238,7 +238,7 @@ const MainSidebarPage: React.FC = () => {
                 <span></span>
               )}
             </HashTags>
-            <div>
+            <div style={{ display: 'flex' }}>
               <LikeCount>❤ {selectContent.likeCount}</LikeCount>
               <TimeAgo>{formatRelativeTime(selectContent.createdAt)}</TimeAgo>
             </div>
@@ -258,9 +258,10 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const limit = 30 // 표시할 최대 글자 수
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded)
-  }
+  const toggleExpanded = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 버블링 중지
+    setIsExpanded(!isExpanded);
+  };
 
   if (content.length <= limit) {
     return <ContentText>{content}</ContentText>
