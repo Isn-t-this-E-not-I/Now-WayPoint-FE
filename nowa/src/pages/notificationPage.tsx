@@ -68,6 +68,7 @@ const NotificationContent = styled.div`
   font-size: 14px;
   color: #151515;
   width: 18rem;
+  height: 3.3rem;
 `
 
 const TimeAgo = styled.span`
@@ -98,7 +99,7 @@ const ContentPic = styled.img`
   border-radius: 10px;
   border: solid 1px #e8e4e4;
   margin-left: 5px;
-  margin-top: 6px;
+  margin-top: -4px;
   align-self: flex-start;
   cursor: pointer;
 `
