@@ -329,7 +329,6 @@ const EditContent: React.FC<EditContentProps> = ({
             <img
               src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
               alt="close Icon"
-              crossOrigin="anonymous"
             />
           </button>
         </div>
@@ -360,7 +359,6 @@ const EditContent: React.FC<EditContentProps> = ({
                 alt="Upload Icon"
                 onClick={handleImageClick}
                 style={{ cursor: 'pointer' }}
-                crossOrigin="anonymous"
               />
 
               <input
@@ -403,7 +401,6 @@ const EditContent: React.FC<EditContentProps> = ({
                       src={src}
                       alt={`Image Preview ${index + 1}`}
                       onContextMenu={handleContextMenu}
-                      crossOrigin="anonymous"
                     />
                     <button
                       className="remove_image_button"
@@ -412,7 +409,6 @@ const EditContent: React.FC<EditContentProps> = ({
                       <img
                         src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
                         alt="Remove Icon"
-                        crossOrigin="anonymous"
                       />
                     </button>
                   </div>
@@ -428,7 +424,6 @@ const EditContent: React.FC<EditContentProps> = ({
                 alt="Selected Preview"
                 onContextMenu={handleContextMenu}
                 onDragStart={(e) => e.preventDefault()}
-                crossOrigin="anonymous"
               />
             </div>
           )}
@@ -445,7 +440,6 @@ const EditContent: React.FC<EditContentProps> = ({
                     <img
                       src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
                       alt="Remove Icon"
-                      crossOrigin="anonymous"
                     />
                   </button>
                 </span>
@@ -466,7 +460,6 @@ const EditContent: React.FC<EditContentProps> = ({
                 <img
                   src="https://cdn-icons-png.flaticon.com/128/569/569501.png"
                   alt="이모티콘"
-                  crossOrigin="anonymous"
                 ></img>
               </button>
               <div id="imoji_box_box">
