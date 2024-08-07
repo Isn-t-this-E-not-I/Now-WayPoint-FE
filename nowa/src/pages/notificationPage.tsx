@@ -81,7 +81,7 @@ const ContentContainer = styled.div`
 
 const TimeAgo = styled.span`
   position: absolute;
-  color: #4888e7;
+  color: #aaa;
   font-size: 11px;
   position: absolute;
   bottom: 2px;
