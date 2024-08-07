@@ -7,6 +7,7 @@ import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
+import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -21,30 +22,35 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
+  height: 60px;
   border-bottom: 1px solid #ccc;
   background-color: #f9f9f9;
 `
 
 const Title = styled.h1`
   font-size: 1.5rem;
-  margin: 0;
+  font-weight: bold;
+  margin-left: 0.5rem;
 `
 
 const ButtonContainer = styled.div`
   display: flex;
-  gap: 10px;
+  gap: 20px;
+  align-items: center;
 `
 
 const ActionButton = styled.button`
-  padding: 10px 15px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   color: white;
-  background-color: #007bff;
+  align-items: center;
+  justify-content: center;
+  margin-top: -20px;
+  transition: transform 0.2s ease;
 
   &:hover {
-    background-color: #0056b3;
+    transform: scale(1.05);
   }
 
   &:focus {
@@ -114,12 +120,12 @@ const SendButton = styled.button`
   padding: 10px;
   border: none;
   border-radius: 4px;
-  background-color: #007bff;
+  background-color: #01317b;
   color: white;
   cursor: pointer;
 
   &:hover {
-    background-color: #0056b3;
+    background-color: #000947;
   }
 `
 
@@ -241,13 +247,11 @@ const ChattingPage: React.FC = () => {
   let displayName: string
   if (chatRoom.userResponses.length === 1) {
     displayName = '알수없음'
-  } else if (chatRoom.userResponses.length === 2) {
-    const otherUser = chatRoom.userResponses.find(
-      (user) => user.userNickname !== nickname
-    )
-    displayName = otherUser ? otherUser.userNickname : '알수없음'
   } else {
-    displayName = chatRoom.chatRoomName
+    displayName = chatRoom.userResponses
+      .filter((user) => user.userNickname !== nickname)
+      .map((user) => user.userNickname)
+      .join(', ')
   }
 
   return (
@@ -255,7 +259,9 @@ const ChattingPage: React.FC = () => {
       <Header>
         <Title>{displayName}</Title>
         <ButtonContainer>
-          <ActionButton onClick={open}>채팅방 초대</ActionButton>
+          <ActionButton onClick={open}>
+            <AddMemberIcon theme={theme} />
+          </ActionButton>
           {isOpen && (
             <InviteModal
               isOpen={isOpen}
@@ -267,7 +273,9 @@ const ChattingPage: React.FC = () => {
               theme={theme}
             />
           )}
-          <ActionButton onClick={leaveChatRoom}>채팅방 나가기</ActionButton>
+          <ActionButton onClick={leaveChatRoom}>
+            <ExitIcon theme={theme} />
+          </ActionButton>
         </ButtonContainer>
       </Header>
       <MessageList>

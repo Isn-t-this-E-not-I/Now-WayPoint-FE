@@ -10,8 +10,8 @@ import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
 const RegisterPage: React.FC = () => {
   const [loginId, setLoginId] = useState('');
   const [emailUser, setEmailUser] = useState('');
-  const [emailDomain, setEmailDomain] = useState('google.com');
-  const emailDomains = ['google.com', 'naver.com','hanmail.net', 'nate.com', 'kakao.com', 'msn.com'];
+  const [emailDomain, setEmailDomain] = useState('gmail.com');
+  const emailDomains = ['gmail.com', 'naver.com','hanmail.net', 'nate.com', 'kakao.com', 'msn.com'];
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [nickname, setNickname] = useState('');

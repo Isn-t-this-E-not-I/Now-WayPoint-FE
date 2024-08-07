@@ -344,7 +344,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
-          {notifyCount > 0 && <Badge>{notifyCount / 2}</Badge>}
+          {notifyCount > 1 && <Badge>{Math.floor(notifyCount / 2)}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
           active={activePage === 'chat'}
