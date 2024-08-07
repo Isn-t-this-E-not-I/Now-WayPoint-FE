@@ -110,7 +110,11 @@ const EditContent: React.FC<EditContentProps> = ({
 
       validFileArray.forEach((file, index) => {
         if (file.type.startsWith('video/')) {
-          generateThumbnail(file, undefined, existingUrls.length + index)
+          generateThumbnail(
+            file,
+            undefined,
+            existingUrls.length + newFiles.length + index
+          )
         } else {
           const reader = new FileReader()
           reader.readAsDataURL(file)
@@ -159,6 +163,8 @@ const EditContent: React.FC<EditContentProps> = ({
           } else {
             newSrcs.push(thumbnail) // 인덱스가 정의되지 않으면 새 썸네일 추가
           }
+          // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+          setSelectedImage(thumbnail)
           return newSrcs
         })
 
