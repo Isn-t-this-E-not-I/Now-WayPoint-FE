@@ -287,9 +287,11 @@ const ProfileEditPage: React.FC = () => {
               onBlur={handleDescriptionBlur}
               className="w-full"
             />
+            {description !== null && (
             <div className="text-right text-gray-500">
               {description.length} / {maxDescriptionLength}
               </div>
+            )}
           </div>
           <div className="flex justify-between">
             <Button
