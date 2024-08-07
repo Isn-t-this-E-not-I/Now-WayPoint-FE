@@ -92,6 +92,12 @@
 #detail_user_write_content {
   margin-left: 5px;
   font-size: 12px;
+  white-space: pre-wrap;
+  max-height: 150px;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-right: 10px;
 }
 
 /* 해쉬태그 */

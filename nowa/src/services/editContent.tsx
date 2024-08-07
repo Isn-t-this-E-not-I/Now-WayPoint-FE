@@ -28,6 +28,7 @@ export const getPostById = async (postId: number): Promise<Post> => {
         Authorization: `Bearer ${token}`,
       },
     })
+    console.log(response)
 
     return response.data
   } catch (error) {
