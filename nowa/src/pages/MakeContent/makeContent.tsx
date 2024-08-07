@@ -220,6 +220,13 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     }
   }
 
+  useEffect(() => {
+    // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
+    if (!previewSrcs.includes(selectedImage as string)) {
+      setSelectedImage(previewSrcs.length > 0 ? previewSrcs[0] : null)
+    }
+  }, [previewSrcs, selectedImage])
+
   return (
     <div>
       <div id="upload_content" onDragOver={handleDragOver} onDrop={handleDrop}>

@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '@/services/kakaomap'
 import { useLocation } from 'react-router-dom'
-import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
@@ -25,10 +24,10 @@ const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
 
     const video = document.createElement('video')
     video.src = videoUrl
-    video.crossOrigin = 'anonymous'
+    video.crossOrigin = 'anonymous' // 필요한 경우 CORS 설정
 
     video.addEventListener('loadeddata', () => {
-      video.currentTime = Math.min(1, video.duration - 1)
+      video.currentTime = Math.min(1, video.duration - 1) // 첫 프레임이나 중간 프레임을 선택
     })
 
     video.addEventListener('seeked', () => {
@@ -116,7 +115,7 @@ const MainPage: React.FC = () => {
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
-    currentLocationRef.current = { latitude, longitude }
+    currentLocationRef.current = { latitude, longitude } // 현재 위치 저장
 
     const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
@@ -133,9 +132,10 @@ const MainPage: React.FC = () => {
         const clusterer = new window.kakao.maps.MarkerClusterer({
           map: map,
           averageCenter: true,
-          minLevel: 5, // 클러스터링이 적용되는 최소 줌 레벨을 높임
+          minLevel: 3, // 클러스터 할 최소 지도 레벨 설정
         })
 
+        // 클러스터러에 클릭 이벤트 추가
         window.kakao.maps.event.addListener(
           clusterer,
           'clusterclick',
@@ -158,6 +158,7 @@ const MainPage: React.FC = () => {
     document.head.appendChild(script)
   }
 
+  // 상대적인 시간 형식으로 변환하는 함수
   const formatRelativeTime = (timestamp: string) => {
     const now = new Date().getTime()
     const time = new Date(timestamp).getTime()
@@ -180,7 +181,7 @@ const MainPage: React.FC = () => {
 
   const adjustMarkerPosition = (markers: any[]) => {
     const adjustedPositions = new Set()
-    const OFFSET = 0.0001
+    const OFFSET = 0.0001 // 마커를 이동시킬 거리
 
     markers.forEach((marker) => {
       let position = marker.getPosition()
@@ -200,10 +201,7 @@ const MainPage: React.FC = () => {
   }
 
   const addMarkers = async (map: any, data: any[]) => {
-    if (clustererRef.current) {
-      clustererRef.current.clear()
-    }
-
+    // 기존 마커 삭제
     markersRef.current.forEach((marker) => marker.setMap(null))
     markersRef.current = []
 
@@ -257,10 +255,10 @@ const MainPage: React.FC = () => {
             return thumbnailUrl
           } catch (error) {
             console.error('Error generating video thumbnail:', error)
-            return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
+            return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png' // Default video icon
           }
         } else {
-          return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
+          return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png' // Default video icon
         }
       case 'MP3':
         return 'https://cdn-icons-png.flaticon.com/128/6527/6527906.png'
@@ -336,11 +334,13 @@ const MainPage: React.FC = () => {
     overlay.setMap(map)
     overlayRef.current = overlay
 
+    // Close button 이벤트 추가
     const closeBtn = content.querySelector('.closeBtn')
     closeBtn?.addEventListener('click', () => {
       overlay.setMap(null)
     })
 
+    // detail_navigate 이벤트 추가
     const imgDiv = content.querySelector('#main_maker_img')
     imgDiv?.addEventListener('click', () => {
       detail_navigate(item.id)
@@ -399,6 +399,7 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (client && locate && nickname) {
+      // 로그 출력 추가
       console.log('Subscribing to:', `/queue/${locate}/${nickname}`)
 
       const subscription = client.subscribe(
@@ -437,6 +438,7 @@ const MainPage: React.FC = () => {
         destination: '/app/main/category',
         body: JSON.stringify({ category: category, distance: distance }),
       })
+      // 카테고리 선택 시 지도의 확대/축소 레벨 고정
       if (map && currentLocationRef.current) {
         const { latitude, longitude } = currentLocationRef.current
         map.setLevel(mapLevel, {
@@ -459,7 +461,8 @@ const MainPage: React.FC = () => {
     const newDistance = parseInt(value)
     setSelectedDistance(newDistance)
 
-    let newMapLevel = 7
+    // 거리에 따라 mapLevel 설정
+    let newMapLevel = 7 // 기본 레벨
     switch (newDistance) {
       case 10:
         newMapLevel = 3
@@ -485,6 +488,7 @@ const MainPage: React.FC = () => {
     console.log(value)
     console.log(selectedDistance)
 
+    // 지도 레벨 및 위치 업데이트
     if (map && currentLocationRef.current) {
       const { latitude, longitude } = currentLocationRef.current
       map.setLevel(newMapLevel, {
