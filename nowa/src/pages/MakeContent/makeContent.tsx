@@ -202,6 +202,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       if (id) {
         navigate(`/mypage`)
         onClose() // 게시가 완료되면 모달을 닫습니다.
+        window.location.reload()
       }
     } catch (error) {
       console.error('Error uploading content:', error)
