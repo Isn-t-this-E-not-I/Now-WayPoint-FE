@@ -30,7 +30,7 @@ const MainPage: React.FC = () => {
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
-  const client = useWebSocket().client
+  const {client, selectContents} = useWebSocket();
   const currentLocationRef = useRef<{
     latitude: number
     longitude: number
@@ -391,23 +391,11 @@ const MainPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    if (client && locate && nickname) {
-      const subscription = client.subscribe(
-        `/queue/${locate}/${nickname}`,
-        (messageOutput: IMessage) => {
-          const receivedData = JSON.parse(messageOutput.body)
-          setData(receivedData)
-          if (map) {
-            addMarkers(map, receivedData)
-          }
-        }
-      )
-
-      return () => {
-        if (subscription) subscription.unsubscribe()
-      }
+    setData(selectContents)
+    if (map) {
+      addMarkers(map, selectContents)
     }
-  }, [client, locate, nickname, map])
+  })
 
   useEffect(() => {
     if (data.length > 0 && map) {
