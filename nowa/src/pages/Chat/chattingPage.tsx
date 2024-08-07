@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useChatWebSocket } from '@/websocket/chatWebSocket'
 import { useParams } from 'react-router-dom'
@@ -140,6 +140,24 @@ const MissingChatSpan = styled.span`
   font-size: 1.5rem;
 `
 
+const NewMessageButton = styled.button<{ show: boolean }>`
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: #01317b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: ${(props) => (props.show ? 'block' : 'none')};
+
+  &:hover {
+    background-color: #000947;
+  }
+`
+
 const ChattingPage: React.FC = () => {
   const { chatRoomId } = useParams<{ chatRoomId: string }>()
   const { chatRooms, messages, setChatRooms, setChatRoomsInfo, setMessages } =
@@ -148,6 +166,7 @@ const ChattingPage: React.FC = () => {
   const token = localStorage.getItem('token') || ''
   const nickname = localStorage.getItem('nickname') || ''
   const { subscribeToChatRoom } = useChatWebSocket()
+  const messageListRef = useRef<HTMLUListElement>(null)
 
   const [messageContent, setMessageContent] = useState('')
   const { isOpen, open, close } = useModal()
@@ -174,6 +193,8 @@ const ChattingPage: React.FC = () => {
     }
   }
 
+  const [showNewMessageButton, setShowNewMessageButton] = useState(false)
+
   // 메시지 전송
   const sendMessage = () => {
     if (!messageContent.trim() || roomId === null) return
@@ -193,10 +214,36 @@ const ChattingPage: React.FC = () => {
       })
 
       setMessageContent('')
+      setTimeout(() => scrollToBottom(), 100) // 메시지를 보낸 후 최하단으로 스크롤
+      setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
     } else {
       console.error('StompClient is not connected.')
     }
   }
+
+  // 최하단으로 스크롤 기능 함수
+  const scrollToBottom = () => {
+    if (messageListRef.current) {
+      messageListRef.current.scrollTop = messageListRef.current.scrollHeight
+    }
+  }
+
+  // 메시지 수신 시 'useEffect' 훅에 새 메시지 버튼 표시 로직
+  useEffect(() => {
+    if (messageListRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
+      const isScrolledToBottom = scrollHeight === scrollTop + clientHeight
+
+      if (
+        !isScrolledToBottom &&
+        messages[messages.length - 1]?.sender !== nickname
+      ) {
+        setShowNewMessageButton(true)
+      } else {
+        scrollToBottom()
+      }
+    }
+  }, [messages, nickname])
 
   // 채팅방 초대 함수
   const inviteToChatRoom = (e: React.FormEvent) => {
@@ -241,19 +288,48 @@ const ChattingPage: React.FC = () => {
     }
   }
 
+  // 스크롤 위치 저장
+  const saveScrollPosition = () => {
+    if (roomId !== null && messageListRef.current) {
+      const scrollPosition = messageListRef.current.scrollTop
+      localStorage.setItem(
+        `chatScrollPosition_${roomId}`,
+        scrollPosition.toString()
+      )
+    }
+  }
+
+  // 스크롤 위치 복원
+  const restoreScrollPosition = () => {
+    if (roomId !== null && messageListRef.current) {
+      const scrollPosition = localStorage.getItem(
+        `chatScrollPosition_${roomId}`
+      )
+      if (scrollPosition !== null) {
+        messageListRef.current.scrollTop = parseInt(scrollPosition, 10)
+      }
+    }
+  }
+
   useEffect(() => {
     if (roomId === null) return
 
     const subscription = subscribeToChatRoom(roomId)
     getRecentMessages()
+    restoreScrollPosition()
 
     return () => {
       if (subscription) {
         subscription.unsubscribe()
       }
+      saveScrollPosition()
       setMessages([])
     }
   }, [roomId, token, setMessages])
+
+  useEffect(() => {
+    restoreScrollPosition()
+  }, [messages])
 
   if (!chatRoom) {
     return (
@@ -298,7 +374,7 @@ const ChattingPage: React.FC = () => {
           </ActionButton>
         </ButtonContainer>
       </Header>
-      <MessageList>
+      <MessageList ref={messageListRef}>
         {messages.map((msg, index) => (
           <MessageItem key={index} $isSender={msg.sender === nickname}>
             {msg.sender !== 'admin' && <Sender>{msg.sender}</Sender>}
@@ -323,6 +399,17 @@ const ChattingPage: React.FC = () => {
         />
         <SendButton onClick={sendMessage}>보내기</SendButton>
       </InputContainer>
+
+      {/* 새 메시지 확인 버튼 */}
+      <NewMessageButton
+        show={showNewMessageButton}
+        onClick={() => {
+          scrollToBottom()
+          setShowNewMessageButton(false)
+        }}
+      >
+        새 메시지 ↓
+      </NewMessageButton>
     </ChatContainer>
   )
 }
