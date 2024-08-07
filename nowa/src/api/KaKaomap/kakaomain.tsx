@@ -30,7 +30,7 @@ const MainPage: React.FC = () => {
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
   const overlayRef = useRef<any>(null)
-  const {client, selectContents} = useWebSocket();
+  const { client, selectContents } = useWebSocket()
   const currentLocationRef = useRef<{
     latitude: number
     longitude: number
@@ -118,27 +118,6 @@ const MainPage: React.FC = () => {
     }
 
     document.head.appendChild(script)
-  }
-
-  // 상대적인 시간 형식으로 변환하는 함수
-  const formatRelativeTime = (timestamp: string) => {
-    const now = new Date().getTime()
-    const time = new Date(timestamp).getTime()
-    const diff = now - time
-
-    const minutes = Math.floor(diff / (1000 * 60))
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-
-    if (days > 0) {
-      return `${days}일 전`
-    } else if (hours > 0) {
-      return `${hours}시간 전`
-    } else if (minutes > 0) {
-      return `${minutes}분 전`
-    } else {
-      return '방금 전'
-    }
   }
 
   const adjustMarkerPosition = (markers: any[]) => {
@@ -235,111 +214,6 @@ const MainPage: React.FC = () => {
     }
   }
 
-  const displayCustomOverlay = async (
-    map: any,
-    marker: { getPosition: () => any },
-    item: {
-      profileImageUrl?: string | any[]
-      mediaUrls?: string | any[]
-      username?: string
-      createdAt?: string
-      id?: number
-      category?: string
-      likeCount?: number
-      hashtags?: string[]
-      locationTag?: string
-      content?: string
-    }
-  ) => {
-    let mediaContent = ''
-
-    if (item.mediaUrls && item.mediaUrls.length > 0) {
-      if (item.mediaUrls[0].endsWith('.mp4')) {
-        mediaContent = `<video width="320" height="240" class="video-hover" muted>
-                          <source src="${item.mediaUrls[0]}" type="video/mp4">
-                          Your browser does not support the video tag.
-                        </video>`
-      } else if (item.mediaUrls[0].endsWith('.mp3')) {
-        mediaContent = `<img src="https://cdn-icons-png.flaticon.com/128/6527/6527906.png" alt="audio icon">`
-      } else {
-        mediaContent = `<img src="${item.mediaUrls[0]}" alt="content image">`
-      }
-    } else {
-      mediaContent = `<img src="https://cdn-icons-png.flaticon.com/128/4110/4110234.png" alt="default icon">`
-    }
-
-    const hashtags =
-      item.hashtags
-        ?.map((tag) => `<span class="main_hashtag">${tag}</span>`)
-        .join(' ') || ''
-
-    const content = document.createElement('div')
-    content.className = 'overlaybox'
-    content.innerHTML = `
-      <div class="main_maker_header">
-        <div class="main_maker_label">${item.category || 'Unknown'}</div>
-        <div class="closeBtn">X</div>
-      </div>
-      <div id="main_maker_content">
-        <div id="main_maker_profile">
-          <div><img id="main_profile" alt="프로필" src="${item.profileImageUrl || ''}"></img></div>
-          <div id="main_maker_name">${item.username || 'Unknown'}</div>
-        </div> 
-      </div>
-      <div id="main_maker_img">
-         ${mediaContent}
-      </div>
-      <div>
-        <div id="main_maker_content_semi">${item.content || ''}</div>
-        <div id="main_maker_hashtags">${hashtags}</div>
-      </div>
-      </div>
-      <div id="main_maker_content2">
-        <div id="main_maker_like">♥ ${item.likeCount || 0}</div>
-        <div id="main_maker_create">${formatRelativeTime(item.createdAt || '')}</div>   
-      </div>
-    `
-
-    const overlay = new window.kakao.maps.CustomOverlay({
-      content: content,
-      map: map,
-      position: marker.getPosition(),
-    })
-
-    overlay.setMap(map)
-    overlayRef.current = overlay
-
-    // Close button 이벤트 추가
-    const closeBtn = content.querySelector('.closeBtn')
-    closeBtn?.addEventListener('click', () => {
-      overlay.setMap(null)
-    })
-
-    // Video hover 이벤트 추가
-    const videoElement = content.querySelector(
-      '.video-hover'
-    ) as HTMLVideoElement
-    if (videoElement) {
-      videoElement.addEventListener('mouseenter', () => {
-        videoElement.play()
-      })
-      videoElement.addEventListener('mouseleave', () => {
-        videoElement.pause()
-      })
-    }
-
-    // detail_navigate 이벤트 추가
-    const imgDiv = content.querySelector('#main_maker_img')
-    imgDiv?.addEventListener('click', () => {
-      detail_navigate(item.id)
-    })
-  }
-
-  const detail_navigate = (postId: any) => {
-    setSelectedPostId(postId)
-    setModalOpen(true)
-  }
-
   const handleMarkerClick = (postId: any) => {
     setSelectedPostId(postId)
     setModalOpen(true)
@@ -391,23 +265,22 @@ const MainPage: React.FC = () => {
   }, [])
 
   useEffect(() => {
-    setData(selectContents)
-    if (map) {
-      addMarkers(map, selectContents)
-    }
-  })
-
-  useEffect(() => {
-    if (data.length > 0 && map) {
-      addMarkers(map, data)
-    }
-  }, [data, map])
-
-  useEffect(() => {
     if (isInitialized && client) {
       selectCategory(selectedCategory, selectedDistance)
     }
   }, [isInitialized, client])
+
+  useEffect(() => {
+    if (map) {
+      setData(selectContents)
+    }
+  }, [selectContents, map])
+
+  useEffect(() => {
+    if (map && data.length > 0) {
+      addMarkers(map, data)
+    }
+  }, [data, map])
 
   const selectCategory = (category: string, distance: number) => {
     if (client) {
