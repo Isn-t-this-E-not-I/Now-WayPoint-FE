@@ -193,7 +193,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       return
     }
     try {
-      const newCommentData = await createComment(Number(postId), newComment)
+      await createComment(Number(postId), newComment)
       await fetchComments()
       setNewComment('')
     } catch (error) {
@@ -213,11 +213,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       return
     }
     try {
-      const newReplyData = await createComment(
-        Number(postId),
-        replyContent,
-        parentCommentId
-      )
+      await createComment(Number(postId), replyContent, parentCommentId)
       await fetchComments()
       setReplyContent('')
       setReplyCommentId(null)

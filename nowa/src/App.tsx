@@ -6,6 +6,7 @@ import '@/styles/tailwind.css'
 import Sidebar from './components/Sidebar/sidebar.tsx'
 import { ChatProvider } from '@/context/chatContext.tsx'
 import { AppProvider } from '@/context/appContext.tsx'
+import { WebSocketProvider } from './components/WebSocketProvider/WebSocketProvider.tsx'
 
 const App: React.FC = () => {
   const location = useLocation()
@@ -15,7 +16,8 @@ const App: React.FC = () => {
   const [selectedPage, setSelectedPage] = useState<string>('main')
 
   return (
-    <div style={{ display: 'flex', height: '100vh' }}>
+    <WebSocketProvider>
+      <div style={{ display: 'flex', height: '100vh' }}>
       <ChatProvider>
         {!isNoSidebarPage && <Sidebar theme={'light'} />}
         <div style={{ flex: 1 }}>
@@ -23,6 +25,7 @@ const App: React.FC = () => {
         </div>
       </ChatProvider>
     </div>
+    </WebSocketProvider>
   )
 }
 

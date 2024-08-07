@@ -29,6 +29,8 @@ import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
 import FollowContentsPage from '@/pages/FollowContentsPage'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
+import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
+import Button from '../Button/button'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -62,6 +64,14 @@ const RightSidebar = styled.div`
   position: relative;
   margin-left: 4.4rem;
   background-color: #f8faff;
+`
+
+const TopRightSidebar = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  padding-right: 10px;
 `
 
 const Line = styled.div`
@@ -148,16 +158,8 @@ const CreateChatRoomButtonWrapeer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 14px;
-  margin-left: -155px;
-`
-
-const CreateChatRoomButtonSpan = styled.span`
-  margin-top: -6px;
-  margin-left: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #151515;
+  margin-left: 10px;
+  margin-top: 0.5px;
 `
 
 const ContentDiv = styled.div`
@@ -218,6 +220,22 @@ const LogoutDropdown = styled.div`
   }
 `
 
+const Badge = styled.span`
+  position: absolute;
+  top: 7px;
+  right: 15px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`
+
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
@@ -229,9 +247,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
+  const { notifyCount } = useWebSocket()
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
+    console.log('notifyCount :', notifyCount)
     const getAllUsers = async () => {
       const users = await fetchAllUsers()
       setAllUsers(users)
@@ -251,47 +271,17 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const renderContentPage = () => {
     switch (activePage) {
       case 'main':
-        return (
-          <div>
-            <WebSocketProvider>
-              <MainSidebarPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <MainSidebarPage />
       case 'notifications':
-        return (
-          <div>
-            <WebSocketProvider>
-              <NotificationPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <NotificationPage />
       case 'chat':
         return <ChatListPage />
       case 'contents':
-        return (
-          <div>
-            <WebSocketProvider>
-              <MainSidebarPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <MainSidebarPage />
       case 'followContents':
-        return (
-          <div>
-            <WebSocketProvider>
-              <FollowContentsPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <FollowContentsPage />
       default:
-        return (
-          <div>
-            <WebSocketProvider>
-              <MainSidebarPage />
-            </WebSocketProvider>
-          </div>
-        )
+        return <MainSidebarPage />
     }
   }
 
@@ -354,6 +344,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
+          {notifyCount > 1 && <Badge>{Math.floor(notifyCount / 2)}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
           active={activePage === 'chat'}
@@ -413,15 +404,30 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <ExitIcon theme={theme} />
           {isLogoutDropdownOpen && (
-            <LogoutDropdown>
-              <h3>로그아웃 하시겠습니까?</h3>
-              <button onClick={() => handleLogout(setLogoutDropdownOpen)}>
-                넵!
-              </button>
-              <button onClick={() => setLogoutDropdownOpen(false)}>
-                아니요..
-              </button>
-            </LogoutDropdown>
+            <Modal
+              isOpen={isLogoutDropdownOpen}
+              showCloseButton={false}
+              onClose={() => setLogoutDropdownOpen(false)}
+            >
+              <div style={{ textAlign: 'center' }}>
+                <h3>로그아웃 하시겠습니까?</h3>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '20px',
+                    marginTop: '20px',
+                  }}
+                >
+                  <Button onClick={() => handleLogout(setLogoutDropdownOpen)}>
+                    네
+                  </Button>
+                  <Button onClick={() => setLogoutDropdownOpen(false)}>
+                    아니오
+                  </Button>
+                </div>
+              </div>
+            </Modal>
           )}
         </LogOutIconButtonWrapper>
         <Blank />
@@ -431,13 +437,14 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <Line />
 
       <RightSidebar>
-        <NowaIcon theme={theme} />
-        {activePage === 'chat' && (
-          <CreateChatRoomButtonWrapeer>
-            <CreateChatRoomButton />
-            <CreateChatRoomButtonSpan>새 채팅방 생성</CreateChatRoomButtonSpan>
-          </CreateChatRoomButtonWrapeer>
-        )}
+        <TopRightSidebar>
+          <NowaIcon theme={theme} />
+          {activePage === 'chat' && (
+            <CreateChatRoomButtonWrapeer>
+              <CreateChatRoomButton />
+            </CreateChatRoomButtonWrapeer>
+          )}
+        </TopRightSidebar>
         <ContentDiv>
           {shouldShowSearch() && (
             <SearchContainer>
@@ -459,7 +466,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         </ContentDiv>
       </RightSidebar>
       {isUploadModalOpen && (
-        <Modal isOpen={isUploadModalOpen} showCloseButton={false}>
+        <Modal
+          isOpen={isUploadModalOpen}
+          showCloseButton={false}
+          onClose={() => setUploadModalOpen(false)}
+        >
           <div>
             <MakeContent onClose={() => setUploadModalOpen(false)} />
           </div>

@@ -14,10 +14,35 @@ const Button = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
 
   &:focus {
     outline: none;
   }
+
+  &:hover > div {
+    opacity: 1;
+    visibility: visible;
+  }
+`
+
+const Tooltip = styled.div`
+  position: absolute;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%);
+  background-color: #333;
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
+  z-index: 1;
 `
 
 const CreateChatRoomButton: React.FC = () => {
@@ -52,6 +77,7 @@ const CreateChatRoomButton: React.FC = () => {
     <>
       <Button onClick={open}>
         <CreateChatButtonIcon theme={theme} />
+        <Tooltip>새 메시지</Tooltip>
       </Button>
       {isOpen && (
         <InviteModal

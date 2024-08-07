@@ -64,6 +64,7 @@ const InnerImage = styled.img`
   display: block;
   margin: auto auto 18px auto;
   object-fit: contain;
+  cursor: pointer;
 `
 
 const InnerVideo = styled.video`
@@ -73,6 +74,9 @@ const InnerVideo = styled.video`
   margin: auto auto 18px auto;
   object-fit: contain;
   cursor: pointer;
+  &:hover {
+    controls: true;
+  }
 `
 
 const ContentText = styled.div`
@@ -97,6 +101,7 @@ const LikeCount = styled.span`
   font-size: 14px;
   color: #333;
   font-weight: bold;
+  flex: 1;
 `
 
 const ShowMoreButton = styled.button`
@@ -106,7 +111,6 @@ const ShowMoreButton = styled.button`
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
-
   &:hover {
     color: #07476f;
   }
@@ -238,7 +242,7 @@ const MainSidebarPage: React.FC = () => {
                 <span></span>
               )}
             </HashTags>
-            <div>
+            <div style={{ display: 'flex' }}>
               <LikeCount>❤ {selectContent.likeCount}</LikeCount>
               <TimeAgo>{formatRelativeTime(selectContent.createdAt)}</TimeAgo>
             </div>
@@ -258,7 +262,8 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const limit = 30
 
-  const toggleExpanded = () => {
+  const toggleExpanded = (e: React.MouseEvent) => {
+    e.stopPropagation() // 이벤트 버블링 중지
     setIsExpanded(!isExpanded)
   }
 

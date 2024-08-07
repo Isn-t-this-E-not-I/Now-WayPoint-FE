@@ -10,6 +10,8 @@ export interface Notification {
   message: string;
   createDate: string;
   postId : number;
+  mediaUrl : string;
+  comment : string;
 }
 
 export interface FollowContent {
@@ -44,7 +46,10 @@ interface WebSocketContextProps {
   followContents: FollowContent[];
   selectContents: selectContent[];
   isLoading: boolean;
+  notifyCount : number,
   getStompClient: () => Client | null;
+  resetNotifyCount: () => void;
+  deleteSocketNotification: (id : number) => void; 
 }
 
 const WebSocketContext = createContext<WebSocketContextProps>({
@@ -53,7 +58,10 @@ const WebSocketContext = createContext<WebSocketContextProps>({
   followContents: [],
   selectContents: [],
   isLoading: true,
-  getStompClient: () => null
+  notifyCount: 0,
+  getStompClient: () => null,
+  resetNotifyCount: () => {},
+  deleteSocketNotification: () => {}
 });
 
 export const useWebSocket = () => useContext(WebSocketContext);
@@ -74,6 +82,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   const [currentCategory, setCurrentCategory] = useState("ALL");
   const locate = localStorage.getItem('locate');
   let currentDistance: number;
+  const [notifyCount, setNotifyCount] = useState<number>(0);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -91,6 +100,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
         const data: Notification[] = await response.json();
         setNotifications(data.sort((a, b) => b.id - a.id));
+        setNotifyCount(0);
+        console.log(data);
 
         const responseFollowContent = await fetch(`${location}/follow/list`, {
           headers: {
@@ -106,7 +117,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
         // 날짜를 기반으로 정렬 (문자열을 Date 객체로 변환하여 비교)
         setFollowContents(dataContent.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-        console.log(dataContent);
 
         const socket = new SockJS('https://subdomain.now-waypoint.store:8080/main');
         const stompClient = new Client({
@@ -118,6 +128,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             setClient(stompClient);
 
             stompClient.subscribe(`/queue/notify/${localStorage.getItem('nickname') || ''}`, (messageOutput: IMessage) => {
+              console.log(messageOutput.body);
               const data = JSON.parse(messageOutput.body);
               const newNotification: Notification = {
                 id: data.id,
@@ -125,9 +136,13 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 profileImageUrl: data.profileImageUrl,
                 message: data.message,
                 createDate: data.createDate,
-                postId : data.postId
+                postId: data.postId,
+                mediaUrl : data.mediaUrl,
+                comment : data.comment
               };
-              setNotifications((prev) => !prev.some((n) => n.id === newNotification.id) ? [newNotification, ...prev] : prev);
+              
+              setNotifyCount((prev) => prev +1);
+              setNotifications((prev) => !prev.some((f) => f.id === newNotification.id) ? [newNotification, ...prev] : prev);
             });
 
             stompClient.subscribe(`/queue/posts/${localStorage.getItem('nickname') || ''}`, (messageOutput: IMessage) => {
@@ -258,12 +273,18 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     };
   }, []);
 
-  useEffect(() => {
-    console.log('Updated follow contents:', followContents);
-  }, [followContents]);
+  const resetNotifyCount = () => {
+    setNotifyCount(0);
+  };
+
+  const deleteSocketNotification = (id: number) => {
+    setNotifications((prevNotifications) => 
+      prevNotifications.filter((notification) => notification.id !== id)
+    );
+  };
 
   return (
-    <WebSocketContext.Provider value={{ client, notifications, followContents, selectContents, isLoading, getStompClient }}>
+    <WebSocketContext.Provider value={{ client, notifications, followContents, selectContents, isLoading, notifyCount, getStompClient, resetNotifyCount, deleteSocketNotification}}>
       {children}
     </WebSocketContext.Provider>
   );

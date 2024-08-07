@@ -236,8 +236,13 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   }, [previewSrcs, selectedImage])
 
   return (
-    <div>
-      <div id="upload_content" onDragOver={handleDragOver} onDrop={handleDrop}>
+    <div onClick={onClose} style={{ position: 'relative' }}>
+      <div
+        id="upload_content"
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div id="upload_close_btn">
           <button onClick={onClose}>
             <img

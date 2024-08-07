@@ -256,9 +256,10 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
   const [isExpanded, setIsExpanded] = useState(false)
   const limit = 30 // 표시할 최대 글자 수
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded)
-  }
+  const toggleExpanded = (e: React.MouseEvent) => {
+    e.stopPropagation(); // 이벤트 버블링 중지
+    setIsExpanded(!isExpanded);
+  };
 
   if (content.length <= limit) {
     return <ContentText>{content}</ContentText>
