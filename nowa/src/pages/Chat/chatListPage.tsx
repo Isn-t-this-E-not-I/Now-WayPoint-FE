@@ -229,9 +229,7 @@ const ChatListPage: React.FC = () => {
                     </RoomDetail>
                   )} */}
                   {roomInfo.lastMessageContent && (
-                    <RoomDetail>
-                      마지막 메시지 : {roomInfo.lastMessageContent}
-                    </RoomDetail>
+                    <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
                   )}
                   {roomInfo.lastMessageTimestamp && (
                     <RoomDetail>

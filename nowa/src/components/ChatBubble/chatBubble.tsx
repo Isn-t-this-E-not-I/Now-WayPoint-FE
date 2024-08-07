@@ -3,7 +3,7 @@ import styled from 'styled-components'
 
 interface ChatBubbleProps {
   alignment: 'start' | 'end'
-  avatarSrc: string
+  avatarSrc?: string
   header: string
   time: string
   message: string
@@ -53,8 +53,8 @@ const Time = styled.time`
 
 const Bubble = styled.div<{ alignment: 'start' | 'end' }>`
   background-color: ${({ alignment }) =>
-    alignment === 'start' ? '#f1f0f0' : '#c779f1'};
-  color: ${({ alignment }) => (alignment === 'start' ? '#000' : '#fff')};
+    alignment === 'start' ? '#01317b' : '#ae74bc'};
+  color: ${({ alignment }) => (alignment === 'start' ? '#fff' : '#fff')};
   border-radius: 15px;
   padding: 10px;
   position: relative;
@@ -72,8 +72,8 @@ const Bubble = styled.div<{ alignment: 'start' | 'end' }>`
     border-style: solid;
     border-color: ${({ alignment }) =>
       alignment === 'start'
-        ? '#f1f0f0 transparent transparent transparent'
-        : '#c779f1 transparent transparent transparent'};
+        ? '#01317b transparent transparent transparent'
+        : '#ae74bc transparent transparent transparent'};
     transform: ${({ alignment }) =>
       alignment === 'start' ? 'rotate(-45deg)' : 'rotate(45deg)'};
   }
@@ -90,20 +90,18 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   alignment,
   avatarSrc,
   header,
-  time,
   message,
   footer,
 }) => {
   return (
     <BubbleWrapper alignment={alignment}>
-      <Avatar alignment={alignment}>
-        <img alt="Avatar" src={avatarSrc} />
-      </Avatar>
+      {avatarSrc && (
+        <Avatar alignment={alignment}>
+          <img alt="Avatar" src={avatarSrc} />
+        </Avatar>
+      )}
       <Content>
-        <Header>
-          {header}
-          <Time>{time}</Time>
-        </Header>
+        <Header>{header}</Header>
         <Bubble alignment={alignment}>{message}</Bubble>
         <Footer alignment={alignment}>{footer}</Footer>
       </Content>
