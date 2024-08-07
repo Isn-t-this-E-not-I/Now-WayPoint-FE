@@ -72,7 +72,7 @@ const NotificationContent = styled.div`
 
 const TimeAgo = styled.span`
   position: absolute;
-  color: #4888e7;
+  color: #aaa;
   font-size: 12px;
   position: absolute;
   bottom: 3px;

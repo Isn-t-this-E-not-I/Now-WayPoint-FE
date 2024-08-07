@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '@/services/kakaomap'
 import { useLocation } from 'react-router-dom'
-import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
@@ -51,10 +50,6 @@ const MainPage: React.FC = () => {
     { id: '100', label: '100km' },
     { id: '1000', label: '전체' },
   ]
-
-  const formatDate = (dateString: string | number | Date) => {
-    return moment(dateString).tz('Asia/Seoul').format('YYYY-MM-DD HH:mm A')
-  }
 
   const saveTokenToLocalStorage = () => {
     const getCookie = (name: string) => {
@@ -107,7 +102,7 @@ const MainPage: React.FC = () => {
           clusterer,
           'clusterclick',
           (cluster: { getCenter: () => any }) => {
-            const level = map.getLevel() - 1
+            const level = map.getLevel() - 3
             map.setLevel(level, { anchor: cluster.getCenter(), animate: true })
           }
         )
@@ -140,7 +135,7 @@ const MainPage: React.FC = () => {
     } else if (hours > 0) {
       return `${hours}시간 전`
     } else if (minutes > 0) {
-      return `${minutes}분 전}`
+      return `${minutes}분 전`
     } else {
       return '방금 전'
     }
@@ -168,59 +163,71 @@ const MainPage: React.FC = () => {
   }
 
   const addMarkers = async (map: any, data: any[]) => {
+    // 기존 마커 삭제
     if (clustererRef.current) {
       clustererRef.current.clear()
     }
+
+    markersRef.current.forEach((marker) => marker.setMap(null))
+    markersRef.current = []
 
     const markers = await Promise.all(
       data.map(async (item) => {
         const [lng, lat] = item.locationTag.split(',').map(Number)
         const position = new window.kakao.maps.LatLng(lat, lng)
 
-        const markerImageSrc = await getMarkerImageSrc(
-          item.category,
-          item.mediaUrls
-        )
-        const markerImageSize = new window.kakao.maps.Size(35, 35)
-        const markerImage = new window.kakao.maps.MarkerImage(
-          markerImageSrc,
-          markerImageSize
-        )
+        try {
+          const markerImageSrc = getMarkerImageSrc(
+            item.category,
+            item.mediaUrls
+          )
 
-        const marker = new window.kakao.maps.Marker({
-          position,
-          image: markerImage,
-        })
+          const markerContent = document.createElement('div')
+          markerContent.className = 'marker-with-pin'
+          markerContent.innerHTML = `<img src="${markerImageSrc}" alt="marker">`
 
-        window.kakao.maps.event.addListener(marker, 'click', () => {
-          displayCustomOverlay(map, marker, item)
-        })
+          // 이미지 요소가 존재하는지 확인하고 클릭 이벤트 추가
+          const imgElement = markerContent.querySelector('img')
+          if (imgElement) {
+            imgElement.addEventListener('click', () => {
+              handleMarkerClick(item.id)
+            })
+          } else {
+            console.warn('Marker image element not found')
+          }
 
-        return marker
+          // CustomOverlay를 생성합니다.
+          const marker = new window.kakao.maps.CustomOverlay({
+            position: position,
+            content: markerContent,
+            yAnchor: 1,
+          })
+
+          markersRef.current.push(marker)
+          return marker
+        } catch (error) {
+          console.error('Error creating marker:', error)
+          return null
+        }
       })
     )
 
-    adjustMarkerPosition(markers)
+    const validMarkers = markers.filter((marker) => marker !== null)
+    adjustMarkerPosition(validMarkers)
 
-    markersRef.current = markers
     if (clustererRef.current) {
-      clustererRef.current.addMarkers(markers)
+      clustererRef.current.addMarkers(validMarkers)
     }
   }
 
-  const getMarkerImageSrc = async (category: string, mediaUrls: string[]) => {
+  const getMarkerImageSrc = (category: string, mediaUrls: string[]) => {
     switch (category) {
       case 'PHOTO':
         return mediaUrls && mediaUrls.length > 0
           ? mediaUrls[0]
           : 'https://cdn-icons-png.flaticon.com/128/2536/2536670.png'
       case 'VIDEO':
-        if (mediaUrls && mediaUrls.length > 0) {
-          const videoUrl = mediaUrls[0]
-          return await generateVideoThumbnail(videoUrl)
-        } else {
-          return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png'
-        }
+        return 'https://cdn-icons-png.flaticon.com/128/2703/2703920.png' // Default video icon
       case 'MP3':
         return 'https://cdn-icons-png.flaticon.com/128/6527/6527906.png'
       default:
@@ -228,57 +235,30 @@ const MainPage: React.FC = () => {
     }
   }
 
-  const generateVideoThumbnail = (videoUrl: string): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const video = document.createElement('video')
-      video.src = videoUrl
-      video.crossOrigin = 'anonymous' // 필요한 경우 CORS 설정
-
-      video.addEventListener('loadeddata', () => {
-        video.currentTime = Math.min(1, video.duration - 1) // 첫 프레임이나 중간 프레임을 선택
-      })
-
-      video.addEventListener('seeked', () => {
-        const canvas = document.createElement('canvas')
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        const context = canvas.getContext('2d')
-        if (context) {
-          context.drawImage(video, 0, 0, canvas.width, canvas.height)
-          resolve(canvas.toDataURL('image/png'))
-        } else {
-          reject(new Error('Failed to get canvas context'))
-        }
-      })
-
-      video.addEventListener('error', (error) => {
-        reject(error)
-      })
-    })
-  }
-
   const displayCustomOverlay = async (
     map: any,
     marker: { getPosition: () => any },
     item: {
-      profileImageUrl: string | any[]
-      mediaUrls: string | any[]
-      username: any
-      createdAt: string
-      id: any
-      category: string
-      likeCount: Number
-      hashtages: string[]
-      locationTag: string
-      content: string
+      profileImageUrl?: string | any[]
+      mediaUrls?: string | any[]
+      username?: string
+      createdAt?: string
+      id?: number
+      category?: string
+      likeCount?: number
+      hashtags?: string[]
+      locationTag?: string
+      content?: string
     }
   ) => {
     let mediaContent = ''
 
     if (item.mediaUrls && item.mediaUrls.length > 0) {
       if (item.mediaUrls[0].endsWith('.mp4')) {
-        const thumbnailUrl = await generateVideoThumbnail(item.mediaUrls[0])
-        mediaContent = `<img src="${thumbnailUrl}" alt="video thumbnail">`
+        mediaContent = `<video width="320" height="240" class="video-hover" muted>
+                          <source src="${item.mediaUrls[0]}" type="video/mp4">
+                          Your browser does not support the video tag.
+                        </video>`
       } else if (item.mediaUrls[0].endsWith('.mp3')) {
         mediaContent = `<img src="https://cdn-icons-png.flaticon.com/128/6527/6527906.png" alt="audio icon">`
       } else {
@@ -288,30 +268,35 @@ const MainPage: React.FC = () => {
       mediaContent = `<img src="https://cdn-icons-png.flaticon.com/128/4110/4110234.png" alt="default icon">`
     }
 
+    const hashtags =
+      item.hashtags
+        ?.map((tag) => `<span class="main_hashtag">${tag}</span>`)
+        .join(' ') || ''
+
     const content = document.createElement('div')
     content.className = 'overlaybox'
     content.innerHTML = `
       <div class="main_maker_header">
-        <div class="main_maker_label">${item.category}</div>
-        <div class="closeBtn">x</div>
+        <div class="main_maker_label">${item.category || 'Unknown'}</div>
+        <div class="closeBtn">X</div>
       </div>
       <div id="main_maker_content">
         <div id="main_maker_profile">
-          <div><img id="main_profile" alt="프로필" src="${item.profileImageUrl}"></img></div>
-          <div id="main_maker_name">${item.username}</div>
+          <div><img id="main_profile" alt="프로필" src="${item.profileImageUrl || ''}"></img></div>
+          <div id="main_maker_name">${item.username || 'Unknown'}</div>
         </div> 
       </div>
       <div id="main_maker_img">
          ${mediaContent}
       </div>
       <div>
-        <div id="main_maker_content_semi">${item.content}</div>
+        <div id="main_maker_content_semi">${item.content || ''}</div>
+        <div id="main_maker_hashtags">${hashtags}</div>
       </div>
-
       </div>
       <div id="main_maker_content2">
-        <div id="main_maker_like">♥ ${item.likeCount}</div>
-        <div id="main_maker_create">${formatRelativeTime(item.createdAt)}</div>   
+        <div id="main_maker_like">♥ ${item.likeCount || 0}</div>
+        <div id="main_maker_create">${formatRelativeTime(item.createdAt || '')}</div>   
       </div>
     `
 
@@ -330,6 +315,19 @@ const MainPage: React.FC = () => {
       overlay.setMap(null)
     })
 
+    // Video hover 이벤트 추가
+    const videoElement = content.querySelector(
+      '.video-hover'
+    ) as HTMLVideoElement
+    if (videoElement) {
+      videoElement.addEventListener('mouseenter', () => {
+        videoElement.play()
+      })
+      videoElement.addEventListener('mouseleave', () => {
+        videoElement.pause()
+      })
+    }
+
     // detail_navigate 이벤트 추가
     const imgDiv = content.querySelector('#main_maker_img')
     imgDiv?.addEventListener('click', () => {
@@ -342,10 +340,15 @@ const MainPage: React.FC = () => {
     setModalOpen(true)
   }
 
+  const handleMarkerClick = (postId: any) => {
+    setSelectedPostId(postId)
+    setModalOpen(true)
+  }
+
   const zoomIn = () => {
     if (map && currentLocationRef.current) {
       const { latitude, longitude } = currentLocationRef.current
-      map.setLevel(map.getLevel() - 1, {
+      map.setLevel(map.getLevel() - 3, {
         anchor: new window.kakao.maps.LatLng(latitude, longitude),
       })
     }
@@ -354,7 +357,7 @@ const MainPage: React.FC = () => {
   const zoomOut = () => {
     if (map && currentLocationRef.current) {
       const { latitude, longitude } = currentLocationRef.current
-      map.setLevel(map.getLevel() + 1, {
+      map.setLevel(map.getLevel() + 3, {
         anchor: new window.kakao.maps.LatLng(latitude, longitude),
       })
     }
@@ -389,13 +392,9 @@ const MainPage: React.FC = () => {
 
   useEffect(() => {
     if (client && locate && nickname) {
-      // 로그 출력 추가
-      console.log('Subscribing to:', `/queue/${locate}/${nickname}`)
-
       const subscription = client.subscribe(
         `/queue/${locate}/${nickname}`,
         (messageOutput: IMessage) => {
-          console.log('Message received:', messageOutput.body)
           const receivedData = JSON.parse(messageOutput.body)
           setData(receivedData)
           if (map) {
@@ -443,8 +442,6 @@ const MainPage: React.FC = () => {
   const handleCategoryChange = (value: string) => {
     setSelectedCategory(value)
     selectCategory(value, selectedDistance)
-    console.log(value)
-    console.log(selectedDistance)
   }
 
   const handleDistanceChange = (value: string) => {
@@ -475,8 +472,6 @@ const MainPage: React.FC = () => {
     setMapLevel(newMapLevel)
 
     selectCategory(selectedCategory, newDistance)
-    console.log(value)
-    console.log(selectedDistance)
 
     // 지도 레벨 및 위치 업데이트
     if (map && currentLocationRef.current) {

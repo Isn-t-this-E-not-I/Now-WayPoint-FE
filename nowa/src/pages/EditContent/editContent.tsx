@@ -4,7 +4,8 @@ import Textarea from '@/components/TextArea/textArea'
 import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
 import { getPostById, updateContent, Post } from '@/services/editContent'
-import { useParams } from 'react-router-dom'
+import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data'
 
 interface EditContentProps {
   onClose: () => void
@@ -26,6 +27,7 @@ const EditContent: React.FC<EditContentProps> = ({
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
   const [newFiles, setNewFiles] = useState<File[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [showPicker, setShowPicker] = useState(false)
 
   const photoOptions = [
     { id: 'PHOTO', label: '사진' },
@@ -145,6 +147,7 @@ const EditContent: React.FC<EditContentProps> = ({
 
   const handleRemoveFile = (index: number) => {
     const removedSrc = previewSrcs[index]
+
     if (index < existingUrls.length) {
       const urlToRemove = existingUrls[index]
       setExistingUrls((prevUrls) => prevUrls.filter((_, i) => i !== index))
@@ -155,11 +158,21 @@ const EditContent: React.FC<EditContentProps> = ({
         prevFiles.filter((_, i) => i !== adjustedIndex)
       )
     }
+
     setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+
+    // 만약 제거된 작은 미리보기가 현재 선택된 큰 미리보기라면, 큰 미리보기를 초기화
     if (selectedImage === removedSrc) {
       setSelectedImage(null)
     }
   }
+
+  useEffect(() => {
+    // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
+    if (!previewSrcs.includes(selectedImage as string)) {
+      setSelectedImage(previewSrcs.length > 0 ? previewSrcs[0] : null)
+    }
+  }, [previewSrcs, selectedImage])
 
   const handleContextMenu = (
     event: React.MouseEvent<
@@ -271,6 +284,10 @@ const EditContent: React.FC<EditContentProps> = ({
     setSelectedImage(src)
   }
 
+  const addEmoji = (emoji: { native: string }) => {
+    setContent(content + emoji.native)
+  }
+
   if (!content && !tags.length && !selectedOption && !previewSrcs.length) {
     return <div>Loading...</div>
   }
@@ -372,10 +389,7 @@ const EditContent: React.FC<EditContentProps> = ({
           </div>
 
           {selectedImage && (
-            <div
-              id="selected_image_preview"
-              onClick={() => setSelectedImage(null)}
-            >
+            <div id="selected_image_preview">
               <img
                 src={selectedImage}
                 alt="Selected Preview"
@@ -402,12 +416,27 @@ const EditContent: React.FC<EditContentProps> = ({
                 </span>
               ))}
             </div>
-            <Textarea
-              id={'upload_content_dis'}
-              placeholder={'내용을 입력해주세요'}
-              value={content}
-              onChange={handleContentChange}
-            />
+            <div id="Make_text_box">
+              <Textarea
+                id={'upload_content_dis'}
+                placeholder={'내용을 입력해주세요'}
+                value={content}
+                onChange={handleContentChange}
+              />
+              <button
+                id="make_imoji"
+                onClick={() => setShowPicker(!showPicker)}
+              >
+                {showPicker ? '' : ''}{' '}
+                <img
+                  src="https://cdn-icons-png.flaticon.com/128/569/569501.png"
+                  alt="이모티콘"
+                ></img>
+              </button>
+              <div id="imoji_box_box">
+                {showPicker && <Picker data={data} onEmojiSelect={addEmoji} />}
+              </div>
+            </div>
           </div>
         </div>
       </div>
