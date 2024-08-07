@@ -148,6 +148,7 @@ const EditContent: React.FC<EditContentProps> = ({
 
   const handleRemoveFile = (index: number) => {
     const removedSrc = previewSrcs[index]
+
     if (index < existingUrls.length) {
       const urlToRemove = existingUrls[index]
       setExistingUrls((prevUrls) => prevUrls.filter((_, i) => i !== index))
@@ -158,11 +159,21 @@ const EditContent: React.FC<EditContentProps> = ({
         prevFiles.filter((_, i) => i !== adjustedIndex)
       )
     }
+
     setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
+
+    // 만약 제거된 작은 미리보기가 현재 선택된 큰 미리보기라면, 큰 미리보기를 초기화
     if (selectedImage === removedSrc) {
       setSelectedImage(null)
     }
   }
+
+  useEffect(() => {
+    // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
+    if (!previewSrcs.includes(selectedImage as string)) {
+      setSelectedImage(previewSrcs.length > 0 ? previewSrcs[0] : null)
+    }
+  }, [previewSrcs, selectedImage])
 
   const handleContextMenu = (
     event: React.MouseEvent<
@@ -379,10 +390,7 @@ const EditContent: React.FC<EditContentProps> = ({
           </div>
 
           {selectedImage && (
-            <div
-              id="selected_image_preview"
-              onClick={() => setSelectedImage(null)}
-            >
+            <div id="selected_image_preview">
               <img
                 src={selectedImage}
                 alt="Selected Preview"
