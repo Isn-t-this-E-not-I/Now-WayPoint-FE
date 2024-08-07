@@ -135,13 +135,15 @@ const EditContent: React.FC<EditContentProps> = ({
     index?: number
   ) => {
     const video = document.createElement('video')
-    video.crossOrigin = 'anonymous' // crossOrigin 속성 설정
+    video.crossOrigin = 'anonymous' // 크로스 오리진 설정
     video.src = url || URL.createObjectURL(file!)
-    video.currentTime = 1
+
+    video.addEventListener('loadeddata', () => {
+      video.currentTime = 1 // 비디오의 특정 시간으로 이동
+    })
 
     video.addEventListener('canplay', () => {
       const canvas = document.createElement('canvas')
-      // 비디오 원본 크기를 가져와서 캔버스 크기를 설정
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
 
@@ -150,7 +152,6 @@ const EditContent: React.FC<EditContentProps> = ({
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
         const thumbnail = canvas.toDataURL('image/png')
 
-        // 썸네일이 생성된 후에 프리뷰 목록 업데이트
         setPreviewSrcs((prevSrcs) => {
           const newSrcs = [...prevSrcs]
           if (index !== undefined) {
@@ -161,7 +162,6 @@ const EditContent: React.FC<EditContentProps> = ({
           return newSrcs
         })
 
-        // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
         setSelectedImage((prevSelectedImage) =>
           prevSelectedImage === null ? thumbnail : prevSelectedImage
         )
