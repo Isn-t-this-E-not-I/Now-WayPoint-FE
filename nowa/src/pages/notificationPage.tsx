@@ -53,6 +53,7 @@ const ProfilePic = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  margin-top: 10px;
   margin-right: 10px;
   object-fit: cover;
   flex-shrink: 0;
@@ -72,8 +73,10 @@ const NotificationContent = styled.div`
 const ContentContainer = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-top: 5px;
   width: 13.8rem;
+  height: 60px;
 `
 
 const TimeAgo = styled.span`
@@ -81,11 +84,12 @@ const TimeAgo = styled.span`
   color: #4888e7;
   font-size: 11px;
   position: absolute;
-  bottom: 5px;
+  bottom: 2px;
   right: 9px;
 `
 
 const ContentText = styled.div`
+  align-items: center;
   font-size: 14px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -94,6 +98,8 @@ const ContentText = styled.div`
   text-overflow: ellipsis;
   line-height: 1.5;
   max-height: 3rem;
+  margin-top: -6px;
+  flex-grow: 1;
 `
 
 const ContentPic = styled.img`
@@ -102,6 +108,7 @@ const ContentPic = styled.img`
   border-radius: 10px;
   border: solid 1px #e8e4e4;
   margin-left: 5px;
+  align-self: flex-start;
   cursor: pointer;
 `
 

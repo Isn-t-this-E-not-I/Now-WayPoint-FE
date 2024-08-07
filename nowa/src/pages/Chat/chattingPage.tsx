@@ -15,6 +15,7 @@ const ChatContainer = styled.div`
   height: 100%;
   width: 100%;
   background-color: ${(props) => props.theme.backgroundColor || '#f0f0f0'};
+  position: relative;
 `
 
 const Header = styled.div`
@@ -140,20 +141,20 @@ const MissingChatSpan = styled.span`
 `
 
 const NewMessageButton = styled.button<{ show: boolean }>`
-  position: fixed;
-  bottom: 20px;
+  position: absolute;
+  bottom: 80px;
   left: 50%;
   transform: translateX(-50%);
   padding: 10px 20px;
-  background-color: #01317b;
-  color: white;
+  background-color: rgba(248, 250, 255, 0.7);
+  color: #151515;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   display: ${(props) => (props.show ? 'block' : 'none')};
 
   &:hover {
-    background-color: #000947;
+    background-color: #f8faff;
   }
 `
 
@@ -267,7 +268,8 @@ const ChattingPage: React.FC = () => {
   useEffect(() => {
     if (messageListRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
-      const isScrolledToBottom = scrollHeight === scrollTop + clientHeight
+      const isScrolledToBottom =
+        Math.abs(scrollHeight - scrollTop - clientHeight) < 1
 
       if (
         !isScrolledToBottom &&
@@ -276,6 +278,7 @@ const ChattingPage: React.FC = () => {
         setShowNewMessageButton(true)
       } else {
         scrollToBottom()
+        setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
       }
     }
   }, [messages, nickname])

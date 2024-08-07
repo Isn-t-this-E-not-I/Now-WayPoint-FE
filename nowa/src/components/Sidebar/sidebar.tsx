@@ -162,14 +162,6 @@ const CreateChatRoomButtonWrapeer = styled.div`
   margin-top: 0.5px;
 `
 
-const CreateChatRoomButtonSpan = styled.span`
-  margin-top: -6px;
-  margin-left: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #151515;
-`
-
 const ContentDiv = styled.div`
   display: flex;
   flex-direction: column;
