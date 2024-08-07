@@ -10,6 +10,8 @@ export interface Notification {
   message: string;
   createDate: string;
   postId : number;
+  mediaUrl : string;
+  comment : string;
 }
 
 export interface FollowContent {
@@ -99,6 +101,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         const data: Notification[] = await response.json();
         setNotifications(data.sort((a, b) => b.id - a.id));
         setNotifyCount(0);
+        console.log(data);
 
         const responseFollowContent = await fetch(`${location}/follow/list`, {
           headers: {
@@ -114,7 +117,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
         // 날짜를 기반으로 정렬 (문자열을 Date 객체로 변환하여 비교)
         setFollowContents(dataContent.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-        console.log(dataContent);
 
         const socket = new SockJS('https://subdomain.now-waypoint.store:8080/main');
         const stompClient = new Client({
@@ -126,6 +128,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             setClient(stompClient);
 
             stompClient.subscribe(`/queue/notify/${localStorage.getItem('nickname') || ''}`, (messageOutput: IMessage) => {
+              console.log(messageOutput.body);
               const data = JSON.parse(messageOutput.body);
               const newNotification: Notification = {
                 id: data.id,
@@ -133,7 +136,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 profileImageUrl: data.profileImageUrl,
                 message: data.message,
                 createDate: data.createDate,
-                postId: data.postId
+                postId: data.postId,
+                mediaUrl : data.mediaUrl,
+                comment : data.comment
               };
               
               setNotifyCount((prev) => prev +1);
@@ -277,10 +282,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
       prevNotifications.filter((notification) => notification.id !== id)
     );
   };
-
-  useEffect(() => {
-    console.log('Updated follow contents:', followContents);
-  }, [followContents]);
 
   return (
     <WebSocketContext.Provider value={{ client, notifications, followContents, selectContents, isLoading, notifyCount, getStompClient, resetNotifyCount, deleteSocketNotification}}>

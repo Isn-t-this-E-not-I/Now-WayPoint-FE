@@ -32,7 +32,7 @@ const NotificationItem = styled.div`
     linear-gradient(to right, #f8faff, #f8faff) padding-box,
     linear-gradient(to top left, #ae74bc, #01317b) border-box;
   cursor: pointer;
-
+  position: relative; 
   &:hover {
     border: 1px solid black;
   }
@@ -51,16 +51,17 @@ const NotificationContent = styled.div`
   flex-direction: column;
   text-align: left;
   margin-right: auto;
-  padding-bottom: 20px;
   font-size: 14px;
   color: #151515;
   width: 18rem;
 `
 
 const TimeAgo = styled.span`
-  color: #01317b;
+  position: absolute;
+  bottom: 5px; 
+  right: 10px; 
+  color: #4888e7;
   font-size: 11px;
-  margin-left: auto;
 `
 
 const CloseButton = styled.button`
@@ -72,21 +73,20 @@ const CloseButton = styled.button`
 `
 
 const ContentText = styled.div`
-  margin-top: 10px;
   font-size: 14px;
 `
 
-const ShowMoreButton = styled.button`
-  background: none;
-  border: none;
-  color: #129fe1;
+const ContentPic = styled.img`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 45px;
+  height: 45px;
+  border-radius: 10px;
+  border: solid 1px #e8e4e4;
+  margin-right: 5px;
+  margin-left: 5px;
   cursor: pointer;
-  text-decoration: none;
-  font-size: 14px;
-
-  &:hover {
-    color: #07476f;
-  }
 `
 
 const NotificationPage: React.FC = () => {
@@ -107,6 +107,7 @@ const NotificationPage: React.FC = () => {
     if (notification.postId) {
       setSelectedPostId(notification.postId)
       setModalOpen(true)
+      handleDelete(notification.id);
     } else {
       navigate(`/user/${notification.nickname}?tab=posts`)
     }
@@ -187,51 +188,46 @@ const NotificationPage: React.FC = () => {
   }
 
   return (
-    <NotificationWrapper>
-      {displayNotifications.map((notification) => (
-        <NotificationItem
-          key={notification.id}
-          onClick={() => handleContentClick(notification)}
-        >
-          <ProfilePic
-            src={notification.profileImageUrl}
-            alt="Profile"
-            onClick={(e) => {
-              e.stopPropagation() // 이벤트 버블링 중지
-              handleProfileClick(notification.nickname)
-            }}
-          />
-          <NotificationContent>
-          <ContentDisplay content={notification.message} />
-            <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
-          </NotificationContent>
-          <CloseButton
-            onClick={(e) => {
-              e.stopPropagation() // 이벤트 버블링 중지
-              handleDelete(notification.id)
-            }}
-          >
-            x
-          </CloseButton>
-        </NotificationItem>
-      ))}
-      {selectedPostId !== null && (
-        <DetailContentModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          postId={selectedPostId}
-          showCloseButton={true}
+      <NotificationWrapper>
+    {displayNotifications.map((notification) => (
+      <NotificationItem
+        key={notification.id}
+        onClick={() => handleContentClick(notification)}
+      >
+        <ProfilePic
+          src={notification.profileImageUrl}
+          alt="Profile"
+          onClick={(e) => {
+            e.stopPropagation(); // 이벤트 버블링 중지
+            handleProfileClick(notification.nickname);
+          }}
         />
-      )}
-    </NotificationWrapper>
+        <NotificationContent>
+          <ContentDisplay content={notification.message} comment={notification.comment} />
+        </NotificationContent>
+        {notification.mediaUrl && <ContentPic src={notification.mediaUrl} />}
+        <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
+      </NotificationItem>
+    ))}
+    {selectedPostId !== null && (
+      <DetailContentModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        postId={selectedPostId}
+        showCloseButton={true}
+      />
+    )}
+  </NotificationWrapper>
   )
 }
 
-const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
-  const limit = 50; // 표시할 최대 글자 수
+const ContentDisplay: React.FC<{ content: string, comment?: string }> = ({ content, comment }) => {
+  const limit = 33; // 표시할 최대 글자 수
+
+  const sumContent = comment ? `${content} : ${comment}` : content;
 
   // 콘텐츠 길이가 limit을 초과하면 잘라내고 '...' 추가
-  const truncatedContent = content.length > limit ? `${content.substring(0, limit)}...` : content;
+  const truncatedContent = sumContent.length > limit ? `${content.substring(0, limit)}...` : content;
 
   return <ContentText>{truncatedContent}</ContentText>;
 };
