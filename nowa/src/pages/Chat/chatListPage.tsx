@@ -39,6 +39,7 @@ const ChatListItem = styled.li`
     linear-gradient(to right, #f8faff, #f8faff) padding-box,
     linear-gradient(to top left, #ae74bc, #01317b) border-box;
   cursor: pointer;
+  overflow: hidden;
 
   transition:
     background-color 0.3s,
@@ -74,6 +75,39 @@ const RoomName = styled.h2<RoomNameProps>`
     content: '...';
     display: ${(props) => (props.istruncated ? 'inline' : 'none')};
   }
+`
+
+interface UserResponse {
+  userNickname: string
+  profileImageUrl?: string
+}
+
+const ProfileImages = styled.div`
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  flex-shrink: 0;
+`
+
+const ProfileImage = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-left: -10px;
+  border: 2px solid white;
+  object-fit: cover;
+  flex-shrink: 0;
+`
+
+const DefaultProfileImage = styled.div`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin-left: -10px;
+  border: 2px solid white;
+  object-fit: cover;
+  flex-shrink: 0;
 `
 
 const UserCountWrapper = styled.div`
@@ -114,10 +148,10 @@ const RoomDetail = styled.p`
   justify-content: space-between;
   align-items: center;
   margin: 5px 0;
-  margin: 5px 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  width: 100%;
 `
 
 const TimeAgo = styled.span`
@@ -125,6 +159,19 @@ const TimeAgo = styled.span`
   font-size: 12px;
   margin-left: auto;
 `
+
+const getProfileImages = (
+  userResponses: UserResponse[],
+  nickname: string
+): string[] => {
+  const filteredUsers = userResponses.filter(
+    (user) => user.userNickname !== nickname
+  )
+  const profileImages = filteredUsers
+    .slice(0, 4) // 최대 4개의 프로필 이미지
+    .map((user) => user.profileImageUrl || 'default_profile_image_url')
+  return profileImages
+}
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate()
@@ -205,12 +252,26 @@ const ChatListPage: React.FC = () => {
           }
           const isTruncated = displayName.length > 18
 
+          const displayProfileImages = getProfileImages(
+            room.userResponses,
+            nickname
+          )
+
           return (
             <ChatListItem
               key={room.chatRoomId}
               onClick={() => handleChatRoomClick(room.chatRoomId)}
             >
               <RoomNameWrapper>
+                <ProfileImages>
+                  {displayProfileImages.length === 0 ? (
+                    <DefaultProfileImage />
+                  ) : (
+                    displayProfileImages.map((src, index) => (
+                      <ProfileImage key={index} src={src} />
+                    ))
+                  )}
+                </ProfileImages>
                 <RoomName istruncated={isTruncated}>
                   {isTruncated ? displayName.slice(0, 18) : displayName}
                 </RoomName>
@@ -223,15 +284,8 @@ const ChatListPage: React.FC = () => {
               </RoomNameWrapper>
               {roomInfo && (
                 <RoomDetails>
-                  {/* {roomInfo.unreadMessagesCount > 0 && (
-                    <RoomDetail>
-                      Unread Messages: {roomInfo.unreadMessagesCount}
-                    </RoomDetail>
-                  )} */}
                   {roomInfo.lastMessageContent && (
-                    <RoomDetail>
-                      마지막 메시지 : {roomInfo.lastMessageContent}
-                    </RoomDetail>
+                    <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
                   )}
                   {roomInfo.lastMessageTimestamp && (
                     <RoomDetail>
