@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TextInput from '../components/TextInput/textInput';
-import { register, sendVerificationCode, checkLoginId } from '../api/userApi';
+import { register, sendVerificationCode, verifyCode, checkLoginId } from '../api/userApi';
 import Button from '../components/Button/button';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
-
 
 const RegisterPage: React.FC = () => {
   const [loginId, setLoginId] = useState('');
@@ -80,21 +79,40 @@ const RegisterPage: React.FC = () => {
         setLoginMessage('서버 에러가 발생했습니다.');
       }
     } else {
-      setLoginMessage('모든 필드를 채워주세요.');
+      setLoginMessage('모든 필드를 채워주세요.'); //* 고난이도 주문ㅋㅋㅋㅋ
     }
   };
 
   const handleVerifyCode = async () => {
     const email = `${emailUser}@${emailDomain}`;  //*
     try {
-      const response = await register({ loginId, email, password, name, nickname, authNumber });
-      if (response === 'ok') {
+      console.log(authNumber, email);
+      const response = await verifyCode( authNumber, email );
+      console.log(response);
+      if (response.message === 'authorized') {
+        alert('인증 성공');
+      } else {
+        alert('인증 실패: ' + response);
+      }
+    } catch (error) {
+      console.error('Verification error:', (error as any).message || error);
+      alert('서버 에러가 발생했습니다.');
+    }
+  };
+
+  const handleRegister = async () => {
+    const email = `${emailUser}@${emailDomain}`;
+    try {
+      const response = await register({ loginId, email, password, name, nickname });
+      console.log(response);
+      if (response.data === 'ok') {
+        alert('회원가입에 성공했습니다');
         navigate('/login');
       } else {
         alert('회원가입 실패: ' + response);
       }
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration error:', (error as any).message || error);
       alert('서버 에러가 발생했습니다.');
     }
   };
@@ -240,7 +258,7 @@ const RegisterPage: React.FC = () => {
           인증 코드 받기
         </button>
         {codeSentMessage && (
-          <div className="text-sm text-red-500 mt-2 w-full">
+          <div className="text-sm text-green-500 mt-2 mb-2 w-full">
             {codeSentMessage}
           </div>
         )}
@@ -258,6 +276,12 @@ const RegisterPage: React.FC = () => {
               onClick={handleVerifyCode}
             >
               인증 코드 검증
+            </button>
+            <button
+              className="btn btn-primary w-full mt-4"
+              onClick={handleRegister}
+            >
+              회원가입
             </button>
           </>
         )}
