@@ -13,7 +13,6 @@ interface RegisterPayload {
   password: string;
   name: string;
   nickname: string;
-  authNumber: string;
 }
 
 export const login = async (payload: { password: string; loginId: string }) => {
@@ -82,6 +81,19 @@ export const sendVerificationCode = async (
       email,
       state,
       loginId,
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 인증 코드 검증
+export const verifyCode = async (authNumber: string, email: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/mail/check`, {
+      authNumber,
+      email,
     });
     return response.data;
   } catch (error) {
