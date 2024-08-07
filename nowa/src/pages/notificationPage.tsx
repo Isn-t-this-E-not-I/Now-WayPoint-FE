@@ -70,15 +70,6 @@ const NotificationContent = styled.div`
   width: 18rem;
 `
 
-const ContentContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 5px;
-  width: 13.8rem;
-  height: 60px;
-`
-
 const TimeAgo = styled.span`
   position: absolute;
   color: #4888e7;
