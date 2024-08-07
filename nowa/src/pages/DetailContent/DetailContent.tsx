@@ -44,7 +44,7 @@ const CloseButton = styled.button`
   font-size: 24px;
   cursor: pointer;
   z-index: 1001;
-`;
+`
 
 const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [post, setPost] = useState<Post | null>(null)
@@ -64,8 +64,8 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
-
-  const handleCloseModal = () => {  // 닫기 버튼
+  const handleCloseModal = () => {
+    // 닫기 버튼
     setIsEditModalOpen(false)
   }
 
@@ -523,135 +523,135 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   }
 
   return (
-      <div className="detail_container">
-        <div id="detail_picture">
-          <div id="detail_picture_item1">
-            {Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0 ? (
-              <Carousel showThumbs={false} infiniteLoop useKeyboardArrows>
-                {post.mediaUrls.map((url: string, index: number) => (
-                  <div id="preview_container" key={index}>
-                    {url.endsWith('.mp4') ? (
-                      <video controls controlsList="nodownload">
-                        <source src={url} type="video/mp4" />
-                      </video>
-                    ) : url.endsWith('.mp3') ? (
-                      <audio controls controlsList="nodownload">
-                        <source src={url} type="audio/mp3" />
-                      </audio>
-                    ) : (
-                      <img alt="이미지" src={url} />
-                    )}
-                  </div>
-                ))}
-              </Carousel>
-            ) : (
-              <div>이미지가 없습니다</div>
-            )}
-          </div>
-        </div>
-
-        <div id="detail_content_story">
-          <div id="detail_right_profile">
-            <div id="detail_content_profile">
-              <div
-                id="test_profile_img"
-                onClick={() => handleProfileClick(post.nickname)}
-              >
-                <img alt="프로필 이미지" src={post.profileImageUrl}></img>
-              </div>
-
-              <div id="detail_profile_id">
-                <p>{post.nickname}</p>
-
-                <div id="detail_profile_address">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/128/8211/8211159.png"
-                    alt="마커이미지"
-                  />
-                  <span>{address}</span>
+    <div className="detail_container">
+      <div id="detail_picture">
+        <div id="detail_picture_item1">
+          {Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0 ? (
+            <Carousel showThumbs={false} infiniteLoop useKeyboardArrows>
+              {post.mediaUrls.map((url: string, index: number) => (
+                <div id="preview_container" key={index}>
+                  {url.endsWith('.mp4') ? (
+                    <video controls controlsList="nodownload">
+                      <source src={url} type="video/mp4" />
+                    </video>
+                  ) : url.endsWith('.mp3') ? (
+                    <audio controls controlsList="nodownload">
+                      <source src={url} type="audio/mp3" />
+                    </audio>
+                  ) : (
+                    <img alt="이미지" src={url} />
+                  )}
                 </div>
+              ))}
+            </Carousel>
+          ) : (
+            <div>이미지가 없습니다</div>
+          )}
+        </div>
+      </div>
+
+      <div id="detail_content_story">
+        <div id="detail_right_profile">
+          <div id="detail_content_profile">
+            <div
+              id="test_profile_img"
+              onClick={() => handleProfileClick(post.nickname)}
+            >
+              <img alt="프로필 이미지" src={post.profileImageUrl}></img>
+            </div>
+
+            <div id="detail_profile_id">
+              <p>{post.nickname}</p>
+
+              <div id="detail_profile_address">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/128/8211/8211159.png"
+                  alt="마커이미지"
+                />
+                <span>{address}</span>
               </div>
             </div>
           </div>
+        </div>
 
-          <div id="detail_user_content">
-            <div id="detail_user_write_content">{post.content}</div>
-            <div id="hashtag">
-              {post.hashtags.map((tag, index) => (
-                <span key={index}>{tag} </span>
+        <div id="detail_user_content">
+          <div id="detail_user_write_content">{post.content}</div>
+          <div id="hashtag">
+            {post.hashtags.map((tag, index) => (
+              <span key={index}>{tag} </span>
+            ))}
+          </div>
+        </div>
+
+        <div id="detail_content_coment">
+          {comments.length > 0 ? (
+            renderComments(comments)
+          ) : (
+            <div id="no_comments">댓글이 존재하지 않습니다</div>
+          )}
+        </div>
+
+        <div id="detail_content_heart">
+          <div id="detail_heart_count">{post.likeCount}</div>
+          <div id="detail_like_button" onClick={handleLikeToggle}>
+            <img
+              src={
+                post.likedByUser
+                  ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
+                  : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
+              }
+              alt="좋아요"
+            />
+          </div>
+          <div id="detail_heart_write_date">
+            {formatRelativeTime(post.createdAt)}
+          </div>
+        </div>
+
+        <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
+          <TextArea
+            id="detail_coment_content_content"
+            value={newComment}
+            onChange={handleNewCommentMention}
+            onKeyDown={handleCommentKeyDown}
+          ></TextArea>
+          {newMentionList.length > 0 && (
+            <div className="mention-list-parent">
+              {newMentionList.map((user) => (
+                <div
+                  key={user.id}
+                  className="mention-item"
+                  onClick={() => addNewCommentMention(user.nickname)}
+                >
+                  <div className="mention_profile">
+                    <img src={`${user.profileImageUrl}`}></img>
+                    <div className="mention_name">{user.nickname}</div>
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-
-          <div id="detail_content_coment">
-            {comments.length > 0 ? (
-              renderComments(comments)
-            ) : (
-              <div id="no_comments">댓글이 존재하지 않습니다</div>
-            )}
-          </div>
-
-          <div id="detail_content_heart">
-            <div id="detail_heart_count">{post.likeCount}</div>
-            <div id="detail_like_button" onClick={handleLikeToggle}>
-              <img
-                src={
-                  post.likedByUser
-                    ? 'https://cdn-icons-png.flaticon.com/128/4397/4397571.png'
-                    : 'https://cdn-icons-png.flaticon.com/128/7476/7476962.png'
-                }
-                alt="좋아요"
-              />
-            </div>
-            <div id="detail_heart_write_date">
-              {formatRelativeTime(post.createdAt)}
-            </div>
-          </div>
-
-          <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
-            <TextArea
-              id="detail_coment_content_content"
-              value={newComment}
-              onChange={handleNewCommentMention}
-              onKeyDown={handleCommentKeyDown}
-            ></TextArea>
-            {newMentionList.length > 0 && (
-              <div className="mention-list-parent">
-                {newMentionList.map((user) => (
-                  <div
-                    key={user.id}
-                    className="mention-item"
-                    onClick={() => addNewCommentMention(user.nickname)}
-                  >
-                    <div className="mention_profile">
-                      <img src={`${user.profileImageUrl}`}></img>
-                      <div className="mention_name">{user.nickname}</div>
-                    </div>
-                  </div>
-                ))}
+          )}
+          <div id="detail_coment_write_button">
+            {currentUser === post.nickname && (
+              <div id="detail_content_edit">
+                <DropDown
+                  id={'detail_Dropdown'}
+                  buttonText={con_Text}
+                  items={con_drop}
+                  onItemSelect={(item) => {
+                    if (item === '게시글 삭제') {
+                      handlePostDelete()
+                    } else if (item === '게시글 수정') {
+                      setIsEditModalOpen(true)
+                    }
+                  }}
+                />
               </div>
             )}
-            <div id="detail_coment_write_button">
-              {currentUser === post.nickname && (
-                <div id="detail_content_edit">
-                  <DropDown
-                    id={'detail_Dropdown'}
-                    buttonText={con_Text}
-                    items={con_drop}
-                    onItemSelect={(item) => {
-                      if (item === '게시글 삭제') {
-                        handlePostDelete()
-                      } else if (item === '게시글 수정') {
-                        setIsEditModalOpen(true)
-                      }
-                    }}
-                  />
-                </div>
-              )}
-              <button type="submit">게시</button>
-            </div>
-          </form>
-        </div>
+            <button type="submit">게시</button>
+          </div>
+        </form>
+      </div>
       {isEditModalOpen && (
         <CloseButton onClick={handleCloseModal}>×</CloseButton>
       )}
@@ -671,6 +671,5 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     </div>
   )
 }
-
 
 export default DetailContent

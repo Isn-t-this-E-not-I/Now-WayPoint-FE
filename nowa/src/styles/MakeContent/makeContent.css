@@ -2,6 +2,25 @@
   min-width: 500px;
 }
 
+#Make_text_box {
+  display: flex;
+  position: relative;
+}
+
+#make_imoji {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 25px;
+  height: 25px;
+}
+
+#imoji_box_box {
+  position: absolute;
+  top: -325px;
+  right: -375px;
+}
+
 /* 업로드 컨텐츠 헤더영역 */
 #upload_content_header {
   display: flex;

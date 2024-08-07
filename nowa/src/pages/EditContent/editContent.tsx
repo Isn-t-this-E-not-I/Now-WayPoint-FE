@@ -5,6 +5,8 @@ import Button from '@/components/Button/button'
 import Select from '@/components/Select/select'
 import { getPostById, updateContent, Post } from '@/services/editContent'
 import { useParams } from 'react-router-dom'
+import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data'
 
 interface EditContentProps {
   onClose: () => void
@@ -26,6 +28,7 @@ const EditContent: React.FC<EditContentProps> = ({
   const [selectedOption, setSelectedOption] = useState<string>('PHOTO')
   const [newFiles, setNewFiles] = useState<File[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [showPicker, setShowPicker] = useState(false)
 
   const photoOptions = [
     { id: 'PHOTO', label: '사진' },
@@ -271,6 +274,10 @@ const EditContent: React.FC<EditContentProps> = ({
     setSelectedImage(src)
   }
 
+  const addEmoji = (emoji: { native: string }) => {
+    setContent(content + emoji.native)
+  }
+
   if (!content && !tags.length && !selectedOption && !previewSrcs.length) {
     return <div>Loading...</div>
   }
@@ -402,12 +409,27 @@ const EditContent: React.FC<EditContentProps> = ({
                 </span>
               ))}
             </div>
-            <Textarea
-              id={'upload_content_dis'}
-              placeholder={'내용을 입력해주세요'}
-              value={content}
-              onChange={handleContentChange}
-            />
+            <div id="Make_text_box">
+              <Textarea
+                id={'upload_content_dis'}
+                placeholder={'내용을 입력해주세요'}
+                value={content}
+                onChange={handleContentChange}
+              />
+              <button
+                id="make_imoji"
+                onClick={() => setShowPicker(!showPicker)}
+              >
+                {showPicker ? '' : ''}{' '}
+                <img
+                  src="https://cdn-icons-png.flaticon.com/128/569/569501.png"
+                  alt="이모티콘"
+                ></img>
+              </button>
+              <div id="imoji_box_box">
+                {showPicker && <Picker data={data} onEmojiSelect={addEmoji} />}
+              </div>
+            </div>
           </div>
         </div>
       </div>
