@@ -8,6 +8,7 @@ import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
 import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
+import ChatBubble from '../../components/ChatBubble/chatBubble'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -16,6 +17,7 @@ const ChatContainer = styled.div`
   width: 100%;
   background-color: ${(props) => props.theme.backgroundColor || '#f0f0f0'};
   position: relative;
+  overflow: hidden;
 `
 
 const Header = styled.div`
@@ -63,42 +65,25 @@ const MessageList = styled.ul`
   list-style: none;
   padding: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   flex-grow: 1;
   margin: 0;
-  padding: 10px;
+  padding: 10px 15px 10px 15px;
+  width: 100%;
 `
 
 const MessageItem = styled.li<{ $isSender: boolean }>`
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  align-items: ${(props) => (props.$isSender ? 'flex-end' : 'flex-start')};
-  background-color: ${(props) => (props.$isSender ? '#007bff' : '#f1f1f1')};
-  color: ${(props) => (props.$isSender ? 'white' : '#333')};
-  text-align: ${(props) => (props.$isSender ? 'right' : 'left')};
+  margin-right: ${(props) =>
+    props.$isSender ? '15px' : '0'}; /* 발신 메시지 오른쪽 마진 */
+  align-self: ${(props) => (props.$isSender ? 'flex-end' : 'flex-start')};
   position: relative;
+  margin: 15px 0;
 `
 
-const Sender = styled.strong`
-  font-size: 1rem;
+const AdminMessage = styled.div`
+  text-align: center;
   color: #333;
-`
-
-const Content = styled.p`
-  margin: 5px 0;
-  font-size: 1rem;
-`
-
-const Timestamp = styled.span<{ $isSender: boolean }>`
-  font-size: 0.8rem;
-  color: #999;
-  align-self: ${(props) => (props.$isSender ? 'flex-start' : 'flex-end')};
-  position: absolute;
-  bottom: 5px;
-  right: ${(props) => (props.$isSender ? '10px' : 'auto')};
-  left: ${(props) => (props.$isSender ? 'auto' : '10px')};
+  margin: 15px 0;
 `
 
 const InputContainer = styled.div`
@@ -134,10 +119,12 @@ const MissingChatWrapper = styled.div`
   align-items: center;
   justify-content: center;
   height: 100%;
+  z-index: 1000;
 `
 
 const MissingChatSpan = styled.span`
   font-size: 1.5rem;
+  z-index: 1000;
 `
 
 const NewMessageButton = styled.button<{ show: boolean }>`
@@ -148,7 +135,7 @@ const NewMessageButton = styled.button<{ show: boolean }>`
   padding: 10px 20px;
   background-color: rgba(248, 250, 255, 0.7);
   color: #151515;
-  border: none;
+  border: 1px solid;
   border-radius: 4px;
   cursor: pointer;
   display: ${(props) => (props.show ? 'block' : 'none')};
@@ -378,7 +365,17 @@ const ChattingPage: React.FC = () => {
     )
   }
 
-  // 채팅방 이름 결정
+  // 프로필 이미지를 결정하는 부분 수정
+  let displayProfileImages: string[] = []
+  if (chatRoom.userResponses.length === 1) {
+    displayProfileImages = ['default_profile_image_url'] // 1명일 경우 디폴트 이미지 설정
+  } else {
+    displayProfileImages = chatRoom.userResponses
+      .filter((user) => user.userNickname !== nickname)
+      .map((user) => user.profileImageUrl || 'default_profile_image_url') // 프로필 이미지가 없는 경우 디폴트 이미지 설정
+  }
+
+  // 채팅방 이름 결정 및 프로필 이미지 설정
   let displayName: string
   if (chatRoom.userResponses.length === 1) {
     displayName = '알수없음'
@@ -413,16 +410,53 @@ const ChattingPage: React.FC = () => {
           </ActionButton>
         </ButtonContainer>
       </Header>
+      {/* MessageList 컴포넌트에서 ChatBubble 사용 시 avatarSrc 전달 */}
       <MessageList ref={messageListRef}>
-        {messages.map((msg, index) => (
-          <MessageItem key={index} $isSender={msg.sender === nickname}>
-            {msg.sender !== 'admin' && <Sender>{msg.sender}</Sender>}
-            <Content>{msg.content}</Content>
-            <Timestamp $isSender={msg.sender === nickname}>
-              {new Date(msg.timestamp).toLocaleTimeString()}
-            </Timestamp>
-          </MessageItem>
-        ))}
+        {messages.map((msg, index) => {
+          if (msg.sender === 'admin') {
+            return (
+              <MessageItem key={index} $isSender={false}>
+                <AdminMessage>{msg.content}</AdminMessage>
+              </MessageItem>
+            )
+          }
+
+          if (msg.sender === nickname) {
+            return (
+              <MessageItem key={index} $isSender={true}>
+                <ChatBubble
+                  alignment="end"
+                  avatarSrc=""
+                  header=""
+                  time={new Date(msg.timestamp).toLocaleTimeString()}
+                  message={msg.content}
+                  footer={new Date(
+                    msg.timestamp
+                  ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+                />
+              </MessageItem>
+            )
+          }
+
+          return (
+            <MessageItem key={index} $isSender={false}>
+              <ChatBubble
+                alignment="start"
+                avatarSrc={
+                  chatRoom.userResponses.find(
+                    (user) => user.userNickname === msg.sender
+                  )?.profileImageUrl || 'default_profile_image_url'
+                }
+                header={msg.sender}
+                time=""
+                message={msg.content}
+                footer={new Date(
+                  msg.timestamp
+                ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+              />
+            </MessageItem>
+          )
+        })}
       </MessageList>
       <InputContainer>
         <InputField
@@ -438,7 +472,6 @@ const ChattingPage: React.FC = () => {
         />
         <SendButton onClick={sendMessage}>보내기</SendButton>
       </InputContainer>
-
       {/* 새 메시지 확인 버튼 */}
       <NewMessageButton
         show={showNewMessageButton}
