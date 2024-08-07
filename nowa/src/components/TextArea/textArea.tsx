@@ -1,11 +1,12 @@
-import React, { ChangeEvent, KeyboardEvent } from 'react'
+import React, { ChangeEvent, KeyboardEvent, FocusEvent } from 'react'
 
 interface TextareaProps {
   id: string
   placeholder?: string
   value?: string
   onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
-  onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void // onKeyDown 추가
+  onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void
+  onBlur?: (e: FocusEvent<HTMLTextAreaElement>) => void;
   className?: string
 }
 
@@ -14,7 +15,8 @@ const TextArea: React.FC<TextareaProps> = ({
   placeholder,
   value,
   onChange,
-  onKeyDown, // onKeyDown 추가
+  onKeyDown,
+  onBlur,
   className = '',
 }) => {
   return (
@@ -24,7 +26,8 @@ const TextArea: React.FC<TextareaProps> = ({
       placeholder={placeholder}
       value={value}
       onChange={onChange}
-      onKeyDown={onKeyDown} // onKeyDown 추가
+      onKeyDown={onKeyDown}
+      onBlur={onBlur}
     />
   )
 }
