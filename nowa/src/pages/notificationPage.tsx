@@ -64,14 +64,6 @@ const TimeAgo = styled.span`
   font-size: 11px;
 `
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 15px;
-  cursor: pointer;
-  color: #000947;
-`
-
 const ContentText = styled.div`
   font-size: 14px;
 `
@@ -109,6 +101,7 @@ const NotificationPage: React.FC = () => {
       setModalOpen(true)
       handleDelete(notification.id);
     } else {
+      handleDelete(notification.id);
       navigate(`/user/${notification.nickname}?tab=posts`)
     }
   }
@@ -203,7 +196,8 @@ const NotificationPage: React.FC = () => {
           }}
         />
         <NotificationContent>
-          <ContentDisplay content={notification.message} comment={notification.comment} />
+          <ContentDisplay content={notification.message}/>
+          {notification.comment && <CommentDisplay comment={notification.comment} />}
         </NotificationContent>
         {notification.mediaUrl && <ContentPic src={notification.mediaUrl} />}
         <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
@@ -221,13 +215,20 @@ const NotificationPage: React.FC = () => {
   )
 }
 
-const ContentDisplay: React.FC<{ content: string, comment?: string }> = ({ content, comment }) => {
-  const limit = 33; // 표시할 최대 글자 수
-
-  const sumContent = comment ? `${content} : ${comment}` : content;
+const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
+  const limit = 30; // 표시할 최대 글자 수
 
   // 콘텐츠 길이가 limit을 초과하면 잘라내고 '...' 추가
-  const truncatedContent = sumContent.length > limit ? `${content.substring(0, limit)}...` : content;
+  const truncatedContent = content.length > limit ? `${content.substring(0, limit)}...` : content;
+
+  return <ContentText>{truncatedContent}</ContentText>;
+};
+
+const CommentDisplay: React.FC<{ comment : string }> = ({ comment }) => {
+  const limit = 10; // 표시할 최대 글자 수
+
+  // 콘텐츠 길이가 limit을 초과하면 잘라내고 '...' 추가
+  const truncatedContent = comment.length > limit ? `"${comment.substring(0, limit)}..."` : `"${comment}"`;
 
   return <ContentText>{truncatedContent}</ContentText>;
 };
