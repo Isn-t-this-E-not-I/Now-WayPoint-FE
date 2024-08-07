@@ -1,9 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react'
-<<<<<<< HEAD
 import { getKakaoApiData } from '../../services/kakaomap'
-=======
-import { getKakaoApiData } from '@/services/kakaomap'
->>>>>>> main
 import { useLocation } from 'react-router-dom'
 import moment from 'moment-timezone'
 import { Client, IMessage } from '@stomp/stompjs'
