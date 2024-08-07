@@ -18,7 +18,7 @@ const TextInput: React.FC<TextInputProps> = ({ type, placeholder, name, onChange
         name={name}
         onChange={onChange}
         value={value}
-        className={`input input-bordered w-full max-w-xs ${className}`}
+        className={`input input-bordered w-full ${className}`}
       />
     </div>
   )

@@ -66,6 +66,14 @@ const RightSidebar = styled.div`
   background-color: #f8faff;
 `
 
+const TopRightSidebar = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+  padding-right: 10px;
+`
+
 const Line = styled.div`
   width: 1.4px;
   height: 97.5%;
@@ -150,16 +158,8 @@ const CreateChatRoomButtonWrapeer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 14px;
-  margin-left: -155px;
-`
-
-const CreateChatRoomButtonSpan = styled.span`
-  margin-top: -6px;
-  margin-left: 5px;
-  font-size: 16px;
-  font-weight: bold;
-  color: #151515;
+  margin-left: 10px;
+  margin-top: 0.5px;
 `
 
 const ContentDiv = styled.div`
@@ -234,7 +234,7 @@ const Badge = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
+`
 
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
@@ -247,11 +247,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount } = useWebSocket();
+  const { notifyCount } = useWebSocket()
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
-    console.log('notifyCount :', notifyCount);
+    console.log('notifyCount :', notifyCount)
     const getAllUsers = async () => {
       const users = await fetchAllUsers()
       setAllUsers(users)
@@ -271,19 +271,19 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const renderContentPage = () => {
     switch (activePage) {
       case 'main':
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
       case 'notifications':
-        return <NotificationPage />;
+        return <NotificationPage />
       case 'chat':
-        return <ChatListPage />;
+        return <ChatListPage />
       case 'contents':
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
       case 'followContents':
-        return <FollowContentsPage />;
+        return <FollowContentsPage />
       default:
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
     }
-  };
+  }
 
   // 검색창 보여주기 여부
   const shouldShowSearch = () => {
@@ -404,12 +404,27 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <ExitIcon theme={theme} />
           {isLogoutDropdownOpen && (
-            <Modal isOpen={isLogoutDropdownOpen} showCloseButton={false} onClose={() => setLogoutDropdownOpen(false)}>
+            <Modal
+              isOpen={isLogoutDropdownOpen}
+              showCloseButton={false}
+              onClose={() => setLogoutDropdownOpen(false)}
+            >
               <div style={{ textAlign: 'center' }}>
                 <h3>로그아웃 하시겠습니까?</h3>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginTop: '20px' }}>
-                  <Button onClick={() => handleLogout(setLogoutDropdownOpen)}>네</Button>
-                  <Button onClick={() => setLogoutDropdownOpen(false)}>아니오</Button>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '20px',
+                    marginTop: '20px',
+                  }}
+                >
+                  <Button onClick={() => handleLogout(setLogoutDropdownOpen)}>
+                    네
+                  </Button>
+                  <Button onClick={() => setLogoutDropdownOpen(false)}>
+                    아니오
+                  </Button>
                 </div>
               </div>
             </Modal>
@@ -422,13 +437,14 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <Line />
 
       <RightSidebar>
-        <NowaIcon theme={theme} />
-        {activePage === 'chat' && (
-          <CreateChatRoomButtonWrapeer>
-            <CreateChatRoomButton />
-            <CreateChatRoomButtonSpan>새 채팅방 생성</CreateChatRoomButtonSpan>
-          </CreateChatRoomButtonWrapeer>
-        )}
+        <TopRightSidebar>
+          <NowaIcon theme={theme} />
+          {activePage === 'chat' && (
+            <CreateChatRoomButtonWrapeer>
+              <CreateChatRoomButton />
+            </CreateChatRoomButtonWrapeer>
+          )}
+        </TopRightSidebar>
         <ContentDiv>
           {shouldShowSearch() && (
             <SearchContainer>
@@ -450,7 +466,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         </ContentDiv>
       </RightSidebar>
       {isUploadModalOpen && (
-        <Modal isOpen={isUploadModalOpen} showCloseButton={false} onClose={() => setUploadModalOpen(false)}>
+        <Modal
+          isOpen={isUploadModalOpen}
+          showCloseButton={false}
+          onClose={() => setUploadModalOpen(false)}
+        >
           <div>
             <MakeContent onClose={() => setUploadModalOpen(false)} />
           </div>

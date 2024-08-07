@@ -8,9 +8,14 @@ import styled from 'styled-components'
 import DetailContentModal from '@/components/Modal/ContentModal'
 
 const NotificationWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 19.8rem;
+  height: 90vh;
   max-height: 90vh;
-  padding: 10px;
-  width: 100%;
+  padding-left: 18px;
+  padding-top: 3px;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -20,21 +25,27 @@ const NotificationItem = styled.div`
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-left: 10px;
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 12px;
   height: 5.5rem;
-  width: 17rem;
+  width: 18.2rem;
   font-size: 15px;
   border: 2.3px solid transparent;
   background:
     linear-gradient(to right, #f8faff, #f8faff) padding-box,
     linear-gradient(to top left, #ae74bc, #01317b) border-box;
+  position: relative;
   cursor: pointer;
-  position: relative; 
+
+  transition:
+    background-color 0.3s,
+    transform 0.3s;
+
+  position: relative;
   &:hover {
-    border: 1px solid black;
+    background-color: #e0e0e0;
+    transform: scale(1.02);
   }
 `
 
@@ -42,7 +53,10 @@ const ProfilePic = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  margin-top: 10px;
   margin-right: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
   cursor: pointer;
 `
 
@@ -56,33 +70,55 @@ const NotificationContent = styled.div`
   width: 18rem;
 `
 
-const TimeAgo = styled.span`
-  position: absolute;
-  bottom: 5px; 
-  right: 10px; 
-  color: #4888e7;
-  font-size: 11px;
-`
-
-const ContentText = styled.div`
-  font-size: 14px;
-`
-
-const ContentPic = styled.img`
+const ContentContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 5px;
+  width: 13.8rem;
+  height: 60px;
+`
+
+const TimeAgo = styled.span`
+  position: absolute;
+  color: #4888e7;
+  font-size: 11px;
+  position: absolute;
+  bottom: 2px;
+  right: 9px;
+`
+
+const ContentText = styled.div`
+  align-items: center;
+  font-size: 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.5;
+  max-height: 3rem;
+  margin-top: -6px;
+  flex-grow: 1;
+`
+
+const ContentPic = styled.img`
   width: 45px;
   height: 45px;
   border-radius: 10px;
   border: solid 1px #e8e4e4;
-  margin-right: 5px;
   margin-left: 5px;
+  align-self: flex-start;
   cursor: pointer;
 `
 
 const NotificationPage: React.FC = () => {
-  const { notifications, isLoading, resetNotifyCount, deleteSocketNotification } = useWebSocket()
+  const {
+    notifications,
+    isLoading,
+    resetNotifyCount,
+    deleteSocketNotification,
+  } = useWebSocket()
   const [displayNotifications, setDisplayNotifications] = useState<
     Notification[]
   >([])
@@ -99,7 +135,7 @@ const NotificationPage: React.FC = () => {
     if (notification.postId) {
       setSelectedPostId(notification.postId)
       setModalOpen(true)
-      handleDelete(notification.id);
+      handleDelete(notification.id)
     } else {
       handleDelete(notification.id);
       navigate(`/user/${notification.nickname}?tab=posts`)
@@ -112,8 +148,8 @@ const NotificationPage: React.FC = () => {
   }
 
   useEffect(() => {
-    resetNotifyCount();
-  }, [resetNotifyCount]);
+    resetNotifyCount()
+  }, [resetNotifyCount])
 
   useEffect(() => {
     if (!isLoading) {
@@ -130,7 +166,7 @@ const NotificationPage: React.FC = () => {
     )
 
     //notifications에 데이터 제거
-    deleteSocketNotification(id);
+    deleteSocketNotification(id)
 
     // 알림 삭제를 위한 API 호출
     const deleteNotification = async () => {
@@ -180,7 +216,7 @@ const NotificationPage: React.FC = () => {
     }
   }
 
-  return (
+ return (
       <NotificationWrapper>
     {displayNotifications.map((notification) => (
       <NotificationItem
@@ -218,7 +254,6 @@ const NotificationPage: React.FC = () => {
 const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
   const limit = 30; // 표시할 최대 글자 수
 
-  // 콘텐츠 길이가 limit을 초과하면 잘라내고 '...' 추가
   const truncatedContent = content.length > limit ? `${content.substring(0, limit)}...` : content;
 
   return <ContentText>{truncatedContent}</ContentText>;
@@ -227,7 +262,6 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
 const CommentDisplay: React.FC<{ comment : string }> = ({ comment }) => {
   const limit = 10; // 표시할 최대 글자 수
 
-  // 콘텐츠 길이가 limit을 초과하면 잘라내고 '...' 추가
   const truncatedContent = comment.length > limit ? `"${comment.substring(0, limit)}..."` : `"${comment}"`;
 
   return <ContentText>{truncatedContent}</ContentText>;

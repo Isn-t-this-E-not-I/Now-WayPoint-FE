@@ -3,6 +3,8 @@ import { useCookies } from 'react-cookie'
 import { login } from '../api/userApi'
 import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+
 
 const LoginPage: React.FC = () => {
   const [loginId, setLoginId] = useState<string>('')
@@ -10,9 +12,11 @@ const LoginPage: React.FC = () => {
   const [nickname, setNickname] = useState('')
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
-  const navigate = useNavigate()
   const location = import.meta.env.VITE_APP_API
   const [cookies, setCookie, removeCookie] = useCookies(['rememberedLoginId'])
+  const [hidePassword, setHidePassword] = useState(true);
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     if (cookies.rememberedLoginId) {
@@ -20,6 +24,19 @@ const LoginPage: React.FC = () => {
       setRememberMe(true)
     }
   }, [cookies])
+
+  useEffect(() => {
+    const handleEnterPress = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        handleLogin();
+      }
+    };
+
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+    };
+  }, [loginId, password]);
 
   const handleLogin = async () => {
     try {
@@ -53,6 +70,10 @@ const LoginPage: React.FC = () => {
     }
   }
 
+  const onToggleHide = () => {
+    setHidePassword(!hidePassword);
+  };
+
   const goToRegister = () => navigate('/register')
   const goToFindId = () => navigate('/find-id')
   const goToFindPassword = () => navigate('/find-password')
@@ -68,14 +89,19 @@ const LoginPage: React.FC = () => {
           value={loginId}
           className="mb-4"
         />
+        <div className="relative w-full mb-2">
         <TextInput
-          type="password"
+          type={hidePassword ? 'password' : 'text'}
           placeholder="비밀번호"
           onChange={(e) => setPassword(e.target.value)}
           value={password}
           className="mb-4"
         />
-        <div className="flex items-center space-x-2 mb-4">
+        <div className="absolute inset-y-0 right-0 mb-4 mr-2 pr-3 flex items-center cursor-pointer" onClick={onToggleHide}>
+            {hidePassword ? <AiFillEye /> : <AiFillEyeInvisible />}
+          </div>
+        </div>
+        <div className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={rememberMe}
@@ -85,10 +111,10 @@ const LoginPage: React.FC = () => {
           <label className="block text-gray-700">아이디 저장</label>
         </div>
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-        <button className="btn btn-primary mt-4 mb-2" onClick={handleLogin}>
+        <button className="btn btn-primary mt-4" onClick={handleLogin}>
           로그인
         </button>
-        <button className="btn btn-warning mt-4" onClick={handleKakaoLogin}>
+        <button className="btn btn-warning mt-2" onClick={handleKakaoLogin}>
           카카오 간편 로그인
         </button>
         <button className="btn btn-outline mt-4" onClick={goToRegister}>
