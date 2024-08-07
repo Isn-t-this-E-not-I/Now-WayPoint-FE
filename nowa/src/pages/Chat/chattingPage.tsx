@@ -129,6 +129,17 @@ const SendButton = styled.button`
   }
 `
 
+const MissingChatWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+`
+
+const MissingChatSpan = styled.span`
+  font-size: 1.5rem;
+`
+
 const ChattingPage: React.FC = () => {
   const { chatRoomId } = useParams<{ chatRoomId: string }>()
   const { chatRooms, messages, setChatRooms, setChatRoomsInfo, setMessages } =
@@ -210,18 +221,23 @@ const ChattingPage: React.FC = () => {
 
   // 채팅방 나가기 함수
   const leaveChatRoom = () => {
-    const payload = {
-      chatRoomId: roomId,
-    }
-    const stompClient = getStompClient()
-    if (stompClient) {
-      stompClient.publish({
-        destination: '/app/chatRoom/leave',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
-      })
-    } else {
-      console.error('StompClient is not connected.')
+    console.log()
+    if (
+      confirm('채팅방에서 나가시겠습니까? 확인 시, 해당 채팅방이 삭제됩니다.')
+    ) {
+      const payload = {
+        chatRoomId: roomId,
+      }
+      const stompClient = getStompClient()
+      if (stompClient) {
+        stompClient.publish({
+          destination: '/app/chatRoom/leave',
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+        })
+      } else {
+        console.error('StompClient is not connected.')
+      }
     }
   }
 
@@ -240,7 +256,11 @@ const ChattingPage: React.FC = () => {
   }, [roomId, token, setMessages])
 
   if (!chatRoom) {
-    return <div>채팅방을 찾을 수 없습니다.</div>
+    return (
+      <MissingChatWrapper>
+        <MissingChatSpan>채팅방을 찾을 수 없습니다.</MissingChatSpan>
+      </MissingChatWrapper>
+    )
   }
 
   // 채팅방 이름 결정
