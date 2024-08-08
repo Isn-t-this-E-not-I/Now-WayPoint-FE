@@ -101,9 +101,9 @@ const FriendAdditionPage: React.FC = () => {
     <div className="relative min-h-screen bg-cover bg-center bg-blue-300">
       {showFriendPrompt ? (
         <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${transitioning ? 'translate-x-full' : 'translate-x-0'}`}>
-          <h2 className="text-2xl font-bold text-white mb-6">환영합니다, 이제 친구를 찾아볼까요?</h2>
+          <h2 className="text-2xl font-bold text-white">환영합니다, 이제 친구를 찾아볼까요?</h2>
           <Button
-            className="btn-primary text-lg mt-16 w-64 h-14 bg-pink-500 text-white hover:bg-pink-600 border-none"
+            className="btn-primary text-lg mt-14 w-64 h-14 bg-pink-500 text-white hover:bg-pink-600 border-none"
             onClick={handleFindFriends}
           >
             친구 선택하기

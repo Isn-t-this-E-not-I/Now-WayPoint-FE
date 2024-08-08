@@ -372,6 +372,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <LogoIcon theme={theme} />
         </LogoIconButtonWrapper>
         <IconButtonWrapper
+          id="main-icon"
           active={activePage === 'main'}
           onClick={() => {
             handleNavigate('main')
@@ -382,6 +383,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <IconSpan active={activePage === 'main'}>메인</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          id="new-post-icon"
           active={isUploadModalOpen}
           onClick={() => {
             setUploadModalOpen(true) // 모달 열기
@@ -391,6 +393,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <IconSpan active={isUploadModalOpen}>새 게시물</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          id="notifications-icon"
           active={activePage === 'notifications'}
           onClick={() => {
             setActivePage('notifications')
@@ -401,6 +404,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           {notifyCount > 1 && <Badge>{Math.floor(notifyCount / 2)}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
+          id="chat-icon"
           active={activePage === 'chat'}
           onClick={() => {
             if (getStompClient() == null) {
@@ -422,6 +426,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          id="contents-icon"
           active={activePage === 'contents'}
           onClick={() => {
             setActivePage('contents')
@@ -431,6 +436,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          id="follow-contents-icon"
           active={activePage === 'followContents'}
           onClick={() => {
             setActivePage('followContents')
@@ -442,6 +448,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           </IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
+          id="mypage-icon"
           active={activePage === 'myPage'}
           onClick={() => {
             setActivePage('myPage')
