@@ -318,7 +318,7 @@ const ChattingPage: React.FC = () => {
       saveScrollPosition()
       setMessages([])
     }
-  }, [roomId, token, setMessages])
+  }, [roomId])
 
   useEffect(() => {
     restoreScrollPosition()
