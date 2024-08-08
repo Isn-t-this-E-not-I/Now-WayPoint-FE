@@ -23,6 +23,7 @@ const ProfileImage = styled.img`
   width: 100%;
   height: 100%;
   border-radius: 50%;
+  border: 1px solid #c3c0c0;
 `;
 
 const EditIconWrapper = styled.div`
@@ -54,6 +55,7 @@ const ProfileEditPage: React.FC = () => {
     const navigate = useNavigate()
     const [description, setDescription] = useState('');
     const maxDescriptionLength = 150;
+    let nickname = localStorage.getItem('nickname')
   
     useEffect(() => {
       const fetchUserData = async () => {
@@ -119,6 +121,7 @@ const ProfileEditPage: React.FC = () => {
           }
         )
         alert('프로필이 성공적으로 업데이트되었습니다.')
+        navigate(`/mypage`)
       } catch (error) {
         console.error('프로필 업데이트에 실패했습니다:', error)
       }
@@ -139,6 +142,7 @@ const ProfileEditPage: React.FC = () => {
             },
           }
         )
+        nickname = userInfo.nickname;
         alert('닉네임이 성공적으로 업데이트되었습니다.')
       } catch (error) {
         console.error('닉네임 업데이트에 실패했습니다:', error)
@@ -279,19 +283,14 @@ const ProfileEditPage: React.FC = () => {
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 mb-2">소개</label>
-            <TextArea
-              id="description"
-              placeholder={userInfo?.description || ''}
-              value={description}
-              onChange={handleDescriptionChange}
-              onBlur={handleDescriptionBlur}
-              className="w-full"
-            />
-            {description !== null && (
-            <div className="text-right text-gray-500">
-              {description.length} / {maxDescriptionLength}
-              </div>
-            )}
+              <TextArea
+                id="description"
+                placeholder={userInfo?.description || ''}
+                value={description}
+                onChange={handleDescriptionChange}
+                onBlur={handleDescriptionBlur}
+                className="w-full"
+              />
           </div>
           <div className="flex justify-between">
             <Button

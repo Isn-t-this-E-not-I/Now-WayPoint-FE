@@ -1,6 +1,7 @@
 import React from 'react'
 import Modal from '../Modal/modal'
 import DetailContent from '@/pages/DetailContent/DetailContent'
+import { styled } from 'styled-components'
 
 interface DetailContentModalProps {
   isOpen: boolean

@@ -32,16 +32,12 @@ const ModalBox = styled.div`
 const CloseBtn = styled.button`
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 30px;
   background: none;
   border: none;
-  font-size: 1.5rem;
+  font-size: 2rem;
   cursor: pointer;
-  color: #000;
-
-  &:hover {
-    color: #555;
-  }
+  color: lightgray;
 `
 
 const Modal: React.FC<ModalProps> = ({
@@ -73,9 +69,9 @@ const Modal: React.FC<ModalProps> = ({
   return (
     <Overlay onClick={handleOverlayClick}>
       <ModalBox>
-        {showCloseButton && <CloseBtn onClick={onClose}>×</CloseBtn>}
         {children}
       </ModalBox>
+      {showCloseButton && <CloseBtn onClick={onClose}>x</CloseBtn>}
     </Overlay>
   )
 }
