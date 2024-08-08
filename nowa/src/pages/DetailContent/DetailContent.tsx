@@ -24,6 +24,8 @@ import Modal from '@/components/Modal/modal'
 import EditContent from '@/pages/EditContent/editContent'
 import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import { styled } from 'styled-components'
+import Picker from '@emoji-mart/react'
+import data from '@emoji-mart/data'
 
 interface DetailContentProps {
   postId: Number
@@ -63,6 +65,11 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   ) // 댓글 확장 상태
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false) // 댓글 이모지 선택기 상태
+  const [activeReplyEmojiPicker, setActiveReplyEmojiPicker] = useState<
+    number | null
+  >(null) // 대댓글 이모지 선택기 상태
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null)
 
   const handleCloseModal = () => {
     // 닫기 버튼
@@ -398,6 +405,22 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }, [])
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      emojiPickerRef.current &&
+      !emojiPickerRef.current.contains(event.target as Node)
+    ) {
+      setActiveReplyEmojiPicker(null)
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -493,12 +516,40 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                 id="detail_reply_write"
                 onSubmit={(e) => handleReplySubmit(comment.id, e)}
               >
-                <TextArea
-                  id="detail_reply_content"
-                  value={replyContent}
-                  onChange={handleMention}
-                  onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
-                ></TextArea>
+                <div id="test">
+                  <TextArea
+                    id="detail_reply_content"
+                    value={replyContent}
+                    onChange={handleMention}
+                    onKeyDown={(e) => handleReplyKeyDown(e, comment.id)}
+                  ></TextArea>
+                  <div
+                    id="write_comment_comment_emoji"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      setActiveReplyEmojiPicker(
+                        activeReplyEmojiPicker === comment.id
+                          ? null
+                          : comment.id
+                      )
+                    }}
+                  >
+                    <img
+                      alt="이모티콘"
+                      src="https://cdn-icons-png.flaticon.com/128/3129/3129275.png"
+                    ></img>
+                  </div>
+                </div>
+                {activeReplyEmojiPicker === comment.id && (
+                  <div id="reply_comment_picker">
+                    <Picker
+                      data={data}
+                      onEmojiSelect={(emoji: { native: string }) =>
+                        setReplyContent((prev) => prev + emoji.native)
+                      }
+                    />
+                  </div>
+                )}
                 <div id="detail_reply_write_button">
                   <button type="submit">답글 게시</button>
                 </div>
@@ -624,58 +675,78 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
             {formatRelativeTime(post.createdAt)}
           </div>
         </div>
-
-        <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
-          <TextArea
-            id="detail_coment_content_content"
-            value={newComment}
-            onChange={handleNewCommentMention}
-            onKeyDown={handleCommentKeyDown}
-          ></TextArea>
-          {newMentionList.length > 0 && (
-            <div className="mention-list-parent">
-              {newMentionList.map((user) => (
-                <div
-                  key={user.id}
-                  className="mention-item"
-                  onClick={() => addNewCommentMention(user.nickname)}
-                >
-                  <div className="mention_profile">
-                    <img src={`${user.profileImageUrl}`}></img>
-                    <div className="mention_name">{user.nickname}</div>
+        <div>
+          <form id="detail_coment_write" onSubmit={handleCommentSubmit}>
+            <TextArea
+              id="detail_coment_content_content"
+              value={newComment}
+              onChange={handleNewCommentMention}
+              onKeyDown={handleCommentKeyDown}
+            ></TextArea>
+            {newMentionList.length > 0 && (
+              <div className="mention-list-parent">
+                {newMentionList.map((user) => (
+                  <div
+                    key={user.id}
+                    className="mention-item"
+                    onClick={() => addNewCommentMention(user.nickname)}
+                  >
+                    <div className="mention_profile">
+                      <img src={`${user.profileImageUrl}`}></img>
+                      <div className="mention_name">{user.nickname}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <div id="detail_coment_write_button">
-            {currentUser === post.nickname && (
-              <div id="detail_content_edit">
-                <DropDown
-                  id={'detail_Dropdown'}
-                  buttonText={con_Text}
-                  items={con_drop}
-                  onItemSelect={(item) => {
-                    if (item === '게시글 삭제') {
-                      handlePostDelete()
-                    } else if (item === '게시글 수정') {
-                      setIsEditModalOpen(true)
-                    }
-                  }}
-                />
+                ))}
               </div>
             )}
-            <button
-              type="submit"
-              style={{
-                marginRight: currentUser !== post.nickname ? '10px' : '0',
-                marginTop: currentUser !== post.nickname ? '10px' : '0',
-              }}
-            >
-              게시
+            <div id="detail_coment_write_button">
+              {currentUser === post.nickname && (
+                <div id="detail_content_edit">
+                  <DropDown
+                    id={'detail_Dropdown'}
+                    buttonText={con_Text}
+                    items={con_drop}
+                    onItemSelect={(item) => {
+                      if (item === '게시글 삭제') {
+                        handlePostDelete()
+                      } else if (item === '게시글 수정') {
+                        setIsEditModalOpen(true)
+                      }
+                    }}
+                  />
+                </div>
+              )}
+              <button
+                type="submit"
+                style={{
+                  marginRight: currentUser !== post.nickname ? '10px' : '0',
+                  marginTop: currentUser !== post.nickname ? '75px' : '0',
+                  width: 30,
+                }}
+              >
+                게시
+              </button>
+            </div>
+          </form>
+          <div id="write_content_emoji">
+            <button onClick={() => setIsEmojiPickerOpen((prev) => !prev)}>
+              <img
+                alt="이모티콘"
+                src="https://cdn-icons-png.flaticon.com/128/3129/3129275.png"
+              ></img>
             </button>
           </div>
-        </form>
+        </div>
+        {isEmojiPickerOpen && (
+          <div id="detail_write_picker">
+            <Picker
+              data={data}
+              onEmojiSelect={(emoji: { native: string }) =>
+                setNewComment((prev) => prev + emoji.native)
+              }
+            />
+          </div>
+        )}
       </div>
       {isEditModalOpen && (
         <CloseButton onClick={handleCloseModal}>×</CloseButton>
