@@ -130,11 +130,8 @@ const UserPage: React.FC = () => {
   const location = import.meta.env.VITE_APP_API;
   const locations = useLocation();
   const [isFollowing, setIsFollowing] = useState(false);
-  const { connectAndSubscribe, disconnect } = useChatWebSocket()
+  const { connectAndSubscribe } = useChatWebSocket()
   const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
-  const stompClient = getStompClient()
-  const payload = [nickname]
-
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
@@ -207,19 +204,19 @@ const UserPage: React.FC = () => {
         posts: postsWithCommentCounts,
         followersList: followerResponse.data
           ? followerResponse.data.map((user: any) => ({
-              isFollowing: true,
-              name: user.name,
-              nickname: user.nickname,
-              profileImageUrl: user.profileImageUrl || defaultProfileImage,
-            }))
+            isFollowing: true,
+            name: user.name,
+            nickname: user.nickname,
+            profileImageUrl: user.profileImageUrl || defaultProfileImage,
+          }))
           : [],
         followingsList: followingResponse.data
           ? followingResponse.data.map((user: any) => ({
-              isFollowing: true,
-              name: user.name,
-              nickname: user.nickname,
-              profileImageUrl: user.profileImageUrl || defaultProfileImage,
-            }))
+            isFollowing: true,
+            name: user.name,
+            nickname: user.nickname,
+            profileImageUrl: user.profileImageUrl || defaultProfileImage,
+          }))
           : [],
         allUsers,
       });
@@ -309,14 +306,14 @@ const UserPage: React.FC = () => {
   const checkIfFollowing = async () => {
     const token = localStorage.getItem('token');
     if (!token) return;
-  
+
     try {
       const response = await axios.get(`${location}/follow/following`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-  
+
       const followingData = response.data;
       setIsFollowing(followingData.some((user: any) => user.nickname === nickname));
     } catch (error) {
@@ -362,7 +359,7 @@ const UserPage: React.FC = () => {
       console.error("Nickname is undefined");
     }
   };
-  
+
   const handleUnfollowUser = async () => {
     if (nickname) {
       await handleUnfollow(nickname);
@@ -381,47 +378,42 @@ const UserPage: React.FC = () => {
   }
 
   const dm = async () => {
+    console.log("dm 실행")
     const token = localStorage.getItem('token');
     const payload = { nicknames: [nickname] };
-  
+
     if (!token) {
       console.error('Token is missing');
       return;
     }
-  
     // 사이드바의 activePage를 'chat' 설정하는 로직 필요 (여기서는 생략)
-  
+
     // 웹소켓 연결
     if (getStompClient() == null) {
-      await connectAndSubscribe();
+      connectAndSubscribe();
+      console.log('getStompClient가 null이였습니다.')
     }
-  
-    const stompClient = getStompClient();
-  
-    if (!stompClient || !stompClient.connected) {
-      console.error('WebSocket is not connected.');
-      return;
-    }
-  
-    try {
-      // 기존 채팅방 목록 가져오기
-      const data = await fetchChatRooms(token);
-      const chatRooms = data.chatRooms;
-      const chatRoomsInfo = data.chatRoomsInfo;
-  
-      setChatRooms(chatRooms);
-      setChatRoomsInfo(chatRoomsInfo);
-  
-      // STOMP 클라이언트를 통해 서버에 메시지 전송
-      stompClient.publish({
-        destination: '/app/chatRoom/create',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
-      });
-    }
-    catch (error) {
-      console.error(error);
-    }
+
+    // 기존 채팅방 목록 가져오기
+    const data = await fetchChatRooms(token);
+    const chatRooms = data.chatRooms;
+    const chatRoomsInfo = data.chatRoomsInfo;
+
+    setChatRooms(chatRooms);
+    setChatRoomsInfo(chatRoomsInfo);
+
+    const stompClient = getStompClient()
+
+    setTimeout(() => {
+      if (stompClient != null) {
+        console.log("StompClient가 null이 아닙니다.")
+        stompClient.publish({
+          destination: '/app/chatRoom/create',
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+        });
+      }
+    }, 50);
   }
 
 
