@@ -1,5 +1,3 @@
-// src/pages/Onboarding/LocationPermissionPage.tsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button/button';
@@ -22,7 +20,7 @@ const LocationPermissionPage: React.FC = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           console.log('Location accessed:', position);
-          navigate('/main'); // 위치 정보 연결 후 /main으로
+          navigate('/onboarding/friend-addition'); // 위치 정보 연결 후 /onboarding/friend-addition으로
         },
         (error) => {
           console.error('Error accessing location:', error);
