@@ -184,7 +184,7 @@ export const getAllUsers = async (token: string) => {
 export const addFollow = async (token: string, nickname: string) => {
   try {
     const response = await axios.put(
-      `${API_BASE_URL}/api/follow/add`,
+      `${API_BASE_URL}/follow/add`,
       { nickname },
       {
         headers: {

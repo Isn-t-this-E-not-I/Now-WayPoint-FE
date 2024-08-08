@@ -9,7 +9,7 @@ import { FaSearch, FaPlus, FaCheck } from "react-icons/fa";
 interface User {
   name: string;
   nickname: string;
-  profile_image_url: string;
+  profileImageUrl: string;
 }
 
 const FriendAdditionPage: React.FC = () => {
