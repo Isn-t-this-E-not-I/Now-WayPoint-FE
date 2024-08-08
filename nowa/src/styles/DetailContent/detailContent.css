@@ -419,3 +419,35 @@ audio {
   min-height: 40px;
   border-radius: 50px;
 }
+
+#write_content_emoji {
+  position: absolute;
+  margin-left: 5px;
+  bottom: 25px;
+  height: 20px;
+  width: 20px;
+}
+
+#detail_write_picker {
+  position: absolute;
+  bottom: 0px;
+  right: -330px;
+}
+#test {
+  position: relative;
+}
+
+#write_comment_comment_emoji {
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  bottom: 10px;
+  left: 5px;
+  cursor: pointer;
+}
+
+#reply_comment_picker {
+  position: absolute;
+  right: -330px;
+  bottom: 0px;
+}
