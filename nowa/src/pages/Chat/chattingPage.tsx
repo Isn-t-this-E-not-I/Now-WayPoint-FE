@@ -157,7 +157,6 @@ const ChattingPage: React.FC = () => {
 
   const [messageContent, setMessageContent] = useState('')
   const { isOpen, open, close } = useModal()
-  const [selectedUsers, setSelectedUsers] = useState('')
 
   const roomId: number | null = chatRoomId ? parseInt(chatRoomId, 10) : null
   const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
@@ -236,12 +235,10 @@ const ChattingPage: React.FC = () => {
   }, [messages, nickname])
 
   // 채팅방 초대 함수
-  const inviteToChatRoom = (e: React.FormEvent) => {
-    e.preventDefault()
-    const usernames = selectedUsers.split(',').map((user) => user.trim())
+  const inviteToChatRoom = (selectedNicknames: string[]) => {
     const payload = {
       chatRoomId: roomId,
-      nicknames: usernames,
+      nicknames: selectedNicknames,
     }
     const stompClient = getStompClient()
     if (stompClient) {
@@ -253,7 +250,7 @@ const ChattingPage: React.FC = () => {
     } else {
       console.error('StompClient is not connected.')
     }
-    setSelectedUsers('')
+    close()
   }
 
   // 채팅방 나가기 함수
@@ -363,8 +360,6 @@ const ChattingPage: React.FC = () => {
               isOpen={isOpen}
               onClose={close}
               showCloseButton={false}
-              selectedUsers={selectedUsers}
-              setSelectedUsers={setSelectedUsers}
               handleSubmit={inviteToChatRoom}
               theme={theme}
             />
@@ -384,7 +379,6 @@ const ChattingPage: React.FC = () => {
               </MessageItem>
             )
           }
-
           if (msg.sender === nickname) {
             return (
               <MessageItem key={index} $isSender={true}>
