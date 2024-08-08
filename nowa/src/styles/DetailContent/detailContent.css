@@ -27,6 +27,7 @@
   grid-template-rows: 10% 20% 1fr auto auto;
   height: 80vh;
   border: 1px solid black;
+  min-width: 400px;
 }
 
 /* 프로필 */

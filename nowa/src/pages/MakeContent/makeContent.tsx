@@ -81,6 +81,16 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       validFileArray.forEach((file) => {
         if (file.type.startsWith('video/')) {
           generateThumbnail(file)
+        } else if (file.type.startsWith('audio/')) {
+          setPreviewSrcs((prevSrcs) => {
+            const newSrcs = [
+              ...prevSrcs,
+              'https://cdn-icons-png.flaticon.com/128/1014/1014333.png',
+            ]
+            // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+            setSelectedImage(newSrcs[newSrcs.length - 1])
+            return newSrcs
+          })
         } else {
           const reader = new FileReader()
           reader.readAsDataURL(file)
@@ -219,7 +229,10 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   }
 
   const handlePreviewClick = (src: string) => {
-    if (src.startsWith('data:image/')) {
+    if (
+      src.startsWith('data:image/') ||
+      src.startsWith('https://cdn-icons-png.flaticon.com/128/1014/1014333.png')
+    ) {
       setSelectedImage(src)
     }
   }
@@ -373,7 +386,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
               >
                 {showPicker ? '' : ''}{' '}
                 <img
-                  src="https://cdn-icons-png.flaticon.com/128/569/569501.png"
+                  src="https://cdn-icons-png.flaticon.com/128/3129/3129275.png"
                   alt="이모티콘"
                 ></img>
               </button>
