@@ -48,14 +48,11 @@ const Tooltip = styled.div`
 const CreateChatRoomButton: React.FC = () => {
   const { theme } = useApp()
   const { isOpen, open, close } = useModal()
-  const [selectedUsers, setSelectedUsers] = useState<string>('')
   const token = localStorage.getItem('token') || ''
 
-  const handleCreateChat = (e: React.FormEvent) => {
-    e.preventDefault()
-    const nicknames = selectedUsers.split(',').map((user) => user.trim())
+  const handleCreateChat = (selectedNicknames: string[]) => {
     const stompClient = getStompClient()
-    const payload = { nicknames }
+    const payload = { nicknames: selectedNicknames }
 
     // STOMP 클라이언트를 통해 서버에 메시지 전송
     if (stompClient) {
@@ -67,9 +64,6 @@ const CreateChatRoomButton: React.FC = () => {
     } else {
       console.error('StompClient is not connected.')
     }
-
-    // 입력 필드 초기화 및 모달 닫기
-    setSelectedUsers('')
     close()
   }
 
@@ -84,8 +78,6 @@ const CreateChatRoomButton: React.FC = () => {
           isOpen={isOpen}
           onClose={close}
           showCloseButton={false}
-          selectedUsers={selectedUsers}
-          setSelectedUsers={setSelectedUsers}
           handleSubmit={handleCreateChat}
           theme={theme}
         />

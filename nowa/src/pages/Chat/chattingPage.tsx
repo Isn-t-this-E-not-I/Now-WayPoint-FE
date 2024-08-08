@@ -8,9 +8,12 @@ import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
 import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
-import ChatBubble from '../../components/ChatBubble/chatBubble'
+import ChatBubble from '../../components/Chat/chatBubble'
 import Modal from '../../components/Modal/modal'
 import Button from '../../components/Button/button'
+import DownBtn from '../../components/Chat/downBtn'
+import MessageNotification from '../../components/Chat/messageNotification'
+import { UserInfo } from '../../types'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -48,7 +51,6 @@ const ActionButton = styled.button`
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  color: white;
   align-items: center;
   justify-content: center;
   margin-top: -20px;
@@ -160,14 +162,23 @@ const ChattingPage: React.FC = () => {
 
   const [messageContent, setMessageContent] = useState('')
   const { isOpen, open, close } = useModal()
-  const [selectedUsers, setSelectedUsers] = useState('')
 
   const roomId: number | null = chatRoomId ? parseInt(chatRoomId, 10) : null
   const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
 
-  const [showNewMessageButton, setShowNewMessageButton] = useState(false)
+  const [showDownButton, setShowDownButton] = useState(false) // Down 버튼 상태 추가
+  const [newMessage, setNewMessage] = useState('') // 새로운 메시지 상태 추가
+  const [newMessageUser, setNewMessageUser] = useState<UserInfo | null>(null) // 새로운 메시지 보낸 사용자 상태 추가
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false) // 모달 상태 추가
-  const [unreadMessages, setUnreadMessages] = useState(0) // 읽지 않은 메시지 수 상태 추가
+
+  // 스크롤 이벤트 핸들러 추가
+  const handleScroll = () => {
+    if (messageListRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
+      const isScrolledToBottom = scrollHeight - scrollTop === clientHeight
+      setShowDownButton(!isScrolledToBottom) // 스크롤이 최하단이면 버튼 숨기기, 아니면 버튼 표시
+    }
+  }
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
@@ -207,7 +218,6 @@ const ChattingPage: React.FC = () => {
 
       setMessageContent('')
       setTimeout(() => scrollToBottom(), 100) // 메시지를 보낸 후 최하단으로 스크롤
-      setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
     } else {
       console.error('StompClient is not connected.')
     }
@@ -216,7 +226,9 @@ const ChattingPage: React.FC = () => {
   // 최하단으로 스크롤 기능 함수
   const scrollToBottom = () => {
     if (messageListRef.current) {
-      messageListRef.current.scrollTop = messageListRef.current.scrollHeight
+      setTimeout(() => {
+        messageListRef.current!.scrollTop = messageListRef.current!.scrollHeight
+      }, 100)
     }
   }
 
@@ -231,23 +243,38 @@ const ChattingPage: React.FC = () => {
         !isScrolledToBottom &&
         messages[messages.length - 1]?.sender !== nickname
       ) {
-        setShowNewMessageButton(true)
-        setUnreadMessages((prev) => prev + 1) // 새로운 메시지가 도착하면 읽지 않은 메시지 수 증가
+        setNewMessage(messages[messages.length - 1]?.content || '') // 새 메시지 설정
+        setNewMessageUser(
+          chatRoom?.userResponses.find(
+            (user) =>
+              user.userNickname === messages[messages.length - 1]?.sender
+          ) || null
+        ) // 새 메시지 보낸 사용자 설정
+        setShowDownButton(true) // Down 버튼 표시
       } else {
         scrollToBottom()
-        setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
-        setUnreadMessages(0) // 읽지 않은 메시지 수 초기화
+        setShowDownButton(false) // Down 버튼 숨기기
       }
     }
-  }, [messages, nickname])
+  }, [messages, nickname, chatRoom])
+
+  // 새로운 메시지 도착 시 스크롤 동작 처리
+  useEffect(() => {
+    if (messageListRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
+      const isScrolledToBottom = scrollHeight - scrollTop <= clientHeight + 1
+
+      if (isScrolledToBottom) {
+        scrollToBottom()
+      }
+    }
+  }, [messages])
 
   // 채팅방 초대 함수
-  const inviteToChatRoom = (e: React.FormEvent) => {
-    e.preventDefault()
-    const usernames = selectedUsers.split(',').map((user) => user.trim())
+  const inviteToChatRoom = (selectedNicknames: string[]) => {
     const payload = {
       chatRoomId: roomId,
-      nicknames: usernames,
+      nicknames: selectedNicknames,
     }
     const stompClient = getStompClient()
     if (stompClient) {
@@ -259,7 +286,7 @@ const ChattingPage: React.FC = () => {
     } else {
       console.error('StompClient is not connected.')
     }
-    setSelectedUsers('')
+    close()
   }
 
   // 채팅방 나가기 함수
@@ -300,7 +327,6 @@ const ChattingPage: React.FC = () => {
       if (scrollPosition !== null) {
         messageListRef.current.scrollTop = parseInt(scrollPosition, 10)
       }
-      setShowNewMessageButton(unreadMessages > 0) // 새 메시지 버튼 상태 복원
     }
   }
 
@@ -358,7 +384,7 @@ const ChattingPage: React.FC = () => {
       <Header>
         <Title>{displayName}</Title>
         <ButtonContainer>
-          <ActionButton onClick={() => setIsLeaveModalOpen(true)}>
+          <ActionButton onClick={open}>
             <AddMemberIcon theme={theme} />
           </ActionButton>
           {isOpen && (
@@ -366,8 +392,6 @@ const ChattingPage: React.FC = () => {
               isOpen={isOpen}
               onClose={close}
               showCloseButton={false}
-              selectedUsers={selectedUsers}
-              setSelectedUsers={setSelectedUsers}
               handleSubmit={inviteToChatRoom}
               theme={theme}
             />
@@ -411,7 +435,7 @@ const ChattingPage: React.FC = () => {
           </div>
         </Modal>
       )}
-      <MessageList ref={messageListRef}>
+      <MessageList ref={messageListRef} onScroll={handleScroll}>
         {messages.map((msg, index) => {
           if (msg.sender === 'admin') {
             return (
@@ -420,7 +444,6 @@ const ChattingPage: React.FC = () => {
               </MessageItem>
             )
           }
-
           if (msg.sender === nickname) {
             return (
               <MessageItem key={index} $isSender={true}>
@@ -462,7 +485,7 @@ const ChattingPage: React.FC = () => {
         <InputField
           value={messageContent}
           onChange={(e) => setMessageContent(e.target.value)}
-          placeholder="메시지를 입력하세요..."
+          placeholder="메시지를 입력하세요"
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
@@ -472,19 +495,17 @@ const ChattingPage: React.FC = () => {
         />
         <SendButton onClick={sendMessage}>보내기</SendButton>
       </InputContainer>
-      {/* 새 메시지 확인 버튼 */}
-      <NewMessageButton
-        show={showNewMessageButton}
-        onClick={() => {
-          scrollToBottom()
-          setShowNewMessageButton(false)
-          setUnreadMessages(0) // 읽지 않은 메시지 수 초기화
-        }}
-      >
-        새 메시지 ↓
-      </NewMessageButton>
+      {/* Down 버튼 추가 */}
+      {showDownButton && <DownBtn onDownClick={scrollToBottom} />}
+      {/* 메시지 알림 추가 */}
+      {showDownButton && newMessageUser && (
+        <MessageNotification
+          msg={newMessage}
+          user={newMessageUser}
+          onDownClick={scrollToBottom}
+        />
+      )}
     </ChatContainer>
   )
 }
-
 export default ChattingPage

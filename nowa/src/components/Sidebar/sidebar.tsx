@@ -16,7 +16,7 @@ import {
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
-import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
+import CreateChatRoomButton from '../Chat/createChatRoomButton'
 import { fetchChatRooms } from '../../api/chatApi'
 import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
@@ -267,7 +267,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount , deleteNotificationAll,notifications } = useWebSocket()
+  const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
 
@@ -329,10 +329,10 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const handleNavigate = (page: string) => {
     navigate(`/${page}`)
   }
-  
+
   const handleDelete = () => {
     //notifications에 데이터 제거
-    deleteNotificationAll();
+    deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출
     const deleteNotifications = async () => {
@@ -348,7 +348,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           }, // 삭제할 알림의 ID를 body에 포함
-          body : JSON.stringify({ nickname : nickname })
+          body: JSON.stringify({ nickname: nickname }),
         })
 
         if (!response.ok) {
@@ -503,11 +503,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         </TopRightSidebar>
         <TopRightSidebar>
           {activePage === 'notifications' && notifications.length > 0 && (
-              <DeleteNotificationsButton
-                onClick={handleDelete}
-              >
-                  전체 삭제
-              </DeleteNotificationsButton>
+            <DeleteNotificationsButton onClick={handleDelete}>
+              전체 삭제
+            </DeleteNotificationsButton>
           )}
         </TopRightSidebar>
         <ContentDiv>
