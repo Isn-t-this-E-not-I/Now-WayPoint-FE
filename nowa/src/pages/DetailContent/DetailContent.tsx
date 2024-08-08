@@ -56,20 +56,21 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [replyCommentId, setReplyCommentId] = useState<number | null>(null)
   const [replyContent, setReplyContent] = useState<string>('')
   const [currentUser, setCurrentUser] = useState<string | null>(null)
-  const [users, setUsers] = useState<User[]>([]) // 모든 유저 상태
-  const [mentionList, setMentionList] = useState<User[]>([]) // 멘션 목록 상태
-  const [newMentionList, setNewMentionList] = useState<User[]>([]) // 새로운 댓글 멘션 목록 상태
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false) // Edit modal 상태 추가
+  const [users, setUsers] = useState<User[]>([])
+  const [mentionList, setMentionList] = useState<User[]>([])
+  const [newMentionList, setNewMentionList] = useState<User[]>([])
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false)
   const [expandedComments, setExpandedComments] = useState<Set<number>>(
     new Set()
-  ) // 댓글 확장 상태
+  )
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false) // 댓글 이모지 선택기 상태
+  const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false)
   const [activeReplyEmojiPicker, setActiveReplyEmojiPicker] = useState<
     number | null
-  >(null) // 대댓글 이모지 선택기 상태
+  >(null)
   const emojiPickerRef = useRef<HTMLDivElement | null>(null)
+  const MAX_COMMENT_LENGTH = 150
 
   const handleCloseModal = () => {
     // 닫기 버튼
@@ -295,11 +296,11 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     )
   }
 
-  // 멘션 입력 시 자동 완성 목록을 업데이트하는 함수 (대댓글 작성 시)
   const handleMention = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value
-    setReplyContent(value)
-
+    if (value.length <= MAX_COMMENT_LENGTH) {
+      setReplyContent(value)
+    }
     const lastWord = value.split(' ').pop()
     if (lastWord?.startsWith('@')) {
       const query = lastWord.slice(1)
@@ -313,13 +314,13 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }
 
-  // 멘션 입력 시 자동 완성 목록을 업데이트하는 함수 (새 댓글 작성 시)
   const handleNewCommentMention = (
     e: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
     const value = e.target.value
-    setNewComment(value)
-
+    if (value.length <= MAX_COMMENT_LENGTH) {
+      setNewComment(value)
+    }
     const lastWord = value.split(' ').pop()
     if (lastWord?.startsWith('@')) {
       const query = lastWord.slice(1)
