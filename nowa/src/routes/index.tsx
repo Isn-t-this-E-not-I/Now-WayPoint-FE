@@ -17,6 +17,7 @@ import ChattingPage from '@/pages/Chat/chattingPage'
 import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage';
 import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage';
 import SiteGuidePage from '@/pages/Onboarding/SiteGuidePage';
+import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandler'
 
 const Routers: React.FC = () => {
   return (
@@ -25,11 +26,10 @@ const Routers: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
-
+      <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="/onboarding/location-permission" element={<LocationPermissionPage />} />
       <Route path="/onboarding/friend-addition" element={<FriendAdditionPage />} />
       <Route path="/onboarding/site-guide" element={<SiteGuidePage />} />
-
       {/* Private routes wrapped with WebSocketProvider */}
       <Route
         element={
