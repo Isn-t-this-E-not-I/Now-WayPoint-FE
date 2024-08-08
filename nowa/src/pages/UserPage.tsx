@@ -378,7 +378,6 @@ const UserPage: React.FC = () => {
   }
 
   const dm = async () => {
-    console.log("dm 실행")
     const token = localStorage.getItem('token');
     const payload = { nicknames: [nickname] };
 
@@ -391,7 +390,6 @@ const UserPage: React.FC = () => {
     // 웹소켓 연결
     if (getStompClient() == null) {
       connectAndSubscribe();
-      console.log('getStompClient가 null이였습니다.')
     }
 
     // 기존 채팅방 목록 가져오기
@@ -406,7 +404,6 @@ const UserPage: React.FC = () => {
 
     setTimeout(() => {
       if (stompClient != null) {
-        console.log("StompClient가 null이 아닙니다.")
         stompClient.publish({
           destination: '/app/chatRoom/create',
           headers: { Authorization: `Bearer ${token}` },
