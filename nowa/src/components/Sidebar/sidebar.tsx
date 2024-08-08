@@ -302,6 +302,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         return <MainSidebarPage />
       case 'followContents':
         return <FollowContentsPage />
+      case 'myPage':
+        return <div></div>
       default:
         return <MainSidebarPage />
     }
