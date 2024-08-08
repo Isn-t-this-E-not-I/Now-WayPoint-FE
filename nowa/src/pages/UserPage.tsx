@@ -217,19 +217,19 @@ const UserPage: React.FC = () => {
         posts: postsWithCommentCounts,
         followersList: followerResponse.data
           ? followerResponse.data.map((user: any) => ({
-              isFollowing: true,
-              name: user.name,
-              nickname: user.nickname,
-              profileImageUrl: user.profileImageUrl || defaultProfileImage,
-            }))
+            isFollowing: true,
+            name: user.name,
+            nickname: user.nickname,
+            profileImageUrl: user.profileImageUrl || defaultProfileImage,
+          }))
           : [],
         followingsList: followingResponse.data
           ? followingResponse.data.map((user: any) => ({
-              isFollowing: true,
-              name: user.name,
-              nickname: user.nickname,
-              profileImageUrl: user.profileImageUrl || defaultProfileImage,
-            }))
+            isFollowing: true,
+            name: user.name,
+            nickname: user.nickname,
+            profileImageUrl: user.profileImageUrl || defaultProfileImage,
+          }))
           : [],
         allUsers,
       })
@@ -330,12 +330,11 @@ const UserPage: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-
-      const followingData = response.data
+      });
+      const followingData = response.data;
       setIsFollowing(
         followingData.some((user: any) => user.nickname === nickname)
-      )
+          );
     } catch (error) {
       console.error('Failed to check if following:', error)
     }
@@ -409,34 +408,28 @@ const UserPage: React.FC = () => {
 
     // 웹소켓 연결
     if (getStompClient() == null) {
-      await connectAndSubscribe()
+      connectAndSubscribe();
     }
+
+    // 기존 채팅방 목록 가져오기
+    const data = await fetchChatRooms(token);
+    const chatRooms = data.chatRooms;
+    const chatRoomsInfo = data.chatRoomsInfo;
+
+    setChatRooms(chatRooms);
+    setChatRoomsInfo(chatRoomsInfo);
 
     const stompClient = getStompClient()
 
-    if (!stompClient || !stompClient.connected) {
-      console.error('WebSocket is not connected.')
-      return
-    }
-
-    try {
-      // 기존 채팅방 목록 가져오기
-      const data = await fetchChatRooms(token)
-      const chatRooms = data.chatRooms
-      const chatRoomsInfo = data.chatRoomsInfo
-
-      setChatRooms(chatRooms)
-      setChatRoomsInfo(chatRoomsInfo)
-
-      // STOMP 클라이언트를 통해 서버에 메시지 전송
-      stompClient.publish({
-        destination: '/app/chatRoom/create',
-        headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
-      })
-    } catch (error) {
-      console.error(error)
-    }
+    setTimeout(() => {
+      if (stompClient != null) {
+        stompClient.publish({
+          destination: '/app/chatRoom/create',
+          headers: { Authorization: `Bearer ${token}` },
+          body: JSON.stringify(payload),
+        });
+      }
+    }, 50);
   }
 
   return (
