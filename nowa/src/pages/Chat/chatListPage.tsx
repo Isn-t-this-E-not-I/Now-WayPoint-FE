@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../context/chatContext'
 import styled, { css } from 'styled-components'
 import NoChatListImage from '../../assets/characters-01-ezgif.com-gif-maker.gif'
+import { setActiveChatRoomPage } from '../../websocket/chatWebSocket'
 
 const ChatListWrapper = styled.div`
   display: flex;
@@ -186,12 +187,12 @@ const getProfileImages = (
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate()
-  const { chatRooms, chatRoomsInfo, setActiveChatRoomId, setChatRoomsInfo } =
+  const { chatRooms, chatRoomsInfo, setChatRoomsInfo } =
     useChat()
   const nickname = localStorage.getItem('nickname') || ''
 
   const handleChatRoomClick = (chatRoomId: number) => {
-    setActiveChatRoomId(chatRoomId)
+    setActiveChatRoomPage(chatRoomId)
 
     // Unread Messages 초기화 로직
     const updatedChatRoomsInfo = chatRoomsInfo.map((roomInfo) => {
@@ -246,92 +247,92 @@ const ChatListPage: React.FC = () => {
 
   return (
     <ChatListWrapper>
-    <>
-      {sortedChatRooms.length < 1 ? (
-        <div
-          className="flex flex-col items-center justify-center"
-          style={{ width: '300px', height: '100vh' }}
+      <>
+        {sortedChatRooms.length < 1 ? (
+          <div
+            className="flex flex-col items-center justify-center"
+            style={{ width: '300px', height: '100vh' }}
           >
-        <img
-          src={NoChatListImage}
-          alt="No Notifications"
-          style={{ backgroundColor: 'transparent', width: '150px', height: '150px'}}
-        />
-        <div className="mt-4">메세지를 보내보세요!</div>
-      </div>
-      ) : (
-        <ChatList>
-          {sortedChatRooms.map((room) => {
-            const roomInfo = chatRoomsInfo.find(
-              (info) => info.chatRoomId === room.chatRoomId
-            )
+            <img
+              src={NoChatListImage}
+              alt="No Notifications"
+              style={{ backgroundColor: 'transparent', width: '150px', height: '150px' }}
+            />
+            <div className="mt-4">메세지를 보내보세요!</div>
+          </div>
+        ) : (
+          <ChatList>
+            {sortedChatRooms.map((room) => {
+              const roomInfo = chatRoomsInfo.find(
+                (info) => info.chatRoomId === room.chatRoomId
+              )
 
-            let displayName: string
-            if (room.userResponses.length === 1) {
-              displayName = '알수없음'
-            } else {
-              displayName = room.userResponses
-                .filter((user) => user.userNickname !== nickname)
-                .map((user) => user.userNickname)
-                .join(', ')
-            }
-            const isTruncated = displayName.length > 18
+              let displayName: string
+              if (room.userResponses.length === 1) {
+                displayName = '알수없음'
+              } else {
+                displayName = room.userResponses
+                  .filter((user) => user.userNickname !== nickname)
+                  .map((user) => user.userNickname)
+                  .join(', ')
+              }
+              const isTruncated = displayName.length > 18
 
-            const displayProfileImages = getProfileImages(
-              room.userResponses,
-              nickname
-            )
+              const displayProfileImages = getProfileImages(
+                room.userResponses,
+                nickname
+              )
 
-            return (
-              <ChatListItem
-                key={room.chatRoomId}
-                onClick={() => handleChatRoomClick(room.chatRoomId)}
-              >
-                <RoomNameWrapper>
-                  <ProfileImages>
-                    {displayProfileImages.length === 0 ? (
-                      <DefaultProfileImage isFirst={true} />
-                    ) : (
-                      displayProfileImages.map((src, index) => (
-                        <ProfileImage
-                          key={index}
-                          src={src}
-                          isFirst={index === 0}
-                        />
-                      ))
-                    )}
-                  </ProfileImages>
-                  <RoomName istruncated={isTruncated}>
-                    {isTruncated ? displayName.slice(0, 18) : displayName}
-                  </RoomName>
-                  <UserCountWrapper>
-                    <UserCount>({room.userResponses.length})</UserCount>
-                    {roomInfo && roomInfo.unreadMessagesCount > 0 && (
-                      <Badge>
-                        {roomInfo.unreadMessagesCount > 99
-                          ? '99+'
-                          : roomInfo.unreadMessagesCount}
-                      </Badge>
-                    )}
-                  </UserCountWrapper>
-                </RoomNameWrapper>
-                {roomInfo && (
-                  <RoomDetails>
-                    {roomInfo.lastMessageContent && (
-                      <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
-                    )}
-                    {roomInfo.lastMessageTimestamp && (
-                      <RoomDetail>
-                        {formatRelativeTime(roomInfo.lastMessageTimestamp)}
-                      </RoomDetail>
-                    )}
-                  </RoomDetails>
-                )}
-              </ChatListItem>
-            )
-          })}
-        </ChatList>
-      )}
+              return (
+                <ChatListItem
+                  key={room.chatRoomId}
+                  onClick={() => handleChatRoomClick(room.chatRoomId)}
+                >
+                  <RoomNameWrapper>
+                    <ProfileImages>
+                      {displayProfileImages.length === 0 ? (
+                        <DefaultProfileImage isFirst={true} />
+                      ) : (
+                        displayProfileImages.map((src, index) => (
+                          <ProfileImage
+                            key={index}
+                            src={src}
+                            isFirst={index === 0}
+                          />
+                        ))
+                      )}
+                    </ProfileImages>
+                    <RoomName istruncated={isTruncated}>
+                      {isTruncated ? displayName.slice(0, 18) : displayName}
+                    </RoomName>
+                    <UserCountWrapper>
+                      <UserCount>({room.userResponses.length})</UserCount>
+                      {roomInfo && roomInfo.unreadMessagesCount > 0 && (
+                        <Badge>
+                          {roomInfo.unreadMessagesCount > 99
+                            ? '99+'
+                            : roomInfo.unreadMessagesCount}
+                        </Badge>
+                      )}
+                    </UserCountWrapper>
+                  </RoomNameWrapper>
+                  {roomInfo && (
+                    <RoomDetails>
+                      {roomInfo.lastMessageContent && (
+                        <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
+                      )}
+                      {roomInfo.lastMessageTimestamp && (
+                        <RoomDetail>
+                          {formatRelativeTime(roomInfo.lastMessageTimestamp)}
+                        </RoomDetail>
+                      )}
+                    </RoomDetails>
+                  )}
+                </ChatListItem>
+              )
+            })}
+          </ChatList>
+        )}
       </>
     </ChatListWrapper>
   )

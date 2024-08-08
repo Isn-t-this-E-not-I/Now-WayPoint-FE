@@ -133,7 +133,7 @@ const UserPage: React.FC = () => {
   const locations = useLocation()
   const [isFollowing, setIsFollowing] = useState(false)
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
-  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
+  const { setChatRooms, setChatRoomsInfo } = useChat()
   const stompClient = getStompClient()
   const payload = [nickname]
 
@@ -334,7 +334,7 @@ const UserPage: React.FC = () => {
       const followingData = response.data;
       setIsFollowing(
         followingData.some((user: any) => user.nickname === nickname)
-          );
+      );
     } catch (error) {
       console.error('Failed to check if following:', error)
     }

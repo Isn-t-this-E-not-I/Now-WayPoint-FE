@@ -13,7 +13,7 @@ import Modal from '../../components/Modal/modal'
 import Button from '../../components/Button/button'
 import DownBtn from '../../components/Chat/downBtn'
 import MessageNotification from '../../components/Chat/messageNotification'
-import { UserInfo } from '../../types'
+import { UserInfo } from '../../types/index'
 
 const ChatContainer = styled.div`
   display: flex;

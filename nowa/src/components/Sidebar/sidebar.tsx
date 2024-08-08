@@ -18,7 +18,7 @@ import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../Chat/createChatRoomButton'
 import { fetchChatRooms } from '../../api/chatApi'
-import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
+import { useChatWebSocket, getStompClient, setActiveChatRoomPage } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 import Modal from '../Modal/modal'
@@ -106,7 +106,7 @@ const LogoIconButtonWrapper = styled.button`
 
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
-}))<{ active: boolean }>`
+})) <{ active: boolean }>`
   background: ${({ active }) =>
     active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
   border: none;
@@ -262,7 +262,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
-  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
+  const { setChatRooms, setChatRoomsInfo } = useChat()
 
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
@@ -285,7 +285,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   useEffect(() => {
     if (activePage !== 'chat') {
       disconnect()
-      setActiveChatRoomId(null)
+      setActiveChatRoomPage(-1)
     }
   }, [activePage])
 
