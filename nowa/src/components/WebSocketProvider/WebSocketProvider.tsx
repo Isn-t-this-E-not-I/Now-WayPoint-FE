@@ -50,6 +50,7 @@ interface WebSocketContextProps {
   getStompClient: () => Client | null;
   resetNotifyCount: () => void;
   deleteSocketNotification: (id : number) => void; 
+  deleteNotificationAll : () => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextProps>({
@@ -61,7 +62,8 @@ const WebSocketContext = createContext<WebSocketContextProps>({
   notifyCount: 0,
   getStompClient: () => null,
   resetNotifyCount: () => {},
-  deleteSocketNotification: () => {}
+  deleteSocketNotification: () => {},
+  deleteNotificationAll: () => {}
 });
 
 export const useWebSocket = () => useContext(WebSocketContext);
@@ -283,8 +285,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     );
   };
 
+  const deleteNotificationAll = () => {
+    setNotifications([]);
+  };
+
   return (
-    <WebSocketContext.Provider value={{ client, notifications, followContents, selectContents, isLoading, notifyCount, getStompClient, resetNotifyCount, deleteSocketNotification}}>
+    <WebSocketContext.Provider value={{ client, notifications, followContents, selectContents, isLoading, notifyCount, getStompClient, resetNotifyCount, deleteSocketNotification , deleteNotificationAll}}>
       {children}
     </WebSocketContext.Provider>
   );
