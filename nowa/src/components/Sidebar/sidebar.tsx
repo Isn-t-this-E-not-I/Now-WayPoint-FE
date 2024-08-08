@@ -238,12 +238,12 @@ const Badge = styled.span`
 
 const DeleteNotificationsButton = styled.span`
   position: absolute;
-  top: 60px;
+  top: 50px;
   right: 15px;
-  background-color: red;
-  color: white;
+  background-color: #9269b2;
+  color: #fdfdfd;
   border-radius: 5px;
-  padding: 2px 6px;
+  padding: 7px 14px;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -252,7 +252,7 @@ const DeleteNotificationsButton = styled.span`
   justify-content: center;
   cursor: pointer;
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
   }
 `
 
@@ -267,7 +267,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount, deleteNotificationAll } = useWebSocket()
+  const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
 
@@ -302,6 +302,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         return <MainSidebarPage />
       case 'followContents':
         return <FollowContentsPage />
+      case 'myPage':
+        return <div></div>
       default:
         return <MainSidebarPage />
     }
@@ -500,7 +502,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           )}
         </TopRightSidebar>
         <TopRightSidebar>
-          {activePage === 'notifications' && (
+          {activePage === 'notifications' && notifications.length > 0 && (
             <DeleteNotificationsButton onClick={handleDelete}>
               전체 삭제
             </DeleteNotificationsButton>

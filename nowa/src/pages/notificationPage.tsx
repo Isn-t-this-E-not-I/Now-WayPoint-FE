@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import DetailContentModal from '@/components/Modal/ContentModal'
+import NoNotificationsImage from '../assets/ezgif.com-gif-maker.gif'
 
 const NotificationWrapper = styled.div`
   display: flex;
@@ -210,38 +211,47 @@ const NotificationPage: React.FC = () => {
 
   return (
     <NotificationWrapper>
-      {displayNotifications.map((notification) => (
-        <NotificationItem
-          key={notification.id}
-          onClick={() => handleContentClick(notification)}
-        >
+    {notifications.length === 0 ? (
+      <div
+      className="flex flex-col items-center justify-center"
+      style={{ width: '300px', height: '100vh' }}
+    >
+      <img
+        src={NoNotificationsImage}
+        alt="No Notifications"
+        style={{ backgroundColor: 'transparent', width: '150px', height: '150px' }} // 원하는 크기로 설정
+      />
+      <div className="mt-4">알림이 없습니다...</div>
+    </div>
+    ) : (
+      displayNotifications.map((notification) => (
+        <NotificationItem key={notification.id} onClick={() => handleContentClick(notification)}>
           <ProfilePic
             src={notification.profileImageUrl}
             alt="Profile"
             onClick={(e) => {
-              e.stopPropagation() // 이벤트 버블링 중지
-              handleProfileClick(notification.nickname)
+              e.stopPropagation(); // 이벤트 버블링 중지
+              handleProfileClick(notification.nickname);
             }}
           />
           <NotificationContent>
             <ContentDisplay content={notification.message} />
-            {notification.comment && (
-              <CommentDisplay comment={notification.comment} />
-            )}
+            {notification.comment && <CommentDisplay comment={notification.comment} />}
           </NotificationContent>
           {notification.mediaUrl && <ContentPic src={notification.mediaUrl} />}
           <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
         </NotificationItem>
-      ))}
-      {selectedPostId !== null && (
-        <DetailContentModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          postId={selectedPostId}
-          showCloseButton={true}
-        />
-      )}
-    </NotificationWrapper>
+      ))
+    )}
+    {selectedPostId !== null && (
+      <DetailContentModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        postId={selectedPostId}
+        showCloseButton={true}
+      />
+    )}
+  </NotificationWrapper>
   )
 }
 

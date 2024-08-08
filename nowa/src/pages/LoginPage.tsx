@@ -3,8 +3,7 @@ import { useCookies } from 'react-cookie'
 import { login } from '../api/userApi'
 import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 
 const LoginPage: React.FC = () => {
   const [loginId, setLoginId] = useState<string>('')
@@ -14,7 +13,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState<string>('')
   const location = import.meta.env.VITE_APP_API
   const [cookies, setCookie, removeCookie] = useCookies(['rememberedLoginId'])
-  const [hidePassword, setHidePassword] = useState(true);
+  const [hidePassword, setHidePassword] = useState(true)
 
   const navigate = useNavigate()
 
@@ -28,15 +27,15 @@ const LoginPage: React.FC = () => {
   useEffect(() => {
     const handleEnterPress = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
-        handleLogin();
+        handleLogin()
       }
-    };
+    }
 
-    window.addEventListener('keydown', handleEnterPress);
+    window.addEventListener('keydown', handleEnterPress)
     return () => {
-      window.removeEventListener('keydown', handleEnterPress);
-    };
-  }, [loginId, password]);
+      window.removeEventListener('keydown', handleEnterPress)
+    }
+  }, [loginId, password])
 
   const handleLogin = async () => {
     try {
@@ -71,8 +70,8 @@ const LoginPage: React.FC = () => {
   }
 
   const onToggleHide = () => {
-    setHidePassword(!hidePassword);
-  };
+    setHidePassword(!hidePassword)
+  }
 
   const goToRegister = () => navigate('/register')
   const goToFindId = () => navigate('/find-id')
@@ -90,14 +89,17 @@ const LoginPage: React.FC = () => {
           className="mb-4"
         />
         <div className="relative w-full mb-2">
-        <TextInput
-          type={hidePassword ? 'password' : 'text'}
-          placeholder="비밀번호"
-          onChange={(e) => setPassword(e.target.value)}
-          value={password}
-          className="mb-4"
-        />
-        <div className="absolute inset-y-0 right-0 mb-4 mr-2 pr-3 flex items-center cursor-pointer" onClick={onToggleHide}>
+          <TextInput
+            type={hidePassword ? 'password' : 'text'}
+            placeholder="비밀번호"
+            onChange={(e) => setPassword(e.target.value)}
+            value={password}
+            className="mb-4"
+          />
+          <div
+            className="absolute inset-y-0 right-0 mb-4 mr-2 pr-3 flex items-center cursor-pointer"
+            onClick={onToggleHide}
+          >
             {hidePassword ? <AiFillEye /> : <AiFillEyeInvisible />}
           </div>
         </div>
