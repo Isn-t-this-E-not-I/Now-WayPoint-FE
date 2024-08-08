@@ -7,9 +7,10 @@ interface TextInputProps {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   value?: string | number;
   className?: string;
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-const TextInput: React.FC<TextInputProps> = ({ type, placeholder, name, onChange, value, className }) => {
+const TextInput: React.FC<TextInputProps> = ({ type, placeholder, name, onChange, value, className, onKeyDown }) => {
   return (
     <div>
       <input
@@ -18,6 +19,7 @@ const TextInput: React.FC<TextInputProps> = ({ type, placeholder, name, onChange
         name={name}
         onChange={onChange}
         value={value}
+        onKeyDown={onKeyDown}
         className={`input input-bordered w-full ${className}`}
       />
     </div>

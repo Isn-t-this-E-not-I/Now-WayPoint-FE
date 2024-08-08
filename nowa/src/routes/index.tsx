@@ -14,6 +14,9 @@ import UserPage from '@/pages/UserPage'
 import EditContent from '@/pages/EditContent/editContent'
 import { WebSocketProvider } from '@/components/WebSocketProvider/WebSocketProvider'
 import ChattingPage from '@/pages/Chat/chattingPage'
+import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage';
+import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage';
+import SiteGuidePage from '@/pages/Onboarding/SiteGuidePage';
 
 const Routers: React.FC = () => {
   return (
@@ -22,6 +25,10 @@ const Routers: React.FC = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
+
+      <Route path="/onboarding/location-permission" element={<LocationPermissionPage />} />
+      <Route path="/onboarding/friend-addition" element={<FriendAdditionPage />} />
+      <Route path="/onboarding/site-guide" element={<SiteGuidePage />} />
 
       {/* Private routes wrapped with WebSocketProvider */}
       <Route
