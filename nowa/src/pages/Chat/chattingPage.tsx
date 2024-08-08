@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import styled from 'styled-components'
 import { useChatWebSocket } from '@/websocket/chatWebSocket'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/appContext'
 import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
@@ -9,6 +9,8 @@ import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
 import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
 import ChatBubble from '../../components/ChatBubble/chatBubble'
+import Modal from '../../components/Modal/modal'
+import Button from '../../components/Button/button'
 
 const ChatContainer = styled.div`
   display: flex;
@@ -154,6 +156,7 @@ const ChattingPage: React.FC = () => {
   const nickname = localStorage.getItem('nickname') || ''
   const { subscribeToChatRoom } = useChatWebSocket()
   const messageListRef = useRef<HTMLUListElement>(null)
+  const navigate = useNavigate()
 
   const [messageContent, setMessageContent] = useState('')
   const { isOpen, open, close } = useModal()
@@ -161,6 +164,10 @@ const ChattingPage: React.FC = () => {
 
   const roomId: number | null = chatRoomId ? parseInt(chatRoomId, 10) : null
   const chatRoom = chatRooms.find((room) => room.chatRoomId === roomId)
+
+  const [showNewMessageButton, setShowNewMessageButton] = useState(false)
+  const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false) // 모달 상태 추가
+  const [unreadMessages, setUnreadMessages] = useState(0) // 읽지 않은 메시지 수 상태 추가
 
   // 최근 메시지 요청 함수
   const getRecentMessages = () => {
@@ -180,11 +187,8 @@ const ChattingPage: React.FC = () => {
     }
   }
 
-  const [showNewMessageButton, setShowNewMessageButton] = useState(false)
-
   // 메시지 전송
   const sendMessage = async () => {
-    // async 추가
     if (!messageContent.trim() || roomId === null) return
 
     const payload = {
@@ -228,9 +232,11 @@ const ChattingPage: React.FC = () => {
         messages[messages.length - 1]?.sender !== nickname
       ) {
         setShowNewMessageButton(true)
+        setUnreadMessages((prev) => prev + 1) // 새로운 메시지가 도착하면 읽지 않은 메시지 수 증가
       } else {
         scrollToBottom()
         setShowNewMessageButton(false) // 새 메시지 버튼 숨기기
+        setUnreadMessages(0) // 읽지 않은 메시지 수 초기화
       }
     }
   }, [messages, nickname])
@@ -258,23 +264,19 @@ const ChattingPage: React.FC = () => {
 
   // 채팅방 나가기 함수
   const leaveChatRoom = () => {
-    console.log()
-    if (
-      confirm('채팅방에서 나가시겠습니까? 확인 시, 해당 채팅방이 삭제됩니다.')
-    ) {
-      const payload = {
-        chatRoomId: roomId,
-      }
-      const stompClient = getStompClient()
-      if (stompClient) {
-        stompClient.publish({
-          destination: '/app/chatRoom/leave',
-          headers: { Authorization: `Bearer ${token}` },
-          body: JSON.stringify(payload),
-        })
-      } else {
-        console.error('StompClient is not connected.')
-      }
+    if (roomId === null) return
+    const payload = {
+      chatRoomId: roomId,
+    }
+    const stompClient = getStompClient()
+    if (stompClient) {
+      stompClient.publish({
+        destination: '/app/chatRoom/leave',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      })
+    } else {
+      console.error('StompClient is not connected.')
     }
   }
 
@@ -298,6 +300,7 @@ const ChattingPage: React.FC = () => {
       if (scrollPosition !== null) {
         messageListRef.current.scrollTop = parseInt(scrollPosition, 10)
       }
+      setShowNewMessageButton(unreadMessages > 0) // 새 메시지 버튼 상태 복원
     }
   }
 
@@ -355,7 +358,7 @@ const ChattingPage: React.FC = () => {
       <Header>
         <Title>{displayName}</Title>
         <ButtonContainer>
-          <ActionButton onClick={open}>
+          <ActionButton onClick={() => setIsLeaveModalOpen(true)}>
             <AddMemberIcon theme={theme} />
           </ActionButton>
           {isOpen && (
@@ -369,12 +372,45 @@ const ChattingPage: React.FC = () => {
               theme={theme}
             />
           )}
-          <ActionButton onClick={leaveChatRoom}>
+          <ActionButton onClick={() => setIsLeaveModalOpen(true)}>
             <ExitIcon theme={theme} />
           </ActionButton>
         </ButtonContainer>
       </Header>
-      {/* MessageList 컴포넌트에서 ChatBubble 사용 시 avatarSrc 전달 */}
+      {/* 나가기 확인 모달 */}
+      {isLeaveModalOpen && (
+        <Modal
+          isOpen={isLeaveModalOpen}
+          onClose={() => setIsLeaveModalOpen(false)}
+          showCloseButton={false}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <h3>채팅방에서 나가시겠습니까?</h3>
+            <p>
+              확인을 클릭할 시, 해당 채팅방에 더 이상 접근이 불가능해집니다.
+            </p>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '20px',
+                marginTop: '20px',
+              }}
+            >
+              <Button
+                onClick={() => {
+                  leaveChatRoom()
+                  setIsLeaveModalOpen(false)
+                  navigate('/chat') // 채팅방 목록으로 이동
+                }}
+              >
+                확인
+              </Button>
+              <Button onClick={() => setIsLeaveModalOpen(false)}>취소</Button>
+            </div>
+          </div>
+        </Modal>
+      )}
       <MessageList ref={messageListRef}>
         {messages.map((msg, index) => {
           if (msg.sender === 'admin') {
@@ -442,6 +478,7 @@ const ChattingPage: React.FC = () => {
         onClick={() => {
           scrollToBottom()
           setShowNewMessageButton(false)
+          setUnreadMessages(0) // 읽지 않은 메시지 수 초기화
         }}
       >
         새 메시지 ↓

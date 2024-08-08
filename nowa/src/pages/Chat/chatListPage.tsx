@@ -1,7 +1,7 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useChat } from '../../context/chatContext'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 const ChatListWrapper = styled.div`
   display: flex;
@@ -89,25 +89,33 @@ const ProfileImages = styled.div`
   flex-shrink: 0;
 `
 
-const ProfileImage = styled.img`
+const ProfileImage = styled.img<{ isFirst?: boolean }>`
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  margin-left: -10px;
   border: 2px solid white;
   object-fit: cover;
   flex-shrink: 0;
+  ${(props) =>
+    !props.isFirst &&
+    css`
+      margin-left: -10px;
+    `}
 `
 
-const DefaultProfileImage = styled.div`
+const DefaultProfileImage = styled.div<{ isFirst?: boolean }>`
   width: 30px;
   height: 30px;
   border-radius: 50%;
   background-color: #ccc;
-  margin-left: -10px;
   border: 2px solid white;
   object-fit: cover;
   flex-shrink: 0;
+  ${(props) =>
+    !props.isFirst &&
+    css`
+      margin-left: -10px;
+    `}
 `
 
 const UserCountWrapper = styled.div`
@@ -127,13 +135,15 @@ const Badge = styled.span`
   color: white;
   border-radius: 50%;
   padding: 4px 6px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: bold;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: 8px;
+  width: 22px;
+  height: 22px;
 `
 
 const RoomDetails = styled.div`
@@ -265,10 +275,14 @@ const ChatListPage: React.FC = () => {
               <RoomNameWrapper>
                 <ProfileImages>
                   {displayProfileImages.length === 0 ? (
-                    <DefaultProfileImage />
+                    <DefaultProfileImage isFirst={true} />
                   ) : (
                     displayProfileImages.map((src, index) => (
-                      <ProfileImage key={index} src={src} />
+                      <ProfileImage
+                        key={index}
+                        src={src}
+                        isFirst={index === 0}
+                      />
                     ))
                   )}
                 </ProfileImages>
@@ -278,7 +292,11 @@ const ChatListPage: React.FC = () => {
                 <UserCountWrapper>
                   <UserCount>({room.userResponses.length})</UserCount>
                   {roomInfo && roomInfo.unreadMessagesCount > 0 && (
-                    <Badge>{roomInfo.unreadMessagesCount}</Badge>
+                    <Badge>
+                      {roomInfo.unreadMessagesCount > 99
+                        ? '99+'
+                        : roomInfo.unreadMessagesCount}
+                    </Badge>
                   )}
                 </UserCountWrapper>
               </RoomNameWrapper>

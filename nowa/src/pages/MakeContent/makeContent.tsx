@@ -225,7 +225,10 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   }
 
   const handlePreviewClick = (src: string) => {
-    if (src.startsWith('data:image/')) {
+    if (
+      src.startsWith('data:image/') ||
+      src.startsWith('https://cdn-icons-png.flaticon.com/128/1014/1014333.png')
+    ) {
       setSelectedImage(src)
     }
   }
