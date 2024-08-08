@@ -7,6 +7,9 @@ import Posts from '../components/Posts/Posts';
 import UserFollowList from '../components/FollowList/UserFollowList';
 import { getCommentsByPostId } from '../services/comments';
 import Button from '../components/Button/button';
+import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
+import { useChat } from '../context/chatContext'
+import { fetchChatRooms } from '../api/chatApi'
 
 
 const Container = styled.div`
@@ -127,6 +130,11 @@ const UserPage: React.FC = () => {
   const location = import.meta.env.VITE_APP_API;
   const locations = useLocation();
   const [isFollowing, setIsFollowing] = useState(false);
+  const { connectAndSubscribe, disconnect } = useChatWebSocket()
+  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
+  const stompClient = getStompClient()
+  const payload = [nickname]
+
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token');
@@ -372,6 +380,51 @@ const UserPage: React.FC = () => {
     return <div>Failed to load user data</div>;
   }
 
+  const dm = async () => {
+    const token = localStorage.getItem('token');
+    const payload = { nicknames: [nickname] };
+  
+    if (!token) {
+      console.error('Token is missing');
+      return;
+    }
+  
+    // 사이드바의 activePage를 'chat' 설정하는 로직 필요 (여기서는 생략)
+  
+    // 웹소켓 연결
+    if (getStompClient() == null) {
+      await connectAndSubscribe();
+    }
+  
+    const stompClient = getStompClient();
+  
+    if (!stompClient || !stompClient.connected) {
+      console.error('WebSocket is not connected.');
+      return;
+    }
+  
+    try {
+      // 기존 채팅방 목록 가져오기
+      const data = await fetchChatRooms(token);
+      const chatRooms = data.chatRooms;
+      const chatRoomsInfo = data.chatRoomsInfo;
+  
+      setChatRooms(chatRooms);
+      setChatRoomsInfo(chatRoomsInfo);
+  
+      // STOMP 클라이언트를 통해 서버에 메시지 전송
+      stompClient.publish({
+        destination: '/app/chatRoom/create',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      });
+    }
+    catch (error) {
+      console.error(error);
+    }
+  }
+
+
   return (
     <Container>
       <ProfileSection>
@@ -400,7 +453,7 @@ const UserPage: React.FC = () => {
                 팔로우
               </Button>
             )}
-            <Button className="btn-primary">메시지</Button>
+            <Button onClick={dm} className="btn-primary">메시지</Button>
           </ButtonGroup>
         </ProfileInfo>
       </ProfileSection>
