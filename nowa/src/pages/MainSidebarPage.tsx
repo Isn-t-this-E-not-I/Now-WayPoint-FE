@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment-timezone'
 import DetailContentModal from '@/components/Modal/ContentModal'
-import { SyncLoader } from 'react-spinners';
+import { SyncLoader } from 'react-spinners'
 
 const FollowContentWrapper = styled.div`
   text-align: left;
@@ -187,15 +187,15 @@ const MainSidebarPage: React.FC = () => {
     <FollowContentWrapper>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center min-h-screen pb-60">
-        <SyncLoader
-          color="#6ebfe6"
-          cssOverride={{}}
-          margin={4}
-          size={14}
-          speedMultiplier={1}
-        />
-        <p className="mt-4 text-gray-600">잠시만 기다려주세요.</p>
-      </div>
+          <SyncLoader
+            color="#6ebfe6"
+            cssOverride={{}}
+            margin={4}
+            size={14}
+            speedMultiplier={1}
+          />
+          <p className="mt-4 text-gray-600">잠시만 기다려주세요.</p>
+        </div>
       ) : (
         displaySelectContents.map((selectContent) => (
           <ContentItem

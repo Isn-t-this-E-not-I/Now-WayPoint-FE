@@ -1,4 +1,4 @@
-import React, { useEffect, useState, KeyboardEvent } from 'react'
+import React, { useEffect, useState, useRef, useCallback } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
 import {
@@ -224,7 +224,9 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   }
 
   // 댓글 작성 시 Enter 키 핸들러
-  const handleCommentKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleCommentKeyDown = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>
+  ) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleCommentSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
@@ -233,7 +235,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
 
   // 답글 작성 시 Enter 키 핸들러
   const handleReplyKeyDown = (
-    e: KeyboardEvent<HTMLTextAreaElement>,
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
     parentCommentId: number
   ) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -390,6 +392,12 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     })
   }
 
+  const setMediaVolume = useCallback((element: HTMLMediaElement | null) => {
+    if (element) {
+      element.volume = 0.5
+    }
+  }, [])
+
   if (!post) {
     return (
       <div id="detail_not_found_error">
@@ -523,15 +531,28 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       <div id="detail_picture">
         <div id="detail_picture_item1">
           {Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0 ? (
-            <Carousel showThumbs={false} infiniteLoop useKeyboardArrows>
+            <Carousel
+              showThumbs={false}
+              infiniteLoop
+              useKeyboardArrows
+              showIndicators={false}
+            >
               {post.mediaUrls.map((url: string, index: number) => (
                 <div id="preview_container" key={index}>
                   {url.endsWith('.mp4') ? (
-                    <video controls controlsList="nodownload">
+                    <video
+                      controls
+                      controlsList="nodownload"
+                      ref={(el) => setMediaVolume(el)}
+                    >
                       <source src={url} type="video/mp4" />
                     </video>
                   ) : url.endsWith('.mp3') ? (
-                    <audio controls controlsList="nodownload">
+                    <audio
+                      controls
+                      controlsList="nodownload"
+                      ref={(el) => setMediaVolume(el)}
+                    >
                       <source src={url} type="audio/mp3" />
                     </audio>
                   ) : (
@@ -644,7 +665,15 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                 />
               </div>
             )}
-            <button type="submit">게시</button>
+            <button
+              type="submit"
+              style={{
+                marginRight: currentUser !== post.nickname ? '10px' : '0',
+                marginTop: currentUser !== post.nickname ? '10px' : '0',
+              }}
+            >
+              게시
+            </button>
           </div>
         </form>
       </div>
@@ -657,8 +686,6 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
         onClose={handleCloseModal}
       >
         <EditContent
-          //  onClose={handleCloseModal}
-          //  refreshPost={fetchPostAndComments}
           postId={id}
           onClose={() => setIsEditModalOpen(false)}
           refreshPost={fetchPostAndComments}
