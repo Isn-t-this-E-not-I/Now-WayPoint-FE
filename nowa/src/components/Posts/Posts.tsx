@@ -174,7 +174,7 @@ const Posts: React.FC<PostsProps> = ({ posts }) => {
       </PostsContainer>
       {selectedPostId !== null && (
         <DetailContentModal
-          showCloseButton={false}
+          showCloseButton={true}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           postId={selectedPostId}

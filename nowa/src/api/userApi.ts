@@ -165,3 +165,36 @@ export const checkLoginId = async (loginId: string) => {
     throw error;
   }
 };
+
+// 전체 회원 조회
+export const getAllUsers = async (token: string) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/user/all`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// 친구 추가
+export const addFollow = async (token: string, nickname: string) => {
+  try {
+    const response = await axios.put(
+      `${API_BASE_URL}/follow/add`,
+      { nickname },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};

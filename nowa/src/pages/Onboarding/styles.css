@@ -1,0 +1,13 @@
+/* src/pages/Onboarding/styles.css */
+
+.transition-all {
+  transition: transform 1s ease-in-out;
+}
+
+.translate-x-0 {
+  transform: translateX(0);
+}
+
+.translate-x-full {
+  transform: translateX(-100%);
+}

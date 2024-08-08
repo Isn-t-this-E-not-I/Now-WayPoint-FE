@@ -236,6 +236,26 @@ const Badge = styled.span`
   justify-content: center;
 `
 
+const DeleteNotificationsButton = styled.span`
+  position: absolute;
+  top: 60px;
+  right: 15px;
+  background-color: red;
+  color: white;
+  border-radius: 5px;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  &:hover {
+    transform: scale(1.05);
+  }
+`
+
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
@@ -247,7 +267,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount } = useWebSocket()
+  const { notifyCount , deleteNotificationAll } = useWebSocket()
+  const nickname = localStorage.getItem('nickname')
+  const location = import.meta.env.VITE_APP_API
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
@@ -304,6 +326,38 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   const handleNavigate = (page: string) => {
     navigate(`/${page}`)
+  }
+  
+  const handleDelete = () => {
+    //notifications에 데이터 제거
+    deleteNotificationAll();
+
+    // 알림 삭제를 위한 API 호출
+    const deleteNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token') // 토큰 가져오기
+        if (!token) {
+          throw new Error('No token found')
+        }
+
+        const response = await fetch(`${location}/notify/all`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          }, // 삭제할 알림의 ID를 body에 포함
+          body : JSON.stringify({ nickname : nickname })
+        })
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+      } catch (error) {
+        console.error('Failed to delete notification:', error)
+      }
+    }
+
+    deleteNotifications()
   }
 
   return (
@@ -443,6 +497,15 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             <CreateChatRoomButtonWrapeer>
               <CreateChatRoomButton />
             </CreateChatRoomButtonWrapeer>
+          )}
+        </TopRightSidebar>
+        <TopRightSidebar>
+          {activePage === 'notifications' && (
+              <DeleteNotificationsButton
+                onClick={handleDelete}
+              >
+                  전체 삭제
+              </DeleteNotificationsButton>
           )}
         </TopRightSidebar>
         <ContentDiv>

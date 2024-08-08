@@ -70,6 +70,7 @@ export const useChatWebSocket = () => {
             lastMessageTimestamp: '',
           },
         ])
+        navigate(`/chatting/${parsedMessage.chatRoomId}`)
         break
       case 'CHAT_LIST':
         const newMessages: ChatMessage[] = parsedMessage.messages.map(
