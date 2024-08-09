@@ -117,6 +117,12 @@ const InviteModal: React.FC<InviteModalProps> = ({
     setSearchQuery(e.target.value)
   }
 
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
   useEffect(() => {
     const getAllUsers = async () => {
       const users = await fetchAllUsers()
@@ -140,7 +146,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
   if (!isOpen) return null
 
   return (
-    <Overlay>
+    <Overlay onClick={handleOverlayClick}>
       <ModalBox>
         <div style={{ position: 'relative' }}>
           <CloseButton onClick={onClose}>&times;</CloseButton>
