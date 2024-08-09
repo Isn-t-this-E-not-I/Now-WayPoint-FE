@@ -68,7 +68,9 @@ const ActionButton = styled.button`
 const MessageList = styled.ul`
   list-style: none;
   padding: 0;
-  overflow-y: auto;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   overflow-x: hidden;
   flex-grow: 1;
   margin: 0;
@@ -175,8 +177,12 @@ const ChattingPage: React.FC = () => {
   const handleScroll = () => {
     if (messageListRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
-      const isScrolledToBottom = scrollHeight - scrollTop === clientHeight
-      setShowDownButton(!isScrolledToBottom) // 스크롤이 최하단이면 버튼 숨기기, 아니면 버튼 표시
+      const isScrolledToBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 250
+       setShowDownButton(!isScrolledToBottom) // 스크롤이 최하단이면 버튼 숨기기, 아니면 버튼 표시
+      if (!isScrolledToBottom) {
+        saveScrollPosition();
+        setShowDownButton(false);
+      }
     }
   }
 
@@ -226,9 +232,9 @@ const ChattingPage: React.FC = () => {
   // 최하단으로 스크롤 기능 함수
   const scrollToBottom = () => {
     if (messageListRef.current) {
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         messageListRef.current!.scrollTop = messageListRef.current!.scrollHeight
-      }, 100)
+      })
     }
   }
 
@@ -237,7 +243,7 @@ const ChattingPage: React.FC = () => {
     if (messageListRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
       const isScrolledToBottom =
-        Math.abs(scrollHeight - scrollTop - clientHeight) < 1
+        Math.abs(scrollHeight - scrollTop - clientHeight) < 250
 
       if (
         !isScrolledToBottom &&
@@ -257,18 +263,6 @@ const ChattingPage: React.FC = () => {
       }
     }
   }, [messages, nickname, chatRoom])
-
-  // 새로운 메시지 도착 시 스크롤 동작 처리
-  useEffect(() => {
-    if (messageListRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
-      const isScrolledToBottom = scrollHeight - scrollTop <= clientHeight + 1
-
-      if (isScrolledToBottom) {
-        scrollToBottom()
-      }
-    }
-  }, [messages])
 
   // 채팅방 초대 함수
   const inviteToChatRoom = (selectedNicknames: string[]) => {
