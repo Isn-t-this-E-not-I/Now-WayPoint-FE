@@ -8,12 +8,12 @@ let stompClient: CompatClient | null = null
 let chatRoomSubscription: any = null
 let activeChatRoomPage: number
 export const getStompClient = () => stompClient
-export const setActiveChatRoomPage = (number: number) => activeChatRoomPage = number
+export const setActiveChatRoomPage = (number: number) =>
+  (activeChatRoomPage = number)
 
 export const useChatWebSocket = () => {
   const navigate = useNavigate()
-  const { setChatRooms, setMessages, setChatRoomsInfo } =
-    useChat()
+  const { setChatRooms, setMessages, setChatRoomsInfo } = useChat()
   const token = localStorage.getItem('token') || ''
   const nickname = localStorage.getItem('nickname') || ''
 
@@ -72,7 +72,9 @@ export const useChatWebSocket = () => {
             lastMessageTimestamp: '',
           },
         ])
-        navigate(`/chatting/${parsedMessage.chatRoomId}`)
+        if (parsedMessage.requestUser === nickname) {
+          navigate(`/chatting/${parsedMessage.chatRoomId}`)
+        }
         break
       case 'CHAT_LIST':
         const newMessages: ChatMessage[] = parsedMessage.messages.map(
