@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import fetchAllUsers from '@/data/fetchAllUsers'
-import AllUserList from '../FollowList/AllUserList'
+import { FaSearch, FaPlus, FaCheck, FaTrash } from "react-icons/fa";
+import { getAllUsers } from '../../api/userApi';
 
 const Overlay = styled.div`
   position: fixed;
@@ -78,6 +78,7 @@ const SubmitButton = styled.button<{ $themeMode: string }>`
   }
   margin-top: 10px;
 `
+
 const SearchContainer = styled.div`
   margin-left: 6px;
   width: 100%;
@@ -91,12 +92,51 @@ const SearchInput = styled.input`
   border-radius: 8px;
 `
 
+const SelectedFriendsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+`
+
+const FriendItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0f0f0;
+  padding: 8px;
+  border-radius: 4px;
+`
+
+const FriendImage = styled.img`
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+`
+
+const FriendName = styled.p`
+  font-size: 14px;
+  margin: 0;
+`
+
+const RemoveButton = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff0000;
+  font-size: 16px;
+`
+
+interface User {
+  name: string;
+  nickname: string;
+  profileImageUrl: string;
+}
+
 interface InviteModalProps {
   isOpen: boolean
   onClose: () => void
-  selectedUsers: string
-  setSelectedUsers: React.Dispatch<React.SetStateAction<string>>
-  handleSubmit: (e: React.FormEvent) => void
+  handleSubmit: (selectedNicknames: string[]) => void
   theme: string
   showCloseButton?: boolean
 }
@@ -104,40 +144,78 @@ interface InviteModalProps {
 const InviteModal: React.FC<InviteModalProps> = ({
   isOpen,
   onClose,
-  selectedUsers,
-  setSelectedUsers,
   handleSubmit,
   theme,
   showCloseButton = true,
 }) => {
-  const [allUsers, setAllUsers] = useState<any[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
-
-  useEffect(() => {
-    const getAllUsers = async () => {
-      const users = await fetchAllUsers()
-      setAllUsers(users)
-    }
-    getAllUsers()
-  }, [])
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
 
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = 'auto'
+      document.body.style.overflow = 'auto';
     }
 
     return () => {
-      document.body.style.overflow = 'auto'
+      document.body.style.overflow = 'auto';
     }
-  }, [isOpen])
+  }, [isOpen]);
 
-  if (!isOpen) return null
+  useEffect(() => {
+    const searchUsers = async () => {
+      if (!searchQuery) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const users = await getAllUsers(token);
+          const results = users
+            .filter((user: User) =>
+              (user.name.includes(searchQuery) || user.nickname.includes(searchQuery)) &&
+              !selectedFriends.some(selected => selected.nickname === user.nickname)
+            );
+          setSearchResults(results);
+        } else {
+          console.error('No token found');
+        }
+      } catch (error) {
+        console.error('Error searching users:', error);
+      }
+    }
+
+    searchUsers();
+  }, [searchQuery, selectedFriends]);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      setSearchQuery(event.currentTarget.value);
+    }
+  }
+
+  const handleAddFriend = (friend: User) => {
+    setSelectedFriends([...selectedFriends, friend]);
+    setSearchQuery('');
+  }
+
+  const handleRemoveFriend = (nickname: string) => {
+    setSelectedFriends(selectedFriends.filter(friend => friend.nickname !== nickname));
+  }
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    const selectedNicknames = selectedFriends.map(friend => friend.nickname)
+
+
+    handleSubmit(selectedNicknames)
+  };
+
+  if (!isOpen) return null;
 
   return (
     <Overlay>
@@ -145,26 +223,56 @@ const InviteModal: React.FC<InviteModalProps> = ({
         <div style={{ position: 'relative' }}>
           <CloseButton onClick={onClose}>&times;</CloseButton>
           <h3 className="font-bold text-lg">새 채팅방 생성</h3>
-          <Form onSubmit={handleSubmit}>
-            <Label htmlFor="invitedUsers">유저 초대</Label>
-            {/* <SearchContainer>
+          <Form onSubmit={handleFormSubmit}>
+            <SelectedFriendsContainer>
+              {selectedFriends.map(friend => (
+                <FriendItem key={friend.nickname}>
+                  <FriendImage src={friend.profileImageUrl} alt={friend.name} />
+                  <FriendName>{friend.nickname}</FriendName>
+                  <RemoveButton onClick={() => handleRemoveFriend(friend.nickname)}>
+                    <FaTrash />
+                  </RemoveButton>
+                </FriendItem>
+              ))}
+            </SelectedFriendsContainer>
+            <SearchContainer>
               <SearchInput
                 type="text"
-                placeholder="전체 유저 검색"
+                placeholder="친구 검색"
                 value={searchQuery}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
               />
-              <AllUserList
-                users={allUsers}
-                searchQuery={searchQuery}
-              />
-            </SearchContainer> */}
-            <Input
-              type="text"
-              value={selectedUsers}
-              onChange={(e) => setSelectedUsers(e.target.value)}
-              placeholder="유저 닉네임 입력"
-            />
+              <button onClick={() => setSearchQuery(searchQuery)} className="p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-200">
+                <FaSearch />
+              </button>
+            </SearchContainer>
+            <ul className="mb-4">
+              {searchResults.map((user: User) => (
+                <li key={user.nickname} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2">
+                  <div className="flex items-center">
+                    <img
+                      src={user.profileImageUrl}
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full mr-4"
+                    />
+                    <p className="text-black">{user.nickname}</p>
+                    <p className="text-gray-500 ml-0.5">({user.name})</p>
+                  </div>
+                  {selectedFriends.some(friend => friend.nickname === user.nickname) ? (
+                    <FaCheck
+                      onClick={() => handleRemoveFriend(user.nickname)}
+                      className="text-green-500 cursor-pointer"
+                    />
+                  ) : (
+                    <FaPlus
+                      onClick={() => handleAddFriend(user)}
+                      className="text-blue-500 cursor-pointer"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
             <SubmitButton type="submit" $themeMode={theme}>
               생성
             </SubmitButton>
@@ -179,7 +287,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
         )}
       </ModalBox>
     </Overlay>
-  )
+  );
 }
 
-export default InviteModal
+export default InviteModal;

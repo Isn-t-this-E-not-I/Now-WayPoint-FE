@@ -7,7 +7,8 @@ import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 import moment from 'moment-timezone'
 import DetailContentModal from '@/components/Modal/ContentModal'
-import { SyncLoader } from 'react-spinners';
+import { SyncLoader } from 'react-spinners'
+import NoFollowContentsImage from '../assets/ezgif.com-gif-maker (2).gif'
 
 const FollowContentWrapper = styled.div`
   text-align: left;
@@ -187,15 +188,26 @@ const MainSidebarPage: React.FC = () => {
     <FollowContentWrapper>
       {isLoading ? (
         <div className="flex flex-col items-center justify-center min-h-screen pb-60">
-        <SyncLoader
-          color="#6ebfe6"
-          cssOverride={{}}
-          margin={4}
-          size={14}
-          speedMultiplier={1}
-        />
-        <p className="mt-4 text-gray-600">잠시만 기다려주세요.</p>
-      </div>
+          <SyncLoader
+            color="#6ebfe6"
+            cssOverride={{}}
+            margin={4}
+            size={14}
+            speedMultiplier={1}
+          />
+          <p className="mt-4 text-gray-600">잠시만 기다려주세요.</p>
+        </div>
+      ) : (
+        <>
+      {displaySelectContents.length < 1 ? (
+        <div className="flex flex-col items-center justify-center">
+          <img
+            src={NoFollowContentsImage}
+            alt="No Notifications"
+            style={{ backgroundColor: 'transparent', width: '150px', height: '150px', marginRight: '40px' }}
+          />
+          <div className="mt-4">주변 게시글이 없습니다...</div>
+        </div>
       ) : (
         displaySelectContents.map((selectContent) => (
           <ContentItem
@@ -264,6 +276,8 @@ const MainSidebarPage: React.FC = () => {
         onClose={closeModal}
         postId={selectedPostId}
       />
+    </>
+  )}
     </FollowContentWrapper>
   )
 }

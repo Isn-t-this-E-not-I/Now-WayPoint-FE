@@ -7,14 +7,14 @@ interface TextareaProps {
   value?: string
   onChange?: (e: ChangeEvent<HTMLTextAreaElement>) => void
   onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void
-  onBlur?: (e: FocusEvent<HTMLTextAreaElement>) => void;
+  onBlur?: (e: FocusEvent<HTMLTextAreaElement>) => void
   className?: string
 }
 
 const TextAreaWrapper = styled.div`
   position: relative;
   width: 100%;
-`;
+`
 
 const TextAreaStyled = styled.textarea`
   width: 100%;
@@ -22,7 +22,7 @@ const TextAreaStyled = styled.textarea`
   border: 1px solid #ccc;
   border-radius: 8px;
   resize: none;
-`;
+`
 
 const CharCount = styled.div`
   position: absolute;
@@ -30,7 +30,7 @@ const CharCount = styled.div`
   right: 10px;
   font-size: 12px;
   color: #999;
-`;
+`
 
 const TextArea: React.FC<TextareaProps> = ({
   id,
@@ -41,7 +41,7 @@ const TextArea: React.FC<TextareaProps> = ({
   onBlur,
   className = '',
 }) => {
-  const displayValue = value ?? '';
+  const displayValue = value ?? ''
   return (
     <TextAreaWrapper>
       <TextAreaStyled
@@ -54,9 +54,7 @@ const TextArea: React.FC<TextareaProps> = ({
         onBlur={onBlur}
       />
       {displayValue !== undefined && (
-        <CharCount>
-          {displayValue.length} / 150
-        </CharCount>
+        <CharCount>{displayValue.length} / 150</CharCount>
       )}
     </TextAreaWrapper>
   )

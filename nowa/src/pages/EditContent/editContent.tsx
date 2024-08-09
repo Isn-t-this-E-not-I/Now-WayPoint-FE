@@ -42,15 +42,28 @@ const EditContent: React.FC<EditContentProps> = ({
         setContent(postData.content || '')
         setTags(postData.hashtags || [])
         setSelectedOption(postData.category || 'PHOTO')
-        setPreviewSrcs(postData.mediaUrls || [])
         setExistingUrls(postData.mediaUrls || [])
 
-        // 기존 영상 썸네일 생성
-        postData.mediaUrls?.forEach((url, index) => {
-          if (url.match(/\.(mp4|avi)$/)) {
-            generateThumbnail(null, url, index)
+        if (postData.mediaUrls) {
+          // 기존 미디어 처리
+          const initialPreviews = postData.mediaUrls
+            .map((url) => {
+              if (url.match(/\.(mp4|avi)$/)) {
+                generateThumbnail(null, url)
+                return null // 썸네일을 비동기로 처리하기 때문에 일단 null로 채움
+              } else if (url.match(/\.(mp3)$/)) {
+                return url.split('/').pop()?.split('.')[0] || url
+              } else {
+                return url
+              }
+            })
+            .filter(Boolean) as string[]
+
+          setPreviewSrcs(initialPreviews)
+          if (initialPreviews.length > 0) {
+            setSelectedImage(initialPreviews[0])
           }
-        })
+        }
       } catch (error) {
         console.error('게시물 데이터를 가져오는 데 실패했습니다:', error)
       }
@@ -110,11 +123,15 @@ const EditContent: React.FC<EditContentProps> = ({
 
       validFileArray.forEach((file, index) => {
         if (file.type.startsWith('video/')) {
-          generateThumbnail(
-            file,
-            undefined,
-            existingUrls.length + newFiles.length + index
-          )
+          generateThumbnail(file)
+        } else if (file.type.startsWith('audio/')) {
+          setPreviewSrcs((prevSrcs) => {
+            const fileName =
+              file.name.split('/').pop()?.split('.')[0] || file.name
+            const newSrcs = [...prevSrcs, fileName]
+            setSelectedImage(newSrcs[newSrcs.length - 1])
+            return newSrcs
+          })
         } else {
           const reader = new FileReader()
           reader.readAsDataURL(file)
@@ -122,7 +139,6 @@ const EditContent: React.FC<EditContentProps> = ({
             if (reader.result) {
               setPreviewSrcs((prevSrcs) => {
                 const newSrcs = [...prevSrcs, reader.result as string]
-                // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
                 setSelectedImage(newSrcs[newSrcs.length - 1])
                 return newSrcs
               })
@@ -133,17 +149,13 @@ const EditContent: React.FC<EditContentProps> = ({
     }
   }
 
-  const generateThumbnail = (
-    file: File | null,
-    url?: string,
-    index?: number
-  ) => {
+  const generateThumbnail = (file: File | null, url?: string) => {
     const video = document.createElement('video')
-    video.crossOrigin = 'anonymous' // 크로스 오리진 설정
+    video.crossOrigin = 'anonymous'
     video.src = url || URL.createObjectURL(file!)
 
     video.addEventListener('loadeddata', () => {
-      video.currentTime = 1 // 비디오의 특정 시간으로 이동
+      video.currentTime = 1
     })
 
     video.addEventListener('canplay', () => {
@@ -157,13 +169,9 @@ const EditContent: React.FC<EditContentProps> = ({
         const thumbnail = canvas.toDataURL('image/png')
 
         setPreviewSrcs((prevSrcs) => {
-          const newSrcs = [...prevSrcs]
-          if (index !== undefined) {
-            newSrcs[index] = thumbnail // 특정 인덱스에 썸네일 추가
-          } else {
-            newSrcs.push(thumbnail) // 인덱스가 정의되지 않으면 새 썸네일 추가
-          }
-          // 새로 추가된 파일의 미리보기를 선택된 이미지로 설정
+          const newSrcs = url
+            ? prevSrcs.map((src) => (src === url ? thumbnail : src))
+            : [...prevSrcs, thumbnail]
           setSelectedImage(thumbnail)
           return newSrcs
         })
@@ -196,14 +204,12 @@ const EditContent: React.FC<EditContentProps> = ({
 
     setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
 
-    // 만약 제거된 작은 미리보기가 현재 선택된 큰 미리보기라면, 큰 미리보기를 초기화
     if (selectedImage === removedSrc) {
       setSelectedImage(null)
     }
   }
 
   useEffect(() => {
-    // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
     if (!previewSrcs.includes(selectedImage as string)) {
       setSelectedImage(previewSrcs.length > 0 ? previewSrcs[0] : null)
     }
@@ -211,7 +217,7 @@ const EditContent: React.FC<EditContentProps> = ({
 
   const handleContextMenu = (
     event: React.MouseEvent<
-      HTMLImageElement | HTMLVideoElement | HTMLAudioElement
+      HTMLImageElement | HTMLVideoElement | HTMLAudioElement | HTMLDivElement
     >
   ) => {
     event.preventDefault()
@@ -402,12 +408,16 @@ const EditContent: React.FC<EditContentProps> = ({
                   onClick={() => handlePreviewClick(src)}
                 >
                   <div className="image_preview_wrapper">
-                    <img
-                      id="image_preview"
-                      src={src}
-                      alt={`Image Preview ${index + 1}`}
-                      onContextMenu={handleContextMenu}
-                    />
+                    {selectedOption === 'MP3' && !src.startsWith('data:') ? (
+                      <div className="audio_preview">{src}</div>
+                    ) : (
+                      <img
+                        id="image_preview"
+                        src={src}
+                        alt={`Image Preview ${index + 1}`}
+                        onContextMenu={handleContextMenu}
+                      />
+                    )}
                     <button
                       className="remove_image_button"
                       onClick={() => handleRemoveFile(index)}
@@ -425,12 +435,17 @@ const EditContent: React.FC<EditContentProps> = ({
 
           {selectedImage && (
             <div id="selected_image_preview">
-              <img
-                src={selectedImage}
-                alt="Selected Preview"
-                onContextMenu={handleContextMenu}
-                onDragStart={(e) => e.preventDefault()}
-              />
+              {selectedOption === 'MP3' &&
+              !selectedImage.startsWith('data:') ? (
+                <div className="audio_preview">{selectedImage}</div>
+              ) : (
+                <img
+                  src={selectedImage}
+                  alt="Selected Preview"
+                  onContextMenu={handleContextMenu}
+                  onDragStart={(e) => e.preventDefault()}
+                />
+              )}
             </div>
           )}
 
@@ -464,7 +479,7 @@ const EditContent: React.FC<EditContentProps> = ({
               >
                 {showPicker ? '' : ''}{' '}
                 <img
-                  src="https://cdn-icons-png.flaticon.com/128/569/569501.png"
+                  src="https://cdn-icons-png.flaticon.com/128/3129/3129275.png"
                   alt="이모티콘"
                 ></img>
               </button>

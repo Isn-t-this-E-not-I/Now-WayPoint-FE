@@ -16,9 +16,9 @@ import {
 import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
-import CreateChatRoomButton from '../CreateChatRoomButton/createChatRoomButton'
+import CreateChatRoomButton from '../Chat/createChatRoomButton'
 import { fetchChatRooms } from '../../api/chatApi'
-import { useChatWebSocket, getStompClient } from '@/websocket/chatWebSocket'
+import { useChatWebSocket, getStompClient, setActiveChatRoomPage } from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 import Modal from '../Modal/modal'
@@ -106,7 +106,7 @@ const LogoIconButtonWrapper = styled.button`
 
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
-}))<{ active: boolean }>`
+})) <{ active: boolean }>`
   background: ${({ active }) =>
     active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
   border: none;
@@ -238,12 +238,12 @@ const Badge = styled.span`
 
 const DeleteNotificationsButton = styled.span`
   position: absolute;
-  top: 60px;
+  top: 50px;
   right: 15px;
-  background-color: red;
-  color: white;
+  background-color: #9269b2;
+  color: #fdfdfd;
   border-radius: 5px;
-  padding: 2px 6px;
+  padding: 7px 14px;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -252,7 +252,7 @@ const DeleteNotificationsButton = styled.span`
   justify-content: center;
   cursor: pointer;
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.03);
   }
 `
 
@@ -262,12 +262,12 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
-  const { setChatRooms, setChatRoomsInfo, setActiveChatRoomId } = useChat()
+  const { setChatRooms, setChatRoomsInfo } = useChat()
 
   const [token] = useState<string>(localStorage.getItem('token') || '')
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount , deleteNotificationAll } = useWebSocket()
+  const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
 
@@ -285,7 +285,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   useEffect(() => {
     if (activePage !== 'chat') {
       disconnect()
-      setActiveChatRoomId(null)
+      setActiveChatRoomPage(-1)
     }
   }, [activePage])
 
@@ -302,6 +302,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         return <MainSidebarPage />
       case 'followContents':
         return <FollowContentsPage />
+      case 'myPage':
+        return <div></div>
       default:
         return <MainSidebarPage />
     }
@@ -327,10 +329,10 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const handleNavigate = (page: string) => {
     navigate(`/${page}`)
   }
-  
+
   const handleDelete = () => {
     //notifications에 데이터 제거
-    deleteNotificationAll();
+    deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출
     const deleteNotifications = async () => {
@@ -346,7 +348,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
           }, // 삭제할 알림의 ID를 body에 포함
-          body : JSON.stringify({ nickname : nickname })
+          body: JSON.stringify({ nickname: nickname }),
         })
 
         if (!response.ok) {
@@ -507,12 +509,10 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           )}
         </TopRightSidebar>
         <TopRightSidebar>
-          {activePage === 'notifications' && (
-              <DeleteNotificationsButton
-                onClick={handleDelete}
-              >
-                  전체 삭제
-              </DeleteNotificationsButton>
+          {activePage === 'notifications' && notifications.length > 0 && (
+            <DeleteNotificationsButton onClick={handleDelete}>
+              전체 삭제
+            </DeleteNotificationsButton>
           )}
         </TopRightSidebar>
         <ContentDiv>
