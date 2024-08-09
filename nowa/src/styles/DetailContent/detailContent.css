@@ -2,7 +2,7 @@
 .detail_container {
   display: flex;
   height: 100%;
-  width: 100%;
+  width: 60rem;
   margin: 0;
 }
 
@@ -27,7 +27,7 @@
   grid-template-rows: 10% 10% 1fr auto auto;
   height: 80vh;
   border: 1px solid black;
-  width: 20rem;
+  min-width: 400px;
 }
 
 /* 프로필 */
