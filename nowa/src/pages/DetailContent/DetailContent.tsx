@@ -511,7 +511,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               <div id="detail_coment_date">
                 {formatRelativeTime(comment.createdAt)}
               </div>
-              {/* 답글 달기 버튼 조건부 렌더링 */}
+
               {comment.parentId === null && (
                 <div
                   id="detail_coment_recoment"
@@ -622,6 +622,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               infiniteLoop={false}
               useKeyboardArrows
               showStatus={false}
+              onChange={handleSlideChange}
               renderArrowPrev={(onClickHandler, hasPrev, label) =>
                 hasPrev && (
                   <button
@@ -693,7 +694,10 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                     <video
                       controls
                       controlsList="nodownload"
-                      ref={(el) => setMediaVolume(el)}
+                      ref={(el) => {
+                        videoRefs.current[index] = el
+                        setMediaVolume(el)
+                      }}
                     >
                       <source src={url} type="video/mp4" />
                     </video>
