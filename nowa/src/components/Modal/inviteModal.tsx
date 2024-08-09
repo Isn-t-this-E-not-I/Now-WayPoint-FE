@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { FaSearch, FaPlus, FaCheck, FaTrash } from "react-icons/fa";
 import { getAllUsers } from '../../api/userApi';
+import fetchAllUsers from '@/data/fetchAllUsers';
 
 const Overlay = styled.div`
   position: fixed;
