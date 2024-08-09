@@ -318,4 +318,4 @@ const InviteModal: React.FC<InviteModalProps> = ({
   )
 }
 
-export default InviteModal
+export default InviteModal;
