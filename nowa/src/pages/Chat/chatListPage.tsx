@@ -22,7 +22,7 @@ const ChatListWrapper = styled.div`
 const ChatList = styled.ul`
   list-style: none;
   padding-left: 10px;
-  margin: -10px;
+  margin: -12px;
 `
 
 const ChatListItem = styled.li`
@@ -33,7 +33,7 @@ const ChatListItem = styled.li`
   padding: 10px;
   border-radius: 12px;
   border: 2.3px solid transparent;
-  height: 7rem;
+  height: 5rem;
   width: 18.2rem;
   font-size: 15px;
   margin: 10px auto;
@@ -63,7 +63,7 @@ interface RoomNameProps {
 }
 
 const RoomName = styled.h2<RoomNameProps>`
-  font-size: 1.3rem;
+  font-size: 1rem;
   font-weight: bold;
   color: #01317b;
   margin: 0;
@@ -88,6 +88,7 @@ const ProfileImages = styled.div`
   display: flex;
   align-items: center;
   margin-right: 10px;
+  margin-bottom: -5px;
   flex-shrink: 0;
 `
 
@@ -127,9 +128,9 @@ const UserCountWrapper = styled.div`
 `
 
 const UserCount = styled.span`
-  font-size: 1rem;
+  font-size: 0.7rem;
   color: #666;
-  margin-left: 5px;
+  margin-left: 3px;
 `
 
 const Badge = styled.span`
@@ -153,6 +154,9 @@ const RoomDetails = styled.div`
   font-size: 0.9rem;
   color: #151515;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `
 
 const RoomDetail = styled.p`
@@ -160,14 +164,14 @@ const RoomDetail = styled.p`
   justify-content: space-between;
   align-items: center;
   margin: 5px 0;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-  white-space: nowrap !important;
-  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 80%; /* Adjusted width to make space for the timestamp */
 `
 
 const TimeAgo = styled.span`
-  color: #01317b;
+  color: #aaa;
   font-size: 12px;
   margin-left: auto;
 `
@@ -319,12 +323,14 @@ const ChatListPage: React.FC = () => {
                   {roomInfo && (
                     <RoomDetails>
                       {roomInfo.lastMessageContent && (
-                        <RoomDetail>{roomInfo.lastMessageContent}</RoomDetail>
+                        <RoomDetail>
+                          {roomInfo.lastMessageContent.length > 20
+                            ? `${roomInfo.lastMessageContent.slice(0, 20)}...`
+                            : roomInfo.lastMessageContent}
+                        </RoomDetail>
                       )}
                       {roomInfo.lastMessageTimestamp && (
-                        <RoomDetail>
-                          {formatRelativeTime(roomInfo.lastMessageTimestamp)}
-                        </RoomDetail>
+                        <TimeAgo>{formatRelativeTime(roomInfo.lastMessageTimestamp)}</TimeAgo>
                       )}
                     </RoomDetails>
                   )}
