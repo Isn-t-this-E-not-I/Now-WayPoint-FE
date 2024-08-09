@@ -63,6 +63,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [expandedComments, setExpandedComments] = useState<Set<number>>(
     new Set()
   ) // 댓글 확장 상태
+  const [isContentExpanded, setIsContentExpanded] = useState<boolean>(false) // 글 내용 확장 상태 추가
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false) // 댓글 이모지 선택기 상태
@@ -70,6 +71,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     number | null
   >(null) // 대댓글 이모지 선택기 상태
   const emojiPickerRef = useRef<HTMLDivElement | null>(null)
+  const videoRefs = useRef<(HTMLVideoElement | null)[]>([]) // 비디오 참조 저장
 
   const handleCloseModal = () => {
     // 닫기 버튼
@@ -399,6 +401,15 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     })
   }
 
+  // 슬라이드 전환 시 비디오 정지 핸들러
+  const handleSlideChange = (index: number) => {
+    videoRefs.current.forEach((video, i) => {
+      if (video && i !== index) {
+        video.pause()
+      }
+    })
+  }
+
   const setMediaVolume = useCallback((element: HTMLMediaElement | null) => {
     if (element) {
       element.volume = 0.5
@@ -431,6 +442,30 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
 
   const con_Text = '='
   const con_drop = ['게시글 수정', '게시글 삭제']
+
+  const renderContent = () => {
+    if (!post) return null
+
+    const contentToShow = isContentExpanded
+      ? post.content
+      : post.content.slice(0, 100)
+
+    return (
+      <div>
+        <div id="detail_user_write_content">
+          {contentToShow}
+          {post.content.length > 100 && (
+            <span
+              onClick={() => setIsContentExpanded(!isContentExpanded)}
+              style={{ color: 'rgb(87, 193, 255)', cursor: 'pointer' }}
+            >
+              {isContentExpanded ? '...접기' : '...더보기'}
+            </span>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   const renderComments = (comments: Comment[]) => {
     return comments.map((comment) => {
@@ -723,7 +758,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
         </div>
 
         <div id="detail_user_content">
-          <div id="detail_user_write_content">{post.content}</div>
+          {renderContent()}
           <div id="hashtag">
             {post.hashtags.map((tag, index) => (
               <span key={index}>{tag} </span>
