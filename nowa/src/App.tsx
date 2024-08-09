@@ -10,7 +10,14 @@ import { WebSocketProvider } from './components/WebSocketProvider/WebSocketProvi
 
 const App: React.FC = () => {
   const location = useLocation()
-  const noSidebarPaths = ['/login', '/register', '/find-id', '/find-password'] // Sidebar가 보이지 않아야 하는 경로
+  const noSidebarPaths = [
+    '/login', 
+    '/register', 
+    '/find-id', 
+    '/find-password',
+    '/onboarding/location-permission',
+    '/onboarding/friend-addition',
+  ] // Sidebar가 보이지 않아야 하는 경로
 
   const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
   const [selectedPage, setSelectedPage] = useState<string>('main')
