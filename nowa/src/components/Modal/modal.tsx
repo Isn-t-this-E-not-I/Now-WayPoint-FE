@@ -1,12 +1,12 @@
-import React, { ReactNode, useEffect } from 'react';
-import styled from 'styled-components';
-import { FaX, FaXmark } from "react-icons/fa6";
+import React, { ReactNode, useEffect } from 'react'
+import styled from 'styled-components'
+import { FaX, FaXmark } from 'react-icons/fa6'
 
 interface ModalProps {
-  isOpen: boolean;
-  onClose?: () => void;
-  children?: ReactNode;
-  showCloseButton?: boolean;
+  isOpen: boolean
+  onClose?: () => void
+  children?: ReactNode
+  showCloseButton?: boolean
 }
 
 const Overlay = styled.div`
@@ -20,15 +20,14 @@ const Overlay = styled.div`
   align-items: center;
   justify-content: center;
   z-index: 1000;
-`;
+`
 
 const ModalBox = styled.div`
   background: #fff;
   padding: 20px;
   border-radius: 14px;
   position: relative;
-  max-width: 65%;
-`;
+`
 
 const CloseBtn = styled.button`
   position: absolute;
@@ -39,7 +38,7 @@ const CloseBtn = styled.button`
   font-size: 1.2rem;
   cursor: pointer;
   color: white;
-`;
+`
 
 const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -49,36 +48,34 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
   useEffect(() => {
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = 'auto'
     }
 
     return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [isOpen]);
+      document.body.style.overflow = 'auto'
+    }
+  }, [isOpen])
 
-  if (!isOpen) return null;
+  if (!isOpen) return null
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && onClose) {
-      onClose && onClose();
+      onClose && onClose()
     }
-  };
+  }
 
   return (
     <Overlay onClick={handleOverlayClick}>
-      <ModalBox>
-        {children}
-      </ModalBox>
+      <ModalBox>{children}</ModalBox>
       {showCloseButton && (
         <CloseBtn onClick={onClose}>
           <FaX />
         </CloseBtn>
       )}
     </Overlay>
-  );
-};
+  )
+}
 
-export default Modal;
+export default Modal

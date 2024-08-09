@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import moment from 'moment-timezone';
 import DetailContentModal from '@/components/Modal/ContentModal';
 import { SyncLoader } from 'react-spinners';
+import NoFollowContentsImages from '../assets/ezgif.com-gif-maker (1).gif'
 
 
 const FollowContentWrapper = styled.div`
@@ -193,72 +194,85 @@ const FollowContentsPage: React.FC = () => {
         <p className="mt-4 text-gray-600">잠시만 기다려주세요.</p>
       </div>
       ) : (
-        displayFollowContents.map((followContent) => (
-          <ContentItem
-            key={followContent.id}
-            onClick={() => handleContentClick(followContent.id)}
-          >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <ProfilePic
-                src={followContent.profileImageUrl}
-                alt="Profile"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleProfileClick(followContent.username);
-                }}
-              />
-              <CategoryLabel>{followContent.category}</CategoryLabel>
-              <Username
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleProfileClick(followContent.username);
-                }}
-              >
-                {followContent.username}
-              </Username>
-            </div>
-            {followContent.mediaUrls.length > 0 && (
-              <InnerMediaWrapper>
-                {followContent.mediaUrls[0].endsWith('.mp4') ? (
-                  <InnerVideo
-                    src={followContent.mediaUrls[0]}
-                    muted
-                    controls={false}
-                    onMouseEnter={(e) => e.currentTarget.play()}
-                    onMouseLeave={(e) => e.currentTarget.pause()}
-                    onContextMenu={(e) => e.preventDefault()}
-                  />
-                ) : followContent.mediaUrls[0].endsWith('.mp3') ? (
-                  <InnerImage
-                    src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
-                    alt="Music Icon"
-                  />
-                ) : (
-                  <InnerImage src={followContent.mediaUrls[0]} alt="Content" />
-                )}
-              </InnerMediaWrapper>
-            )}
-            <ContentDisplay content={followContent.content} />
-            <HashTags>
-              {followContent.hashtags.map((hashtag, index) => (
-                <span key={index}>{hashtag} </span>
-              ))}
-            </HashTags>
-            <div style={{ display: 'flex' }}>
-              <LikeCount>❤ {followContent.likeCount}</LikeCount>
-              <TimeAgo>{formatRelativeTime(followContent.createdAt)}</TimeAgo>
-            </div>
-          </ContentItem>
-        ))
-      )}
-      {selectedPostId !== null && (
-        <DetailContentModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          postId={selectedPostId}
-          showCloseButton={true}
-        />
-      )}
+        <>
+        {displayFollowContents.length < 1 ? (
+          <div className="flex flex-col items-center justify-center">
+            <img
+              src={NoFollowContentsImages}
+              alt="No Notifications"
+              style={{ backgroundColor: 'transparent', width: '150px', height: '150px' }}
+            />
+            <div className="mt-4">팔로워를 추가하세요!</div>
+          </div>
+        ) : (
+          displayFollowContents.map((followContent) => (
+            <ContentItem
+              key={followContent.id}
+              onClick={() => handleContentClick(followContent.id)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <ProfilePic
+                  src={followContent.profileImageUrl}
+                  alt="Profile"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProfileClick(followContent.username);
+                  }}
+                />
+                <CategoryLabel>{followContent.category}</CategoryLabel>
+                <Username
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleProfileClick(followContent.username);
+                  }}
+                >
+                  {followContent.username}
+                </Username>
+              </div>
+              {followContent.mediaUrls.length > 0 && (
+                <InnerMediaWrapper>
+                  {followContent.mediaUrls[0].endsWith('.mp4') ? (
+                    <InnerVideo
+                      src={followContent.mediaUrls[0]}
+                      muted
+                      controls={false}
+                      onMouseEnter={(e) => e.currentTarget.play()}
+                      onMouseLeave={(e) => e.currentTarget.pause()}
+                      onContextMenu={(e) => e.preventDefault()}
+                    />
+                  ) : followContent.mediaUrls[0].endsWith('.mp3') ? (
+                    <InnerImage
+                      src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
+                      alt="Music Icon"
+                    />
+                  ) : (
+                    <InnerImage src={followContent.mediaUrls[0]} alt="Content" />
+                  )}
+                </InnerMediaWrapper>
+              )}
+              <ContentDisplay content={followContent.content} />
+              <HashTags>
+                {followContent.hashtags.map((hashtag, index) => (
+                  <span key={index}>{hashtag} </span>
+                ))}
+              </HashTags>
+              <div style={{ display: 'flex' }}>
+                <LikeCount>❤ {followContent.likeCount}</LikeCount>
+                <TimeAgo>{formatRelativeTime(followContent.createdAt)}</TimeAgo>
+              </div>
+            </ContentItem>
+          ))
+        )}
+        {selectedPostId !== null && (
+          <DetailContentModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            postId={selectedPostId}
+            showCloseButton={true}
+          />
+        )}
+      </>
+    )}
     </FollowContentWrapper>
   );
 };

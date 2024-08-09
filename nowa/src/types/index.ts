@@ -1,4 +1,4 @@
-interface UserInfo {
+export interface UserInfo {
   userNickname: string
   profileImageUrl?: string
 }

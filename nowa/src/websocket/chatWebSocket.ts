@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom'
 
 let stompClient: CompatClient | null = null
 let chatRoomSubscription: any = null
+let activeChatRoomPage: number
 export const getStompClient = () => stompClient
+export const setActiveChatRoomPage = (number: number) => activeChatRoomPage = number
 
 export const useChatWebSocket = () => {
   const navigate = useNavigate()
-  const { activeChatRoomId, setChatRooms, setMessages, setChatRoomsInfo } =
+  const { setChatRooms, setMessages, setChatRoomsInfo } =
     useChat()
   const token = localStorage.getItem('token') || ''
   const nickname = localStorage.getItem('nickname') || ''
@@ -90,7 +92,7 @@ export const useChatWebSocket = () => {
         setChatRoomsInfo((prevChatRoomsInfo) => {
           return prevChatRoomsInfo.map((info) => {
             if (info.chatRoomId === parsedMessage.chatRoomId) {
-              if (activeChatRoomId === parsedMessage.chatRoomId) {
+              if (activeChatRoomPage === parsedMessage.chatRoomId) {
                 return {
                   ...info,
                   unreadMessagesCount: 0,

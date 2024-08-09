@@ -1,5 +1,5 @@
 #upload_content {
-  min-width: 500px;
+  width: 25rem;
 }
 
 #Make_text_box {
@@ -9,7 +9,7 @@
 
 #make_imoji {
   position: absolute;
-  bottom: 5px;
+  top: 10px;
   right: 5px;
   width: 25px;
   height: 25px;
@@ -29,7 +29,6 @@
 
 /* 닫기버튼 */
 #upload_close_btn {
-  flex: 1;
   width: 10px;
   height: 10px;
   margin-left: auto;
@@ -38,7 +37,6 @@
 
 /* 제목 */
 #content_title {
-  flex: 3;
   font-weight: bold;
   padding-top: 15px;
 }
@@ -46,6 +44,7 @@
 /* 게시하기버튼 */
 #upload_btn {
   background-color: white;
+  margin-left: auto;
 }
 
 #upload_btn:hover {
@@ -61,21 +60,17 @@
 /* 바디영역 */
 #upload_content_body {
   margin: 10px auto;
+  width: 100%;
 }
 
 /* 카테고리 업로드 버튼 영역 */
 #upload_img_btn {
   display: flex;
+  margin-left: auto;
 }
 
 /* 카테고리 */
 #upload_category_select {
-  flex: 3;
-}
-
-/* 업로드 버튼 */
-#upload_img_btn {
-  margin-right: auto;
 }
 
 /* 파일 제한 설명 */
@@ -120,14 +115,14 @@
 /* 큰 미리보기 위치*/
 #selected_image_preview {
   display: flex;
-  max-height: 400px;
 }
 
 /* 큰 미리보기 이미지*/
 #selected_image_preview img {
-  flex: 1;
-  max-height: 400px;
   border-radius: 8px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 500px;
 }
 /* 해쉬태그 */
 
@@ -141,7 +136,6 @@
 
 /* 내용 입력 */
 #upload_content_dis {
-  width: 100%;
   margin: 5px auto auto auto;
 }
 
