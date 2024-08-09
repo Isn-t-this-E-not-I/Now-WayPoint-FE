@@ -28,9 +28,8 @@
   display: grid;
   grid-template-rows: 10% 14% 1fr auto auto;
   height: 80vh;
-  border: 1px solid #ddd;
   min-width: 400px;
-  border: none;
+  border-left: 4px solid #ddd;
 }
 
 /* 프로필 */
@@ -95,6 +94,7 @@
   border-top: 1px solid #ddd;
   border-bottom: 1px solid #adadad;
   padding-left: 15px;
+  padding-top: 8px;
 }
 
 /* 유저가 작성하는 게시글내용 */
@@ -102,7 +102,7 @@
   margin-left: 5px;
   font-size: 12px;
   white-space: pre-wrap;
-  max-height: 5rem;
+  max-height: 4.8rem;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
