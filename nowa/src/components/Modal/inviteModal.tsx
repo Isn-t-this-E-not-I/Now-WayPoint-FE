@@ -150,7 +150,9 @@ const InviteModal: React.FC<InviteModalProps> = ({
 }) => {
 
   const [allUsers, setAllUsers] = useState<any[]>([])
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchResults, setSearchResults] = useState<User[]>([]);
+  const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -169,10 +171,6 @@ const InviteModal: React.FC<InviteModalProps> = ({
     }
     getAllUsers()
   }, [])
-    
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
-  const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
 
   useEffect(() => {
     if (isOpen) {
