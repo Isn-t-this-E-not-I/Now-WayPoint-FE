@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { FaSearch, FaPlus, FaCheck, FaTrash } from "react-icons/fa";
 import { getAllUsers } from '../../api/userApi';
+import fetchAllUsers from '@/data/fetchAllUsers';
 
 const Overlay = styled.div`
   position: fixed;
@@ -148,9 +149,29 @@ const InviteModal: React.FC<InviteModalProps> = ({
   theme,
   showCloseButton = true,
 }) => {
+
+  const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
+  useEffect(() => {
+    const getAllUsers = async () => {
+      const users = await fetchAllUsers()
+      setAllUsers(users)
+    }
+    getAllUsers()
+  }, [])
 
   useEffect(() => {
     if (isOpen) {
@@ -218,7 +239,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <Overlay>
+    <Overlay onClick={handleOverlayClick}>
       <ModalBox>
         <div style={{ position: 'relative' }}>
           <CloseButton onClick={onClose}>&times;</CloseButton>
