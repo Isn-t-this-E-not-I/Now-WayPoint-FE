@@ -335,7 +335,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
                       onClick={() => handleRemoveFile(index)}
                     >
                       <img
-                        src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+                        src="https://www.iconarchive.com/download/i103472/paomedia/small-n-flat/sign-delete.1024.png"
                         alt="Remove Icon"
                       />
                     </button>
@@ -364,18 +364,20 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
           <div id="upload_content">
             <div id="tag_previews">
               {tags.map((tag, index) => (
-                <span key={index} className="tag_preview">
-                  {tag}
-                  <button
-                    className="remove_tag_button"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    <img
-                      src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
-                      alt="Remove Icon"
-                    />
-                  </button>
-                </span>
+                <div key={index} className="tag_preview">
+                  <div>
+                    {tag}
+                    <button
+                      className="remove_tag_button"
+                      onClick={() => handleRemoveTag(tag)}
+                    >
+                      <img
+                        src="https://www.iconarchive.com/download/i103472/paomedia/small-n-flat/sign-delete.1024.png"
+                        alt="Remove Icon"
+                      />
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
             <div id="Make_text_box">
@@ -384,6 +386,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
                 placeholder={'내용을 입력해주세요'}
                 value={content}
                 onChange={handleContentChange}
+                showCharCount={false}
               />
               <button
                 id="make_imoji"

@@ -50,7 +50,7 @@ const EditContent: React.FC<EditContentProps> = ({
             .map((url) => {
               if (url.match(/\.(mp4|avi)$/)) {
                 generateThumbnail(null, url)
-                return null // 썸네일을 비동기로 처리하기 때문에 일단 null로 채움
+                return url // URL을 반환하여 미리보기 생성 대기
               } else if (url.match(/\.(mp3)$/)) {
                 return url.split('/').pop()?.split('.')[0] || url
               } else {
@@ -155,10 +155,10 @@ const EditContent: React.FC<EditContentProps> = ({
     video.src = url || URL.createObjectURL(file!)
 
     video.addEventListener('loadeddata', () => {
-      video.currentTime = 1
+      video.currentTime = 1 // 비디오의 첫 번째 프레임이 로드된 후 특정 시점으로 이동
     })
 
-    video.addEventListener('canplay', () => {
+    video.addEventListener('seeked', () => {
       const canvas = document.createElement('canvas')
       canvas.width = video.videoWidth
       canvas.height = video.videoHeight
@@ -176,16 +176,28 @@ const EditContent: React.FC<EditContentProps> = ({
           return newSrcs
         })
 
-        setSelectedImage((prevSelectedImage) =>
-          prevSelectedImage === null ? thumbnail : prevSelectedImage
-        )
+        // 메모리 정리를 위해 비디오 객체와 URL 객체를 해제
+        URL.revokeObjectURL(video.src)
+        video.remove()
       }
-      URL.revokeObjectURL(video.src)
     })
 
     video.addEventListener('error', (e) => {
       console.error('비디오 로드 중 오류 발생:', e)
+      const defaultVideoThumbnail =
+        'https://path-to-default-video-thumbnail.png'
+      setPreviewSrcs((prevSrcs) => {
+        const newSrcs = url
+          ? prevSrcs.map((src) => (src === url ? defaultVideoThumbnail : src))
+          : [...prevSrcs, defaultVideoThumbnail]
+        setSelectedImage(defaultVideoThumbnail)
+        return newSrcs
+      })
+
+      video.remove()
     })
+
+    video.load()
   }
 
   const handleRemoveFile = (index: number) => {
@@ -423,7 +435,7 @@ const EditContent: React.FC<EditContentProps> = ({
                       onClick={() => handleRemoveFile(index)}
                     >
                       <img
-                        src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+                        src="https://www.iconarchive.com/download/i103472/paomedia/small-n-flat/sign-delete.1024.png"
                         alt="Remove Icon"
                       />
                     </button>
@@ -459,7 +471,7 @@ const EditContent: React.FC<EditContentProps> = ({
                     onClick={() => handleRemoveTag(tag)}
                   >
                     <img
-                      src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+                      src="https://www.iconarchive.com/download/i103472/paomedia/small-n-flat/sign-delete.1024.png"
                       alt="Remove Icon"
                     />
                   </button>
@@ -472,6 +484,7 @@ const EditContent: React.FC<EditContentProps> = ({
                 placeholder={'내용을 입력해주세요'}
                 value={content}
                 onChange={handleContentChange}
+                showCharCount={false}
               />
               <button
                 id="make_imoji"

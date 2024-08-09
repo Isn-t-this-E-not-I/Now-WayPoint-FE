@@ -1,5 +1,5 @@
 #upload_content {
-  width: 25rem;
+  width: 30rem;
 }
 
 #Make_text_box {
@@ -102,8 +102,8 @@
 
 /* 미리보기 제거 버튼 위치 */
 .remove_image_button {
-  top: -5px;
-  right: -20px;
+  top: -10px;
+  right: -13px;
 }
 
 /* 미리보기 제거 버튼 */
@@ -128,10 +128,13 @@
 
 #tag_previews {
   margin: 10px auto 5px auto;
+  display: flex;
 }
 
 .tag_preview {
   color: rgb(59 130 246);
+  margin-right: 14px;
+  position: relative;
 }
 
 /* 내용 입력 */
@@ -144,4 +147,7 @@
   margin: auto 2px;
   width: 12px;
   height: 12px;
+  position: absolute;
+  top: -3px;
+  right: -14px;
 }

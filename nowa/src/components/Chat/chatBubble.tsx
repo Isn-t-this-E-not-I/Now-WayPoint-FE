@@ -8,6 +8,7 @@ interface ChatBubbleProps {
   time: string
   message: string
   footer: string
+  onAvatarClick?: () => void;
 }
 
 const BubbleWrapper = styled.div<{ alignment: 'start' | 'end' }>`
@@ -26,6 +27,7 @@ const Avatar = styled.div<{ alignment: 'start' | 'end' }>`
   margin-left: ${({ alignment }) => (alignment === 'end' ? '10px' : '0')};
   border-radius: 50%;
   overflow: hidden;
+  cursor: pointer;
   img {
     width: 100%;
     height: 100%;
@@ -92,11 +94,12 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({
   header,
   message,
   footer,
+  onAvatarClick,
 }) => {
   return (
     <BubbleWrapper alignment={alignment}>
       {avatarSrc && (
-        <Avatar alignment={alignment}>
+        <Avatar alignment={alignment} onClick={onAvatarClick}>
           <img alt="Avatar" src={avatarSrc} />
         </Avatar>
       )}

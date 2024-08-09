@@ -191,7 +191,6 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             });
 
             stompClient.subscribe('/topic/category', (messageOutput: IMessage) => {
-              console.log(messageOutput.body)
               const data= JSON.parse(messageOutput.body);
 
               // 각 항목을 newSelectContent로 변환하고 상태 업데이트

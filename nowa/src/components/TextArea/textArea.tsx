@@ -9,6 +9,7 @@ interface TextareaProps {
   onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void
   onBlur?: (e: FocusEvent<HTMLTextAreaElement>) => void
   className?: string
+  showCharCount?: boolean // 문자 수 표시 여부
 }
 
 const TextAreaWrapper = styled.div`
@@ -40,8 +41,15 @@ const TextArea: React.FC<TextareaProps> = ({
   onKeyDown,
   onBlur,
   className = '',
+  showCharCount = true, // 기본값을 true로 설정
 }) => {
   const displayValue = value ?? ''
+
+  let charCountElement = null
+  if (showCharCount) {
+    charCountElement = <CharCount>{displayValue.length} / 150</CharCount>
+  }
+
   return (
     <TextAreaWrapper>
       <TextAreaStyled
@@ -53,9 +61,7 @@ const TextArea: React.FC<TextareaProps> = ({
         onKeyDown={onKeyDown}
         onBlur={onBlur}
       />
-      {displayValue !== undefined && (
-        <CharCount>{displayValue.length} / 150</CharCount>
-      )}
+      {charCountElement}
     </TextAreaWrapper>
   )
 }
