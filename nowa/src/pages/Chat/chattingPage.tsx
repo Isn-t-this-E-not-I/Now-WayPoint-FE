@@ -7,6 +7,7 @@ import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
 import InviteModal from '../../components/Modal/inviteModal'
+import AddUserModal from '@/components/Modal/addUserModal'
 import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
 import ChatBubble from '../../components/Chat/chatBubble'
 import Modal from '../../components/Modal/modal'
@@ -177,11 +178,12 @@ const ChattingPage: React.FC = () => {
   const handleScroll = () => {
     if (messageListRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = messageListRef.current
-      const isScrolledToBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 250
-       setShowDownButton(!isScrolledToBottom) // 스크롤이 최하단이면 버튼 숨기기, 아니면 버튼 표시
+      const isScrolledToBottom =
+        Math.abs(scrollHeight - scrollTop - clientHeight) < 250
+      setShowDownButton(!isScrolledToBottom) // 스크롤이 최하단이면 버튼 숨기기, 아니면 버튼 표시
       if (!isScrolledToBottom) {
-        saveScrollPosition();
-        setShowDownButton(false);
+        saveScrollPosition()
+        setShowDownButton(false)
       }
     }
   }
@@ -382,7 +384,7 @@ const ChattingPage: React.FC = () => {
             <AddMemberIcon theme={theme} />
           </ActionButton>
           {isOpen && (
-            <InviteModal
+            <AddUserModal
               isOpen={isOpen}
               onClose={close}
               showCloseButton={false}

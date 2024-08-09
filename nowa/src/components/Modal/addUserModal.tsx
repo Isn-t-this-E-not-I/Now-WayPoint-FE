@@ -142,7 +142,7 @@ interface InviteModalProps {
   showCloseButton?: boolean
 }
 
-const InviteModal: React.FC<InviteModalProps> = ({
+const AddUserModal: React.FC<InviteModalProps> = ({
   isOpen,
   onClose,
   handleSubmit,
@@ -246,7 +246,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
       <ModalBox>
         <div style={{ position: 'relative' }}>
           <CloseButton onClick={onClose}>&times;</CloseButton>
-          <h3 className="font-bold text-lg">새 채팅방 생성</h3>
+          <h3 className="font-bold text-lg">새로운 친구 추가</h3>
           <Form onSubmit={handleFormSubmit}>
             <SelectedFriendsContainer>
               {selectedFriends.map((friend) => (
@@ -302,7 +302,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
               ))}
             </ul>
             <SubmitButton type="submit" $themeMode={theme}>
-              생성
+              초대
             </SubmitButton>
           </Form>
         </div>
@@ -318,4 +318,4 @@ const InviteModal: React.FC<InviteModalProps> = ({
   )
 }
 
-export default InviteModal
+export default AddUserModal
