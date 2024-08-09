@@ -25,126 +25,38 @@
   animation: drop 1s ease-out forwards;
 }
 
-/*--------------------------------------*/
-
-#main-icon::before {
-  content: '';
-  position: absolute;
-  top: 139px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
+.bubble {
+  position: relative;
+  width: 300px;
+  height: 90px;
+  padding-top: 20px;
+  padding-left: 25px;
+  background: #FFFFFF;
   border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-#new-post-icon::before {
-  content: '';
-  position: absolute;
-  top: 209px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-#notifications-icon::before {
-  content: '';
-  position: absolute;
-  top: 279px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-#chat-icon::before {
-  content: '';
-  position: absolute;
-  top: 349px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-#contents-icon::before {
-  content: '';
-  position: absolute;
-  top: 419px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-#follow-contents-icon::before {
-  content: '';
-  position: absolute;
-  top: 489px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-#mypage-icon::before {
-  content: '';
-  position: absolute;
-  top: 559px; /* targetRect.top 값 */
-  left: 4px;  /* targetRect.left 값 */
-  width: 72px; /* targetRect.width 값 */
-  height: 70px; /* targetRect.height 값 */
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 10px;
-  pointer-events: auto;
-  z-index: 1001;
-}
-
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.overlay-message {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
-  pointer-events: auto;
+}
+
+.bubble button {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  align-self: flex-end; /* 버튼을 오른쪽 끝으로 보냄 */
+  display: flex;
+  justify-content: flex-end; /* 아이콘을 버튼 내부에서 오른쪽 끝으로 보냄 */
+  align-items: flex-end; /* 아이콘을 버튼 내부에서 아래쪽 끝으로 보냄 */
+}
+
+.bubble:after {
+  content: '';
+  position: absolute;
+  border-style: solid;
+  border-width: 15px 15px 15px 0;
+  border-color: transparent #FFFFFF;
+  display: block;
+  width: 0;
+  z-index: 1;
+  left: -15px;
+  top: 30px;
 }

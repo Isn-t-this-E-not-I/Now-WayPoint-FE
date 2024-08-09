@@ -61,7 +61,7 @@ export const useChatWebSocket = () => {
           chatRoomName: parsedMessage.chatRoomName,
           userResponses: parsedMessage.userResponses,
         }
-        setChatRooms((prevChatRooms) => [...prevChatRooms, newChatRoom])
+        setChatRooms((prev) => !prev.some((f) => f.chatRoomId === newChatRoom.chatRoomId) ? [newChatRoom, ...prev] : prev);
         setChatRoomsInfo((prevChatRoomsInfo) => [
           ...prevChatRoomsInfo,
           {

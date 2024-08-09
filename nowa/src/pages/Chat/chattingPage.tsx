@@ -354,6 +354,10 @@ const ChattingPage: React.FC = () => {
     )
   }
 
+  const handleProfileClick = (nickname: string) => {
+    navigate(`/user/${nickname}?tab=posts`);
+  };
+
   // 프로필 이미지를 결정하는 부분 수정
   let displayProfileImages: string[] = []
   if (chatRoom.userResponses.length === 1) {
@@ -458,7 +462,8 @@ const ChattingPage: React.FC = () => {
           }
 
           return (
-            <MessageItem key={index} $isSender={false}>
+            <MessageItem key={index} $isSender={false}
+            >
               <ChatBubble
                 alignment="start"
                 avatarSrc={
@@ -472,6 +477,7 @@ const ChattingPage: React.FC = () => {
                 footer={new Date(
                   msg.timestamp
                 ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+                onAvatarClick={() => handleProfileClick(msg.sender)}
               />
             </MessageItem>
           )
