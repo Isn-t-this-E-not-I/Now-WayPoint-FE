@@ -15,7 +15,10 @@ const DropDown: React.FC<DropDownProps> = ({
 }) => {
   return (
     <div>
-      <div className="dropdown dropdown-top dropdown-end">
+      <div
+        id="detail_option_dropdown"
+        className="dropdown dropdown-hover dropdown-end"
+      >
         <div tabIndex={0} role="button" className="btn m-1" id={id}>
           {buttonText}
         </div>

@@ -423,7 +423,7 @@ const EditContent: React.FC<EditContentProps> = ({
                       onClick={() => handleRemoveFile(index)}
                     >
                       <img
-                        src="https://cdn-icons-png.flaticon.com/128/25/25298.png"
+                        src="https://www.iconarchive.com/download/i103472/paomedia/small-n-flat/sign-delete.1024.png"
                         alt="Remove Icon"
                       />
                     </button>
@@ -472,6 +472,7 @@ const EditContent: React.FC<EditContentProps> = ({
                 placeholder={'내용을 입력해주세요'}
                 value={content}
                 onChange={handleContentChange}
+                showCharCount={false}
               />
               <button
                 id="make_imoji"

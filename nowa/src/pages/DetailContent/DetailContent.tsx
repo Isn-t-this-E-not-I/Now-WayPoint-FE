@@ -584,9 +584,73 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
           {Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0 ? (
             <Carousel
               showThumbs={false}
-              infiniteLoop
+              infiniteLoop={false}
               useKeyboardArrows
-              showIndicators={false}
+              showStatus={false}
+              renderArrowPrev={(onClickHandler, hasPrev, label) =>
+                hasPrev && (
+                  <button
+                    id="left"
+                    type="button"
+                    onClick={onClickHandler}
+                    title={label}
+                    onMouseOver={(e) => {
+                      const img = e.currentTarget.querySelector('img')
+                      if (img) {
+                        img.style.transform = 'scale(1.2)'
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      const img = e.currentTarget.querySelector('img')
+                      if (img) {
+                        img.style.transform = 'scale(1)'
+                      }
+                    }}
+                  >
+                    <img
+                      style={{
+                        width: 23,
+                        height: 23,
+                        transition: 'transform 0.3s ease',
+                      }}
+                      src="https://cdn.discordapp.com/attachments/1255337590106619948/1271350509374017586/11181468.png?ex=66b704ed&is=66b5b36d&hm=dc0069dc038ae7c723d889c21777419aa1432f634403bb37987614b86467c43b&"
+                      alt="right"
+                    />
+                  </button>
+                )
+              }
+              renderArrowNext={(onClickHandler, hasNext, label) =>
+                hasNext && (
+                  <button
+                    id="right"
+                    type="button"
+                    onClick={onClickHandler}
+                    title={label}
+                    onMouseOver={(e) => {
+                      const img = e.currentTarget.querySelector('img')
+                      if (img) {
+                        img.style.transform = 'scale(1.2)'
+                      }
+                    }}
+                    onMouseOut={(e) => {
+                      const img = e.currentTarget.querySelector('img')
+                      if (img) {
+                        img.style.transform = 'scale(1)'
+                      }
+                    }}
+                  >
+                    <img
+                      style={{
+                        width: 23,
+                        height: 23,
+                        transition: 'transform 0.3s ease',
+                      }}
+                      src="https://cdn.discordapp.com/attachments/1255337590106619948/1271348650995351563/11181468.png?ex=66b70332&is=66b5b1b2&hm=a8e512cd8a397e5cc3ecf1f04bdd6f235bd8feb8b57c00ae7f79646b87f5a9e2&"
+                      alt="left"
+                    />
+                  </button>
+                )
+              }
             >
               {post.mediaUrls.map((url: string, index: number) => (
                 <div id="preview_container" key={index}>
@@ -640,6 +704,22 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               </div>
             </div>
           </div>
+          {currentUser === post.nickname && (
+            <div id="detail_content_edit">
+              <DropDown
+                id={'detail_Dropdown'}
+                buttonText={con_Text}
+                items={con_drop}
+                onItemSelect={(item) => {
+                  if (item === '게시글 삭제') {
+                    handlePostDelete()
+                  } else if (item === '게시글 수정') {
+                    setIsEditModalOpen(true)
+                  }
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div id="detail_user_content">
@@ -660,7 +740,6 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
         </div>
 
         <div id="detail_content_heart">
-          <div id="detail_heart_count">{post.likeCount}</div>
           <div id="detail_like_button" onClick={handleLikeToggle}>
             <img
               src={
@@ -671,6 +750,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               alt="좋아요"
             />
           </div>
+          <div id="detail_heart_count">{post.likeCount}</div>
           <div id="detail_heart_write_date">
             {formatRelativeTime(post.createdAt)}
           </div>
@@ -682,6 +762,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               value={newComment}
               onChange={handleNewCommentMention}
               onKeyDown={handleCommentKeyDown}
+              showCharCount={false}
             ></TextArea>
             {newMentionList.length > 0 && (
               <div className="mention-list-parent">
@@ -700,32 +781,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               </div>
             )}
             <div id="detail_coment_write_button">
-              {currentUser === post.nickname && (
-                <div id="detail_content_edit">
-                  <DropDown
-                    id={'detail_Dropdown'}
-                    buttonText={con_Text}
-                    items={con_drop}
-                    onItemSelect={(item) => {
-                      if (item === '게시글 삭제') {
-                        handlePostDelete()
-                      } else if (item === '게시글 수정') {
-                        setIsEditModalOpen(true)
-                      }
-                    }}
-                  />
-                </div>
-              )}
-              <button
-                type="submit"
-                style={{
-                  marginRight: currentUser !== post.nickname ? '10px' : '0',
-                  marginTop: currentUser !== post.nickname ? '75px' : '0',
-                  width: 30,
-                }}
-              >
-                게시
-              </button>
+              <button type="submit">게시</button>
             </div>
           </form>
           <div id="write_content_emoji">
