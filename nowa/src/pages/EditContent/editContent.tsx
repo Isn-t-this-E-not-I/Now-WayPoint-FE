@@ -176,9 +176,9 @@ const EditContent: React.FC<EditContentProps> = ({
           return newSrcs
         })
 
-        setTimeout(() => {
-          URL.revokeObjectURL(video.src) // 썸네일 생성 후 URL 해제
-        }, 1000)
+        // 메모리 정리를 위해 비디오 객체와 URL 객체를 해제
+        URL.revokeObjectURL(video.src)
+        video.remove()
       }
     })
 
@@ -193,11 +193,11 @@ const EditContent: React.FC<EditContentProps> = ({
         setSelectedImage(defaultVideoThumbnail)
         return newSrcs
       })
+
+      video.remove()
     })
 
-    // 비디오를 자동으로 재생하지 않도록 재생 요청 제거
-    document.body.appendChild(video)
-    video.load() // 비디오를 명시적으로 로드하여 seeked 이벤트를 트리거
+    video.load()
   }
 
   const handleRemoveFile = (index: number) => {
