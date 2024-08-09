@@ -143,6 +143,7 @@ const ProfileEditPage: React.FC = () => {
           }
         )
         nickname = userInfo.nickname;
+        localStorage.setItem('nickname', nickname);
         alert('닉네임이 성공적으로 업데이트되었습니다.')
       } catch (error) {
         console.error('닉네임 업데이트에 실패했습니다:', error)
