@@ -8,15 +8,17 @@ const OAuth2RedirectHandler = () => {
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('token');
     const nickname = urlParams.get('nickname');
-
-    console.log('Token:', token);  // 로그 추가
-    console.log('Nickname:', nickname);  // 로그 추가
+    const isFistLogin = urlParams.get('isFirstLogin');
 
     if (token && nickname) {
       localStorage.setItem('token', token);
       localStorage.setItem('nickname', nickname);
-      console.log('Token and nickname stored in localStorage');
-      navigate('/main'); // 리다이렉트
+      
+      if(isFistLogin === 'true'){
+        navigate('/onboarding/location-permission');
+      }else {
+        navigate('/main');
+      }
     } else {
       // 오류 처리
       console.error('Token or nickname not found in URL parameters');
