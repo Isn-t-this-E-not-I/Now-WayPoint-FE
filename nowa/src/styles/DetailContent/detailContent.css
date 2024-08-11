@@ -26,7 +26,7 @@
 #detail_content_story {
   flex: 1;
   display: grid;
-  grid-template-rows: 10% auto 1fr auto auto;
+  grid-template-rows: 4.5rem auto 1fr auto auto;
   height: 80vh;
   min-width: 400px;
   border-left: 4px solid #ddd;
