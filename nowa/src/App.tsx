@@ -17,6 +17,7 @@ const App: React.FC = () => {
     '/find-password',
     '/onboarding/location-permission',
     '/onboarding/friend-addition',
+    '/onboarding/distance-add'
   ] // Sidebar가 보이지 않아야 하는 경로
 
   const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
