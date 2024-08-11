@@ -153,6 +153,7 @@ const InviteModal: React.FC<InviteModalProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [searchResults, setSearchResults] = useState<User[]>([])
   const [selectedFriends, setSelectedFriends] = useState<User[]>([])
+  const nickname = localStorage.getItem('nickname') || ''
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value)
@@ -271,37 +272,39 @@ const InviteModal: React.FC<InviteModalProps> = ({
               />
             </SearchContainer>
             <ul className="mb-4">
-              {searchResults.map((user: User) => (
-                <li
-                  key={user.nickname}
-                  className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2"
-                >
-                  <div className="flex items-center">
-                    <img
-                      src={user.profileImageUrl}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full mr-4"
-                    />
-                    <p className="text-black">{user.nickname}</p>
-                    <p className="text-gray-500 ml-0.5">({user.name})</p>
-                  </div>
-                  {selectedFriends.some(
-                    (friend) => friend.nickname === user.nickname
-                  ) ? (
-                    <FaCheck
-                      onClick={() => handleRemoveFriend(user.nickname)}
-                      className="text-green-500 cursor-pointer"
-                    />
-                  ) : (
-                    <FaPlus
-                      onClick={() => handleAddFriend(user)}
-                      className="text-blue-500 cursor-pointer"
-                    />
-                  )}
-                </li>
-              ))}
+              {searchResults
+                .filter((user) => user.nickname !== nickname)
+                .map((user: User) => (
+                  <li
+                    key={user.nickname}
+                    className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2"
+                  >
+                    <div className="flex items-center">
+                      <img
+                        src={user.profileImageUrl}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full mr-4"
+                      />
+                      <p className="text-black">{user.nickname}</p>
+                      <p className="text-gray-500 ml-0.5">({user.name})</p>
+                    </div>
+                    {selectedFriends.some(
+                      (friend) => friend.nickname === user.nickname
+                    ) ? (
+                      <FaCheck
+                        onClick={() => handleRemoveFriend(user.nickname)}
+                        className="text-green-500 cursor-pointer"
+                      />
+                    ) : (
+                      <FaPlus
+                        onClick={() => handleAddFriend(user)}
+                        className="text-blue-500 cursor-pointer"
+                      />
+                    )}
+                  </li>
+                ))}
             </ul>
-            <SubmitButton type="submit" $themeMode={theme}>
+            <SubmitButton type="submit" $themeMode={theme} disabled={selectedFriends.length === 0}>
               생성
             </SubmitButton>
           </Form>
