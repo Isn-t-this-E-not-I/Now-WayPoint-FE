@@ -39,7 +39,7 @@ const FriendAdditionPage: React.FC = () => {
   };
 
   const handleSkip = () => {
-    navigate('/onboarding/site-guide');
+    navigate('/onboarding/distance-add');
   };
 
   const handleSearch = async () => {

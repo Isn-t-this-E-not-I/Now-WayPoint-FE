@@ -16,6 +16,7 @@ import { WebSocketProvider } from '@/components/WebSocketProvider/WebSocketProvi
 import ChattingPage from '@/pages/Chat/chattingPage'
 import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage';
 import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage';
+import DistanceAddPage from '@/pages/Onboarding/DistanceAddPage';
 import SiteGuidePage from '@/pages/Onboarding/SiteGuidePage';
 import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandler'
 
@@ -29,6 +30,7 @@ const Routers: React.FC = () => {
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
       <Route path="/onboarding/location-permission" element={<LocationPermissionPage />} />
       <Route path="/onboarding/friend-addition" element={<FriendAdditionPage />} />
+      <Route path="/onboarding/distance-add" element={<DistanceAddPage />} />
       <Route path="/onboarding/site-guide" element={<SiteGuidePage />} />
       {/* Private routes wrapped with WebSocketProvider */}
       <Route
