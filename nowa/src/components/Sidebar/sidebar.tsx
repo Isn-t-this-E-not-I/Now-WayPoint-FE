@@ -45,16 +45,17 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 5rem;
+  width: 13rem;
   height: 100%;
   z-index: 10;
   position: fixed;
+  margin-left: 20px;
 
   background-color: #f8faff;
 `
 
-const RightSidebar = styled.div`
-  display: flex;
+const RightSidebar = styled.div<{ isVisible: boolean }>`
+  display: ${({ isVisible }) => (isVisible ? 'flex' : 'none')};
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
@@ -62,7 +63,7 @@ const RightSidebar = styled.div`
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
   z-index: 5;
   position: relative;
-  margin-left: 4.4rem;
+  margin-left: 15rem;
   background-color: #f8faff;
 `
 
@@ -74,15 +75,45 @@ const TopRightSidebar = styled.div`
   padding-right: 10px;
 `
 
-const Line = styled.div`
-  width: 1.4px;
-  height: 97.5%;
-  margin-top: 13px;
-  background: #c9c9c9;
-  position: absolute;
-  left: 5rem;
-  z-index: 10000;
+const MainWrapper = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: 100%;
+  width: calc(100% - 5rem);
+  margin-left: 5rem;
+  padding: 20px;
+  background-color: #eef2ff; /* 전체 영역 배경색 */
 `
+
+const ContentContainer = styled.div`
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  background-color: #ffffff; /* 콘텐츠 영역 배경색 */
+  border-radius: 15px; /* 모서리를 둥글게 */
+  margin-left: 20px; /* RightSidebar와의 간격 */
+`
+
+// const ContentPage = styled.div`
+//   width: 100%;
+//   height: 100%;
+// `
+
+
+// const Line = styled.div`
+//   width: 1.4px;
+//   height: 97.5%;
+//   margin-top: 13px;
+//   background: #c9c9c9;
+//   position: absolute;
+//   left: 5rem;
+//   z-index: 10000;
+// `
 
 const Blank = styled.div`
   height: 45.5vh;
@@ -97,7 +128,8 @@ const LogoIconButtonWrapper = styled.button`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 25px;
+  margin-top: 13px;
+  margin-bottom: 30px;
 
   &:focus {
     outline: none;
@@ -113,12 +145,13 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   cursor: pointer;
   padding: 0;
   display: flex;
-  width: 4.5rem;
+  width: 100%; // 버튼의 너비를 전체 Sidebar 너비로 설정
   height: 70px;
   border-radius: 20%;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  flex-direction: row;  // 아이콘 이름이 오른쪽에 배치됨
+  justify-content: flex-start;  // 아이콘과 텍스트를 왼쪽 정렬
+  align-items: center;  // 아이콘과 텍스트를 수직 가운데 정렬
+  padding-left: 1rem;
   position: relative;
 
   &:focus {
@@ -128,16 +161,51 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
 
   svg {
     fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
+    margin-right: 1.5rem; // 아이콘과 텍스트 사이에 간격 추가
   }
 `
 
 const IconSpan = styled.span<{ active: boolean }>`
-  margin-top: 2px;
-  margin-bottom: 23px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: bold;
+  margin-top: 1.5rem; // 텍스트를 아이콘 기준으로 조금 내리기 위해 추가
   color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
 `
+
+// const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
+//   active: props.active,
+// })) <{ active: boolean }>`
+//   background: ${({ active }) =>
+//     active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
+//   border: none;
+//   cursor: pointer;
+//   padding: 0;
+//   display: flex;
+//   width: 4.5rem;
+//   height: 70px;
+//   border-radius: 20%;
+//   flex-direction: column;
+//   justify-content: center;
+//   align-items: center;
+//   position: relative;
+
+//   &:focus {
+//     outline: none;
+//     background-color: #f8faff;
+//   }
+
+//   svg {
+//     fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
+//   }
+// `
+
+// const IconSpan = styled.span<{ active: boolean }>`
+//   margin-top: 2px;
+//   margin-bottom: 23px;
+//   font-size: 12px;
+//   font-weight: bold;
+//   color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
+// `
 
 const LogOutIconButtonWrapper = styled.button`
   background: none;
@@ -271,9 +339,27 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
 
+  const handleNavigate = (page: string) => {
+    if (activePage === page) {
+      setActivePage('')  // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
+    } else {
+      setActivePage(page)
+      if (page === 'chat') {
+        if (getStompClient() == null) {
+          connectAndSubscribe()
+        }
+        fetchChatRooms(token).then((data) => {
+          const chatRooms = data.chatRooms
+          const chatRoomsInfo = data.chatRoomsInfo
+          setChatRooms(chatRooms)
+          setChatRoomsInfo(chatRoomsInfo)
+        })
+      }
+    }
+  }
+  
   // 전체 유저 목록 가져오기
   useEffect(() => {
-    console.log('notifyCount :', notifyCount)
     const getAllUsers = async () => {
       const users = await fetchAllUsers()
       setAllUsers(users)
@@ -305,20 +391,14 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       case 'myPage':
         return <div></div>
       default:
-        return <MainSidebarPage />
+        return null; // 기본적으로 아무것도 렌더링하지 않음
     }
   }
 
   // 검색창 보여주기 여부
   const shouldShowSearch = () => {
     return (
-      activePage !== 'notifications' &&
-      activePage !== 'followContents' &&
-      activePage !== 'chat' &&
-      activePage !== 'myPage' &&
-      activePage !== 'main' &&
-      activePage !== 'contents' &&
-      activePage !== ''
+      activePage === 'myPage'
     )
   }
 
@@ -326,12 +406,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     setSearchQuery(e.target.value)
   }
 
-  const handleNavigate = (page: string) => {
-    navigate(`/${page}`)
-  }
-
   const handleDelete = () => {
-    //notifications에 데이터 제거
+    // notifications에 데이터 제거
     deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출
@@ -376,10 +452,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="main-icon"
           active={activePage === 'main'}
-          onClick={() => {
-            handleNavigate('main')
-            setActivePage('main')
-          }}
+          onClick={() => handleNavigate('main')}
         >
           <MainIcon theme={theme} />
           <IconSpan active={activePage === 'main'}>메인</IconSpan>
@@ -388,7 +461,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="new-post-icon"
           active={isUploadModalOpen}
           onClick={() => {
-            setUploadModalOpen(true) // 모달 열기
+            setUploadModalOpen(true)
           }}
         >
           <NewCreateIcon theme={theme} />
@@ -397,32 +470,15 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="notifications-icon"
           active={activePage === 'notifications'}
-          onClick={() => {
-            setActivePage('notifications')
-          }}
+          onClick={() => handleNavigate('notifications')}
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
-          {notifyCount > 1 && <Badge>{Math.floor(notifyCount / 2)}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
           id="chat-icon"
           active={activePage === 'chat'}
-          onClick={() => {
-            if (getStompClient() == null) {
-              connectAndSubscribe()
-            }
-            setActivePage('chat')
-            fetchChatRooms(token).then((data) => {
-              // 데이터 구조를 확인하고 필요한 데이터만 추출
-              const chatRooms = data.chatRooms
-              const chatRoomsInfo = data.chatRoomsInfo
-
-              // state나 context에 데이터를 설정
-              setChatRooms(chatRooms)
-              setChatRoomsInfo(chatRoomsInfo)
-            })
-          }}
+          onClick={() => handleNavigate('chat')}
         >
           <ChatIcon theme={theme} />
           <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
@@ -430,9 +486,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="contents-icon"
           active={activePage === 'contents'}
-          onClick={() => {
-            setActivePage('contents')
-          }}
+          onClick={() => handleNavigate('contents')}
         >
           <ContentsIcon theme={theme} />
           <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
@@ -440,27 +494,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="follow-contents-icon"
           active={activePage === 'followContents'}
-          onClick={() => {
-            setActivePage('followContents')
-          }}
+          onClick={() => handleNavigate('followContents')}
         >
           <FollowContentsIcon theme={theme} />
-          <IconSpan active={activePage === 'followContents'}>
-            팔로우 컨텐츠
-          </IconSpan>
+          <IconSpan active={activePage === 'followContents'}>팔로우 컨텐츠</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
           id="mypage-icon"
           active={activePage === 'myPage'}
-          onClick={() => {
-            setActivePage('myPage')
-            handleNavigate('mypage')
-          }}
+          onClick={() => handleNavigate('myPage')}
         >
           <MyPageIcon theme={theme} />
           <IconSpan active={activePage === 'myPage'}>마이 페이지</IconSpan>
         </IconButtonWrapper>
-        <LogOutIconButtonWrapper
+        {/* <LogOutIconButtonWrapper
           onClick={() => {
             setLogoutDropdownOpen(!isLogoutDropdownOpen)
           }}
@@ -492,14 +539,14 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
               </div>
             </Modal>
           )}
-        </LogOutIconButtonWrapper>
+        </LogOutIconButtonWrapper> */}
         <Blank />
         <ThemeController />
       </LeftSidebar>
 
-      <Line />
+      {/* <Line /> */}
 
-      <RightSidebar>
+      <RightSidebar isVisible={activePage !== ''}>
         <TopRightSidebar>
           <NowaIcon theme={theme} />
           {activePage === 'chat' && (
@@ -508,28 +555,10 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             </CreateChatRoomButtonWrapeer>
           )}
         </TopRightSidebar>
-        <TopRightSidebar>
-          {activePage === 'notifications' && notifications.length > 0 && (
-            <DeleteNotificationsButton onClick={handleDelete}>
-              전체 삭제
-            </DeleteNotificationsButton>
-          )}
-        </TopRightSidebar>
         <ContentDiv>
           {shouldShowSearch() && (
             <SearchContainer>
               <Search />
-            </SearchContainer>
-          )}
-          {activePage === 'myPage' && (
-            <SearchContainer>
-              <SearchInput
-                type="text"
-                placeholder="전체 유저 검색"
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <AllUserList users={allUsers} searchQuery={searchQuery} />
             </SearchContainer>
           )}
           <ContentPage>{renderContentPage()}</ContentPage>

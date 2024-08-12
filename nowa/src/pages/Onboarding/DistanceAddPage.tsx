@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { addFollow } from '../../api/userApi';
 import Button from '../../components/Button/button';
-import { FaPlus, FaCheck } from "react-icons/fa";
+import { FaPlus, FaCheck, FaMinus } from "react-icons/fa";
 
 interface User {
   name: string;
@@ -141,9 +141,9 @@ const DistanceAddPage: React.FC = () => {
                   <p className="text-gray-500 text-sm">{friend.distance}</p>
                 </div>
               </div>
-              <FaCheck
+              <FaMinus
                 onClick={() => handleRemoveFriend(friend.nickname)}
-                className="text-green-500 cursor-pointer"
+                className="text-red-500 cursor-pointer"
               />
             </li>
           ))}

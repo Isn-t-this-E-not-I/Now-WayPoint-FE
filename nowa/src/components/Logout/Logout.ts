@@ -1,7 +1,6 @@
-// src/components/Logout/Logout.ts
 import axios from 'axios';
 
-export const handleLogout = async (setLogoutModalOpen: React.Dispatch<React.SetStateAction<boolean>>) => {
+export const handleLogout = async () => {
   const token = localStorage.getItem('token');
   try {
     await axios.post(
@@ -28,7 +27,6 @@ export const handleLogout = async (setLogoutModalOpen: React.Dispatch<React.SetS
         console.log('카카오 로그아웃 완료');
       });
     }
-    setLogoutModalOpen(false);
     window.location.href = '/login'; // 로그아웃 후 로그인 페이지로 이동
   } catch (error) {
     console.error('로그아웃에 실패했습니다:', error);
