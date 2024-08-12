@@ -14,6 +14,13 @@ export interface Notification {
   comment : string;
 }
 
+export interface FollowList {
+  name: string;
+  nickname: string;
+  profileImageUrl: string;
+  active: string;
+}
+
 export interface FollowContent {
   id: number; // 게시물 ID
   content: string; // 게시물 내용

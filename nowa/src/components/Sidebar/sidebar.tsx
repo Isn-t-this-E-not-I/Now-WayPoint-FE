@@ -98,22 +98,6 @@ const ContentContainer = styled.div`
   margin-left: 20px; /* RightSidebar와의 간격 */
 `
 
-// const ContentPage = styled.div`
-//   width: 100%;
-//   height: 100%;
-// `
-
-
-// const Line = styled.div`
-//   width: 1.4px;
-//   height: 97.5%;
-//   margin-top: 13px;
-//   background: #c9c9c9;
-//   position: absolute;
-//   left: 5rem;
-//   z-index: 10000;
-// `
-
 const Blank = styled.div`
   height: 45.5vh;
   width: 2.5rem;
@@ -171,56 +155,6 @@ const IconSpan = styled.span<{ active: boolean }>`
   color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
 `
 
-// const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
-//   active: props.active,
-// })) <{ active: boolean }>`
-//   background: ${({ active }) =>
-//     active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
-//   border: none;
-//   cursor: pointer;
-//   padding: 0;
-//   display: flex;
-//   width: 4.5rem;
-//   height: 70px;
-//   border-radius: 20%;
-//   flex-direction: column;
-//   justify-content: center;
-//   align-items: center;
-//   position: relative;
-
-//   &:focus {
-//     outline: none;
-//     background-color: #f8faff;
-//   }
-
-//   svg {
-//     fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
-//   }
-// `
-
-// const IconSpan = styled.span<{ active: boolean }>`
-//   margin-top: 2px;
-//   margin-bottom: 23px;
-//   font-size: 12px;
-//   font-weight: bold;
-//   color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
-// `
-
-const LogOutIconButtonWrapper = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-top: 8px;
-  position: relative;
-  width: 4.2rem;
-  height: 55px;
-`
-
 const CreateChatRoomButtonWrapeer = styled.div`
   display: flex;
   justify-content: center;
@@ -263,30 +197,6 @@ const SearchInput = styled.input`
   border-radius: 8px;
 `
 
-const LogoutDropdown = styled.div`
-  position: absolute;
-  top: 15px;
-  left: 40px;
-  width: 200px;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 10;
-  transition: transform 0.5s ease;
-
-  h3 {
-    margin: 0 0 10px 0;
-  }
-
-  button {
-    margin: auto 15px;
-    &:hover {
-      transform: scale(1.2);
-    }
-  }
-`
-
 const Badge = styled.span`
   position: absolute;
   top: 7px;
@@ -325,7 +235,6 @@ const DeleteNotificationsButton = styled.span`
 
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
-  const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
@@ -396,10 +305,23 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     }
   }
 
-  // 검색창 보여주기 여부
-  const shouldShowSearch = () => {
+  // // 검색창 보여주기 여부
+  // const shouldShowSearch = () => {
+  //   return (
+  //     activePage == 'myPage'
+  //   )
+  // }
+
+   // 검색창 보여주기 여부
+   const shouldShowSearch = () => {
     return (
-      activePage === 'myPage'
+      activePage !== 'notifications' &&
+      activePage !== 'followContents' &&
+      activePage !== 'chat' &&
+      activePage !== 'myPage' &&
+      activePage !== 'main' &&
+      activePage !== 'contents' &&
+      activePage !== ''
     )
   }
 
@@ -508,41 +430,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <MyPageIcon theme={theme} />
           <IconSpan active={activePage === 'myPage'}>마이 페이지</IconSpan>
         </IconButtonWrapper>
-        {/* <LogOutIconButtonWrapper
-          onClick={() => {
-            setLogoutDropdownOpen(!isLogoutDropdownOpen)
-          }}
-        >
-          <ExitIcon theme={theme} />
-          {isLogoutDropdownOpen && (
-            <Modal
-              isOpen={isLogoutDropdownOpen}
-              showCloseButton={false}
-              onClose={() => setLogoutDropdownOpen(false)}
-            >
-              <div style={{ textAlign: 'center' }}>
-                <h3>로그아웃 하시겠습니까?</h3>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '20px',
-                    marginTop: '20px',
-                  }}
-                >
-                  <Button onClick={() => handleLogout(setLogoutDropdownOpen)}>
-                    네
-                  </Button>
-                  <Button onClick={() => setLogoutDropdownOpen(false)}>
-                    아니오
-                  </Button>
-                </div>
-              </div>
-            </Modal>
-          )}
-        </LogOutIconButtonWrapper> */}
-        <Blank />
-        {/* <ThemeController /> */}
       </LeftSidebar>
 
       {/* <Line /> */}
@@ -557,9 +444,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           )}
         </TopRightSidebar>
         <ContentDiv>
-          {shouldShowSearch() && (
+          {/* {shouldShowSearch() && (
             <SearchContainer>
               <Search />
+            </SearchContainer>
+          )} */}
+           {activePage === 'myPage' && (
+            <SearchContainer>
+              <SearchInput
+                type="text"
+                placeholder="전체 유저 검색"
+                value={searchQuery}
+                onChange={handleSearchChange}
+              />
+              <AllUserList users={allUsers} searchQuery={searchQuery} />
             </SearchContainer>
           )}
           <ContentPage>{renderContentPage()}</ContentPage>
