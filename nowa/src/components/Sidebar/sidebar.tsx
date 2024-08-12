@@ -50,7 +50,6 @@ const LeftSidebar = styled.div`
   z-index: 10;
   position: fixed;
   margin-left: 20px;
-
   background-color: #f8faff;
 `
 
@@ -60,7 +59,7 @@ const RightSidebar = styled.div<{ isVisible: boolean }>`
   align-items: center;
   justify-content: flex-start;
   width: 20rem;
-  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
   z-index: 5;
   position: relative;
   margin-left: 15rem;
@@ -140,7 +139,7 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
 })) <{ active: boolean }>`
   background: ${({ active }) =>
-    active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
+    active ? '#aed581' : 'none'};
   border: none;
   cursor: pointer;
   padding: 0;
@@ -541,7 +540,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           )}
         </LogOutIconButtonWrapper> */}
         <Blank />
-        <ThemeController />
+        {/* <ThemeController /> */}
       </LeftSidebar>
 
       {/* <Line /> */}

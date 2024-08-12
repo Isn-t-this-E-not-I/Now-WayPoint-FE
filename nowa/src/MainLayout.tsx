@@ -31,7 +31,7 @@ const MainContainer = styled.div`
 const ContentContainer = styled.div`
   width: 100%;
   max-width: 990px;
-  height: 85vh;
+  height: 95vh;
   background-color: #ffffff;
   border-radius: 15px;
   display: flex;
@@ -67,14 +67,14 @@ const MainLayout: React.FC = () => {
 
     return (
     <Wrapper>
-      <HeaderContainer>
+      {/* <HeaderContainer>
         <NowaIcon theme="light" />
         <LogOutIconButtonWrapper
           onClick={() => setLogoutModalOpen(true)}
         >
           <ExitIcon theme="light" />
         </LogOutIconButtonWrapper>
-      </HeaderContainer>
+      </HeaderContainer> */}
         <MainContainer>
           <ContentContainer>
             <Outlet />
