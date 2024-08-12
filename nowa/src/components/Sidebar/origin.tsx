@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import {
   ChatIcon,
   ContentsIcon,
@@ -12,33 +12,32 @@ import {
   NotificationsIcon,
   NowaIcon,
   ExitIcon,
-} from '../icons/icons';
-import Search from '../Search/search';
-import NotificationPage from '../../pages/notificationPage';
-import CreateChatRoomButton from '../Chat/createChatRoomButton';
-import { fetchChatRooms } from '../../api/chatApi';
+} from '../icons/icons'
+import Search from '../Search/search'
+import NotificationPage from '../../pages/notificationPage'
+import CreateChatRoomButton from '../Chat/createChatRoomButton'
+import { fetchChatRooms } from '../../api/chatApi'
 import {
   useChatWebSocket,
   getStompClient,
   setActiveChatRoomPage,
-} from '@/websocket/chatWebSocket';
-import { useChat } from '../../context/chatContext';
-import ChatListPage from '@/pages/Chat/chatListPage';
-import Modal from '../Modal/modal';
-import AllUserList from '../FollowList/AllUserList';
-import fetchAllUsers from '@/data/fetchAllUsers';
-import { handleLogout } from '../Logout/Logout';
-import FollowContentsPage from '@/pages/FollowContentsPage';
-import MainSidebarPage from '@/pages/MainSidebarPage';
-import MakeContent from '@/pages/MakeContent/makeContent';
-import { useWebSocket } from '../WebSocketProvider/WebSocketProvider';
-import Button from '../Button/button';
-import FollowList from '../FollowList/FollowList';
+} from '@/websocket/chatWebSocket'
+import { useChat } from '../../context/chatContext'
+import ChatListPage from '@/pages/Chat/chatListPage'
+import Modal from '../Modal/modal'
+import AllUserList from '../FollowList/AllUserList'
+import fetchAllUsers from '@/data/fetchAllUsers'
+import { handleLogout } from '../Logout/Logout'
+import FollowContentsPage from '@/pages/FollowContentsPage'
+import MainSidebarPage from '@/pages/MainSidebarPage'
+import MakeContent from '@/pages/MakeContent/makeContent'
+import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
+import Button from '../Button/button'
 import axios from 'axios';
 import defaultProfileImage from '../../../../defaultprofile.png';
 
 interface SidebarProps {
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark'
 }
 
 const Wrapper = styled.div`
@@ -96,7 +95,7 @@ const RightSection = styled.div`
   padding-right: 2rem;
   box-sizing: border-box;
   z-index: 10;
-`
+`;
 
 const RightSectionContainer = styled.div`
   width: 100%;
@@ -109,43 +108,42 @@ const RightSectionContainer = styled.div`
   justify-content: center;
   overflow: hidden;
   z-index: 100;
-`
+`;
 
 const ProfileContainer = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  margin-bottom: 15px;
-  margin-left: 0.3rem;
+  margin-bottom: 10px;
 `;
 
 const ProfileImage = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   margin-right: 15px;
-`
+`;
 
 const UserInfo = styled.div`
   display: flex;
   flex-direction: column;
   margin-right: 10px;
-`
+`;
 
 const Nickname = styled.span`
   font-weight: bold;
   font-size: 14px;
-`
+`;
 
 const LoginId = styled.span`
   color: #888;
   font-size: 14px;
-`
+`;
 
 const Name = styled.span`
   color: #888;
   font-size: 14px;
-`
+`;
 
 const LogOutIconButtonWrapper = styled.button`
   background: none;
@@ -162,43 +160,34 @@ const LogOutIconButtonWrapper = styled.button`
   }
 `;
 
-const FollowListContainer = styled.div`
-  width: 100%;
-  margin-top: 10px;
-  max-height: 300px; /* 스크롤 영역의 최대 높이 설정 */
-  overflow-y: auto; /* 수직 스크롤 추가 */
-`;
-
 const RecommendationsContainer = styled.div`
   width: 100%;
   margin-top: 20px;
-  margin-bottom: 20px;
-  max-height: 180px; /* 스크롤 영역의 최대 높이 설정 */
+  max-height: 190px; /* 스크롤 영역의 최대 높이 설정 */
   overflow-y: auto; /* 수직 스크롤 추가 */
-`
+`;
 
 const RecommendationTitle = styled.h3`
   font-size: 15px;
   font-weight: bold;
   margin-top: 15px;
   margin-bottom: 0px;
-`
-
+`;
 
 const RecommendationList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;
   width: 100%;
-`
+`;
 
 const RecommendationItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   width: 100%;
-`
+`;
 
 const ShowMoreText = styled.div<{ visible: boolean }>`
   display: ${({ visible }) => (visible ? 'block' : 'none')};
@@ -206,11 +195,11 @@ const ShowMoreText = styled.div<{ visible: boolean }>`
   font-size: 14px;
   color: #888;
   margin-top: 10px;
-`
+`;
 
 const FollowButton = styled.button`
   margin-left: auto;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
   padding: 0.2rem 0.7rem;
   background-color: black;
   color: white;
@@ -228,7 +217,7 @@ const FollowButton = styled.button`
   &:focus {
     outline: none;
   }
-`
+`;
 
 const Blank = styled.div`
   height: 45.5vh;
@@ -253,7 +242,8 @@ const LogoIconButtonWrapper = styled.button`
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
 }))<{ active: boolean }>`
-  background: ${({ active }) => (active ? 'black' : 'none')};
+  background: ${({ active }) =>
+    active ? 'black' : 'none'};
   border: none;
   cursor: pointer;
   padding-left: 0.7rem;
@@ -297,13 +287,13 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
     margin-right: 1rem;
     margin-top: -1.25rem;
   }
-`
+`;
 
 const IconSpan = styled.span<{ active: boolean }>`
   font-size: 14px;
   font-weight: bold;
   color: ${({ active }) => (active ? 'white' : '#151515')};
-`
+`;
 
 const CreateChatRoomButtonWrapeer = styled.div`
   display: flex;
@@ -351,7 +341,7 @@ const SearchInput = styled.input`
 
 const Badge = styled.span`
   position: absolute;
-  top: 1.3rem;
+  top: 1.79rem;
   right: 1.5rem;
   width: 1.4rem;
   height: 1.4rem;
@@ -387,17 +377,16 @@ const DeleteNotificationsButton = styled.span`
   }
 `
 
-
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
-  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false);
   const [userInfo, setUserInfo] = useState<null | {
-    profileImageUrl: string
-    nickname: string
-    loginId: string
-  }>(null)
-  const [recommendations, setRecommendations] = useState<any[]>([])
+    profileImageUrl: string;
+    nickname: string;
+    loginId: string;
+  }>(null);
+  const [recommendations, setRecommendations] = useState<any[]>([]);
 
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
@@ -408,83 +397,59 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
   const [isScrolled, setIsScrolled] = useState(false);
-  const [followingList, setFollowingList] = useState<any[]>([]); // 팔로잉 리스트 상태 추가
 
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
 
   const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
-    const { scrollTop } = event.currentTarget
-    setIsScrolled(scrollTop > 0)
-  }
+    const { scrollTop } = event.currentTarget;
+    setIsScrolled(scrollTop > 0);
+  };
 
-    const handleNavigate = (page: string) => {
+  const handleNavigate = (page: string) => {
     if (activePage === page) {
-      setActivePage('') // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
-    } else {
-      setActivePage(page)
+      setActivePage('')  // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
+    }  else {
+      setActivePage(page);
       if (page === 'main') {
-        navigate('/main') // 메인 아이콘 클릭 시 /main으로 이동
-      } else if (page === 'myPage') {
-        navigate('/myPage')
+        navigate('/main'); // 메인 아이콘 클릭 시 /main으로 이동
+      } else if (page === 'myPage'){
+        navigate('/myPage');
       } else if (page === 'chat') {
         if (getStompClient() == null) {
-          connectAndSubscribe()
+          connectAndSubscribe();
         }
         fetchChatRooms(token).then((data) => {
-          const chatRooms = data.chatRooms
-          const chatRoomsInfo = data.chatRoomsInfo
-          setChatRooms(chatRooms)
-          setChatRoomsInfo(chatRoomsInfo)
-        })
+          const chatRooms = data.chatRooms;
+          const chatRoomsInfo = data.chatRoomsInfo;
+          setChatRooms(chatRooms);
+          setChatRoomsInfo(chatRoomsInfo);
+        });
       }
     }
   }
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
-    console.log('notifyCount :', notifyCount);
+    console.log('notifyCount :', notifyCount)
     const getAllUsers = async () => {
-      const users = await fetchAllUsers();
-      setAllUsers(users);
-    };
-    getAllUsers();
-  }, []);
+      const users = await fetchAllUsers()
+      setAllUsers(users)
+    }
+    getAllUsers()
+  }, [])
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
     if (activePage === 'main' || activePage === 'myPage') {
-      disconnect();
-      setActiveChatRoomPage(-1);
+      disconnect()
+      setActiveChatRoomPage(-1)
     }
-  }, [activePage]);
-
-
-  // 팔로잉 리스트 가져오기
-  useEffect(() => {
-    const fetchFollowingList = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-
-      try {
-        const response = await axios.get(`${location}/follow/following`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setFollowingList(response.data); // 팔로잉 리스트 설정
-      } catch (error) {
-        console.error('Failed to fetch following list:', error);
-      }
-    };
-
-    fetchFollowingList();
-  }, []);
-
+  }, [activePage])
 
   const handleDelete = () => {
-    // notifications에 데이터 제거
-    deleteNotificationAll();
+    //notifications에 데이터 제거
+    deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출
     const deleteNotifications = async () => {
@@ -524,20 +489,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       activePage !== 'main' &&
       activePage !== 'contents' &&
       activePage !== ''
-    );
-  };
+    )
+  }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+    setSearchQuery(e.target.value)
+  }
 
   // 오른쪽 섹션
   useEffect(() => {
     const fetchUserData = async () => {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token');
       if (!token) {
-        navigate('/login')
-        return
+        navigate('/login');
+        return;
       }
 
       try {
@@ -545,49 +510,43 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
         setUserInfo({
           profileImageUrl: response.data.profileImageUrl || defaultProfileImage,
           nickname: response.data.nickname,
           loginId: response.data.loginId, // loginId를 표시
-        })
+        });
 
         // 추천 친구 목록 가져오기
         const allUsersResponse = await axios.get(`${location}/user/all`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
+        });
 
-        const followingResponse = await axios.get(
-          `${location}/follow/following`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        const followingResponse = await axios.get(`${location}/follow/following`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-        const followingNicknames = followingResponse.data.map(
-          (user: any) => user.nickname
-        )
+        const followingNicknames = followingResponse.data.map((user: any) => user.nickname);
 
         const notFollowingUsers = allUsersResponse.data.filter(
           (user: any) => !followingNicknames.includes(user.nickname)
-        )
+        );
 
-        setRecommendations(notFollowingUsers) //
+        setRecommendations(notFollowingUsers); //
       } catch (error) {
-        console.error('Failed to fetch user data:', error)
+        console.error('Failed to fetch user data:', error);
       }
-    }
+    };
 
     fetchUserData();
   }, [navigate]);
 
-  
-    const handleFollow = async (nickname: string) => {
+  const handleFollow = async (nickname: string) => {
     const token = localStorage.getItem('token');
     if (!token) return;
 
@@ -600,37 +559,36 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       // 팔로우 후 추천 목록에서 해당 유저 제거
       setRecommendations((prevRecommendations) =>
         prevRecommendations.filter((user) => user.nickname !== nickname)
-      )
+      );
     } catch (error) {
-      console.error('Error following user:', error)
+      console.error('Error following user:', error);
     }
   };
-
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
       case 'main':
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
       case 'notifications':
-        return <NotificationPage />;
+        return <NotificationPage />
       case 'chat':
-        return <ChatListPage />;
+        return <ChatListPage />
       case 'contents':
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
       case 'followContents':
-        return <FollowContentsPage />;
+        return <FollowContentsPage />
       case 'myPage':
-        return <div></div>;
+        return <div></div>
       default:
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
     }
-  };
+  }
 
   return (
     <Wrapper>
@@ -650,7 +608,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="new-post-icon"
           active={isUploadModalOpen}
           onClick={() => {
-            setUploadModalOpen(true); // 모달 열기
+            setUploadModalOpen(true) // 모달 열기
           }}
         >
           <NewCreateIcon theme={theme} />
@@ -670,19 +628,27 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           active={activePage === 'chat'}
           onClick={() => {
             if (getStompClient() == null) {
-              connectAndSubscribe();
+              connectAndSubscribe()
             }
-            handleNavigate('chat');
+            handleNavigate('chat')
             fetchChatRooms(token).then((data) => {
-              const chatRooms = data.chatRooms;
-              const chatRoomsInfo = data.chatRoomsInfo;
+              const chatRooms = data.chatRooms
+              const chatRoomsInfo = data.chatRoomsInfo
 
-              setChatRooms(chatRooms);
-              setChatRoomsInfo(chatRoomsInfo);
-            });
+              setChatRooms(chatRooms)
+              setChatRoomsInfo(chatRoomsInfo)
+            })
           }}
         >
           <ChatIcon theme={theme} />
+          <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
+        </IconButtonWrapper>
+        <IconButtonWrapper
+          id="contents-icon"
+          active={activePage === 'contents'}
+          onClick={() => handleNavigate('contents')}
+        >
+          <ContentsIcon theme={theme} />
           <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
@@ -699,7 +665,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="mypage-icon"
           active={activePage === 'myPage'}
           onClick={() => {
-            handleNavigate('myPage');
+            handleNavigate('myPage')
           }}
         >
           <MyPageIcon theme={theme} />
@@ -760,50 +726,26 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           </ProfileContainer>
         )}
 
-        <RecommendationTitle>추천 친구</RecommendationTitle>
-        <RecommendationTitle>추천 친구</RecommendationTitle>
+      <RecommendationTitle>추천 친구</RecommendationTitle>
         <RecommendationsContainer onScroll={handleScroll}>
           <RecommendationList>
             {recommendations.map((user) => (
               <RecommendationItem key={user.nickname}>
                 <ProfileContainer>
-                  <ProfileImage
-                    src={user.profileImageUrl || defaultProfileImage}
-                    alt="Profile"
-                  />
-                  <ProfileImage
-                    src={user.profileImageUrl || defaultProfileImage}
-                    alt="Profile"
-                  />
+                  <ProfileImage src={user.profileImageUrl || defaultProfileImage} alt="Profile" />
                   <UserInfo>
                     <Nickname>{user.nickname}</Nickname>
                     <Name>{user.name}</Name>
                   </UserInfo>
                 </ProfileContainer>
-                <FollowButton onClick={() => handleFollow(user.nickname)}>
-                  팔로우
-                </FollowButton>
-                <FollowButton onClick={() => handleFollow(user.nickname)}>
-                  팔로우
-                </FollowButton>
+                <FollowButton onClick={() => handleFollow(user.nickname)}>팔로우</FollowButton>
               </RecommendationItem>
             ))}
           </RecommendationList>
           <ShowMoreText visible={!isScrolled}>더 보기</ShowMoreText>
         </RecommendationsContainer>
-
-        {/* FollowList 추가 */}
-        <RecommendationTitle>팔로잉 목록</RecommendationTitle>
-        <FollowListContainer>
-          <FollowList
-            users={followingList}
-            searchQuery={searchQuery}
-            onFollow={handleFollow}
-            onUnfollow={handleFollow} // 팔로우와 언팔로우 핸들러를 적절히 전달
-            showFollowButtons={false} // 팔로우 버튼을 표시
-          />
-        </FollowListContainer>
       </RightSection>
+
       {isUploadModalOpen && (
         <Modal
           isOpen={isUploadModalOpen}
@@ -832,15 +774,18 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
                 marginTop: '20px',
               }}
             >
-              <Button onClick={() => handleLogout(setLogoutModalOpen)}>네</Button>
-              <Button onClick={() => setLogoutModalOpen(false)}>아니오</Button>
+              <Button onClick={() => handleLogout(setLogoutModalOpen)}>
+                네
+              </Button>
+              <Button onClick={() => setLogoutModalOpen(false)}>
+                아니오
+              </Button>
             </div>
           </div>
         </Modal>
       )}
     </Wrapper>
-  );
-};
+  )
+}
 
-export default Sidebar;
-  
+export default Sidebar
