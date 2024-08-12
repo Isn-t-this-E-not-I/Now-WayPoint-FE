@@ -51,7 +51,7 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 13rem;
+  width: 16rem;
   height: 100%;
   z-index: 10;
   position: fixed;
@@ -82,7 +82,7 @@ const TopRightSidebar = styled.div`
 `
 
 const RightSection = styled.div`
-  width: 250px;
+  width: 18rem;
   height: 100%;
   position: fixed;
   right: 0;
@@ -218,10 +218,9 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   padding: 0;
   display: flex;
   align-items: center;  /* Align items horizontally centered */
-  width: 100%; /* Adjust the width to fit the content */
+  width: 80%; /* Adjust the width to fit the content */
   height: 70px;
-  left: 2.5rem;
-  border-radius: 20%;
+  left: 0.7rem;
   justify-content: flex-start;  /* Align content to the start */
   position: relative;
 
