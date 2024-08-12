@@ -11,6 +11,10 @@ const FollowListWrapper = styled.div`
   display: flex;
   flex-direction: column;
   margin-left: 2rem;
+  max-height: 80vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 `
 
 const FollowItem = styled.div`
@@ -19,6 +23,7 @@ const FollowItem = styled.div`
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #ccc;
+  min-height: 69px;
 `
 
 const FollowName = styled.div`
