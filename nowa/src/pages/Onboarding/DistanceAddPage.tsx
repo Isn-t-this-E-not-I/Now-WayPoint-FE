@@ -8,7 +8,7 @@ interface User {
   name: string;
   nickname: string;
   profileImageUrl: string;
-  distance: string;
+  locate: string;
 }
 
 const DistanceAddPage: React.FC = () => {
@@ -16,6 +16,7 @@ const DistanceAddPage: React.FC = () => {
   const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
   const [nickname, setNickname] = useState('');
   const navigate = useNavigate();
+  const locate = localStorage.getItem('locate');
 
   useEffect(() => {
     const fetchRecommendedFriends = async () => {
@@ -39,13 +40,53 @@ const DistanceAddPage: React.FC = () => {
 
             const filteredUsers = users.filter((user: any) => user.nickname !== nickname);
 
-          
-          const mappedUsers = filteredUsers.map((user: any) => ({
-            name: user.name,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl,
-            distance: '1km', // placeholder
-          }));
+            const haversineDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+              const R = 6371; // Earth's radius in km
+              const dLat = (lat2 - lat1) * Math.PI / 180;
+              const dLon = (lon2 - lon1) * Math.PI / 180;
+              const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+              const distance = R * c; // Distance in km
+              return distance;
+            };
+            
+            const mappedUsers = filteredUsers.map((user: any) => {
+              let calculatedDistance = NaN;
+              let distance;
+            
+              // Extract user location
+              if (locate != null) {
+                const [userLongitude, userLatitude] = locate.split(',').map(coord => parseFloat(coord.trim()));
+            
+                // Extract post location
+                const [postLongitude, postLatitude] = user.locate.split(',').map((coord: string) => parseFloat(coord.trim()));
+            
+                // Calculate distance between user and post
+                calculatedDistance = haversineDistance(userLatitude, userLongitude, postLatitude, postLongitude);
+            
+                // Round to three decimal places and convert to string with 'km'
+                calculatedDistance = Math.floor(calculatedDistance);
+                
+                // Convert distances less than 1km to "0km"
+                if (calculatedDistance < 1) {
+                  distance = "0km";
+                } else {
+                  distance = `${calculatedDistance}km`;
+                }
+              }
+            
+              return {
+                name: user.name,
+                nickname: user.nickname,
+                profileImageUrl: user.profileImageUrl,
+                locate: distance
+              };
+            });
+
+
 
           setRecommendedFriends(mappedUsers);
           console.log('Mapped Users:', mappedUsers);
@@ -114,7 +155,7 @@ const DistanceAddPage: React.FC = () => {
                 />
                 <div className="text-sm text-black">
                   <p>{user.nickname} ({user.name})</p>
-                  <p className="text-gray-500 text-sm">{user.distance}</p>
+                  <p className="text-gray-500 text-sm">{user.locate}</p>
                 </div>
               </div>
               <FaPlus
@@ -138,7 +179,7 @@ const DistanceAddPage: React.FC = () => {
                 />
                 <div className="text-sm text-black">
                   <p>{friend.nickname} ({friend.name})</p>
-                  <p className="text-gray-500 text-sm">{friend.distance}</p>
+                  <p className="text-gray-500 text-sm">{friend.locate}</p>
                 </div>
               </div>
               <FaCheck
