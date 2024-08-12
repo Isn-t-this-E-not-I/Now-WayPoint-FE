@@ -285,9 +285,9 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }
 
-  // 유저 프로필 클릭 시 프로필 페이지로 이동하는 함수
   const handleProfileClick = (nickname: string) => {
-    if (window.location.pathname === `/user/${nickname}`) {
+    const decodedPathname = decodeURIComponent(window.location.pathname)
+    if (decodedPathname === `/user/${nickname}`) {
       window.location.reload()
     } else {
       navigate(`/user/${nickname}`)
