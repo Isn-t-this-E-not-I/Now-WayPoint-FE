@@ -341,18 +341,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const handleNavigate = (page: string) => {
     if (activePage === page) {
       setActivePage('')  // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
-    } else {
-      setActivePage(page)
-      if (page === 'chat') {
+    }  else {
+      setActivePage(page);
+      if (page === 'main') {
+        navigate('/main'); // 메인 아이콘 클릭 시 /main으로 이동
+      } else if (page === 'chat') {
         if (getStompClient() == null) {
-          connectAndSubscribe()
+          connectAndSubscribe();
         }
         fetchChatRooms(token).then((data) => {
-          const chatRooms = data.chatRooms
-          const chatRoomsInfo = data.chatRoomsInfo
-          setChatRooms(chatRooms)
-          setChatRoomsInfo(chatRoomsInfo)
-        })
+          const chatRooms = data.chatRooms;
+          const chatRoomsInfo = data.chatRoomsInfo;
+          setChatRooms(chatRooms);
+          setChatRoomsInfo(chatRoomsInfo);
+        });
       }
     }
   }
