@@ -6,7 +6,6 @@ import { useApp } from '@/context/appContext'
 import { useChat } from '../../context/chatContext'
 import { getStompClient } from '@/websocket/chatWebSocket'
 import useModal from '@/hooks/modal'
-import InviteModal from '../../components/Modal/inviteModal'
 import AddUserModal from '@/components/Modal/addUserModal'
 import { AddMemberIcon, ExitIcon } from '../../components/icons/icons'
 import ChatBubble from '../../components/Chat/chatBubble'
@@ -15,13 +14,14 @@ import Button from '../../components/Button/button'
 import DownBtn from '../../components/Chat/downBtn'
 import MessageNotification from '../../components/Chat/messageNotification'
 import { UserInfo } from '../../types/index'
+import SendIcon from '@mui/icons-material/Send'
 
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
-  background-color: ${(props) => props.theme.backgroundColor || '#f0f0f0'};
+  background-color: ${(props) => props.theme.backgroundColor || '#f8faff'};
   position: relative;
   overflow: hidden;
 `
@@ -33,7 +33,7 @@ const Header = styled.div`
   padding: 10px;
   height: 60px;
   border-bottom: 1px solid #ccc;
-  background-color: #f9f9f9;
+  background-color: #f8faff;
 `
 
 const Title = styled.h1`
@@ -110,6 +110,7 @@ const InputField = styled.input`
 const SendButton = styled.button`
   margin-left: 10px;
   padding: 10px;
+  width: 4rem;
   border: none;
   border-radius: 4px;
   background-color: #01317b;
@@ -495,7 +496,9 @@ const ChattingPage: React.FC = () => {
             }
           }}
         />
-        <SendButton onClick={sendMessage}>보내기</SendButton>
+        <SendButton onClick={sendMessage}>
+          <SendIcon />
+        </SendButton>
       </InputContainer>
       {/* Down 버튼 추가 */}
       {showDownButton && <DownBtn onDownClick={scrollToBottom} />}

@@ -8,12 +8,12 @@ let stompClient: CompatClient | null = null
 let chatRoomSubscription: any = null
 let activeChatRoomPage: number
 export const getStompClient = () => stompClient
-export const setActiveChatRoomPage = (number: number) => activeChatRoomPage = number
+export const setActiveChatRoomPage = (number: number) =>
+  (activeChatRoomPage = number)
 
 export const useChatWebSocket = () => {
   const navigate = useNavigate()
-  const { setChatRooms, setMessages, setChatRoomsInfo } =
-    useChat()
+  const { setChatRooms, setMessages, setChatRoomsInfo } = useChat()
   const token = localStorage.getItem('token') || ''
   const nickname = localStorage.getItem('nickname') || ''
 
@@ -72,7 +72,9 @@ export const useChatWebSocket = () => {
             lastMessageTimestamp: '',
           },
         ])
-        navigate(`/chatting/${parsedMessage.chatRoomId}`)
+        if (parsedMessage.requestUser === nickname) {
+          navigate(`/chatting/${parsedMessage.chatRoomId}`)
+        }
         break
       case 'CHAT_LIST':
         const newMessages: ChatMessage[] = parsedMessage.messages.map(
@@ -144,6 +146,40 @@ export const useChatWebSocket = () => {
           )
         })
         break
+      case 'USER_NAME_UPDATE':
+        setChatRooms((prevChatRooms) => {
+          return prevChatRooms.map((info) => {
+            if (info.chatRoomId === parsedMessage.chatRoomId) {
+              const updatedUserResponses = info.userResponses.map((user) => {
+                if (user.userNickname === parsedMessage.oldNickname) {
+                  return {
+                    ...user,
+                    userNickname: parsedMessage.newNickname,
+                  };
+                }
+                return user
+              });
+
+              return {
+                ...info,
+                userResponses: updatedUserResponses,
+              }
+            }
+            return info
+          })
+        })
+
+        setChatRoomsInfo((prevChatRoomsInfo) => {
+          return prevChatRoomsInfo.map((info) => {
+            if (info.chatRoomId === parsedMessage.chatRoomId) {
+              return {
+                ...info,
+              }
+            }
+            return info
+          })
+        })
+        break
       case 'ERROR':
         alert(parsedMessage.content)
         break
@@ -193,6 +229,19 @@ export const useChatWebSocket = () => {
               }
             }
             return info
+          })
+        })
+        break
+      case 'USER_NAME_UPDATE':
+        setMessages((prevMessages) => {
+          return prevMessages.map((msg) => {
+            if (msg.sender === parsedMessage.oldNickname) {
+              return {
+                ...msg,
+                sender: parsedMessage.newNickname,
+              };
+            }
+            return msg
           })
         })
         break
