@@ -350,6 +350,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       setActivePage(page);
       if (page === 'main') {
         navigate('/main'); // 메인 아이콘 클릭 시 /main으로 이동
+      } else if (page === 'myPage'){
+        navigate('/myPage');
       } else if (page === 'chat') {
         if (getStompClient() == null) {
           connectAndSubscribe();
