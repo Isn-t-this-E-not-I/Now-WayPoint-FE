@@ -1,12 +1,13 @@
 import React, { ReactNode, useEffect } from 'react'
 import styled from 'styled-components'
-import { FaX, FaXmark } from 'react-icons/fa6'
+import { FaX } from 'react-icons/fa6'
 
 interface ModalProps {
   isOpen: boolean
   onClose?: () => void
   children?: ReactNode
   showCloseButton?: boolean
+  disableOverlayClick?: boolean
 }
 
 const Overlay = styled.div`
@@ -45,6 +46,7 @@ const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
   showCloseButton = true,
+  disableOverlayClick = false,
 }) => {
   useEffect(() => {
     if (isOpen) {
@@ -61,8 +63,8 @@ const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (e.target === e.currentTarget && onClose) {
-      onClose && onClose()
+    if (!disableOverlayClick && e.target === e.currentTarget && onClose) {
+      onClose()
     }
   }
 

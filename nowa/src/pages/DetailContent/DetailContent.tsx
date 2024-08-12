@@ -850,6 +850,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
         showCloseButton={false}
         isOpen={isEditModalOpen}
         onClose={handleCloseModal}
+        disableOverlayClick={true}
       >
         <EditContent
           postId={id}

@@ -9,7 +9,7 @@ interface TextareaProps {
   onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void
   onBlur?: (e: FocusEvent<HTMLTextAreaElement>) => void
   className?: string
-  showCharCount?: boolean // 문자 수 표시 여부
+  showCharCount?: boolean
 }
 
 const TextAreaWrapper = styled.div`

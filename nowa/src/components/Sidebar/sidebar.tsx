@@ -18,7 +18,11 @@ import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../Chat/createChatRoomButton'
 import { fetchChatRooms } from '../../api/chatApi'
-import { useChatWebSocket, getStompClient, setActiveChatRoomPage } from '@/websocket/chatWebSocket'
+import {
+  useChatWebSocket,
+  getStompClient,
+  setActiveChatRoomPage,
+} from '@/websocket/chatWebSocket'
 import { useChat } from '../../context/chatContext'
 import ChatListPage from '@/pages/Chat/chatListPage'
 import Modal from '../Modal/modal'
@@ -106,7 +110,7 @@ const LogoIconButtonWrapper = styled.button`
 
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
-})) <{ active: boolean }>`
+}))<{ active: boolean }>`
   background: ${({ active }) =>
     active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
   border: none;
@@ -540,6 +544,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           isOpen={isUploadModalOpen}
           showCloseButton={false}
           onClose={() => setUploadModalOpen(false)}
+          disableOverlayClick={true}
         >
           <div>
             <MakeContent onClose={() => setUploadModalOpen(false)} />
