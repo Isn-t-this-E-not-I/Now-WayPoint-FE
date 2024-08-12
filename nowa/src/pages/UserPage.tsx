@@ -16,7 +16,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+  width: 70%;
   padding: 20px;
+  padding-top: 3rem;
+  margin-left: 14rem;
 `
 
 const ProfileSection = styled.div`
@@ -61,6 +64,7 @@ const StatItem = styled.div`
 
 const Description = styled.p`
   margin-top: 10px;
+  margin-bottom: 1rem;
 `
 
 const SectionTitle = styled.h2`

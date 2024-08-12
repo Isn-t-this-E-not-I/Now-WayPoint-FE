@@ -13,8 +13,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+  width: 70%;
   padding: 20px;
-  margin-left: 13rem;
+  padding-top: 3rem;
+  margin-left: 14rem;
 `
 
 const ProfileSection = styled.div`
@@ -32,6 +34,7 @@ const ContentSection = styled.div`
   flex: 5;
   margin-left: 30px;
   margin-right: 30px;
+  
 `
 
 const ProfileImage = styled.img`
@@ -59,6 +62,7 @@ const StatItem = styled.div`
 
 const Description = styled.p`
   margin-top: 10px;
+  margin-bottom: 1rem;
 `
 
 const SectionTitle = styled.h2`
