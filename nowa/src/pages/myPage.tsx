@@ -34,7 +34,6 @@ const ContentSection = styled.div`
   flex: 5;
   margin-left: 30px;
   margin-right: 30px;
-  
 `
 
 const ProfileImage = styled.img`
@@ -104,18 +103,21 @@ interface UserProfile {
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   followingsList: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   allUsers: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
 }
 
@@ -194,6 +196,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
         followingsList: followingResponse.data
@@ -202,6 +205,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
         allUsers: allUsersResponse.data
@@ -216,6 +220,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
       })
