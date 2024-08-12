@@ -53,7 +53,7 @@ const LocationPermissionPage: React.FC = () => {
       <div className="relative z-50 flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center justify-center">
           <div className="relative w-full h-full">
-            {[1, 2, 3].map((index) => {
+            {/* {[1, 2, 3].map((index) => {
               const position = getRandomPosition();
               return (
                 <FaMapMarkerAlt
@@ -62,7 +62,7 @@ const LocationPermissionPage: React.FC = () => {
                   style={{ top: position.top, left: position.left }}
                 />
               );
-            })}
+            })} */}
           </div>
           <Button
             onClick={handleLocationPermission}

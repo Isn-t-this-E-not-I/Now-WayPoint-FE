@@ -16,7 +16,7 @@ const NotificationWrapper = styled.div`
   height: 90vh;
   max-height: 90vh;
   padding-left: 18px;
-  padding-top: 3px;
+  padding-top: 4rem;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;

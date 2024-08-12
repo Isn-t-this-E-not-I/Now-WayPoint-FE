@@ -29,6 +29,32 @@ const FriendAdditionPage: React.FC = () => {
     }
   }, []);
 
+  useEffect(() => {
+    const fetchSearchResults = async () => {
+      if (!searchQuery) {
+        setSearchResults([]);
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const users = await getAllUsers(token);
+          const results = users.filter((user: User) =>
+            user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
+          );
+          setSearchResults(results);
+        } else {
+          console.error('No token found');
+        }
+      } catch (error) {
+        console.error('Error searching users:', error);
+      }
+    };
+
+    fetchSearchResults();
+  }, [searchQuery]); // searchQuery가 변경될 때마다 실행
+
   const handleFindFriends = () => {
     setTransitioning(true);
     setTimeout(() => {
@@ -40,34 +66,6 @@ const FriendAdditionPage: React.FC = () => {
 
   const handleSkip = () => {
     navigate('/onboarding/distance-add');
-  };
-
-  const handleSearch = async () => {
-    if (!searchQuery) {
-      setSearchResults([]);
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const users = await getAllUsers(token);
-        const results = users.filter((user: User) =>
-          user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
-        );
-        setSearchResults(results);
-      } else {
-        console.error('No token found');
-      }
-    } catch (error) {
-      console.error('Error searching users:', error);
-    }
-  };
-
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
   };
 
   const handleAddFriend = (friend: User) => {
@@ -119,33 +117,28 @@ const FriendAdditionPage: React.FC = () => {
         <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${completedTransition ? 'translate-x-0' : 'translate-x-full'}`}>
           <h2 className="text-2xl font-bold mb-12 text-white">친구의 닉네임을 검색하세요</h2>
           <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg overflow-hidden">
-            <div className="flex mb-4 w-full">
+            <div className="flex mb-4">
               <TextInput
                 type="text"
                 placeholder="친구 검색"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-grow border-none p-4 w-full bg-gray-100 rounded-200 mr-40"
+                onChange={(e) => setSearchQuery(e.target.value)} // 입력할 때마다 searchQuery 업데이트
+                className="flex-grow border-none p-4 ml-2 mr-40 bg-gray-100 rounded-200"
               />
-              <Button
-                onClick={handleSearch}
-                className="ml-2 p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-200"
-              >
-                <FaSearch />
-              </Button>
             </div>
-            <ul className="mb-4">
+            <ul className="mb-4 w-full">
               {searchResults.map((user: User) => (
-                <li key={user.nickname} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2">
+                <li key={user.nickname} className="flex items-center justify-between ml-2 mr-1 p-4 bg-blue-50 rounded-lg mb-2">
                   <div className="flex items-center">
                     <img 
                       src={user.profileImageUrl} 
                       alt={user.name} 
                       className="w-10 h-10 rounded-full mr-4" 
                     />
-                      <p className="text-black">{user.nickname}</p>
-                      <p className="text-gray-500 ml-0.5">({user.name})</p>
+                    <div>
+                      <p className="text-black text-sm">{user.nickname}</p>
+                      <p className="text-gray-500 text-sm ml-0.5">{user.name}</p>
+                    </div>
                   </div>
                   {selectedFriends.some(friend => friend.nickname === user.nickname) ? (
                     <FaCheck
@@ -162,13 +155,13 @@ const FriendAdditionPage: React.FC = () => {
               ))}
             </ul>
             <Button
-              className="btn-primary text-base mt-4 w-full h-10 rounded-lg bg-pink-500 text-white hover:bg-pink-600 border-none"
-              onClick={handleAddFollow}
-            >
-              친구 {selectedFriends.length}명 추가
-            </Button>
+                className="btn-primary text-base h-10 w-full ml-2 mr-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 border-none"
+                onClick={handleAddFollow}
+              >
+                친구 {selectedFriends.length}명 추가
+              </Button>
             {selectedFriends.length > 0 && (
-              <div className="mt-4">
+              <div className="mt-4 ml-2">
                 <ul>
                   {selectedFriends.map((friend: User) => (
                     <li key={friend.nickname} className="flex items-center justify-between p-4 bg-blue-100 rounded-lg mb-2">
@@ -178,8 +171,10 @@ const FriendAdditionPage: React.FC = () => {
                           alt={friend.name} 
                           className="w-10 h-10 rounded-full mr-4" 
                         />
-                          <p className="text-black">{friend.nickname}</p>
-                          <p className="text-gray-500 ml-0.5">({friend.name})</p>
+                        <div>
+                          <p className="text-black text-sm">{friend.nickname}</p>
+                          <p className="text-gray-500 text-sm ml-0.5">({friend.name})</p>
+                        </div>
                       </div>
                       <FaCheck
                         onClick={() => handleRemoveFriend(friend.nickname)}

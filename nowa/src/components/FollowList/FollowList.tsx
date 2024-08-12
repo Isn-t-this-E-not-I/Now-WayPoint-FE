@@ -10,7 +10,7 @@ interface LoginActiveProps {
 const FollowListWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin-left: 2rem;
+  margin-left: -0.3rem;
   max-height: 80vh;
   overflow-y: scroll;
   scrollbar-width: none;
@@ -22,8 +22,6 @@ const FollowItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  border-bottom: 1px solid #ccc;
-  min-height: 69px;
 `
 
 const FollowName = styled.div`
@@ -37,7 +35,7 @@ const ProfileImage = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 15px;
 `
 
 const FollowDetails = styled.div`

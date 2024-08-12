@@ -98,19 +98,6 @@ const RightSection = styled.div`
   z-index: 10;
 `
 
-const RightSectionContainer = styled.div`
-  width: 100%;
-  max-width: 990px;
-  height: 95vh;
-  background-color: #ffffff;
-  border-radius: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow: hidden;
-  z-index: 100;
-`
-
 const ProfileContainer = styled.div`
   display: flex;
   align-items: center;
@@ -180,8 +167,8 @@ const RecommendationsContainer = styled.div`
 const RecommendationTitle = styled.h3`
   font-size: 15px;
   font-weight: bold;
-  margin-top: 15px;
-  margin-bottom: 0px;
+  margin-top: 20px;
+  margin-bottom: 8px;
 `
 
 
@@ -196,7 +183,7 @@ const RecommendationItem = styled.li`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
   width: 100%;
 `
 
@@ -239,15 +226,22 @@ const LogoIconButtonWrapper = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
   display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
   justify-content: center;
-  align-items: center;
+  padding: 0;
   margin-bottom: 25px;
-  margin-left: -9.1rem;
+  margin-left: 11rem;
   &:focus {
     outline: none;
   }
+`
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
 `
 
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
@@ -309,8 +303,9 @@ const CreateChatRoomButtonWrapeer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: 10px;
-  margin-top: 0.5px;
+  margin-left: auto;
+  margin-top: 1.3rem;
+  margin-bottom: 2rem;
 `
 
 const ContentDiv = styled.div`
@@ -336,6 +331,7 @@ const ContentPage = styled.div`
 
 const SearchContainer = styled.div`
   margin-left: 6px;
+  margin-top: 5.5rem;
   width: 99.5%;
 `
 
@@ -635,14 +631,18 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   return (
     <Wrapper>
       <LeftSidebar>
-        <LogoIconButtonWrapper onClick={() => handleNavigate('main')}>
-          <LogoIcon theme={theme} />
-        </LogoIconButtonWrapper>
+        <LogoContainer>
+          <LogoIconButtonWrapper onClick={() => handleNavigate('main')}>
+            <LogoIcon theme={theme} />
+          </LogoIconButtonWrapper>
+          <NowaIcon theme={theme} />
+        </LogoContainer>
         <IconButtonWrapper
           id="main-icon"
           active={activePage === 'main'}
           onClick={() => handleNavigate('main')}
         >
+
           <MainIcon theme={theme} />
           <IconSpan active={activePage === 'main'}>메인</IconSpan>
         </IconButtonWrapper>
@@ -683,6 +683,14 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           }}
         >
           <ChatIcon theme={theme} />
+          <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
+        </IconButtonWrapper>
+        <IconButtonWrapper
+          id="contents-icon"
+          active={activePage === 'contents'}
+          onClick={() => handleNavigate('contents')}
+        >
+          <ContentsIcon theme={theme} />
           <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
         </IconButtonWrapper>
         <IconButtonWrapper
@@ -710,7 +718,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
       <RightSidebar isVisible={activePage !== ''}>
         <TopRightSidebar>
-          <NowaIcon theme={theme} />
           {activePage === 'chat' && (
             <CreateChatRoomButtonWrapeer>
               <CreateChatRoomButton />
@@ -761,7 +768,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         )}
 
         <RecommendationTitle>추천 친구</RecommendationTitle>
-        <RecommendationTitle>추천 친구</RecommendationTitle>
         <RecommendationsContainer onScroll={handleScroll}>
           <RecommendationList>
             {recommendations.map((user) => (
@@ -771,18 +777,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
                     src={user.profileImageUrl || defaultProfileImage}
                     alt="Profile"
                   />
-                  <ProfileImage
-                    src={user.profileImageUrl || defaultProfileImage}
-                    alt="Profile"
-                  />
                   <UserInfo>
                     <Nickname>{user.nickname}</Nickname>
                     <Name>{user.name}</Name>
                   </UserInfo>
                 </ProfileContainer>
-                <FollowButton onClick={() => handleFollow(user.nickname)}>
-                  팔로우
-                </FollowButton>
                 <FollowButton onClick={() => handleFollow(user.nickname)}>
                   팔로우
                 </FollowButton>
