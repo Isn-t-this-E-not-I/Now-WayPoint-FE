@@ -68,7 +68,7 @@ const RightSidebar = styled.div<{ isVisible: boolean }>`
   z-index: 5;
   position: fixed;
   top: 0;
-  left: ${({ isVisible }) => (isVisible ? '13rem' : '-20rem')};
+  left: ${({ isVisible }) => (isVisible ? '15rem' : '-15rem')};
   height: 100%;
   background-color: #f8faff;
   transition: left 0.3s ease-in-out;
@@ -119,10 +119,10 @@ const ProfileContainer = styled.div`
 `;
 
 const ProfileImage = styled.img`
-  width: 50px;
-  height: 50px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 15px;
 `;
 
 const UserInfo = styled.div`
@@ -153,18 +153,26 @@ const LogOutIconButtonWrapper = styled.button`
   padding-bottom: 1.5rem;
   display: flex;
   align-items: center;
-  margin-left: auto; /* 로그아웃 버튼을 오른쪽으로 정렬 */
+  margin-left: auto; /* 오른쪽 정렬 */
+  margin-right: 10px; /* 오른쪽 정렬 */
+  svg {
+    width: 18px;
+    height: 18px;
+  }
 `;
 
 const RecommendationsContainer = styled.div`
   width: 100%;
   margin-top: 20px;
+  max-height: 190px; /* 스크롤 영역의 최대 높이 설정 */
+  overflow-y: auto; /* 수직 스크롤 추가 */
 `;
 
 const RecommendationTitle = styled.h3`
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
-  margin-bottom: 10px;
+  margin-top: 15px;
+  margin-bottom: 0px;
 `;
 
 const RecommendationList = styled.ul`
@@ -182,10 +190,34 @@ const RecommendationItem = styled.li`
   width: 100%;
 `;
 
-const FollowButton = styled(Button)`
+const ShowMoreText = styled.div<{ visible: boolean }>`
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin-top: 10px;
+`;
+
+const FollowButton = styled.button`
   margin-left: auto;
   margin-bottom: 0.8rem;
-  padding: 0.3rem 0.8rem;
+  padding: 0.2rem 0.7rem;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  height: 35px;
+  width: 80px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+  }
 `;
 
 const Blank = styled.div`
@@ -202,7 +234,7 @@ const LogoIconButtonWrapper = styled.button`
   justify-content: center;
   align-items: center;
   margin-bottom: 25px;
-
+  margin-left: -9.1rem;
   &:focus {
     outline: none;
   }
@@ -212,34 +244,56 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
 }))<{ active: boolean }>`
   background: ${({ active }) =>
-    active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
+    active ? 'black' : 'none'};
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding-left: 0.7rem;
   display: flex;
-  align-items: center;  /* Align items horizontally centered */
-  width: 80%; /* Adjust the width to fit the content */
+  align-items: center;
+  width: 80%;
   height: 70px;
-  left: 0.7rem;
-  justify-content: flex-start;  /* Align content to the start */
+  left: 0;
+  border-radius: 20px;
+  justify-content: flex-start;
   position: relative;
 
   &:focus {
     outline: none;
-    background-color: #f8faff;
+    background-color: black;
+    color: white;
+
+    svg {
+      fill: white;
+    }
+
+    span {
+      color: white;
+    }
+  }
+
+  &:hover {
+    background-color: black;
+
+    svg {
+      fill: white;
+    }
+
+    span {
+      color: white;
+    }
   }
 
   svg {
-    fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
+    fill: ${({ active }) => (active ? 'white' : '#151515')};
     margin-right: 1rem;
+    margin-top: -1.25rem;
   }
 `;
 
 const IconSpan = styled.span<{ active: boolean }>`
   font-size: 14px;
   font-weight: bold;
-  color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
-  margin-top: 20px;
+  color: ${({ active }) => (active ? 'white' : '#151515')};
 `;
 
 const CreateChatRoomButtonWrapeer = styled.div`
@@ -277,18 +331,22 @@ const SearchContainer = styled.div`
 `
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 10px;
+  width: 90%;
+  padding: 9px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
+  margin-left: 10px;
+  border: 0.1px solid #ccc;
   border-radius: 8px;
+  font-size: 15px;
 `
 
 const Badge = styled.span`
   position: absolute;
-  top: 7px;
-  right: 15px;
-  background-color: red;
+  top: 1.79rem;
+  right: 1.5rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  background-color: rgba(0, 0, 0, 0.9);
   color: white;
   border-radius: 50%;
   padding: 2px 6px;
@@ -339,8 +397,15 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
+
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = event.currentTarget;
+    setIsScrolled(scrollTop > 0);
+  };
 
   const handleNavigate = (page: string) => {
     if (activePage === page) {
@@ -473,7 +538,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           (user: any) => !followingNicknames.includes(user.nickname)
         );
 
-        setRecommendations(notFollowingUsers.slice(0, 3)); // 최대 3명의 유저를 추천
+        setRecommendations(notFollowingUsers); //
       } catch (error) {
         console.error('Failed to fetch user data:', error);
       }
@@ -662,8 +727,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           </ProfileContainer>
         )}
 
-        <RecommendationsContainer>
-          <RecommendationTitle>추천 친구</RecommendationTitle>
+      <RecommendationTitle>추천 친구</RecommendationTitle>
+        <RecommendationsContainer onScroll={handleScroll}>
           <RecommendationList>
             {recommendations.map((user) => (
               <RecommendationItem key={user.nickname}>
@@ -678,6 +743,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
               </RecommendationItem>
             ))}
           </RecommendationList>
+          <ShowMoreText visible={!isScrolled}>더 보기</ShowMoreText>
         </RecommendationsContainer>
       </RightSection>
 

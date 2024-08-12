@@ -20,8 +20,9 @@ const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 60%;
-  margin-left: 13rem;
+  width: 55%;
+  padding-top: 1.8rem;
+  margin-left: 19rem;
   background-color: ${(props) => props.theme.backgroundColor || '#f8faff'};
   position: relative;
   overflow: hidden;
@@ -38,7 +39,7 @@ const Header = styled.div`
 `
 
 const Title = styled.h1`
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: bold;
   margin-left: 0.5rem;
 `

@@ -16,10 +16,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
-  width: 70%;
+  width: 67%;
   padding: 20px;
   padding-top: 3rem;
-  margin-left: 14rem;
+  margin-left: 15rem;
 `
 
 const ProfileSection = styled.div`
