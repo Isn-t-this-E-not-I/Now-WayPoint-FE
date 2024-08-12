@@ -21,6 +21,7 @@ const ChatContainer = styled.div`
   flex-direction: column;
   height: 100%;
   width: 100%;
+  margin-left: 13rem;
   background-color: ${(props) => props.theme.backgroundColor || '#f8faff'};
   position: relative;
   overflow: hidden;
@@ -356,8 +357,8 @@ const ChattingPage: React.FC = () => {
   }
 
   const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}?tab=posts`);
-  };
+    navigate(`/user/${nickname}?tab=posts`)
+  }
 
   // 프로필 이미지를 결정하는 부분 수정
   let displayProfileImages: string[] = []
@@ -463,8 +464,7 @@ const ChattingPage: React.FC = () => {
           }
 
           return (
-            <MessageItem key={index} $isSender={false}
-            >
+            <MessageItem key={index} $isSender={false}>
               <ChatBubble
                 alignment="start"
                 avatarSrc={

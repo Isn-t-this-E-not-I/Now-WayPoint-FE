@@ -14,6 +14,7 @@ const Container = styled.div`
   align-items: flex-start;
   height: 100vh;
   padding: 20px;
+  margin-left: 13rem;
 `
 
 const ProfileSection = styled.div`

@@ -49,25 +49,27 @@ const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 5rem;
+  width: 13rem;
   height: 100%;
   z-index: 10;
   position: fixed;
-
   background-color: #f8faff;
 `
 
-const RightSidebar = styled.div`
+const RightSidebar = styled.div<{ isVisible: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 20rem;
-  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
+  width: 20rem; // RightSidebar 너비 설정
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
   z-index: 5;
-  position: relative;
-  margin-left: 4.4rem;
+  position: fixed;
+  top: 0;
+  left: ${({ isVisible }) => (isVisible ? '13rem' : '-20rem')};
+  height: 100%;
   background-color: #f8faff;
+  transition: left 0.3s ease-in-out;
 `
 
 const TopRightSidebar = styled.div`
@@ -331,7 +333,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   }
 
   const handleNavigate = (page: string) => {
-    navigate(`/${page}`)
+    if (activePage === page) {
+      setActivePage('') // 이미 선택된 메뉴를 클릭하면 사이드바 닫기
+    } else {
+      if (
+        page === 'notifications' ||
+        page === 'followContents' ||
+        page === 'contents'
+      ) {
+        setActivePage(page)
+      } else {
+        setActivePage(page) // 새로운 메뉴를 클릭하면 해당 페이지 활성화
+        navigate(`/${page}`)
+      }
+    }
   }
 
   const handleDelete = () => {
@@ -369,21 +384,13 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   return (
     <Wrapper>
       <LeftSidebar>
-        <LogoIconButtonWrapper
-          onClick={() => {
-            handleNavigate('main')
-            setActivePage('main')
-          }}
-        >
+        <LogoIconButtonWrapper onClick={() => handleNavigate('main')}>
           <LogoIcon theme={theme} />
         </LogoIconButtonWrapper>
         <IconButtonWrapper
           id="main-icon"
           active={activePage === 'main'}
-          onClick={() => {
-            handleNavigate('main')
-            setActivePage('main')
-          }}
+          onClick={() => handleNavigate('main')}
         >
           <MainIcon theme={theme} />
           <IconSpan active={activePage === 'main'}>메인</IconSpan>
@@ -401,9 +408,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="notifications-icon"
           active={activePage === 'notifications'}
-          onClick={() => {
-            setActivePage('notifications')
-          }}
+          onClick={() => handleNavigate('notifications')}
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
@@ -416,7 +421,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             if (getStompClient() == null) {
               connectAndSubscribe()
             }
-            setActivePage('chat')
+            handleNavigate('chat')
             fetchChatRooms(token).then((data) => {
               // 데이터 구조를 확인하고 필요한 데이터만 추출
               const chatRooms = data.chatRooms
@@ -434,9 +439,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="contents-icon"
           active={activePage === 'contents'}
-          onClick={() => {
-            setActivePage('contents')
-          }}
+          onClick={() => handleNavigate('contents')}
         >
           <ContentsIcon theme={theme} />
           <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
@@ -444,9 +447,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="follow-contents-icon"
           active={activePage === 'followContents'}
-          onClick={() => {
-            setActivePage('followContents')
-          }}
+          onClick={() => handleNavigate('followContents')}
         >
           <FollowContentsIcon theme={theme} />
           <IconSpan active={activePage === 'followContents'}>
@@ -457,8 +458,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="mypage-icon"
           active={activePage === 'myPage'}
           onClick={() => {
-            setActivePage('myPage')
-            handleNavigate('mypage')
+            handleNavigate('myPage')
           }}
         >
           <MyPageIcon theme={theme} />
@@ -501,9 +501,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <ThemeController />
       </LeftSidebar>
 
-      <Line />
+      {/* <Line /> */}
 
-      <RightSidebar>
+      <RightSidebar isVisible={activePage !== ''}>
         <TopRightSidebar>
           <NowaIcon theme={theme} />
           {activePage === 'chat' && (

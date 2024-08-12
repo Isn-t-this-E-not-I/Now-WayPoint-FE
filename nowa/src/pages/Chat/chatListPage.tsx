@@ -191,8 +191,7 @@ const getProfileImages = (
 
 const ChatListPage: React.FC = () => {
   const navigate = useNavigate()
-  const { chatRooms, chatRoomsInfo, setChatRoomsInfo } =
-    useChat()
+  const { chatRooms, chatRoomsInfo, setChatRoomsInfo } = useChat()
   const nickname = localStorage.getItem('nickname') || ''
 
   const handleChatRoomClick = (chatRoomId: number) => {
@@ -260,7 +259,11 @@ const ChatListPage: React.FC = () => {
             <img
               src={NoChatListImage}
               alt="No Notifications"
-              style={{ backgroundColor: 'transparent', width: '150px', height: '150px' }}
+              style={{
+                backgroundColor: 'transparent',
+                width: '150px',
+                height: '150px',
+              }}
             />
             <div className="mt-4">메세지를 보내보세요!</div>
           </div>
@@ -330,7 +333,9 @@ const ChatListPage: React.FC = () => {
                         </RoomDetail>
                       )}
                       {roomInfo.lastMessageTimestamp && (
-                        <TimeAgo>{formatRelativeTime(roomInfo.lastMessageTimestamp)}</TimeAgo>
+                        <TimeAgo>
+                          {formatRelativeTime(roomInfo.lastMessageTimestamp)}
+                        </TimeAgo>
                       )}
                     </RoomDetails>
                   )}
