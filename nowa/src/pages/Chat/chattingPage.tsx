@@ -20,7 +20,7 @@ const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
+  width: 60%;
   margin-left: 13rem;
   background-color: ${(props) => props.theme.backgroundColor || '#f8faff'};
   position: relative;
