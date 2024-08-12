@@ -3,6 +3,10 @@ import styled from 'styled-components'
 import Button from '../Button/button'
 import { useNavigate } from 'react-router-dom'
 
+interface LoginActiveProps {
+  active: boolean
+}
+
 const FollowListWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -21,6 +25,7 @@ const FollowName = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
+  position: relative;
 `
 
 const ProfileImage = styled.img`
@@ -44,9 +49,25 @@ const UserName = styled.div`
   color: #555;
 `
 
-const LoginActive = styled.div`
-  width: 45px;
-  height: 25px;
+const LoginActive = styled.div<LoginActiveProps>`
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: ${(props) =>
+    props.active ? '#56BD70' : 'rgb(168, 168, 168)'};
+  margin-top: 4px;
+  margin-left: 4px;
+`
+
+const LoginActiveContainer = styled.div`
+  position: absolute;
+  left: 24px;
+  bottom: -4px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  margin: 0 auto;
 `
 
 interface FollowListProps {
@@ -92,10 +113,12 @@ const FollowList: React.FC<FollowListProps> = ({
                 src={user.profileImageUrl || '/defaultprofile.png'}
                 alt="Profile"
               />
+              <LoginActiveContainer>
+                <LoginActive active={user.active === 'true'} />
+              </LoginActiveContainer>
               <FollowDetails>
                 <Nickname>{user.nickname}</Nickname>
                 <UserName>@{user.name}</UserName>
-                {/* <LoginActive>{user.active}</LoginActive> */}
               </FollowDetails>
             </FollowName>
             {showFollowButtons && (

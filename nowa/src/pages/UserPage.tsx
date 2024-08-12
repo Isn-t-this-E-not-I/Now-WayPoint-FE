@@ -108,12 +108,14 @@ interface UserProfile {
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   followingsList: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   allUsers: {
     isFollowing: boolean
@@ -217,19 +219,21 @@ const UserPage: React.FC = () => {
         posts: postsWithCommentCounts,
         followersList: followerResponse.data
           ? followerResponse.data.map((user: any) => ({
-            isFollowing: true,
-            name: user.name,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl || defaultProfileImage,
-          }))
+              isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
+            }))
           : [],
         followingsList: followingResponse.data
           ? followingResponse.data.map((user: any) => ({
-            isFollowing: true,
-            name: user.name,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl || defaultProfileImage,
-          }))
+              isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
+            }))
           : [],
         allUsers,
       })
@@ -330,11 +334,11 @@ const UserPage: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      const followingData = response.data;
+      })
+      const followingData = response.data
       setIsFollowing(
         followingData.some((user: any) => user.nickname === nickname)
-      );
+      )
     } catch (error) {
       console.error('Failed to check if following:', error)
     }
@@ -408,16 +412,16 @@ const UserPage: React.FC = () => {
 
     // 웹소켓 연결
     if (getStompClient() == null) {
-      connectAndSubscribe();
+      connectAndSubscribe()
     }
 
     // 기존 채팅방 목록 가져오기
-    const data = await fetchChatRooms(token);
-    const chatRooms = data.chatRooms;
-    const chatRoomsInfo = data.chatRoomsInfo;
+    const data = await fetchChatRooms(token)
+    const chatRooms = data.chatRooms
+    const chatRoomsInfo = data.chatRoomsInfo
 
-    setChatRooms(chatRooms);
-    setChatRoomsInfo(chatRoomsInfo);
+    setChatRooms(chatRooms)
+    setChatRoomsInfo(chatRoomsInfo)
 
     const stompClient = getStompClient()
 
@@ -427,9 +431,9 @@ const UserPage: React.FC = () => {
           destination: '/app/chatRoom/create',
           headers: { Authorization: `Bearer ${token}` },
           body: JSON.stringify(payload),
-        });
+        })
       }
-    }, 50);
+    }, 50)
   }
 
   return (
