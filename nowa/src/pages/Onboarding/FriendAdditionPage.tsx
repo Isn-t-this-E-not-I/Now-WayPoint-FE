@@ -88,7 +88,7 @@ const FriendAdditionPage: React.FC = () => {
       const token = localStorage.getItem('token');
       if (token) {
         await Promise.all(selectedFriends.map(friend => addFollow(token, friend.nickname)));
-        navigate('/onboarding/site-guide');
+        navigate('/onboarding/distance-add');
       } else {
         console.error('No token found');
       }
