@@ -370,7 +370,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
-    if (activePage !== 'chat') {
+    if (activePage === 'main' || activePage === 'myPage') {
       disconnect()
       setActiveChatRoomPage(-1)
     }
