@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useCookies } from 'react-cookie'
-import { login } from '../api/userApi'
+import { login, sendLoginInfo } from '../api/userApi'
 import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
@@ -40,6 +40,7 @@ const LoginPage: React.FC = () => {
   const handleLogin = async () => {
     try {
       const data = await login({ loginId, password })
+      await sendLoginInfo(loginId)
       console.log('로그인 성공:', data.token)
       navigate('/main', { replace: true })
       localStorage.setItem('token', data.token)
