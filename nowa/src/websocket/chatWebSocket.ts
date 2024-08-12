@@ -146,6 +146,40 @@ export const useChatWebSocket = () => {
           )
         })
         break
+      case 'USER_NAME_UPDATE':
+        setChatRooms((prevChatRooms) => {
+          return prevChatRooms.map((info) => {
+            if (info.chatRoomId === parsedMessage.chatRoomId) {
+              const updatedUserResponses = info.userResponses.map((user) => {
+                if (user.userNickname === parsedMessage.oldNickname) {
+                  return {
+                    ...user,
+                    userNickname: parsedMessage.newNickname,
+                  };
+                }
+                return user
+              });
+
+              return {
+                ...info,
+                userResponses: updatedUserResponses,
+              }
+            }
+            return info
+          })
+        })
+
+        setChatRoomsInfo((prevChatRoomsInfo) => {
+          return prevChatRoomsInfo.map((info) => {
+            if (info.chatRoomId === parsedMessage.chatRoomId) {
+              return {
+                ...info,
+              }
+            }
+            return info
+          })
+        })
+        break
       case 'ERROR':
         alert(parsedMessage.content)
         break
@@ -199,40 +233,6 @@ export const useChatWebSocket = () => {
         })
         break
       case 'USER_NAME_UPDATE':
-        setChatRooms((prevChatRooms) => {
-          return prevChatRooms.map((info) => {
-            if (info.chatRoomId === parsedMessage.chatRoomId) {
-              const updatedUserResponses = info.userResponses.map((user) => {
-                if (user.userNickname === parsedMessage.oldNickname) {
-                  return {
-                    ...user,
-                    userNickname: parsedMessage.newNickname, // 여기서 닉네임 업데이트
-                  };
-                }
-                return user
-              });
-
-              return {
-                ...info,
-                userResponses: updatedUserResponses,
-              }
-            }
-            return info
-          })
-        })
-
-        setChatRoomsInfo((prevChatRoomsInfo) => {
-          return prevChatRoomsInfo.map((info) => {
-            if (info.chatRoomId === parsedMessage.chatRoomId) {
-              return {
-                ...info, // 여기서 다른 변경사항이 있다면 리렌더링이 트리거됩니다.
-              }
-            }
-            return info
-          })
-        })
-
-        // 메시지 내에서도 닉네임 업데이트
         setMessages((prevMessages) => {
           return prevMessages.map((msg) => {
             if (msg.sender === parsedMessage.oldNickname) {
