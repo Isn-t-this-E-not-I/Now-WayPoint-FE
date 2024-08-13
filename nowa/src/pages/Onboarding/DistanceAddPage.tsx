@@ -34,10 +34,8 @@ const DistanceAddPage: React.FC = () => {
           });
 
           const textResponse = await response.text();
-          console.log('Raw Response:', textResponse);
 
           const users = JSON.parse(textResponse);
-          console.log('Parsed JSON:', users);
 
           // 로그인한 유저를 추천 친구 목록에서 제외
           const filteredUsers = users.filter((user: any) => user.nickname !== nickname);
@@ -89,7 +87,6 @@ const DistanceAddPage: React.FC = () => {
           });
 
           setRecommendedFriends(mappedUsers);
-          console.log('Mapped Users:', mappedUsers);
         } else {
           console.error('No token found');
         }

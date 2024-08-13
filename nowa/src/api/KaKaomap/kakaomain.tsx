@@ -172,7 +172,6 @@ const MainPage: React.FC = () => {
               handleMarkerClick(item.id)
             })
           } else {
-            console.warn('Marker image element not found')
           }
 
           // CustomOverlay를 생성합니다.
@@ -185,7 +184,6 @@ const MainPage: React.FC = () => {
           markersRef.current.push(marker)
           return marker
         } catch (error) {
-          console.error('Error creating marker:', error)
           return null
         }
       })
@@ -252,7 +250,6 @@ const MainPage: React.FC = () => {
             setLocate(`${longitude},${latitude}`)
             localStorage.setItem('locate', `${longitude},${latitude}`)
           } catch (error) {
-            console.error('지도 초기화 실패:', error)
           }
         },
         (error) => {

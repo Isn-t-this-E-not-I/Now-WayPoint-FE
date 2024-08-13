@@ -26,7 +26,6 @@ export const uploadContent = async (
 
   // FormData의 내용을 확인하는 코드
   for (let [key, value] of formData.entries()) {
-    console.log(key, value)
   }
 
   try {
