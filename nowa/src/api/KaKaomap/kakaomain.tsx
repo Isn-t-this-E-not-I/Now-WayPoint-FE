@@ -277,7 +277,7 @@ const MainPage: React.FC = () => {
   }, [selectContents, map])
 
   useEffect(() => {
-    if (map && data.length > 0) {
+    if (map && data.length >= 0) {
       addMarkers(map, data)
     }
   }, [data, map])

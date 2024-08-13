@@ -53,7 +53,7 @@ const LeftSidebar = styled.div`
   align-items: center;
   width: 16rem;
   height: 100%;
-  z-index: 101;
+  z-index: 201;
   position: fixed;
   background-color: #f8faff;
 `
@@ -65,7 +65,7 @@ const RightSidebar = styled.div<{ isVisible: boolean }>`
   justify-content: flex-start;
   width: 20rem; // RightSidebar 너비 설정
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
-  z-index: 100;
+  z-index: 200;
   position: fixed;
   top: 0;
   left: ${({ isVisible }) => (isVisible ? '15rem' : '-15rem')};
