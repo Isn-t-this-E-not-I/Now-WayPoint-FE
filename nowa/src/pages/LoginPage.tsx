@@ -4,6 +4,8 @@ import { login, sendLoginInfo } from '../api/userApi'
 import TextInput from '../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
+import { NowaIcon } from '@/components/icons/icons'
+import image from '@/assets/loginImage.png'
 
 const LoginPage: React.FC = () => {
   const [loginId, setLoginId] = useState<string>('')
@@ -79,8 +81,29 @@ const LoginPage: React.FC = () => {
   const goToFindPassword = () => navigate('/find-password')
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <div className="card w-96 shadow-xl p-5 bg-gray-50">
+    <div className="flex flex-col items-end pr-80 justify-center min-h-screen bg-white"
+    style={{ overflow: 'hidden', 
+      backgroundImage: `url('https://media.discordapp.net/attachments/1255337590106619946/1272606721541541940/Locationbackground.png?ex=66bb96de&is=66ba455e&hm=e4b1b7c514db33aef891cc51702113dae6cb1cae9b6786b14ed16f3f5e7a4327&=&format=webp&quality=lossless&width=1870&height=1138')`,
+      backgroundSize: 'cover', // 이미지가 요소를 덮도록 설정
+        backgroundRepeat: 'no-repeat', // 이미지 반복 방지
+        backgroundPosition: 'center', // 이미지가 중앙에 위치
+        height: '100%', // 부모 요소에 맞게 높이 설정
+        width: '100%', // 부모 요소에 맞게 너비 설정
+    }}
+    >
+    <div className="card absolute shadow-xl p-5 bg-gray-50" style={{ width: '81.25rem', height: '46.875rem', border: '2px solid #ccc', right: '18.75rem' }}>
+    <div className="flex flex-col pr-80 absolute ml-10 justify-center min-h-96 bg-gray-50"
+    style={{
+      overflow: 'hidden', 
+      backgroundImage: `url(${image})`,
+      backgroundSize: 'contain', // 이미지가 요소의 크기에 맞게 조정됨
+      backgroundRepeat: 'no-repeat', // 이미지 반복 방지
+      backgroundPosition: 'center', // 이미지가 중앙에 위치
+      height: '600px', // 높이를 500px로 조정
+      width: '700px', // 너비를 500px로 조정
+    }}
+></div>
+      <div className="card w-96 shadow-xl p-5 bg-gray-50 mt-20" style={{ border: '2px solid #ccc', zIndex : 1000, right : '-800px' }}>
         <h2 className="text-lg font-bold mb-4">로그인</h2>
         <TextInput
           type="email"
@@ -130,6 +153,19 @@ const LoginPage: React.FC = () => {
           비밀번호 찾기
         </button>
       </div>
+      <div
+      className="absolute bottom-10 left-10 flex flex-col items-start"
+      style={{ zIndex: 1 }}
+    >
+      <div className="flex items-center text-black font-bold text-4xl">
+        <NowaIcon theme={'light'} />
+      </div>
+      <div className="text-black text-xl mb-20 ml-4">
+        모르는 사이에 내 주변에 생겨나는 이야기를 주워보자!
+      </div>
+    </div>
+      </div>
+      <div className="card absolute shadow-xl p-5 bg-gray-50" style={{ width: '400px', height: '600px', border: '2px solid #ccc', zIndex : 2, right : '350px' }}></div>
     </div>
   )
 }
