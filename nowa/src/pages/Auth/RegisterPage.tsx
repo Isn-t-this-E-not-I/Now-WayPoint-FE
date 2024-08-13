@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TextInput from '../components/TextInput/textInput';
-import { register, login, sendVerificationCode, verifyCode, checkLoginId } from '../api/userApi';
-import Button from '../components/Button/button';
+import TextInput from '../../components/TextInput/textInput';
+import { register, login, sendVerificationCode, verifyCode, checkLoginId } from '../../api/userApi';
+import Button from '../../components/Button/button';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
 

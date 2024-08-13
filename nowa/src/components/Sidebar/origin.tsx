@@ -1,203 +1,455 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { getAllUsers, addFollow } from '../../api/userApi';
-import Button from '../../components/Button/button';
+import { useCookies } from 'react-cookie';
+import { login, register, sendLoginInfo } from '../../api/userApi';
 import TextInput from '../../components/TextInput/textInput';
+import { useNavigate } from 'react-router-dom';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import './styles.css';
-import { FaSearch, FaPlus, FaCheck } from "react-icons/fa";
 
-interface User {
-  name: string;
-  nickname: string;
-  profileImageUrl: string;
-}
+const AuthPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
+  const [loginId, setLoginId] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [nickname, setNickname] = useState('');
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const location = import.meta.env.VITE_APP_API;
+  const [cookies, setCookie, removeCookie] = useCookies(['rememberedLoginId']);
+  const [hidePassword, setHidePassword] = useState(true);
 
-const FriendAdditionPage: React.FC = () => {
-  const [showFriendPrompt, setShowFriendPrompt] = useState(true);
-  const [transitioning, setTransitioning] = useState(false);
-  const [completedTransition, setCompletedTransition] = useState(false);
-  const [nickname, setNickname] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchResults, setSearchResults] = useState<User[]>([]);
-  const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedNickname = localStorage.getItem('nickname');
-    if (storedNickname) {
-      setNickname(storedNickname);
+    if (cookies.rememberedLoginId) {
+      setLoginId(cookies.rememberedLoginId);
+      setRememberMe(true);
     }
-  }, []);
+  }, [cookies]);
 
-  const handleFindFriends = () => {
-    setTransitioning(true);
-    setTimeout(() => {
-      setShowFriendPrompt(false);
-      setTransitioning(false);
-      setCompletedTransition(true);
-    }, 1000);
-  };
+  useEffect(() => {
+    const handleEnterPress = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        handleLogin();
+      }
+    };
 
-  const handleSkip = () => {
-    navigate('/onboarding/distance-add');
-  };
+    window.addEventListener('keydown', handleEnterPress);
+    return () => {
+      window.removeEventListener('keydown', handleEnterPress);
+    };
+  }, [loginId, password]);
 
-  const handleSearch = async () => {
-    if (!searchQuery) {
-      setSearchResults([]);
-      return;
-    }
-
+  const handleLogin = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        const users = await getAllUsers(token);
-        const results = users.filter((user: User) =>
-          user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
-        );
-        setSearchResults(results);
+      const data = await login({ loginId, password });
+      await sendLoginInfo(loginId);
+      console.log('로그인 성공:', data.token);
+      navigate('/main', { replace: true });
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('nickname', data.nickname);
+      setNickname(data.nickname);
+
+      if (rememberMe) {
+        setCookie('rememberedLoginId', loginId, {
+          path: '/',
+          maxAge: 30 * 24 * 60 * 60,
+        });
       } else {
-        console.error('No token found');
+        removeCookie('rememberedLoginId');
       }
     } catch (error) {
-      console.error('Error searching users:', error);
+      console.error('로그인 실패:', error);
+      setError('로그인에 실패하였습니다. 아이디 또는 비밀번호를 확인하세요.');
     }
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    if (event.key === 'Enter') {
-      handleSearch();
-    }
-  };
-
-  const handleAddFriend = (friend: User) => {
-    setSelectedFriends([...selectedFriends, friend]);
-    setSearchResults(searchResults.filter(user => user.nickname !== friend.nickname));
-  };
-
-  const handleRemoveFriend = (nickname: string) => {
-    const removedFriend = selectedFriends.find(friend => friend.nickname === nickname);
-    if (removedFriend) {
-      setSelectedFriends(selectedFriends.filter(friend => friend.nickname !== nickname));
-      setSearchResults([...searchResults, removedFriend]);
-    }
-  };
-
-  const handleAddFollow = async () => {
+  const handleKakaoLogin = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (token) {
-        await Promise.all(selectedFriends.map(friend => addFollow(token, friend.nickname)));
-        navigate('/onboarding/distance-add');
-      } else {
-        console.error('No token found');
-      }
+      localStorage.setItem('token', 'zzz');
+      window.location.href = `${location}/user/login/kakao`;
     } catch (error) {
-      console.error('Error adding follow:', error);
+      console.error('Kakao login failed:', error);
+    }
+  };
+
+  const onToggleHide = () => {
+    setHidePassword(!hidePassword);
+  };
+
+  const handleRegister = async (loginId: string, password: string, email: string, nickname: string) => {
+    try {
+      const data = await register({ loginId, password, email, nickname, name: nickname });
+      console.log('회원가입 성공:', data);
+      navigate('/main', { replace: true });
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      setError('회원가입에 실패하였습니다. 정보를 확인하세요.');
     }
   };
 
   return (
-    <div className="relative min-h-screen bg-cover bg-center bg-blue-300">
-      {showFriendPrompt ? (
-        <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${transitioning ? 'translate-x-full' : 'translate-x-0'}`}>
-          <h2 className="text-2xl font-bold text-white mb-6">환영합니다, 이제 친구를 찾아볼까요?</h2>
-          <Button
-            className="btn-primary text-lg mt-16 w-64 h-14 bg-pink-500 text-white hover:bg-pink-600 border-none"
-            onClick={handleFindFriends}
-          >
-            친구 선택하기
-          </Button>
-          <Button
-            className="btn-primary text-lg mt-4 w-64 h-14 bg-gray-300 text-white hover:bg-gray-400 border-none"
-            onClick={handleSkip}
-          >
-            건너뛰기
-          </Button>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-image">
+      <div className="card w-96 p-5" style={{ marginTop: '5rem', marginLeft: '30rem', minHeight: '550px' }}>
+      <div className="flex justify-center mb-4">
+        <button
+            className={`tab-button ${activeTab === 'login' ? 'active' : ''}`}
+            onClick={() => setActiveTab('login')}
+        >
+            로그인
+        </button>
+        <button
+            className={`tab-button ${activeTab === 'register' ? 'active' : ''}`}
+            onClick={() => setActiveTab('register')}
+        >
+            회원가입
+        </button>
         </div>
-      ) : (
-        <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${completedTransition ? 'translate-x-0' : 'translate-x-full'}`}>
-          <h2 className="text-2xl font-bold mb-12 text-white">친구의 닉네임을 검색하세요</h2>
-          <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg overflow-hidden">
-            <div className="flex mb-4 w-full">
+
+        {activeTab === 'login' && (
+          <>
+            <TextInput
+              type="email"
+              placeholder="이메일"
+              onChange={(e) => setLoginId(e.target.value)}
+              value={loginId}
+              className="mb-4"
+              style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  // 텍스트 색상: 검정색, 배경색: 연회색
+            />
+            <div className="relative w-full mb-2">
               <TextInput
-                type="text"
-                placeholder="친구 검색"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                className="flex-grow border-none p-4 w-full bg-gray-100 rounded-200 mr-40"
+                type={hidePassword ? 'password' : 'text'}
+                placeholder="비밀번호"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+                className="mb-4"
+                style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  // 텍스트 색상: 검정색, 배경색: 연회색
               />
-              <Button
-                onClick={handleSearch}
-                className="ml-2 p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-200"
+              <div
+                className="absolute inset-y-0 right-0 mb-4 mr-2 pr-3 flex items-center cursor-pointer"
+                onClick={onToggleHide}
               >
-                <FaSearch />
-              </Button>
-            </div>
-            <ul className="mb-4">
-              {searchResults.map((user: User) => (
-                <li key={user.nickname} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2">
-                  <div className="flex items-center">
-                    <img 
-                      src={user.profileImageUrl} 
-                      alt={user.name} 
-                      className="w-10 h-10 rounded-full mr-4" 
-                    />
-                      <p className="text-black">{user.nickname}</p>
-                      <p className="text-gray-500 ml-0.5">({user.name})</p>
-                  </div>
-                  {selectedFriends.some(friend => friend.nickname === user.nickname) ? (
-                    <FaCheck
-                      onClick={() => handleRemoveFriend(user.nickname)}
-                      className="text-green-500 cursor-pointer"
-                    />
-                  ) : (
-                    <FaPlus
-                      onClick={() => handleAddFriend(user)}
-                      className="text-blue-500 cursor-pointer"
-                    />
-                  )}
-                </li>
-              ))}
-            </ul>
-            <Button
-              className="btn-primary text-base mt-4 w-full h-10 rounded-lg bg-pink-500 text-white hover:bg-pink-600 border-none"
-              onClick={handleAddFollow}
-            >
-              친구 {selectedFriends.length}명 추가
-            </Button>
-            {selectedFriends.length > 0 && (
-              <div className="mt-4">
-                <ul>
-                  {selectedFriends.map((friend: User) => (
-                    <li key={friend.nickname} className="flex items-center justify-between p-4 bg-blue-100 rounded-lg mb-2">
-                      <div className="flex items-center">
-                        <img 
-                          src={friend.profileImageUrl} 
-                          alt={friend.name} 
-                          className="w-10 h-10 rounded-full mr-4" 
-                        />
-                          <p className="text-black">{friend.nickname}</p>
-                          <p className="text-gray-500 ml-0.5">({friend.name})</p>
-                      </div>
-                      <FaCheck
-                        onClick={() => handleRemoveFriend(friend.nickname)}
-                        className="text-green-500 cursor-pointer"
-                      />
-                    </li>
-                  ))}
-                </ul>
+                {hidePassword ? <AiFillEye /> : <AiFillEyeInvisible />}
               </div>
-            )}
-          </div>
-        </div>
-      )}
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={() => setRememberMe(!rememberMe)}
+                className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
+              />
+              <label className="block text-gray-700">아이디 저장</label>
+            </div>
+            {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+            <button
+              className="btn mt-4"
+              style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
+              onClick={handleLogin}
+            >
+              로그인
+            </button>
+            <button
+              className="btn mt-2"
+              style={{ backgroundColor: '#ffeb3b', color: 'black', fontWeight: '900', fontSize: '15px' }}
+              onClick={handleKakaoLogin}
+            >
+              카카오 로그인
+            </button>
+            {/* <button
+              className="btn mt-2"
+              style={{ backgroundColor: 'transparent', borderColor: '#007bff', color: '#007bff' }}
+              onClick={() => setActiveTab('register')}
+            >
+              회원가입
+            </button> */}
+          </>
+        )}
+
+        {activeTab === 'register' && (
+          <RegisterForm handleRegister={handleRegister} />
+        )}
+      </div>
     </div>
   );
 };
 
-export default FriendAdditionPage;
+
+interface RegisterFormProps {
+  handleRegister: (loginId: string, password: string, email: string, nickname: string) => void;
+}
+
+const RegisterForm: React.FC<RegisterFormProps> = ({ handleRegister }) => {
+  const [loginId, setLoginId] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [nickname, setNickname] = useState<string>('');
+  const [hidePassword, setHidePassword] = useState(true);
+
+  const onToggleHide = () => {
+    setHidePassword(!hidePassword);
+  };
+
+  const onSubmit = () => {
+    handleRegister(loginId, password, email, nickname);
+  };
+
+    function setActiveTab(arg0: string): void {
+        throw new Error('Function not implemented.');
+    }
+
+  return (
+    <>
+      <TextInput
+        type="text"
+        placeholder="아이디"
+        onChange={(e) => setLoginId(e.target.value)}
+        value={loginId}
+        className="mb-4"
+      />
+      <TextInput
+        type="email"
+        placeholder="이메일"
+        onChange={(e) => setEmail(e.target.value)}
+        value={email}
+        className="mb-4"
+      />
+      <div className="relative w-full mb-2">
+        <TextInput
+          type={hidePassword ? 'password' : 'text'}
+          placeholder="비밀번호"
+          onChange={(e) => setPassword(e.target.value)}
+          value={password}
+          className="mb-4"
+        />
+        <div
+          className="absolute inset-y-0 right-0 mb-4 mr-2 pr-3 flex items-center cursor-pointer"
+          onClick={onToggleHide}
+        >
+          {hidePassword ? <AiFillEye /> : <AiFillEyeInvisible />}
+        </div>
+      </div>
+      <TextInput
+        type="text"
+        placeholder="닉네임"
+        onChange={(e) => setNickname(e.target.value)}
+        value={nickname}
+        className="mb-4"
+      />
+      <button className="btn btn-primary mt-4" onClick={onSubmit}>
+        회원가입
+      </button>
+      <button className="btn btn-outline mt-4" onClick={() => setActiveTab('login')}>
+        로그인 페이지로
+      </button>
+    </>
+  );
+};
+
+export default AuthPage;
+
+
+
+
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate } from 'react-router-dom';
+// import { getAllUsers, addFollow } from '../../api/userApi';
+// import Button from '../../components/Button/button';
+// import TextInput from '../../components/TextInput/textInput';
+// import './styles.css';
+// import { FaSearch, FaPlus, FaCheck } from "react-icons/fa";
+
+// interface User {
+//   name: string;
+//   nickname: string;
+//   profileImageUrl: string;
+// }
+
+// const FriendAdditionPage: React.FC = () => {
+//   const [showFriendPrompt, setShowFriendPrompt] = useState(true);
+//   const [transitioning, setTransitioning] = useState(false);
+//   const [completedTransition, setCompletedTransition] = useState(false);
+//   const [nickname, setNickname] = useState<string>('');
+//   const [searchQuery, setSearchQuery] = useState<string>('');
+//   const [searchResults, setSearchResults] = useState<User[]>([]);
+//   const [selectedFriends, setSelectedFriends] = useState<User[]>([]);
+//   const navigate = useNavigate();
+
+//   useEffect(() => {
+//     const storedNickname = localStorage.getItem('nickname');
+//     if (storedNickname) {
+//       setNickname(storedNickname);
+//     }
+//   }, []);
+
+//   const handleFindFriends = () => {
+//     setTransitioning(true);
+//     setTimeout(() => {
+//       setShowFriendPrompt(false);
+//       setTransitioning(false);
+//       setCompletedTransition(true);
+//     }, 1000);
+//   };
+
+//   const handleSkip = () => {
+//     navigate('/onboarding/distance-add');
+//   };
+
+//   const handleSearch = async () => {
+//     if (!searchQuery) {
+//       setSearchResults([]);
+//       return;
+//     }
+
+//     try {
+//       const token = localStorage.getItem('token');
+//       if (token) {
+//         const users = await getAllUsers(token);
+//         const results = users.filter((user: User) =>
+//           user.name.includes(searchQuery) || user.nickname.includes(searchQuery)
+//         );
+//         setSearchResults(results);
+//       } else {
+//         console.error('No token found');
+//       }
+//     } catch (error) {
+//       console.error('Error searching users:', error);
+//     }
+//   };
+
+//   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+//     if (event.key === 'Enter') {
+//       handleSearch();
+//     }
+//   };
+
+//   const handleAddFriend = (friend: User) => {
+//     setSelectedFriends([...selectedFriends, friend]);
+//     setSearchResults(searchResults.filter(user => user.nickname !== friend.nickname));
+//   };
+
+//   const handleRemoveFriend = (nickname: string) => {
+//     const removedFriend = selectedFriends.find(friend => friend.nickname === nickname);
+//     if (removedFriend) {
+//       setSelectedFriends(selectedFriends.filter(friend => friend.nickname !== nickname));
+//       setSearchResults([...searchResults, removedFriend]);
+//     }
+//   };
+
+//   const handleAddFollow = async () => {
+//     try {
+//       const token = localStorage.getItem('token');
+//       if (token) {
+//         await Promise.all(selectedFriends.map(friend => addFollow(token, friend.nickname)));
+//         navigate('/onboarding/distance-add');
+//       } else {
+//         console.error('No token found');
+//       }
+//     } catch (error) {
+//       console.error('Error adding follow:', error);
+//     }
+//   };
+
+//   return (
+//     <div className="relative min-h-screen bg-cover bg-center bg-blue-300">
+//       {showFriendPrompt ? (
+//         <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${transitioning ? 'translate-x-full' : 'translate-x-0'}`}>
+//           <h2 className="text-2xl font-bold text-white mb-6">환영합니다, 이제 친구를 찾아볼까요?</h2>
+//           <Button
+//             className="btn-primary text-lg mt-16 w-64 h-14 bg-pink-500 text-white hover:bg-pink-600 border-none"
+//             onClick={handleFindFriends}
+//           >
+//             친구 선택하기
+//           </Button>
+//           <Button
+//             className="btn-primary text-lg mt-4 w-64 h-14 bg-gray-300 text-white hover:bg-gray-400 border-none"
+//             onClick={handleSkip}
+//           >
+//             건너뛰기
+//           </Button>
+//         </div>
+//       ) : (
+//         <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${completedTransition ? 'translate-x-0' : 'translate-x-full'}`}>
+//           <h2 className="text-2xl font-bold mb-12 text-white">친구의 닉네임을 검색하세요</h2>
+//           <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg overflow-hidden">
+//             <div className="flex mb-4 w-full">
+//               <TextInput
+//                 type="text"
+//                 placeholder="친구 검색"
+//                 value={searchQuery}
+//                 onChange={(e) => setSearchQuery(e.target.value)}
+//                 onKeyDown={handleKeyDown}
+//                 className="flex-grow border-none p-4 w-full bg-gray-100 rounded-200 mr-40"
+//               />
+//               <Button
+//                 onClick={handleSearch}
+//                 className="ml-2 p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-200"
+//               >
+//                 <FaSearch />
+//               </Button>
+//             </div>
+//             <ul className="mb-4">
+//               {searchResults.map((user: User) => (
+//                 <li key={user.nickname} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2">
+//                   <div className="flex items-center">
+//                     <img 
+//                       src={user.profileImageUrl} 
+//                       alt={user.name} 
+//                       className="w-10 h-10 rounded-full mr-4" 
+//                     />
+//                       <p className="text-black">{user.nickname}</p>
+//                       <p className="text-gray-500 ml-0.5">({user.name})</p>
+//                   </div>
+//                   {selectedFriends.some(friend => friend.nickname === user.nickname) ? (
+//                     <FaCheck
+//                       onClick={() => handleRemoveFriend(user.nickname)}
+//                       className="text-green-500 cursor-pointer"
+//                     />
+//                   ) : (
+//                     <FaPlus
+//                       onClick={() => handleAddFriend(user)}
+//                       className="text-blue-500 cursor-pointer"
+//                     />
+//                   )}
+//                 </li>
+//               ))}
+//             </ul>
+//             <Button
+//               className="btn-primary text-base mt-4 w-full h-10 rounded-lg bg-pink-500 text-white hover:bg-pink-600 border-none"
+//               onClick={handleAddFollow}
+//             >
+//               친구 {selectedFriends.length}명 추가
+//             </Button>
+//             {selectedFriends.length > 0 && (
+//               <div className="mt-4">
+//                 <ul>
+//                   {selectedFriends.map((friend: User) => (
+//                     <li key={friend.nickname} className="flex items-center justify-between p-4 bg-blue-100 rounded-lg mb-2">
+//                       <div className="flex items-center">
+//                         <img 
+//                           src={friend.profileImageUrl} 
+//                           alt={friend.name} 
+//                           className="w-10 h-10 rounded-full mr-4" 
+//                         />
+//                           <p className="text-black">{friend.nickname}</p>
+//                           <p className="text-gray-500 ml-0.5">({friend.name})</p>
+//                       </div>
+//                       <FaCheck
+//                         onClick={() => handleRemoveFriend(friend.nickname)}
+//                         className="text-green-500 cursor-pointer"
+//                       />
+//                     </li>
+//                   ))}
+//                 </ul>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default FriendAdditionPage;
 
 
 

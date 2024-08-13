@@ -11,6 +11,7 @@ import { WebSocketProvider } from './components/WebSocketProvider/WebSocketProvi
 const App: React.FC = () => {
   const location = useLocation()
   const noSidebarPaths = [
+    '/auth',
     '/login', 
     '/register', 
     '/find-id', 

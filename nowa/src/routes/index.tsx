@@ -4,10 +4,11 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import MyPage from '../pages/myPage'
 import ProfileEditPage from '../pages/ProfileEditPage'
 import MainPage from '../pages/Main/main'
-import LoginPage from '@/pages/LoginPage'
-import RegisterPage from '@/pages/RegisterPage'
-import FindIdPage from '@/pages/FindIdPage'
-import FindPasswordPage from '@/pages/FindPasswordPage'
+import AuthPage from '@/pages/Auth/AuthPage'
+import LoginPage from '@/pages/Auth/LoginPage'
+import RegisterPage from '@/pages/Auth/RegisterPage'
+import FindIdPage from '@/pages/Auth/FindIdPage'
+import FindPasswordPage from '@/pages/Auth/FindPasswordPage'
 import UploadContent from '@/pages/MakeContent/makeContent'
 import PrivateRoute from '@/components/PrivateRoute/privateRoute'
 import UserPage from '@/pages/UserPage'
@@ -22,6 +23,7 @@ import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandl
 const Routers: React.FC = () => {
   return (
     <Routes>
+      <Route path="/auth" element={<AuthPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/find-id" element={<FindIdPage />} />

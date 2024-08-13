@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useCookies } from 'react-cookie'
-import { login, sendLoginInfo } from '../api/userApi'
-import TextInput from '../components/TextInput/textInput'
+import { login, sendLoginInfo } from '../../api/userApi'
+import TextInput from '../../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
 
