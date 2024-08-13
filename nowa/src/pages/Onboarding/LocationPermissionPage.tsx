@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button/button';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 import './styles.css';
+import axios from 'axios';
 
 const LocationPermissionPage: React.FC = () => {
   const [locationError, setLocationError] = useState('');
@@ -17,13 +18,42 @@ const LocationPermissionPage: React.FC = () => {
       setNickname(storedNickname);
     }
   }, []);
+  
 
   const handleLocationPermission = () => {
+    const API_BASE_URL = import.meta.env.VITE_APP_API;
+    const token = localStorage.getItem('token')
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
+          const latitude = position.coords.latitude;
+          const longitude = position.coords.longitude;
+          const address = `${latitude},${longitude}`
+
           console.log('Location accessed:', position);
-          navigate('/onboarding/friend-addition'); // 위치 정보 연결 후 /onboarding/friend-addition으로
+  
+          // 위치 정보를 localStorage에 저장
+          localStorage.setItem('locate', `${longitude},${latitude}`);
+  
+          try {
+            // 위치 정보를 API로 전송
+            const response = await axios.get(`${API_BASE_URL}/map`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+              params: {
+                address
+              },
+            });
+  
+            console.log('API response:', response.data);
+            
+            // 위치 정보 연결 후 /onboarding/friend-addition으로 이동
+            navigate('/onboarding/friend-addition');
+          } catch (error) {
+            console.error('Error sending location to API:', error);
+            setLocationError('위치 정보를 전송하는 중 오류가 발생했습니다.');
+          }
         },
         (error) => {
           console.error('Error accessing location:', error);
