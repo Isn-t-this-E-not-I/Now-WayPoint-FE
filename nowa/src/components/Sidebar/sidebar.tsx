@@ -570,7 +570,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         )
 
         const notFollowingUsers = allUsersResponse.data.filter(
-          (user: any) => !followingNicknames.includes(user.nickname)
+          (user: any) => 
+              !followingNicknames.includes(user.nickname) && 
+              user.nickname !== response.data.nickname
         )
 
         setRecommendations(notFollowingUsers) //
