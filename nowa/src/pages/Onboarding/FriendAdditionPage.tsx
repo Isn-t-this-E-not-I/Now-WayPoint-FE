@@ -96,18 +96,18 @@ const FriendAdditionPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-cover bg-center bg-blue-300">
+    <div className="relative min-h-screen bg-cover bg-center bg-image">
       {showFriendPrompt ? (
         <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${transitioning ? 'translate-x-full' : 'translate-x-0'}`}>
-          <h2 className="text-2xl font-bold text-white mb-6">환영합니다, 이제 친구를 찾아볼까요?</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-6">환영합니다, 이제 친구를 찾아볼까요?</h2>
           <Button
-            className="btn-primary text-lg mt-16 w-64 h-14 bg-pink-500 text-white hover:bg-pink-600 border-none"
+            className="btn-primary text-base mt-16 w-64 h-14 bg-yellow-300 text-black hover:bg-yellow-400 border-none"
             onClick={handleFindFriends}
           >
             친구 선택하기
           </Button>
           <Button
-            className="btn-primary text-lg mt-4 w-64 h-14 bg-gray-300 text-white hover:bg-gray-400 border-none"
+            className="btn-primary text-base mt-4 w-64 h-14 bg-white text-black hover:bg-gray-200 border-none"
             onClick={handleSkip}
           >
             건너뛰기
@@ -115,7 +115,7 @@ const FriendAdditionPage: React.FC = () => {
         </div>
       ) : (
         <div className={`flex flex-col items-center justify-center min-h-screen transition-all transform ${completedTransition ? 'translate-x-0' : 'translate-x-full'}`}>
-          <h2 className="text-2xl font-bold mb-12 text-white">친구의 닉네임을 검색하세요</h2>
+          <h2 className="text-xl font-bold mb-12 text-gray-800">친구의 닉네임을 검색하세요</h2>
           <div className="w-full max-w-md p-8 bg-white shadow-md rounded-lg overflow-hidden">
             <div className="flex mb-4">
               <TextInput
@@ -123,12 +123,12 @@ const FriendAdditionPage: React.FC = () => {
                 placeholder="친구 검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)} // 입력할 때마다 searchQuery 업데이트
-                className="flex-grow border-none p-4 ml-2 mr-40 bg-gray-100 rounded-200"
+                className="flex-grow border-gray-300 p-4 ml-2 mr-40 rounded-200"
               />
-            </div>
+          </div>
             <ul className="mb-4 w-full">
               {searchResults.map((user: User) => (
-                <li key={user.nickname} className="flex items-center justify-between ml-2 mr-1 p-4 bg-blue-50 rounded-lg mb-2">
+                <li key={user.nickname} className="flex items-center justify-between ml-2 mr-1 p-4 bg-gray-50 rounded-lg mb-2">
                   <div className="flex items-center">
                     <img 
                       src={user.profileImageUrl} 
@@ -155,7 +155,7 @@ const FriendAdditionPage: React.FC = () => {
               ))}
             </ul>
             <Button
-                className="btn-primary text-base h-10 w-full ml-2 mr-2 rounded-lg bg-pink-500 text-white hover:bg-pink-600 border-none"
+                className="btn-primary text-base h-10 w-full ml-2 mr-2 rounded-lg bg-yellow-300 text-black hover:bg-yellow-400 border-none"
                 onClick={handleAddFollow}
               >
                 친구 {selectedFriends.length}명 추가
@@ -164,7 +164,7 @@ const FriendAdditionPage: React.FC = () => {
               <div className="mt-4 ml-2">
                 <ul>
                   {selectedFriends.map((friend: User) => (
-                    <li key={friend.nickname} className="flex items-center justify-between p-4 bg-blue-100 rounded-lg mb-2">
+                    <li key={friend.nickname} className="flex items-center justify-between p-4 bg-gray-100 rounded-lg mb-2">
                       <div className="flex items-center">
                         <img 
                           src={friend.profileImageUrl} 

@@ -1,3 +1,29 @@
+.bg-image {
+  background-image: url('https://i.ibb.co/vZR0r86/2024-08-13-11-15-10.png');
+  background-size: cover; /* 이미지가 요소를 완전히 덮도록 설정 */
+  background-position: center; /* 이미지가 중앙에 위치하도록 설정 */
+  background-repeat: no-repeat; /* 이미지 반복을 없앰 */
+  position: relative; /* 오버레이를 위해 position 설정 */
+  z-index: 1; /* 오버레이가 배경보다 앞에 있도록 설정 */
+}
+
+.bg-image::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  /* background: linear-gradient(top to left, rgba(27, 81, 123, 0.171), white); 검정색 불투명 오버레이 */
+  z-index: -1; /* 배경과 콘텐츠 사이에 오버레이가 위치하도록 설정 */
+}
+
+/* background-color: rgba(137, 137, 240, 0.2); 검정색 불투명 오버레이 */
+/* background-color: rgba(54, 54, 172, 0.2); 검정색 불투명 오버레이 */
+/* background-color: rgba(0, 85, 255, 0.2); 검정색 불투명 오버레이 */
+/* background: linear-gradient(to bottom, rgba(187, 187, 255, 0.413), white); 검정색 불투명 오버레이 */
+
+
 .transition-all {
   transition: transform 1s ease-in-out;
 }
