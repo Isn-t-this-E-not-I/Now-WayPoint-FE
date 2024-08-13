@@ -127,7 +127,7 @@ const AuthPage: React.FC = () => {
           <>
             <TextInput
               type="email"
-              placeholder="이메일"
+              placeholder="아이디"
               onChange={(e) => setLoginId(e.target.value)}
               value={loginId}
               className="mb-4"
