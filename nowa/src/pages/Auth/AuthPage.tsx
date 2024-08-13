@@ -290,7 +290,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ setActiveTab }) => {
         } catch (loginError) {
           console.error('자동 로그인 실패:', loginError);
           alert('자동 로그인에 실패했습니다. 로그인 페이지로 이동합니다.');
-          navigate('/login');
+          navigate('/auth');
         }
       } else {
         alert('회원가입 실패: ' + response);

@@ -139,7 +139,7 @@ const DistanceAddPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen bg-cover bg-center bg-image">
-      <h2 className="text-2xl font-bold mb-12 text-gray-800 text-center pt-40">
+      <h2 className="text-xl font-bold mb-12 text-gray-800 text-center pt-40">
         {nickname}님의 위치를 기반으로 주변에 있는 유저를 추천드릴게요
       </h2>
       <div className="flex justify-center space-x-8">

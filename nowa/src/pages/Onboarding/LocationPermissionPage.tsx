@@ -46,9 +46,9 @@ const LocationPermissionPage: React.FC = () => {
   };
 
   return (
-    <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('/images/Locationbackground2.png')" }}>
-      <div className="absolute inset-0 flex items-start justify-center bg-black bg-opacity-30 pt-64">
-        <h2 className="text-2xl font-bold text-white mt-8">{nickname}님, 위치를 연결할까요?</h2>
+    <div className="relative min-h-screen bg-cover bg-center bg-image">
+      <div className="absolute inset-0 flex items-start justify-center bg-black bg-opacity-0 pt-64">
+        <h2 className="text-xl font-bold text-black mt-8">{nickname}님, 위치를 연결할까요?</h2>
       </div>
       <div className="relative z-50 flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center justify-center">

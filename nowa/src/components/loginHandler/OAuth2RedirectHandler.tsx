@@ -22,7 +22,7 @@ const OAuth2RedirectHandler = () => {
     } else {
       // 오류 처리
       console.error('Token or nickname not found in URL parameters');
-      navigate('/login');
+      navigate('/auth');
     }
   }, [navigate]);
 
