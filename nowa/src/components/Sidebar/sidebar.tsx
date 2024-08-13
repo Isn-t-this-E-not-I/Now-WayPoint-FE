@@ -53,7 +53,7 @@ const LeftSidebar = styled.div`
   align-items: center;
   width: 16rem;
   height: 100%;
-  z-index: 10;
+  z-index: 101;
   position: fixed;
   background-color: #f8faff;
 `
@@ -65,7 +65,7 @@ const RightSidebar = styled.div<{ isVisible: boolean }>`
   justify-content: flex-start;
   width: 20rem; // RightSidebar 너비 설정
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
-  z-index: 5;
+  z-index: 100;
   position: fixed;
   top: 0;
   left: ${({ isVisible }) => (isVisible ? '15rem' : '-15rem')};
@@ -257,6 +257,7 @@ const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   height: 70px;
   left: 0;
   border-radius: 20px;
+  margin-bottom: 0.5rem;
   justify-content: flex-start;
   position: relative;
 
@@ -346,15 +347,14 @@ const SearchInput = styled.input`
 `
 
 const Badge = styled.span`
-  position: absolute;
-  top: 1.3rem;
-  right: 1.5rem;
   width: 1.4rem;
   height: 1.4rem;
   background-color: rgba(0, 0, 0, 0.9);
   color: white;
   border-radius: 50%;
   padding: 2px 6px;
+  margin-left:auto;
+  margin-right:1rem;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -364,6 +364,7 @@ const Badge = styled.span`
 `
 
 const DeleteNotificationsButton = styled.span`
+z-index:50;
   position: absolute;
   top: 50px;
   right: 15px;

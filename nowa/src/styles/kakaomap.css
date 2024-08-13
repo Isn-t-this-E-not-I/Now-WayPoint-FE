@@ -1,15 +1,13 @@
-#category-select {
+#main_select_box{
   position: absolute;
   top: 20px;
   left: 270px;
-  z-index: 2;
+  z-index: 10;
+  display: flex;
 }
 
-#distance-select {
-  position: absolute;
-  top: 20px;
-  left: 370px;
-  z-index: 2;
+#category-select,#distance-select {
+  width: 7rem;
 }
 
 .categoryButtons {
@@ -126,8 +124,8 @@
 .custom_zoomcontrol {
   position: absolute;
   top: 44%;
-  right: 20rem;
-  z-index: 100;
+  right: 300px;
+  z-index: 40;
   background-color: #fff;
   border: 1px solid #ccc;
   border-radius: 10px;

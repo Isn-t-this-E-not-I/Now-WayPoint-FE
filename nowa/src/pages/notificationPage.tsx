@@ -14,9 +14,9 @@ const NotificationWrapper = styled.div`
   align-items: flex-start;
   width: 19.8rem;
   height: 90vh;
+  margin-top:7rem;
   max-height: 90vh;
   padding-left: 18px;
-  padding-top: 4rem;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;

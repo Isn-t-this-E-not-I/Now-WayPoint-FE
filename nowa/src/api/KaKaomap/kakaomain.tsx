@@ -354,22 +354,24 @@ const MainPage: React.FC = () => {
         <button onClick={zoomOut}>-</button>
       </div>
 
-      <div id="category-select">
-        <Select
-          options={categoryOptions}
-          classN="category-select"
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-        />
-      </div>
+      <div id='main_select_box'>
+        <div id="category-select">
+          <Select
+            options={categoryOptions}
+            classN="category-select"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          />
+        </div>
 
-      <div id="distance-select">
-        <Select
-          options={distanceOptions}
-          classN="distance-select"
-          value={selectedDistance.toString()}
-          onChange={handleDistanceChange}
-        />
+        <div id="distance-select">
+          <Select
+            options={distanceOptions}
+            classN="distance-select"
+            value={selectedDistance.toString()}
+            onChange={handleDistanceChange}
+          />
+        </div>
       </div>
 
       {selectedPostId !== null && (
