@@ -143,7 +143,7 @@ const DistanceAddPage: React.FC = () => {
         {nickname}님의 위치를 기반으로 주변에 있는 유저를 추천드릴게요
       </h2>
       <div className="flex justify-center space-x-8">
-      <div className="bg-white shadow-md rounded-lg p-6 max-h-96" style={{ width: '360px' }}>
+      <div className="bg-white shadow-md rounded-lg p-6 max-h-100" style={{ width: '360px' }}>
         <h3 className="text-base font-semibold text-center mb-4">나와 가까운 유저</h3>
         <ul className="overflow-y-auto max-h-80">
           {recommendedFriends.map((user: User) => (
@@ -167,7 +167,7 @@ const DistanceAddPage: React.FC = () => {
           ))}
         </ul>
         </div>
-        <div className="bg-white shadow-md rounded-lg p-6 max-h-96" style={{ width: '360px' }}>
+        <div className="bg-white shadow-md rounded-lg p-6 max-h-100" style={{ width: '360px' }}>
         <h3 className="text-base font-semibold text-center mb-4">선택된 유저</h3>
         <ul className="overflow-y-auto max-h-80">
           {selectedFriends.map((friend: User) => (

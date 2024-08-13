@@ -123,7 +123,7 @@ const FriendAdditionPage: React.FC = () => {
                 placeholder="친구 검색"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)} // 입력할 때마다 searchQuery 업데이트
-                className="flex-grow border-gray-300 p-4 ml-2 mr-40 rounded-200"
+                className="flex-grow border-gray-300 p-4 ml-2 mr-40 rounded-200 focus:outline-none"
               />
           </div>
             <ul className="mb-4 w-full">
@@ -173,7 +173,7 @@ const FriendAdditionPage: React.FC = () => {
                         />
                         <div>
                           <p className="text-black text-sm">{friend.nickname}</p>
-                          <p className="text-gray-500 text-sm ml-0.5">({friend.name})</p>
+                          <p className="text-gray-500 text-sm ml-0.5">{friend.name}</p>
                         </div>
                       </div>
                       <FaCheck
