@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
 import {
   ChatIcon,
   ContentsIcon,
@@ -12,38 +12,39 @@ import {
   NotificationsIcon,
   NowaIcon,
   ExitIcon,
-} from '../icons/icons';
-import Search from '../Search/search';
-import NotificationPage from '../../pages/notificationPage';
-import CreateChatRoomButton from '../Chat/createChatRoomButton';
-import { fetchChatRooms } from '../../api/chatApi';
+} from '../icons/icons'
+import Search from '../Search/search'
+import NotificationPage from '../../pages/notificationPage'
+import CreateChatRoomButton from '../Chat/createChatRoomButton'
+import { fetchChatRooms } from '../../api/chatApi'
 import {
   useChatWebSocket,
   getStompClient,
   setActiveChatRoomPage,
-} from '@/websocket/chatWebSocket';
-import { useChat } from '../../context/chatContext';
-import ChatListPage from '@/pages/Chat/chatListPage';
-import Modal from '../Modal/modal';
-import AllUserList from '../FollowList/AllUserList';
-import fetchAllUsers from '@/data/fetchAllUsers';
-import { handleLogout } from '../Logout/Logout';
-import FollowContentsPage from '@/pages/FollowContentsPage';
-import MainSidebarPage from '@/pages/MainSidebarPage';
-import MakeContent from '@/pages/MakeContent/makeContent';
-import { useWebSocket } from '../WebSocketProvider/WebSocketProvider';
-import Button from '../Button/button';
-import FollowList from '../FollowList/FollowList';
-import axios from 'axios';
-import defaultProfileImage from '../../../../defaultprofile.png';
+} from '@/websocket/chatWebSocket'
+import { useChat } from '../../context/chatContext'
+import ChatListPage from '@/pages/Chat/chatListPage'
+import Modal from '../Modal/modal'
+import AllUserList from '../FollowList/AllUserList'
+import fetchAllUsers from '@/data/fetchAllUsers'
+import { handleLogout } from '../Logout/Logout'
+import FollowContentsPage from '@/pages/FollowContentsPage'
+import MainSidebarPage from '@/pages/MainSidebarPage'
+import MakeContent from '@/pages/MakeContent/makeContent'
+import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
+import Button from '../Button/button'
+import FollowList from '../FollowList/FollowList'
+import axios from 'axios'
+import defaultProfileImage from '../../../../defaultprofile.png'
 
 interface SidebarProps {
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark'
 }
 
 const Wrapper = styled.div`
   display: flex;
   height: 100vh;
+  width: -30px;
   justify-content: space-between;
 `
 
@@ -58,12 +59,23 @@ const LeftSidebar = styled.div`
   background-color: #f8faff;
 `
 
+const Line = styled.div`
+  width: 1px;
+  height: 100vh;
+  background-color: rgba(160, 160, 160, 0.5);
+  opacity: 0.8;
+  position: absolute; /* absolute로 설정하여 정확한 위치 지정 */
+  left: 15.2rem; /* LeftSidebar의 너비와 동일하게 설정 */
+  top: 0;
+  z-index: 202;
+`
+
 const RightSidebar = styled.div<{ isVisible: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 20rem; // RightSidebar 너비 설정
+  width: 20.5rem; // RightSidebar 너비 설정
   box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
   z-index: 200;
   position: fixed;
@@ -72,6 +84,7 @@ const RightSidebar = styled.div<{ isVisible: boolean }>`
   height: 100%;
   background-color: #f8faff;
   transition: left 0.3s ease-in-out;
+  border-right: 1px solid rgba(160, 160, 160, 0.5);
 `
 const TopRightSidebar = styled.div`
   display: flex;
@@ -96,6 +109,7 @@ const RightSection = styled.div`
   padding-right: 2rem;
   box-sizing: border-box;
   z-index: 10;
+  border-left: 1px solid rgba(160, 160, 160, 0.5);
 `
 
 const ProfileContainer = styled.div`
@@ -104,7 +118,7 @@ const ProfileContainer = styled.div`
   width: 100%;
   margin-bottom: 15px;
   margin-left: 0.3rem;
-`;
+`
 
 const ProfileImage = styled.img`
   width: 40px;
@@ -147,14 +161,14 @@ const LogOutIconButtonWrapper = styled.button`
     width: 18px;
     height: 18px;
   }
-`;
+`
 
 const FollowListContainer = styled.div`
   width: 100%;
   margin-top: 10px;
   max-height: 300px; /* 스크롤 영역의 최대 높이 설정 */
   overflow-y: auto; /* 수직 스크롤 추가 */
-`;
+`
 
 const RecommendationsContainer = styled.div`
   width: 100%;
@@ -170,7 +184,6 @@ const RecommendationTitle = styled.h3`
   margin-top: 20px;
   margin-bottom: 8px;
 `
-
 
 const RecommendationList = styled.ul`
   list-style: none;
@@ -353,8 +366,8 @@ const Badge = styled.span`
   color: white;
   border-radius: 50%;
   padding: 2px 6px;
-  margin-left:auto;
-  margin-right:1rem;
+  margin-left: auto;
+  margin-right: 1rem;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -364,9 +377,9 @@ const Badge = styled.span`
 `
 
 const DeleteNotificationsButton = styled.span`
-z-index:50;
+  z-index: 50;
   position: absolute;
-  top: 50px;
+  top: 70px;
   right: 15px;
   background-color: #9269b2;
   color: #fdfdfd;
@@ -383,7 +396,6 @@ z-index:50;
     transform: scale(1.03);
   }
 `
-
 
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
@@ -404,8 +416,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [followingList, setFollowingList] = useState<any[]>([]); // 팔로잉 리스트 상태 추가
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [followingList, setFollowingList] = useState<any[]>([]) // 팔로잉 리스트 상태 추가
 
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
@@ -415,7 +427,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     setIsScrolled(scrollTop > 0)
   }
 
-    const handleNavigate = (page: string) => {
+  const handleNavigate = (page: string) => {
     if (activePage === page) {
       setActivePage('') // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
     } else {
@@ -440,48 +452,46 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
-    console.log('notifyCount :', notifyCount);
+    console.log('notifyCount :', notifyCount)
     const getAllUsers = async () => {
-      const users = await fetchAllUsers();
-      setAllUsers(users);
-    };
-    getAllUsers();
-  }, []);
+      const users = await fetchAllUsers()
+      setAllUsers(users)
+    }
+    getAllUsers()
+  }, [])
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
     if (activePage === 'main' || activePage === 'myPage') {
-      disconnect();
-      setActiveChatRoomPage(-1);
+      disconnect()
+      setActiveChatRoomPage(-1)
     }
-  }, [activePage]);
-
+  }, [activePage])
 
   // 팔로잉 리스트 가져오기
   useEffect(() => {
     const fetchFollowingList = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+      const token = localStorage.getItem('token')
+      if (!token) return
 
       try {
         const response = await axios.get(`${location}/follow/following`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        });
-        setFollowingList(response.data); // 팔로잉 리스트 설정
+        })
+        setFollowingList(response.data) // 팔로잉 리스트 설정
       } catch (error) {
-        console.error('Failed to fetch following list:', error);
+        console.error('Failed to fetch following list:', error)
       }
-    };
+    }
 
-    fetchFollowingList();
-  }, []);
-
+    fetchFollowingList()
+  }, [])
 
   const handleDelete = () => {
     // notifications에 데이터 제거
-    deleteNotificationAll();
+    deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출
     const deleteNotifications = async () => {
@@ -521,12 +531,12 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       activePage !== 'main' &&
       activePage !== 'contents' &&
       activePage !== ''
-    );
-  };
+    )
+  }
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+    setSearchQuery(e.target.value)
+  }
 
   // 오른쪽 섹션
   useEffect(() => {
@@ -571,9 +581,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         )
 
         const notFollowingUsers = allUsersResponse.data.filter(
-          (user: any) => 
-              !followingNicknames.includes(user.nickname) && 
-              user.nickname !== response.data.nickname
+          (user: any) =>
+            !followingNicknames.includes(user.nickname) &&
+            user.nickname !== response.data.nickname
         )
 
         setRecommendations(notFollowingUsers) //
@@ -582,13 +592,12 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       }
     }
 
-    fetchUserData();
-  }, [navigate]);
+    fetchUserData()
+  }, [navigate])
 
-  
-    const handleFollow = async (nickname: string) => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
+  const handleFollow = async (nickname: string) => {
+    const token = localStorage.getItem('token')
+    if (!token) return
 
     try {
       await axios.put(
@@ -608,28 +617,27 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     } catch (error) {
       console.error('Error following user:', error)
     }
-  };
-
+  }
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
     switch (activePage) {
       case 'main':
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
       case 'notifications':
-        return <NotificationPage />;
+        return <NotificationPage />
       case 'chat':
-        return <ChatListPage />;
+        return <ChatListPage />
       case 'contents':
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
       case 'followContents':
-        return <FollowContentsPage />;
+        return <FollowContentsPage />
       case 'myPage':
-        return <div></div>;
+        return <div></div>
       default:
-        return <MainSidebarPage />;
+        return <MainSidebarPage />
     }
-  };
+  }
 
   return (
     <Wrapper>
@@ -645,7 +653,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           active={activePage === 'main'}
           onClick={() => handleNavigate('main')}
         >
-
           <MainIcon theme={theme} />
           <IconSpan active={activePage === 'main'}>메인</IconSpan>
         </IconButtonWrapper>
@@ -653,7 +660,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="new-post-icon"
           active={isUploadModalOpen}
           onClick={() => {
-            setUploadModalOpen(true); // 모달 열기
+            setUploadModalOpen(true) // 모달 열기
           }}
         >
           <NewCreateIcon theme={theme} />
@@ -673,16 +680,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           active={activePage === 'chat'}
           onClick={() => {
             if (getStompClient() == null) {
-              connectAndSubscribe();
+              connectAndSubscribe()
             }
-            handleNavigate('chat');
+            handleNavigate('chat')
             fetchChatRooms(token).then((data) => {
-              const chatRooms = data.chatRooms;
-              const chatRoomsInfo = data.chatRoomsInfo;
+              const chatRooms = data.chatRooms
+              const chatRoomsInfo = data.chatRoomsInfo
 
-              setChatRooms(chatRooms);
-              setChatRoomsInfo(chatRoomsInfo);
-            });
+              setChatRooms(chatRooms)
+              setChatRoomsInfo(chatRoomsInfo)
+            })
           }}
         >
           <ChatIcon theme={theme} />
@@ -710,7 +717,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="mypage-icon"
           active={activePage === 'myPage'}
           onClick={() => {
-            handleNavigate('myPage');
+            handleNavigate('myPage')
           }}
         >
           <MyPageIcon theme={theme} />
@@ -718,6 +725,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         </IconButtonWrapper>
         <Blank />
       </LeftSidebar>
+
+      <Line />
 
       <RightSidebar isVisible={activePage !== ''}>
         <TopRightSidebar>
@@ -834,15 +843,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
                 marginTop: '20px',
               }}
             >
-              <Button onClick={() => handleLogout(setLogoutModalOpen)}>네</Button>
+              <Button onClick={() => handleLogout(setLogoutModalOpen)}>
+                네
+              </Button>
               <Button onClick={() => setLogoutModalOpen(false)}>아니오</Button>
             </div>
           </div>
         </Modal>
       )}
     </Wrapper>
-  );
-};
+  )
+}
 
-export default Sidebar;
-  
+export default Sidebar

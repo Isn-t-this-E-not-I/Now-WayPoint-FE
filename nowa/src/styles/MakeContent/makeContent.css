@@ -43,12 +43,13 @@
 
 /* 게시하기버튼 */
 #upload_btn {
-  background-color: white;
+  background-color: #9269b2;
+  color: #f7f7f7;
   margin-left: auto;
 }
 
 #upload_btn:hover {
-  background-color: #ddd;
+  background-color: #7a5597;
 }
 
 /* 파일업로드 버튼 */
