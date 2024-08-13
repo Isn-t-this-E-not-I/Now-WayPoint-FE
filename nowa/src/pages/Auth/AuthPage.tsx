@@ -168,7 +168,7 @@ const AuthPage: React.FC = () => {
             </button>
             <button
               className="btn mt-2"
-              style={{ backgroundColor: '#ffeb3b', color: 'black', fontWeight: '900', fontSize: '15px' }}
+              style={{ backgroundColor: '#ffeb3b', color: 'black', border: 'none', fontWeight: '900', fontSize: '15px' }}
               onClick={handleKakaoLogin}
             >
               카카오 로그인
