@@ -125,6 +125,9 @@ const ProfileImage = styled.img`
   height: 40px;
   border-radius: 50%;
   margin-right: 15px;
+  &:hover{
+   cursor:pointer;
+  }
 `
 
 const UserInfo = styled.div`
@@ -617,7 +620,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     } catch (error) {
       console.error('Error following user:', error)
     }
+  };
+
+  const handleClickNavigate = (nickname:string) => {
+    if(nickname){
+      navigate(`/user/${nickname}`)
+    }else{
+      alert("조회할 수 없는 유저입니다.")
+    }
   }
+
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
@@ -788,6 +800,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
                   <ProfileImage
                     src={user.profileImageUrl || defaultProfileImage}
                     alt="Profile"
+                    onClick={()=> handleClickNavigate(user.nickname)}
                   />
                   <UserInfo>
                     <Nickname>{user.nickname}</Nickname>
