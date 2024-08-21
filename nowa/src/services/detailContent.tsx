@@ -26,7 +26,6 @@ const getCookieValue = (name: number): string | null => {
 const getPostById = async (postId: number): Promise<Post> => {
   const token = localStorage.getItem('token')
 
-  console.log(postId)
   if (!token) {
     throw new Error('Authorization token not found')
   }
@@ -38,7 +37,6 @@ const getPostById = async (postId: number): Promise<Post> => {
       },
     })
 
-    console.log(response.data.hashtags)
     return response.data
   } catch (error) {
     console.error('Error fetching the post data:', error)

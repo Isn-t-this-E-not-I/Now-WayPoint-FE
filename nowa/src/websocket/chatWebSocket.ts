@@ -34,7 +34,6 @@ export const useChatWebSocket = () => {
   const disconnect = () => {
     if (stompClient) {
       stompClient.disconnect(() => {
-        console.log('Disconnected')
       })
       stompClient = null
     }

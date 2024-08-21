@@ -1,12 +1,13 @@
-#main_select_box{
+#main_select_box {
   position: absolute;
   top: 20px;
-  right:300px;
+  right: 300px;
   z-index: 200;
   display: flex;
 }
 
-#category-select,#distance-select {
+#category-select,
+#distance-select {
   width: 7rem;
 }
 
@@ -172,12 +173,12 @@
 .marker-with-pin::after {
   content: '';
   position: absolute;
-  bottom: -10px; /* Adjust as needed */
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-top: 13px solid black; /* Adjust the color as needed */
+  border-top: 13px solid black;
 }

@@ -30,7 +30,6 @@ const LocationPermissionPage: React.FC = () => {
           const longitude = position.coords.longitude;
           const address = `${latitude},${longitude}`
 
-          console.log('Location accessed:', position);
   
           // 위치 정보를 localStorage에 저장
           localStorage.setItem('locate', `${longitude},${latitude}`);
@@ -46,7 +45,6 @@ const LocationPermissionPage: React.FC = () => {
               },
             });
   
-            console.log('API response:', response.data);
             
             // 위치 정보 연결 후 /onboarding/friend-addition으로 이동
             navigate('/onboarding/friend-addition');

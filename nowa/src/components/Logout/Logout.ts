@@ -25,7 +25,6 @@ export const handleLogout = async (setLogoutModalOpen: React.Dispatch<React.SetS
     // 카카오 로그아웃
     if (window.kakao && window.kakao.Auth) {
       window.kakao.Auth.logout(() => {
-        console.log('카카오 로그아웃 완료');
       });
     }
     setLogoutModalOpen(false);

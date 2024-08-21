@@ -125,8 +125,8 @@ const ProfileImage = styled.img`
   height: 40px;
   border-radius: 50%;
   margin-right: 15px;
-  &:hover{
-   cursor:pointer;
+  &:hover {
+    cursor: pointer;
   }
 `
 
@@ -620,16 +620,15 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     } catch (error) {
       console.error('Error following user:', error)
     }
-  };
-
-  const handleClickNavigate = (nickname:string) => {
-    if(nickname){
-      navigate(`/user/${nickname}`)
-    }else{
-      alert("조회할 수 없는 유저입니다.")
-    }
   }
 
+  const handleClickNavigate = (nickname: string) => {
+    if (nickname) {
+      navigate(`/user/${nickname}`)
+    } else {
+      alert('조회할 수 없는 유저입니다.')
+    }
+  }
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
@@ -800,7 +799,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
                   <ProfileImage
                     src={user.profileImageUrl || defaultProfileImage}
                     alt="Profile"
-                    onClick={()=> handleClickNavigate(user.nickname)}
+                    onClick={() => handleClickNavigate(user.nickname)}
                   />
                   <UserInfo>
                     <Nickname>{user.nickname}</Nickname>
@@ -813,7 +812,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
               </RecommendationItem>
             ))}
           </RecommendationList>
-          <ShowMoreText visible={!isScrolled}>더 보기</ShowMoreText>
+          {/* <ShowMoreText visible={!isScrolled}>더 보기</ShowMoreText> */}
         </RecommendationsContainer>
 
         {/* FollowList 추가 */}

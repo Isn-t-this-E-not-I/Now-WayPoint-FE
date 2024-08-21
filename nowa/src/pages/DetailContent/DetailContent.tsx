@@ -507,7 +507,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                   onClick={() => handleToggleExpand(comment.id)}
                   style={{ color: 'rgb(87, 193, 255)', cursor: 'pointer' }}
                 >
-                  접기
+                  ...접기
                 </span>
               )}
             </div>

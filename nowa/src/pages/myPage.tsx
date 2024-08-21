@@ -142,7 +142,6 @@ const MyPage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('User API Response:', response)
 
       const followingResponse = await axios.get(
         `${location}/follow/following`,
@@ -152,21 +151,18 @@ const MyPage: React.FC = () => {
           },
         }
       )
-      console.log('Following API Response:', followingResponse)
 
       const followerResponse = await axios.get(`${location}/follow/follower`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('Follower API Response:', followerResponse)
 
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('All Users API Response:', allUsersResponse)
 
       const postsWithCommentCounts = await Promise.all(
         response.data.posts.map(async (post: any) => {
@@ -237,7 +233,6 @@ const MyPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Follow request sent to API with nickname:', nickname)
 
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/add`, {
@@ -249,10 +244,8 @@ const MyPage: React.FC = () => {
         body: JSON.stringify({ nickname }),
       })
 
-      console.log('Follow API response:', response)
 
       if (response.ok) {
-        console.log('Successfully followed user:', nickname)
         setUserInfo((prevUserInfo) => {
           if (!prevUserInfo) return prevUserInfo
           return {
@@ -282,7 +275,6 @@ const MyPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Unfollow request sent to API with nickname:', nickname)
 
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/cancel`, {
@@ -294,10 +286,8 @@ const MyPage: React.FC = () => {
         body: JSON.stringify({ nickname }),
       })
 
-      console.log('Unfollow API response:', response)
 
       if (response.ok) {
-        console.log('Successfully unfollowed user:', nickname)
         setUserInfo((prevUserInfo) => {
           if (!prevUserInfo) return prevUserInfo
           return {

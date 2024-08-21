@@ -103,14 +103,11 @@ const RegisterPage: React.FC = () => {
   const handleVerifyCode = async () => {
     const email = `${emailUser}@${emailDomain}` //*
     try {
-      console.log(authNumber, email);
       const response = await verifyCode( authNumber, email );
-      console.log(response);
       if (response.message === 'authorized') {
         alert('인증에 성공했습니다');
       } else {
         alert('인증에 실패했습니다');
-        console.log('인증 실패: ' + response);
       }
     } catch (error) {
       console.error('Verification error:', (error as any).message || error);
@@ -124,7 +121,6 @@ const handleRegister = async () => {
   const email = `${emailUser}@${emailDomain}`;
   try {
     const response = await register({ loginId, email, password, name, nickname });
-    console.log(response);
     if (response.data === 'ok') {
       try {
         alert('회원가입에 성공했습니다');
@@ -154,7 +150,6 @@ const handleRegister = async () => {
 
     try {
       const response = await checkLoginId(loginId)
-      console.log(response)
       if (response === '가능한 아이디입니다.') {
         setLoginMessage('사용 가능한 아이디입니다.')
       } else {

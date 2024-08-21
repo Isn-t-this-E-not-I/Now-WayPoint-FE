@@ -41,7 +41,6 @@ const LoginPage: React.FC = () => {
     try {
       const data = await login({ loginId, password })
       await sendLoginInfo(loginId)
-      console.log('로그인 성공:', data.token)
       navigate('/main', { replace: true })
       localStorage.setItem('token', data.token)
       localStorage.setItem('nickname', data.nickname)
