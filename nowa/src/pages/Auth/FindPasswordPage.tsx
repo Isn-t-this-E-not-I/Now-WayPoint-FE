@@ -3,10 +3,13 @@ import {
   findPassword,
   sendVerificationCode,
   resetPassword,
-} from '../api/userApi';
-import TextInput from '../components/TextInput/textInput';
+} from '../../api/userApi';
+import TextInput from '../../components/TextInput/textInput';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { IoIosArrowBack } from 'react-icons/io';
+import './styles.css';
+
 
 const FindPasswordPage = () => {
   const [loginId, setLoginId] = useState('');
@@ -66,15 +69,56 @@ const FindPasswordPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <div className="card w-96 shadow-xl p-5 bg-gray-50">
-        <h2 className="text-lg font-bold mb-4">비밀번호 찾기</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-image">
+      <div className="flex justify-end w-full" style={{ marginTop: '4rem', marginRight: '42rem' }}>
+        <a
+          href="#"
+          className="flex items-center mr-8"
+          style={{
+            color: '#1778F2',
+            fontWeight: '900',
+            fontSize: '20px',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate('/auth')}
+        >
+          <IoIosArrowBack style={{ marginRight: '4px' }} />
+        </a>
+        <a
+            href="#"
+            className="mr-8"
+            style={{
+              color: '#1778F2',
+              fontWeight: '900',
+              fontSize: '15px',
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/find-id')}
+          >
+            아이디 찾기
+          </a>
+          <a
+            href="#"
+            style={{
+              color: '#1778F2',
+              fontWeight: '900',
+              fontSize: '15px',
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/find-password')}
+          >
+            비밀번호 찾기
+          </a>
+      </div>
+      <div className="card w-96 p-5" style={{ marginTop: '8rem', marginLeft: '40rem', minHeight: '590px' }}>
+        <h2 className="text-base text-center font-bold mb-10">비밀번호 찾기</h2>
         <TextInput
           type="text"
           placeholder="아이디 입력"
           onChange={(e) => setLoginId(e.target.value)}
           value={loginId}
           className="mb-4"
+          style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  
         />
         <TextInput
           type="email"
@@ -82,9 +126,11 @@ const FindPasswordPage = () => {
           onChange={(e) => setEmail(e.target.value)}
           value={email}
           className="mb-4"
+          style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  
         />
         <button
           className="btn btn-primary mt-4 mb-2"
+          style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
           onClick={handleFindPassword}
         >
           인증 코드 받기
@@ -96,33 +142,37 @@ const FindPasswordPage = () => {
               placeholder="인증 코드 입력"
               onChange={(e) => setAuthNumber(e.target.value)}
               value={authNumber}
-              className="mb-4"
+              className="mt-2 mb-4"
+              style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  
             />
             <button
               className="btn btn-secondary mt-4 mb-2"
+              style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
               onClick={handleVerifyCode}
             >
               인증 확인
             </button>
           </>
         )}
-        {tempPassword && (
+        {/* {tempPassword && (
           <button
             className="btn btn-primary mt-4 mb-2"
+            style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
             onClick={handleResetPassword}
           >
             비밀번호 재설정
           </button>
-        )}
+        )} */}
         {message && (
           <div className="text-green-500 text-sm mt-2">{message}</div>
         )}
-        <button
-          className="btn btn-outline mt-4"
+        {/* <button
+          className="btn btn-outline mt-2"
+          style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
           onClick={() => navigate('/login')}
         >
           로그인 페이지로
-        </button>
+        </button> */}
       </div>
     </div>
   );

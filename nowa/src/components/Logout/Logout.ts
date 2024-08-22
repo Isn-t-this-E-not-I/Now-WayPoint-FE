@@ -36,12 +36,10 @@ export const handleLogout = async (
 
     // 카카오 로그아웃
     if (window.kakao && window.kakao.Auth) {
-      window.kakao.Auth.logout(() => {
-        console.log('카카오 로그아웃 완료')
-      })
+      window.kakao.Auth.logout(() => {})
     }
     setLogoutModalOpen(false)
-    window.location.href = '/login' // 로그아웃 후 로그인 페이지로 이동
+    window.location.href = '/auth' // 로그아웃 후 로그인 페이지로 이동
   } catch (error) {
     console.error('로그아웃에 실패했습니다:', error)
     localStorage.removeItem('token') // 오류가 발생해도 토큰과 닉네임 제거
@@ -56,6 +54,6 @@ export const handleLogout = async (
         console.log('카카오 로그아웃 완료')
       })
     }
-    window.location.href = '/login'
+    window.location.href = '/auth'
   }
 }

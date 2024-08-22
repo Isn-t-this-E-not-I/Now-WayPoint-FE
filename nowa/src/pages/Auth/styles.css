@@ -1,0 +1,65 @@
+.bg-image {
+    background-image: url('/src/assets/authbackground.png');
+    /* background-color: gray; */
+    background-size: cover; /* 이미지가 요소를 완전히 덮도록 설정 */
+    background-position: center; /* 이미지가 중앙에 위치하도록 설정 */
+    background-repeat: no-repeat; /* 이미지 반복을 없앰 */
+    /* opacity: 0.8 */
+  }
+
+  .tab-button {
+    position: relative;
+    padding: 10px 30px;
+    font-size: 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .tab-button::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 50px; /* 언더라인의 너비 */
+    height: 2px;
+    background-color: #1e90ff; /* 언더라인 색상 */
+    opacity: 0;
+    transition: opacity 0.3s ease, width 0.3s ease;
+  }
+  
+  .tab-button.active::after {
+    opacity: 1;
+    width: 50px; /* 활성화된 상태의 언더라인 너비 */
+  }
+  
+  .btn-primary {
+    background-color: #007bff; /* 기본 파란색 */
+    color: white;
+  }
+  
+  .btn-primary:hover {
+    background-color: #0056b3; /* 호버 시 더 진한 파란색 */
+  }
+  
+  .btn-warning {
+    background-color: #ffc107; /* 노란색 */
+    color: black;
+  }
+  
+  .btn-warning:hover {
+    background-color: #e0a800; /* 호버 시 더 진한 노란색 */
+  }
+  
+  .btn-outline {
+    background-color: transparent;
+    border: 1px solid #007bff;
+    color: #007bff;
+  }
+  
+  .btn-outline:hover {
+    background-color: #007bff;
+    color: white;
+  }

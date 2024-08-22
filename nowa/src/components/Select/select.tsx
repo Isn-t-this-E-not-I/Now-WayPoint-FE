@@ -32,7 +32,7 @@ const SelectButton = styled.div<{ isOpen: boolean }>`
   border-radius: 10px;
   transition: border-color 0.3s ease;
   font-size: 12px;
-  &hover: {
+  &:hover {
     border: 1px solid black;
   }
 `

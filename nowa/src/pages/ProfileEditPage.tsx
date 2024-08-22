@@ -60,9 +60,8 @@ const ProfileEditPage: React.FC = () => {
     useEffect(() => {
       const fetchUserData = async () => {
         const token = localStorage.getItem('token')
-        console.log(token)
         if (!token) {
-          navigate('/login')
+          navigate('/auth')
           return
         }
   
@@ -72,8 +71,6 @@ const ProfileEditPage: React.FC = () => {
               Authorization: `Bearer ${token}`,
             },
           })
-          console.log('API Response:', response)
-          console.log('User data fetched:', response.data)
           setUserInfo({
             loginId: response.data.loginId,
             name: response.data.name,
@@ -163,9 +160,8 @@ const ProfileEditPage: React.FC = () => {
             },
           }
         )
-        console.log('계정 삭제가 확인되었습니다.')
         setModalOpen(false)
-        navigate('/login')
+        navigate('/auth')
       } catch (error) {
         console.error('계정 삭제에 실패했습니다:', error)
       }

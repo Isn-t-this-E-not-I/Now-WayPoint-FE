@@ -14,9 +14,9 @@ const NotificationWrapper = styled.div`
   align-items: flex-start;
   width: 19.8rem;
   height: 90vh;
+  margin-top: 6rem;
   max-height: 90vh;
   padding-left: 18px;
-  padding-top: 3px;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -31,6 +31,7 @@ const NotificationItem = styled.div`
   border-radius: 12px;
   height: 5.6rem;
   width: 18.2rem;
+  left: -2px;
   font-size: 15px;
   border: 2.3px solid transparent;
   background:
@@ -211,47 +212,58 @@ const NotificationPage: React.FC = () => {
 
   return (
     <NotificationWrapper>
-    {notifications.length === 0 ? (
-      <div
-      className="flex flex-col items-center justify-center"
-      style={{ width: '300px', height: '100vh' }}
-    >
-      <img
-        src={NoNotificationsImage}
-        alt="No Notifications"
-        style={{ backgroundColor: 'transparent', width: '150px', height: '150px' }} // 원하는 크기로 설정
-      />
-      <div className="mt-4">알림이 없습니다...</div>
-    </div>
-    ) : (
-      displayNotifications.map((notification) => (
-        <NotificationItem key={notification.id} onClick={() => handleContentClick(notification)}>
-          <ProfilePic
-            src={notification.profileImageUrl}
-            alt="Profile"
-            onClick={(e) => {
-              e.stopPropagation(); // 이벤트 버블링 중지
-              handleProfileClick(notification.nickname);
-            }}
+      {notifications.length === 0 ? (
+        <div
+          className="flex flex-col items-center justify-center"
+          style={{ width: '300px', height: '100vh' }}
+        >
+          <img
+            src={NoNotificationsImage}
+            alt="No Notifications"
+            style={{
+              backgroundColor: 'transparent',
+              width: '150px',
+              height: '150px',
+            }} // 원하는 크기로 설정
           />
-          <NotificationContent>
-            <ContentDisplay content={notification.message} />
-            {notification.comment && <CommentDisplay comment={notification.comment} />}
-          </NotificationContent>
-          {notification.mediaUrl && <ContentPic src={notification.mediaUrl} />}
-          <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
-        </NotificationItem>
-      ))
-    )}
-    {selectedPostId !== null && (
-      <DetailContentModal
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        postId={selectedPostId}
-        showCloseButton={true}
-      />
-    )}
-  </NotificationWrapper>
+          <div className="mt-4">알림이 없습니다...</div>
+        </div>
+      ) : (
+        displayNotifications.map((notification) => (
+          <NotificationItem
+            key={notification.id}
+            onClick={() => handleContentClick(notification)}
+          >
+            <ProfilePic
+              src={notification.profileImageUrl}
+              alt="Profile"
+              onClick={(e) => {
+                e.stopPropagation() // 이벤트 버블링 중지
+                handleProfileClick(notification.nickname)
+              }}
+            />
+            <NotificationContent>
+              <ContentDisplay content={notification.message} />
+              {notification.comment && (
+                <CommentDisplay comment={notification.comment} />
+              )}
+            </NotificationContent>
+            {notification.mediaUrl && (
+              <ContentPic src={notification.mediaUrl} />
+            )}
+            <TimeAgo>{formatRelativeTime(notification.createDate)}</TimeAgo>
+          </NotificationItem>
+        ))
+      )}
+      {selectedPostId !== null && (
+        <DetailContentModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          postId={selectedPostId}
+          showCloseButton={true}
+        />
+      )}
+    </NotificationWrapper>
   )
 }
 

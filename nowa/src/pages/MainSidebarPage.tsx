@@ -199,85 +199,96 @@ const MainSidebarPage: React.FC = () => {
         </div>
       ) : (
         <>
-      {displaySelectContents.length < 1 ? (
-        <div className="flex flex-col items-center justify-center">
-          <img
-            src={NoFollowContentsImage}
-            alt="No Notifications"
-            style={{ backgroundColor: 'transparent', width: '150px', height: '150px', marginRight: '40px' }}
-          />
-          <div className="mt-4">주변 게시글이 없습니다...</div>
-        </div>
-      ) : (
-        displaySelectContents.map((selectContent) => (
-          <ContentItem
-            key={selectContent.id}
-            onClick={() => handleContentImageClick(selectContent.id)}
-          >
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <ProfilePic
-                src={selectContent.profileImageUrl}
-                alt="Profile"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleProfileClick(selectContent.username)
+          {displaySelectContents.length < 1 ? (
+            <div className="flex flex-col items-center justify-center">
+              <img
+                src={NoFollowContentsImage}
+                alt="No Notifications"
+                style={{
+                  backgroundColor: 'transparent',
+                  width: '150px',
+                  height: '150px',
+                  marginRight: '40px',
                 }}
               />
-              <CategoryLabel>{selectContent.category}</CategoryLabel>
-              <Username
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleProfileClick(selectContent.username)
-                }}
+              <div className="mt-4">주변 게시글이 없습니다...</div>
+            </div>
+          ) : (
+            displaySelectContents.map((selectContent) => (
+              <ContentItem
+                key={selectContent.id}
+                onClick={() => handleContentImageClick(selectContent.id)}
               >
-                {selectContent.username}
-              </Username>
-            </div>
-            {selectContent.mediaUrls.length > 0 && (
-              <InnerMediaWrapper>
-                {selectContent.mediaUrls[0].endsWith('.mp4') ? (
-                  <InnerVideo
-                    src={selectContent.mediaUrls[0]}
-                    muted
-                    controls={false}
-                    onMouseEnter={(e) => e.currentTarget.play()}
-                    onMouseLeave={(e) => e.currentTarget.pause()}
-                    onContextMenu={(e) => e.preventDefault()}
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <ProfilePic
+                    src={selectContent.profileImageUrl}
+                    alt="Profile"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleProfileClick(selectContent.username)
+                    }}
                   />
-                ) : selectContent.mediaUrls[0].endsWith('.mp3') ? (
-                  <InnerImage
-                    src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
-                    alt="Music Icon"
-                  />
-                ) : (
-                  <InnerImage src={selectContent.mediaUrls[0]} alt="Content" />
+                  <CategoryLabel>{selectContent.category}</CategoryLabel>
+                  <Username
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleProfileClick(selectContent.username)
+                    }}
+                  >
+                    {selectContent.username}
+                  </Username>
+                </div>
+                {selectContent.mediaUrls.length > 0 && (
+                  <InnerMediaWrapper>
+                    {selectContent.mediaUrls[0].endsWith('.mp4') ? (
+                      <InnerVideo
+                        src={selectContent.mediaUrls[0]}
+                        muted
+                        controls={false}
+                        onMouseEnter={(e) => e.currentTarget.play()}
+                        onMouseLeave={(e) => e.currentTarget.pause()}
+                        onContextMenu={(e) => e.preventDefault()}
+                      />
+                    ) : selectContent.mediaUrls[0].endsWith('.mp3') ? (
+                      <InnerImage
+                        src="https://cdn-icons-png.flaticon.com/128/1014/1014333.png"
+                        alt="Music Icon"
+                      />
+                    ) : (
+                      <InnerImage
+                        src={selectContent.mediaUrls[0]}
+                        alt="Content"
+                      />
+                    )}
+                  </InnerMediaWrapper>
                 )}
-              </InnerMediaWrapper>
-            )}
-            <ContentDisplay content={selectContent.content} />
-            <HashTags>
-              {selectContent?.hashtags && selectContent.hashtags.length > 0 ? (
-                selectContent.hashtags.map((hashtag, index) => (
-                  <span key={index}>{hashtag} </span>
-                ))
-              ) : (
-                <span></span>
-              )}
-            </HashTags>
-            <div style={{ display: 'flex' }}>
-              <LikeCount>❤ {selectContent.likeCount}</LikeCount>
-              <TimeAgo>{formatRelativeTime(selectContent.createdAt)}</TimeAgo>
-            </div>
-          </ContentItem>
-        ))
+                <ContentDisplay content={selectContent.content} />
+                <HashTags>
+                  {selectContent?.hashtags &&
+                  selectContent.hashtags.length > 0 ? (
+                    selectContent.hashtags.map((hashtag, index) => (
+                      <span key={index}>{hashtag} </span>
+                    ))
+                  ) : (
+                    <span></span>
+                  )}
+                </HashTags>
+                <div style={{ display: 'flex' }}>
+                  <LikeCount>❤ {selectContent.likeCount}</LikeCount>
+                  <TimeAgo>
+                    {formatRelativeTime(selectContent.createdAt)}
+                  </TimeAgo>
+                </div>
+              </ContentItem>
+            ))
+          )}
+          <DetailContentModal
+            isOpen={isModalOpen}
+            onClose={closeModal}
+            postId={selectedPostId}
+          />
+        </>
       )}
-      <DetailContentModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        postId={selectedPostId}
-      />
-    </>
-  )}
     </FollowContentWrapper>
   )
 }
@@ -299,7 +310,7 @@ const ContentDisplay: React.FC<{ content: string }> = ({ content }) => {
     <ContentText>
       {isExpanded ? content : `${content.substring(0, limit)}...`}
       <ShowMoreButton onClick={toggleExpanded}>
-        {isExpanded ? '접기' : '더보기'}
+        {/* {isExpanded ? '접기' : '더보기'} */}
       </ShowMoreButton>
     </ContentText>
   )

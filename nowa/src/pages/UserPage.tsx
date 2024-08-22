@@ -16,7 +16,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+  width: 67%;
   padding: 20px;
+  padding-top: 3rem;
+  margin-left: 15rem;
 `
 
 const ProfileSection = styled.div`
@@ -61,6 +64,7 @@ const StatItem = styled.div`
 
 const Description = styled.p`
   margin-top: 10px;
+  margin-bottom: 1rem;
 `
 
 const SectionTitle = styled.h2`
@@ -122,6 +126,7 @@ interface UserProfile {
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
 }
 
@@ -144,7 +149,6 @@ const UserPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Fetching user data...')
       const response = await axios.get(
         `${location}/user?nickname=${nickname}`,
         {
@@ -153,11 +157,9 @@ const UserPage: React.FC = () => {
           },
         }
       )
-      console.log('User API Response:', response)
 
       const userData = response.data
 
-      console.log(`Fetching following data for ${nickname}...`)
       const followingResponse = await axios.get(
         `${location}/follow/following?nickname=${nickname}`,
         {
@@ -166,9 +168,7 @@ const UserPage: React.FC = () => {
           },
         }
       )
-      console.log('Following API Response:', followingResponse)
 
-      console.log(`Fetching follower data for ${nickname}...`)
       const followerResponse = await axios.get(
         `${location}/follow/follower?nickname=${nickname}`,
         {
@@ -177,15 +177,12 @@ const UserPage: React.FC = () => {
           },
         }
       )
-      console.log('Follower API Response:', followerResponse)
 
-      console.log('Fetching all users...')
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('All Users API Response:', allUsersResponse)
 
       const allUsers = allUsersResponse.data.map((user: any) => ({
         isFollowing: followingResponse.data.some(

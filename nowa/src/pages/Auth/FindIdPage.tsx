@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import { findId, sendVerificationCode } from '../api/userApi';
-import TextInput from '../components/TextInput/textInput';
+import { findId, sendVerificationCode } from '../../api/userApi';
+import TextInput from '../../components/TextInput/textInput';
 import { useNavigate } from 'react-router-dom';
+import { IoIosArrowBack } from 'react-icons/io';
+import './styles.css';
+
 
 const FindIdPage = () => {
   const [email, setEmail] = useState('');
@@ -43,18 +46,60 @@ const FindIdPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-white">
-      <div className="card w-96 shadow-xl p-5 bg-gray-50">
-        <h2 className="text-lg font-bold mb-4">아이디 찾기</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-image">
+    <div className="flex justify-end w-full" style={{ marginTop: '4rem', marginRight: '42rem' }}>
+        <a
+          href="#"
+          className="flex items-center mr-8"
+          style={{
+            color: '#1778F2',
+            fontWeight: '900',
+            fontSize: '20px',
+            cursor: 'pointer',
+          }}
+          onClick={() => navigate('/auth')}
+        >
+          <IoIosArrowBack style={{ marginRight: '4px' }} />
+        </a>
+        <a
+            href="#"
+            className="mr-8"
+            style={{
+              color: '#1778F2',
+              fontWeight: '900',
+              fontSize: '15px',
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/find-id')}
+          >
+            아이디 찾기
+          </a>
+          <a
+            href="#"
+            style={{
+              color: '#1778F2',
+              fontWeight: '900',
+              fontSize: '15px',
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/find-password')}
+          >
+            비밀번호 찾기
+          </a>
+      </div>
+      <div className="card w-96 p-5" style={{ marginTop: '8rem', marginLeft: '40rem', minHeight: '590px' }}>
+        <h2 className="text-base text-center font-bold mb-10">아이디 찾기</h2>
         <TextInput
           type="email"
           placeholder="이메일 입력"
           onChange={(e) => setEmail(e.target.value)}
           value={email}
           className="mb-4"
+          style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  
         />
         <button
-          className="btn btn-primary mt-4 mb-2"
+          className="btn btn-primary mt-2 mb-2"
+          style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
           onClick={handleRequestAuthNumber}
         >
           인증 코드 받기
@@ -66,12 +111,14 @@ const FindIdPage = () => {
             onChange={(e) => setAuthNumber(e.target.value)}
             value={authNumber}
             className="mb-4"
+            style={{ color: 'black', backgroundColor: '#EAF0F7', border: 'none' }}  
           />
         )}
         {receivedCode && (
           <button
             className="btn btn-primary mt-2"
             onClick={handleVerifyAuthNumber}
+            style={{ backgroundColor: '#1778F2', color: 'white', borderColor: '#1778F2', borderWidth: '0px', fontWeight: '900', fontSize: '15px'}}
           >
             인증 확인
           </button>
@@ -80,12 +127,12 @@ const FindIdPage = () => {
           <div className="text-green-500 text-sm mt-2">아이디: {foundId}</div>
         )}
         {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-        <button
+        {/* <button
           className="btn btn-outline mt-4"
           onClick={() => navigate('/login')}
         >
           로그인 페이지로
-        </button>
+        </button> */}
       </div>
     </div>
   );

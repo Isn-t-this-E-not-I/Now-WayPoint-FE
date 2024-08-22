@@ -16,14 +16,39 @@ import MessageNotification from '../../components/Chat/messageNotification'
 import { UserInfo } from '../../types/index'
 import SendIcon from '@mui/icons-material/Send'
 
+const BackgroundWrapper = styled.div`
+  background-color: #f8faff;
+  height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+`
+
 const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%;
-  background-color: ${(props) => props.theme.backgroundColor || '#f8faff'};
+  flex: 1; /* ChatContainer가 좌우 사이드바 사이의 모든 공간을 채우도록 설정 */
+  max-width: calc(
+    100% - 36rem
+  ); /* 좌우 사이드바의 합산 너비(16rem + 20rem)를 뺀 나머지 공간을 차지 */
+  padding-top: 60px;
+  background-color: ${(props) => props.theme.backgroundColor || '#ffffff'};
   position: relative;
   overflow: hidden;
+  margin: 0 auto; /* 가운데 정렬 */
+  border-left: 1px solid rgba(160, 160, 160, 0.5);
+  border-right: 1px solid rgba(160, 160, 160, 0.5);
+  right: 0.8rem;
+`
+
+const ChatRoomFakeBlank = styled.div`
+  height: 100%;
+  width: 1rem;
+  display: flex;
+  border-left: 1px solid rgba(160, 160, 160, 0.5);
 `
 
 const Header = styled.div`
@@ -34,10 +59,14 @@ const Header = styled.div`
   height: 60px;
   border-bottom: 1px solid #ccc;
   background-color: #f8faff;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  max-width: calc(100% - 36.15rem);
 `
 
 const Title = styled.h1`
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   font-weight: bold;
   margin-left: 0.5rem;
 `
@@ -150,6 +179,24 @@ const NewMessageButton = styled.button<{ show: boolean }>`
 
   &:hover {
     background-color: #f8faff;
+  }
+`
+
+const StyledButton = styled(Button)`
+  background-color: #9269b2;
+
+  &:hover {
+    background-color: #7a5597;
+  }
+
+  color: white; /* 버튼 글자 색상 */
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
   }
 `
 
@@ -356,8 +403,8 @@ const ChattingPage: React.FC = () => {
   }
 
   const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}?tab=posts`);
-  };
+    navigate(`/user/${nickname}?tab=posts`)
+  }
 
   // 프로필 이미지를 결정하는 부분 수정
   let displayProfileImages: string[] = []
@@ -381,136 +428,140 @@ const ChattingPage: React.FC = () => {
   }
 
   return (
-    <ChatContainer>
-      <Header>
-        <Title>{displayName}</Title>
-        <ButtonContainer>
-          <ActionButton onClick={open}>
-            <AddMemberIcon theme={theme} />
-          </ActionButton>
-          {isOpen && (
-            <AddUserModal
-              isOpen={isOpen}
-              onClose={close}
-              showCloseButton={false}
-              handleSubmit={inviteToChatRoom}
-              theme={theme}
-            />
-          )}
-          <ActionButton onClick={() => setIsLeaveModalOpen(true)}>
-            <ExitIcon theme={theme} />
-          </ActionButton>
-        </ButtonContainer>
-      </Header>
-      {/* 나가기 확인 모달 */}
-      {isLeaveModalOpen && (
-        <Modal
-          isOpen={isLeaveModalOpen}
-          onClose={() => setIsLeaveModalOpen(false)}
-          showCloseButton={false}
-        >
-          <div style={{ textAlign: 'center' }}>
-            <h3>채팅방에서 나가시겠습니까?</h3>
-            <p>
-              확인을 클릭할 시, 해당 채팅방에 더 이상 접근이 불가능해집니다.
-            </p>
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '20px',
-                marginTop: '20px',
-              }}
-            >
-              <Button
-                onClick={() => {
-                  leaveChatRoom()
-                  setIsLeaveModalOpen(false)
-                  navigate('/chat') // 채팅방 목록으로 이동
+    <BackgroundWrapper>
+      <ChatContainer>
+        <Header>
+          <Title>{displayName}</Title>
+          <ButtonContainer>
+            <ActionButton onClick={open}>
+              <AddMemberIcon theme={theme} />
+            </ActionButton>
+            {isOpen && (
+              <AddUserModal
+                isOpen={isOpen}
+                onClose={close}
+                showCloseButton={false}
+                handleSubmit={inviteToChatRoom}
+                theme={theme}
+              />
+            )}
+            <ActionButton onClick={() => setIsLeaveModalOpen(true)}>
+              <ExitIcon theme={theme} />
+            </ActionButton>
+          </ButtonContainer>
+        </Header>
+        {/* 나가기 확인 모달 */}
+        {isLeaveModalOpen && (
+          <Modal
+            isOpen={isLeaveModalOpen}
+            onClose={() => setIsLeaveModalOpen(false)}
+            showCloseButton={false}
+          >
+            <div style={{ textAlign: 'center' }}>
+              <h3>채팅방에서 나가시겠습니까?</h3>
+              <p>
+                확인을 클릭할 시, 해당 채팅방에 더 이상 접근이 불가능해집니다.
+              </p>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: '20px',
+                  marginTop: '20px',
                 }}
               >
-                확인
-              </Button>
-              <Button onClick={() => setIsLeaveModalOpen(false)}>취소</Button>
+                <StyledButton
+                  onClick={() => {
+                    leaveChatRoom()
+                    setIsLeaveModalOpen(false)
+                    navigate('/chat') // 채팅방 목록으로 이동
+                  }}
+                >
+                  확인
+                </StyledButton>
+                <StyledButton onClick={() => setIsLeaveModalOpen(false)}>
+                  취소
+                </StyledButton>
+              </div>
             </div>
-          </div>
-        </Modal>
-      )}
-      <MessageList ref={messageListRef} onScroll={handleScroll}>
-        {messages.map((msg, index) => {
-          if (msg.sender === 'admin') {
+          </Modal>
+        )}
+        <MessageList ref={messageListRef} onScroll={handleScroll}>
+          {messages.map((msg, index) => {
+            if (msg.sender === 'admin') {
+              return (
+                <MessageItem key={index} $isSender={false}>
+                  <AdminMessage>{msg.content}</AdminMessage>
+                </MessageItem>
+              )
+            }
+            if (msg.sender === nickname) {
+              return (
+                <MessageItem key={index} $isSender={true}>
+                  <ChatBubble
+                    alignment="end"
+                    avatarSrc=""
+                    header=""
+                    time={new Date(msg.timestamp).toLocaleTimeString()}
+                    message={msg.content}
+                    footer={new Date(
+                      msg.timestamp
+                    ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+                  />
+                </MessageItem>
+              )
+            }
+
             return (
               <MessageItem key={index} $isSender={false}>
-                <AdminMessage>{msg.content}</AdminMessage>
-              </MessageItem>
-            )
-          }
-          if (msg.sender === nickname) {
-            return (
-              <MessageItem key={index} $isSender={true}>
                 <ChatBubble
-                  alignment="end"
-                  avatarSrc=""
-                  header=""
-                  time={new Date(msg.timestamp).toLocaleTimeString()}
+                  alignment="start"
+                  avatarSrc={
+                    chatRoom.userResponses.find(
+                      (user) => user.userNickname === msg.sender
+                    )?.profileImageUrl || 'default_profile_image_url'
+                  }
+                  header={msg.sender}
+                  time=""
                   message={msg.content}
                   footer={new Date(
                     msg.timestamp
                   ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
+                  onAvatarClick={() => handleProfileClick(msg.sender)}
                 />
               </MessageItem>
             )
-          }
-
-          return (
-            <MessageItem key={index} $isSender={false}
-            >
-              <ChatBubble
-                alignment="start"
-                avatarSrc={
-                  chatRoom.userResponses.find(
-                    (user) => user.userNickname === msg.sender
-                  )?.profileImageUrl || 'default_profile_image_url'
-                }
-                header={msg.sender}
-                time=""
-                message={msg.content}
-                footer={new Date(
-                  msg.timestamp
-                ).toLocaleTimeString()} /* 시간 표시를 아래로 이동 */
-                onAvatarClick={() => handleProfileClick(msg.sender)}
-              />
-            </MessageItem>
-          )
-        })}
-      </MessageList>
-      <InputContainer>
-        <InputField
-          value={messageContent}
-          onChange={(e) => setMessageContent(e.target.value)}
-          placeholder="메시지를 입력하세요"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault()
-              sendMessage()
-            }
-          }}
-        />
-        <SendButton onClick={sendMessage}>
-          <SendIcon />
-        </SendButton>
-      </InputContainer>
-      {/* Down 버튼 추가 */}
-      {showDownButton && <DownBtn onDownClick={scrollToBottom} />}
-      {/* 메시지 알림 추가 */}
-      {showDownButton && newMessageUser && (
-        <MessageNotification
-          msg={newMessage}
-          user={newMessageUser}
-          onDownClick={scrollToBottom}
-        />
-      )}
-    </ChatContainer>
+          })}
+        </MessageList>
+        <InputContainer>
+          <InputField
+            value={messageContent}
+            onChange={(e) => setMessageContent(e.target.value)}
+            placeholder="메시지를 입력하세요"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                sendMessage()
+              }
+            }}
+          />
+          <SendButton onClick={sendMessage}>
+            <SendIcon />
+          </SendButton>
+        </InputContainer>
+        {/* Down 버튼 추가 */}
+        {showDownButton && <DownBtn onDownClick={scrollToBottom} />}
+        {/* 메시지 알림 추가 */}
+        {showDownButton && newMessageUser && (
+          <MessageNotification
+            msg={newMessage}
+            user={newMessageUser}
+            onDownClick={scrollToBottom}
+          />
+        )}
+      </ChatContainer>
+      <ChatRoomFakeBlank />
+    </BackgroundWrapper>
   )
 }
 export default ChattingPage

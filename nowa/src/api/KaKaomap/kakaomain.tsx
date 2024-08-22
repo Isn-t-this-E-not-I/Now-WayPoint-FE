@@ -153,6 +153,7 @@ const MainPage: React.FC = () => {
     const markers = await Promise.all(
       data.map(async (item) => {
         const [lng, lat] = item.locationTag.split(',').map(Number)
+        console.log('zzzzz', lat, lng)
         const position = new window.kakao.maps.LatLng(lat, lng)
 
         try {
@@ -172,7 +173,6 @@ const MainPage: React.FC = () => {
               handleMarkerClick(item.id)
             })
           } else {
-            console.warn('Marker image element not found')
           }
 
           // CustomOverlay를 생성합니다.
@@ -185,7 +185,6 @@ const MainPage: React.FC = () => {
           markersRef.current.push(marker)
           return marker
         } catch (error) {
-          console.error('Error creating marker:', error)
           return null
         }
       })
@@ -251,9 +250,7 @@ const MainPage: React.FC = () => {
             initializeMap(latitude, longitude)
             setLocate(`${longitude},${latitude}`)
             localStorage.setItem('locate', `${longitude},${latitude}`)
-          } catch (error) {
-            console.error('지도 초기화 실패:', error)
-          }
+          } catch (error) {}
         },
         (error) => {
           console.error('위치 정보를 가져오는데 실패했습니다:', error)
@@ -277,18 +274,25 @@ const MainPage: React.FC = () => {
   }, [selectContents, map])
 
   useEffect(() => {
-    if (map && data.length > 0) {
+    if (map && data.length >= 0) {
       addMarkers(map, data)
     }
   }, [data, map])
 
   const selectCategory = (category: string, distance: number) => {
     if (client) {
+      setData([])
+      markersRef.current.forEach((marker) => marker.setMap(null))
+      markersRef.current = []
+      if (clustererRef.current) {
+        clustererRef.current.clear()
+      }
+
       client.publish({
         destination: '/app/main/category',
         body: JSON.stringify({ category: category, distance: distance }),
       })
-      // 카테고리 선택 시 지도의 확대/축소 레벨 고정
+
       if (map && currentLocationRef.current) {
         const { latitude, longitude } = currentLocationRef.current
         map.setLevel(mapLevel, {
@@ -296,7 +300,7 @@ const MainPage: React.FC = () => {
         })
       }
     } else {
-      console.error('Not connected to WebSocket')
+      console.error('웹소켓 끊어졌어요')
     }
   }
 
@@ -310,7 +314,7 @@ const MainPage: React.FC = () => {
     setSelectedDistance(newDistance)
 
     // 거리에 따라 mapLevel 설정
-    let newMapLevel = 7 // 기본 레벨
+    let newMapLevel = 7
     switch (newDistance) {
       case 10:
         newMapLevel = 3
@@ -354,22 +358,24 @@ const MainPage: React.FC = () => {
         <button onClick={zoomOut}>-</button>
       </div>
 
-      <div id="category-select">
-        <Select
-          options={categoryOptions}
-          classN="category-select"
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-        />
-      </div>
+      <div id="main_select_box">
+        <div id="category-select">
+          <Select
+            options={categoryOptions}
+            classN="category-select"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          />
+        </div>
 
-      <div id="distance-select">
-        <Select
-          options={distanceOptions}
-          classN="distance-select"
-          value={selectedDistance.toString()}
-          onChange={handleDistanceChange}
-        />
+        <div id="distance-select">
+          <Select
+            options={distanceOptions}
+            classN="distance-select"
+            value={selectedDistance.toString()}
+            onChange={handleDistanceChange}
+          />
+        </div>
       </div>
 
       {selectedPostId !== null && (

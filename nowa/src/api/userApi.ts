@@ -4,6 +4,7 @@ const API_BASE_URL = import.meta.env.VITE_APP_API
 
 interface LoginPayload {
   loginId: string
+  email: string
   password: string
 }
 
@@ -31,7 +32,6 @@ export const sendLoginInfo = async (loginId: string) => {
     })
     return response.data
   } catch (error) {
-    console.log('why?')
     throw error
   }
 }
@@ -173,7 +173,6 @@ export const checkLoginId = async (loginId: string) => {
     const response = await axios.post(`${API_BASE_URL}/user/checkLoginId`, {
       loginId,
     })
-    console.log(response.data)
     return response.data
   } catch (error) {
     throw error

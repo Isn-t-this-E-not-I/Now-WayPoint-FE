@@ -13,7 +13,6 @@ import {
   NowaIcon,
   ExitIcon,
 } from '../icons/icons'
-import ThemeController from '../ThemeController/ThemeController'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
 import CreateChatRoomButton from '../Chat/createChatRoomButton'
@@ -29,12 +28,14 @@ import Modal from '../Modal/modal'
 import AllUserList from '../FollowList/AllUserList'
 import fetchAllUsers from '@/data/fetchAllUsers'
 import { handleLogout } from '../Logout/Logout'
-import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
 import FollowContentsPage from '@/pages/FollowContentsPage'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
 import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
 import Button from '../Button/button'
+import FollowList from '../FollowList/FollowList'
+import axios from 'axios'
+import defaultProfileImage from '../../../../defaultprofile.png'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -43,33 +44,48 @@ interface SidebarProps {
 const Wrapper = styled.div`
   display: flex;
   height: 100vh;
+  width: -30px;
+  justify-content: space-between;
 `
 
 const LeftSidebar = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 5rem;
+  width: 16rem;
   height: 100%;
-  z-index: 10;
+  z-index: 201;
   position: fixed;
-
   background-color: #f8faff;
 `
 
-const RightSidebar = styled.div`
+const Line = styled.div`
+  width: 1px;
+  height: 100vh;
+  background-color: rgba(160, 160, 160, 0.5);
+  opacity: 0.8;
+  position: absolute; /* absolute로 설정하여 정확한 위치 지정 */
+  left: 15.2rem; /* LeftSidebar의 너비와 동일하게 설정 */
+  top: 0;
+  z-index: 202;
+`
+
+const RightSidebar = styled.div<{ isVisible: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  width: 20rem;
-  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.3);
-  z-index: 5;
-  position: relative;
-  margin-left: 4.4rem;
+  width: 20.5rem; // RightSidebar 너비 설정
+  box-shadow: 3px 0 10px rgba(0, 0, 0, 0.05);
+  z-index: 200;
+  position: fixed;
+  top: 0;
+  left: ${({ isVisible }) => (isVisible ? '15rem' : '-15rem')};
+  height: 100%;
   background-color: #f8faff;
+  transition: left 0.3s ease-in-out;
+  border-right: 1px solid rgba(160, 160, 160, 0.5);
 `
-
 const TopRightSidebar = styled.div`
   display: flex;
   align-items: center;
@@ -78,14 +94,143 @@ const TopRightSidebar = styled.div`
   padding-right: 10px;
 `
 
-const Line = styled.div`
-  width: 1.4px;
-  height: 97.5%;
-  margin-top: 13px;
-  background: #c9c9c9;
-  position: absolute;
-  left: 5rem;
-  z-index: 10000;
+const RightSection = styled.div`
+  width: 18rem;
+  height: 100%;
+  position: fixed;
+  right: 0;
+  background-color: #f8faff;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  box-sizing: border-box;
+  z-index: 10;
+  border-left: 1px solid rgba(160, 160, 160, 0.5);
+`
+
+const ProfileContainer = styled.div`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+  margin-left: 0.3rem;
+`
+
+const ProfileImage = styled.img`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 15px;
+  &:hover {
+    cursor: pointer;
+  }
+`
+
+const UserInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+`
+
+const Nickname = styled.span`
+  font-weight: bold;
+  font-size: 14px;
+`
+
+const LoginId = styled.span`
+  color: #888;
+  font-size: 14px;
+`
+
+const Name = styled.span`
+  color: #888;
+  font-size: 14px;
+`
+
+const LogOutIconButtonWrapper = styled.button`
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  margin-left: auto; /* 오른쪽 정렬 */
+  margin-right: 10px; /* 오른쪽 정렬 */
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+`
+
+const FollowListContainer = styled.div`
+  width: 100%;
+  margin-top: 10px;
+  max-height: 300px; /* 스크롤 영역의 최대 높이 설정 */
+  overflow-y: auto; /* 수직 스크롤 추가 */
+`
+
+const RecommendationsContainer = styled.div`
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  max-height: 180px; /* 스크롤 영역의 최대 높이 설정 */
+  overflow-y: auto; /* 수직 스크롤 추가 */
+`
+
+const RecommendationTitle = styled.h3`
+  font-size: 15px;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 8px;
+`
+
+const RecommendationList = styled.ul`
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+`
+
+const RecommendationItem = styled.li`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+  width: 100%;
+`
+
+const ShowMoreText = styled.div<{ visible: boolean }>`
+  display: ${({ visible }) => (visible ? 'block' : 'none')};
+  text-align: center;
+  font-size: 14px;
+  color: #888;
+  margin-top: 10px;
+`
+
+const FollowButton = styled.button`
+  margin-left: auto;
+  margin-bottom: 1rem;
+  padding: 0.2rem 0.7rem;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  height: 35px;
+  width: 80px;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+
+  &:focus {
+    outline: none;
+  }
 `
 
 const Blank = styled.div`
@@ -97,73 +242,87 @@ const LogoIconButtonWrapper = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
   display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
   justify-content: center;
-  align-items: center;
+  padding: 0;
   margin-bottom: 25px;
-
+  margin-left: 11rem;
   &:focus {
     outline: none;
   }
+`
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center; /* 세로 중앙 정렬 */
+  justify-content: center;
+  margin-bottom: 1rem;
+  margin-top: 0.5rem;
 `
 
 const IconButtonWrapper = styled.button.attrs<{ active: boolean }>((props) => ({
   active: props.active,
 }))<{ active: boolean }>`
-  background: ${({ active }) =>
-    active ? 'linear-gradient(to top right, #ae74bc, #01317b)' : 'none'};
+  background: ${({ active }) => (active ? 'black' : 'none')};
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding-left: 0.7rem;
   display: flex;
-  width: 4.5rem;
-  height: 70px;
-  border-radius: 20%;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  width: 80%;
+  height: 70px;
+  left: 0;
+  border-radius: 20px;
+  margin-bottom: 0.5rem;
+  justify-content: flex-start;
   position: relative;
 
   &:focus {
     outline: none;
-    background-color: #f8faff;
+    background-color: black;
+    color: white;
+
+    svg {
+      fill: white;
+    }
+
+    span {
+      color: white;
+    }
+  }
+
+  &:hover {
+    background-color: black;
+
+    svg {
+      fill: white;
+    }
+
+    span {
+      color: white;
+    }
   }
 
   svg {
-    fill: ${({ active }) => (active ? '#FFD88B' : '#151515')};
+    fill: ${({ active }) => (active ? 'white' : '#151515')};
+    margin-right: 1rem;
+    margin-top: -1.25rem;
   }
 `
 
 const IconSpan = styled.span<{ active: boolean }>`
-  margin-top: 2px;
-  margin-bottom: 23px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: bold;
-  color: ${({ active }) => (active ? '#FFD88B' : '#151515')};
-`
-
-const LogOutIconButtonWrapper = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-top: 8px;
-  position: relative;
-  width: 4.2rem;
-  height: 55px;
+  color: ${({ active }) => (active ? 'white' : '#151515')};
 `
 
 const CreateChatRoomButtonWrapeer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-left: 10px;
-  margin-top: 0.5px;
+  margin-left: auto;
+  margin-top: 1.3rem;
+  margin-bottom: 2rem;
 `
 
 const ContentDiv = styled.div`
@@ -189,49 +348,29 @@ const ContentPage = styled.div`
 
 const SearchContainer = styled.div`
   margin-left: 6px;
+  margin-top: 5.5rem;
   width: 99.5%;
 `
 
 const SearchInput = styled.input`
-  width: 100%;
-  padding: 10px;
+  width: 90%;
+  padding: 9px;
   margin-bottom: 20px;
-  border: 1px solid #ccc;
+  margin-left: 10px;
+  border: 0.1px solid #ccc;
   border-radius: 8px;
-`
-
-const LogoutDropdown = styled.div`
-  position: absolute;
-  top: 15px;
-  left: 40px;
-  width: 200px;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 10;
-  transition: transform 0.5s ease;
-
-  h3 {
-    margin: 0 0 10px 0;
-  }
-
-  button {
-    margin: auto 15px;
-    &:hover {
-      transform: scale(1.2);
-    }
-  }
+  font-size: 15px;
 `
 
 const Badge = styled.span`
-  position: absolute;
-  top: 7px;
-  right: 15px;
-  background-color: red;
+  width: 1.4rem;
+  height: 1.4rem;
+  background-color: rgba(0, 0, 0, 0.9);
   color: white;
   border-radius: 50%;
   padding: 2px 6px;
+  margin-left: auto;
+  margin-right: 1rem;
   font-size: 12px;
   font-weight: bold;
   line-height: 1;
@@ -241,8 +380,9 @@ const Badge = styled.span`
 `
 
 const DeleteNotificationsButton = styled.span`
+  z-index: 50;
   position: absolute;
-  top: 50px;
+  top: 70px;
   right: 15px;
   background-color: #9269b2;
   color: #fdfdfd;
@@ -262,8 +402,15 @@ const DeleteNotificationsButton = styled.span`
 
 const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [activePage, setActivePage] = useState<string>('')
-  const [isLogoutDropdownOpen, setLogoutDropdownOpen] = useState(false)
   const [isUploadModalOpen, setUploadModalOpen] = useState(false)
+  const [isLogoutModalOpen, setLogoutModalOpen] = useState(false)
+  const [userInfo, setUserInfo] = useState<null | {
+    profileImageUrl: string
+    nickname: string
+    loginId: string
+  }>(null)
+  const [recommendations, setRecommendations] = useState<any[]>([])
+
   const navigate = useNavigate()
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
   const { setChatRooms, setChatRoomsInfo } = useChat()
@@ -272,8 +419,39 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [followingList, setFollowingList] = useState<any[]>([]) // 팔로잉 리스트 상태 추가
+
   const nickname = localStorage.getItem('nickname')
   const location = import.meta.env.VITE_APP_API
+
+  const handleScroll = (event: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop } = event.currentTarget
+    setIsScrolled(scrollTop > 0)
+  }
+
+  const handleNavigate = (page: string) => {
+    if (activePage === page) {
+      setActivePage('') // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
+    } else {
+      setActivePage(page)
+      if (page === 'main') {
+        navigate('/main') // 메인 아이콘 클릭 시 /main으로 이동
+      } else if (page === 'myPage') {
+        navigate('/myPage')
+      } else if (page === 'chat') {
+        if (getStompClient() == null) {
+          connectAndSubscribe()
+        }
+        fetchChatRooms(token).then((data) => {
+          const chatRooms = data.chatRooms
+          const chatRoomsInfo = data.chatRoomsInfo
+          setChatRooms(chatRooms)
+          setChatRoomsInfo(chatRoomsInfo)
+        })
+      }
+    }
+  }
 
   // 전체 유저 목록 가져오기
   useEffect(() => {
@@ -287,55 +465,35 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   // activePage가 'chat'이 아닌 경우 disconnect 호출
   useEffect(() => {
-    if (activePage !== 'chat') {
+    if (activePage === 'main' || activePage === 'myPage') {
       disconnect()
       setActiveChatRoomPage(-1)
     }
   }, [activePage])
 
-  // 현재 활성된 페이지에 따라 콘텐츠 렌더링
-  const renderContentPage = () => {
-    switch (activePage) {
-      case 'main':
-        return <MainSidebarPage />
-      case 'notifications':
-        return <NotificationPage />
-      case 'chat':
-        return <ChatListPage />
-      case 'contents':
-        return <MainSidebarPage />
-      case 'followContents':
-        return <FollowContentsPage />
-      case 'myPage':
-        return <div></div>
-      default:
-        return <MainSidebarPage />
+  // 팔로잉 리스트 가져오기
+  useEffect(() => {
+    const fetchFollowingList = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) return
+
+      try {
+        const response = await axios.get(`${location}/follow/following`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        setFollowingList(response.data) // 팔로잉 리스트 설정
+      } catch (error) {
+        console.error('Failed to fetch following list:', error)
+      }
     }
-  }
 
-  // 검색창 보여주기 여부
-  const shouldShowSearch = () => {
-    return (
-      activePage !== 'notifications' &&
-      activePage !== 'followContents' &&
-      activePage !== 'chat' &&
-      activePage !== 'myPage' &&
-      activePage !== 'main' &&
-      activePage !== 'contents' &&
-      activePage !== ''
-    )
-  }
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
-
-  const handleNavigate = (page: string) => {
-    navigate(`/${page}`)
-  }
+    fetchFollowingList()
+  }, [])
 
   const handleDelete = () => {
-    //notifications에 데이터 제거
+    // notifications에 데이터 제거
     deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출
@@ -366,24 +524,145 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     deleteNotifications()
   }
 
+  // 검색창 보여주기 여부
+  const shouldShowSearch = () => {
+    return (
+      activePage !== 'notifications' &&
+      activePage !== 'followContents' &&
+      activePage !== 'chat' &&
+      activePage !== 'myPage' &&
+      activePage !== 'main' &&
+      activePage !== 'contents' &&
+      activePage !== ''
+    )
+  }
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value)
+  }
+
+  // 오른쪽 섹션
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) {
+        navigate('/auth')
+        return
+      }
+
+      try {
+        const response = await axios.get(`${location}/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        setUserInfo({
+          profileImageUrl: response.data.profileImageUrl || defaultProfileImage,
+          nickname: response.data.nickname,
+          loginId: response.data.loginId, // loginId를 표시
+        })
+
+        // 추천 친구 목록 가져오기
+        const allUsersResponse = await axios.get(`${location}/user/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        const followingResponse = await axios.get(
+          `${location}/follow/following`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+
+        const followingNicknames = followingResponse.data.map(
+          (user: any) => user.nickname
+        )
+
+        const notFollowingUsers = allUsersResponse.data.filter(
+          (user: any) =>
+            !followingNicknames.includes(user.nickname) &&
+            user.nickname !== response.data.nickname
+        )
+
+        setRecommendations(notFollowingUsers) //
+      } catch (error) {
+        console.error('Failed to fetch user data:', error)
+      }
+    }
+
+    fetchUserData()
+  }, [navigate])
+
+  const handleFollow = async (nickname: string) => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      await axios.put(
+        `${location}/follow/add`,
+        { nickname },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      // 팔로우 후 추천 목록에서 해당 유저 제거
+      setRecommendations((prevRecommendations) =>
+        prevRecommendations.filter((user) => user.nickname !== nickname)
+      )
+    } catch (error) {
+      console.error('Error following user:', error)
+    }
+  }
+
+  const handleClickNavigate = (nickname: string) => {
+    if (nickname) {
+      navigate(`/user/${nickname}`)
+    } else {
+      alert('조회할 수 없는 유저입니다.')
+    }
+  }
+
+  // 현재 활성된 페이지에 따라 콘텐츠 렌더링
+  const renderContentPage = () => {
+    switch (activePage) {
+      case 'main':
+        return <MainSidebarPage />
+      case 'notifications':
+        return <NotificationPage />
+      case 'chat':
+        return <ChatListPage />
+      case 'contents':
+        return <MainSidebarPage />
+      case 'followContents':
+        return <FollowContentsPage />
+      case 'myPage':
+        return <div></div>
+      default:
+        return <MainSidebarPage />
+    }
+  }
+
   return (
     <Wrapper>
       <LeftSidebar>
-        <LogoIconButtonWrapper
-          onClick={() => {
-            handleNavigate('main')
-            setActivePage('main')
-          }}
-        >
-          <LogoIcon theme={theme} />
-        </LogoIconButtonWrapper>
+        <LogoContainer>
+          <LogoIconButtonWrapper onClick={() => handleNavigate('main')}>
+            <LogoIcon theme={theme} />
+          </LogoIconButtonWrapper>
+          <NowaIcon theme={theme} />
+        </LogoContainer>
         <IconButtonWrapper
           id="main-icon"
           active={activePage === 'main'}
-          onClick={() => {
-            handleNavigate('main')
-            setActivePage('main')
-          }}
+          onClick={() => handleNavigate('main')}
         >
           <MainIcon theme={theme} />
           <IconSpan active={activePage === 'main'}>메인</IconSpan>
@@ -401,9 +680,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="notifications-icon"
           active={activePage === 'notifications'}
-          onClick={() => {
-            setActivePage('notifications')
-          }}
+          onClick={() => handleNavigate('notifications')}
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
@@ -416,13 +693,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             if (getStompClient() == null) {
               connectAndSubscribe()
             }
-            setActivePage('chat')
+            handleNavigate('chat')
             fetchChatRooms(token).then((data) => {
-              // 데이터 구조를 확인하고 필요한 데이터만 추출
               const chatRooms = data.chatRooms
               const chatRoomsInfo = data.chatRoomsInfo
 
-              // state나 context에 데이터를 설정
               setChatRooms(chatRooms)
               setChatRoomsInfo(chatRoomsInfo)
             })
@@ -434,9 +709,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="contents-icon"
           active={activePage === 'contents'}
-          onClick={() => {
-            setActivePage('contents')
-          }}
+          onClick={() => handleNavigate('contents')}
         >
           <ContentsIcon theme={theme} />
           <IconSpan active={activePage === 'contents'}>주변 컨텐츠</IconSpan>
@@ -444,9 +717,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         <IconButtonWrapper
           id="follow-contents-icon"
           active={activePage === 'followContents'}
-          onClick={() => {
-            setActivePage('followContents')
-          }}
+          onClick={() => handleNavigate('followContents')}
         >
           <FollowContentsIcon theme={theme} />
           <IconSpan active={activePage === 'followContents'}>
@@ -457,55 +728,19 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           id="mypage-icon"
           active={activePage === 'myPage'}
           onClick={() => {
-            setActivePage('myPage')
-            handleNavigate('mypage')
+            handleNavigate('myPage')
           }}
         >
           <MyPageIcon theme={theme} />
           <IconSpan active={activePage === 'myPage'}>마이 페이지</IconSpan>
         </IconButtonWrapper>
-        <LogOutIconButtonWrapper
-          onClick={() => {
-            setLogoutDropdownOpen(!isLogoutDropdownOpen)
-          }}
-        >
-          <ExitIcon theme={theme} />
-          {isLogoutDropdownOpen && (
-            <Modal
-              isOpen={isLogoutDropdownOpen}
-              showCloseButton={false}
-              onClose={() => setLogoutDropdownOpen(false)}
-            >
-              <div style={{ textAlign: 'center' }}>
-                <h3>로그아웃 하시겠습니까?</h3>
-                <div
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '20px',
-                    marginTop: '20px',
-                  }}
-                >
-                  <Button onClick={() => handleLogout(setLogoutDropdownOpen)}>
-                    네
-                  </Button>
-                  <Button onClick={() => setLogoutDropdownOpen(false)}>
-                    아니오
-                  </Button>
-                </div>
-              </div>
-            </Modal>
-          )}
-        </LogOutIconButtonWrapper>
         <Blank />
-        <ThemeController />
       </LeftSidebar>
 
       <Line />
 
-      <RightSidebar>
+      <RightSidebar isVisible={activePage !== ''}>
         <TopRightSidebar>
-          <NowaIcon theme={theme} />
           {activePage === 'chat' && (
             <CreateChatRoomButtonWrapeer>
               <CreateChatRoomButton />
@@ -539,6 +774,59 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <ContentPage>{renderContentPage()}</ContentPage>
         </ContentDiv>
       </RightSidebar>
+
+      {/* Right Section */}
+      <RightSection>
+        {userInfo && (
+          <ProfileContainer>
+            <ProfileImage src={userInfo.profileImageUrl} alt="Profile" />
+            <UserInfo>
+              <Nickname>{userInfo.nickname}</Nickname>
+              <LoginId>{userInfo.loginId}</LoginId>
+            </UserInfo>
+            <LogOutIconButtonWrapper onClick={() => setLogoutModalOpen(true)}>
+              <ExitIcon theme="light" />
+            </LogOutIconButtonWrapper>
+          </ProfileContainer>
+        )}
+
+        <RecommendationTitle>추천 친구</RecommendationTitle>
+        <RecommendationsContainer onScroll={handleScroll}>
+          <RecommendationList>
+            {recommendations.map((user) => (
+              <RecommendationItem key={user.nickname}>
+                <ProfileContainer>
+                  <ProfileImage
+                    src={user.profileImageUrl || defaultProfileImage}
+                    alt="Profile"
+                    onClick={() => handleClickNavigate(user.nickname)}
+                  />
+                  <UserInfo>
+                    <Nickname>{user.nickname}</Nickname>
+                    <Name>{user.name}</Name>
+                  </UserInfo>
+                </ProfileContainer>
+                <FollowButton onClick={() => handleFollow(user.nickname)}>
+                  팔로우
+                </FollowButton>
+              </RecommendationItem>
+            ))}
+          </RecommendationList>
+          {/* <ShowMoreText visible={!isScrolled}>더 보기</ShowMoreText> */}
+        </RecommendationsContainer>
+
+        {/* FollowList 추가 */}
+        <RecommendationTitle>팔로잉 목록</RecommendationTitle>
+        <FollowListContainer>
+          <FollowList
+            users={followingList}
+            searchQuery={searchQuery}
+            onFollow={handleFollow}
+            onUnfollow={handleFollow} // 팔로우와 언팔로우 핸들러를 적절히 전달
+            showFollowButtons={false} // 팔로우 버튼을 표시
+          />
+        </FollowListContainer>
+      </RightSection>
       {isUploadModalOpen && (
         <Modal
           isOpen={isUploadModalOpen}
@@ -548,6 +836,30 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <div>
             <MakeContent onClose={() => setUploadModalOpen(false)} />
+          </div>
+        </Modal>
+      )}
+      {isLogoutModalOpen && (
+        <Modal
+          isOpen={isLogoutModalOpen}
+          showCloseButton={false}
+          onClose={() => setLogoutModalOpen(false)}
+        >
+          <div style={{ textAlign: 'center' }}>
+            <h3>로그아웃 하시겠습니까?</h3>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                gap: '20px',
+                marginTop: '20px',
+              }}
+            >
+              <Button onClick={() => handleLogout(setLogoutModalOpen)}>
+                네
+              </Button>
+              <Button onClick={() => setLogoutModalOpen(false)}>아니오</Button>
+            </div>
           </div>
         </Modal>
       )}

@@ -285,9 +285,13 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }
 
-  // 유저 프로필 클릭 시 프로필 페이지로 이동하는 함수
   const handleProfileClick = (nickname: string) => {
-    navigate(`/user/${nickname}`)
+    const decodedPathname = decodeURIComponent(window.location.pathname)
+    if (decodedPathname === `/user/${nickname}`) {
+      window.location.reload()
+    } else {
+      navigate(`/user/${nickname}`)
+    }
   }
 
   // 대댓글 입력 창을 토글하는 함수
@@ -503,7 +507,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                   onClick={() => handleToggleExpand(comment.id)}
                   style={{ color: 'rgb(87, 193, 255)', cursor: 'pointer' }}
                 >
-                  접기
+                  ...접기
                 </span>
               )}
             </div>

@@ -9,8 +9,8 @@
 
 #make_imoji {
   position: absolute;
-  top: 10px;
-  right: 5px;
+  top: 15px;
+  right: 20px;
   width: 25px;
   height: 25px;
 }
@@ -43,12 +43,13 @@
 
 /* 게시하기버튼 */
 #upload_btn {
-  background-color: white;
+  background-color: #9269b2;
+  color: #f7f7f7;
   margin-left: auto;
 }
 
 #upload_btn:hover {
-  background-color: #ddd;
+  background-color: #7a5597;
 }
 
 /* 파일업로드 버튼 */
@@ -82,9 +83,10 @@
 
 /* 파일 미리보기 */
 #image_preview {
-  width: 40px;
-  height: 40px;
+  width: 45px;
+  height: 45px;
   border-radius: 8px;
+  border: 1px solid #ddd;
 }
 
 #video_preview,
@@ -115,6 +117,8 @@
 /* 큰 미리보기 위치*/
 #selected_image_preview {
   display: flex;
+  border: 1px solid #ddd;
+  border-radius: 12px;
 }
 
 /* 큰 미리보기 이미지*/
@@ -140,6 +144,7 @@
 /* 내용 입력 */
 #upload_content_dis {
   margin: 5px auto auto auto;
+  padding-right: 40px;
 }
 
 /* 태그 삭제 버튼 */

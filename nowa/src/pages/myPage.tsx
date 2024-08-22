@@ -13,7 +13,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+  width: 67%;
   padding: 20px;
+  padding-top: 3rem;
+  margin-left: 15rem;
 `
 
 const ProfileSection = styled.div`
@@ -58,6 +61,7 @@ const StatItem = styled.div`
 
 const Description = styled.p`
   margin-top: 10px;
+  margin-bottom: 1rem;
 `
 
 const SectionTitle = styled.h2`
@@ -113,6 +117,7 @@ interface UserProfile {
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
 }
 
@@ -127,7 +132,7 @@ const MyPage: React.FC = () => {
   const fetchUserData = async () => {
     const token = localStorage.getItem('token')
     if (!token) {
-      navigate('/login')
+      navigate('/auth')
       return
     }
 
@@ -137,7 +142,6 @@ const MyPage: React.FC = () => {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('User API Response:', response)
 
       const followingResponse = await axios.get(
         `${location}/follow/following`,
@@ -147,21 +151,18 @@ const MyPage: React.FC = () => {
           },
         }
       )
-      console.log('Following API Response:', followingResponse)
 
       const followerResponse = await axios.get(`${location}/follow/follower`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('Follower API Response:', followerResponse)
 
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('All Users API Response:', allUsersResponse)
 
       const postsWithCommentCounts = await Promise.all(
         response.data.posts.map(async (post: any) => {
@@ -215,6 +216,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
       })
@@ -231,7 +233,6 @@ const MyPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Follow request sent to API with nickname:', nickname)
 
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/add`, {
@@ -243,10 +244,8 @@ const MyPage: React.FC = () => {
         body: JSON.stringify({ nickname }),
       })
 
-      console.log('Follow API response:', response)
 
       if (response.ok) {
-        console.log('Successfully followed user:', nickname)
         setUserInfo((prevUserInfo) => {
           if (!prevUserInfo) return prevUserInfo
           return {
@@ -276,7 +275,6 @@ const MyPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Unfollow request sent to API with nickname:', nickname)
 
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/cancel`, {
@@ -288,10 +286,8 @@ const MyPage: React.FC = () => {
         body: JSON.stringify({ nickname }),
       })
 
-      console.log('Unfollow API response:', response)
 
       if (response.ok) {
-        console.log('Successfully unfollowed user:', nickname)
         setUserInfo((prevUserInfo) => {
           if (!prevUserInfo) return prevUserInfo
           return {
