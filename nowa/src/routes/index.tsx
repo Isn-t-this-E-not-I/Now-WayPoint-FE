@@ -15,10 +15,11 @@ import UserPage from '@/pages/UserPage'
 import EditContent from '@/pages/EditContent/editContent'
 import { WebSocketProvider } from '@/components/WebSocketProvider/WebSocketProvider'
 import ChattingPage from '@/pages/Chat/chattingPage'
-import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage';
-import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage';
-import DistanceAddPage from '@/pages/Onboarding/DistanceAddPage';
+import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage'
+import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage'
+import DistanceAddPage from '@/pages/Onboarding/DistanceAddPage'
 import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandler'
+import NaverCallback from '@/components/NaverCallBack/naverCallback'
 
 const Routers: React.FC = () => {
   return (
@@ -29,8 +30,14 @@ const Routers: React.FC = () => {
       <Route path="/find-id" element={<FindIdPage />} />
       <Route path="/find-password" element={<FindPasswordPage />} />
       <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
-      <Route path="/onboarding/location-permission" element={<LocationPermissionPage />} />
-      <Route path="/onboarding/friend-addition" element={<FriendAdditionPage />} />
+      <Route
+        path="/onboarding/location-permission"
+        element={<LocationPermissionPage />}
+      />
+      <Route
+        path="/onboarding/friend-addition"
+        element={<FriendAdditionPage />}
+      />
       <Route path="/onboarding/distance-add" element={<DistanceAddPage />} />
       {/* Private routes wrapped with WebSocketProvider */}
       <Route
@@ -40,7 +47,8 @@ const Routers: React.FC = () => {
           </WebSocketProvider>
         }
       >
-        <Route path="/" element={<Navigate to="/main" />} />{' '}
+        <Route path="/" element={<Navigate to="/main" />} />
+        <Route path="/naver/callback" element={<NaverCallback />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />
@@ -55,7 +63,6 @@ const Routers: React.FC = () => {
             />
           }
         />
-        {/* <Route path="/detailContent/:id" element={<DetailContent />} /> */}
         <Route
           path="/editContent/:id"
           element={
