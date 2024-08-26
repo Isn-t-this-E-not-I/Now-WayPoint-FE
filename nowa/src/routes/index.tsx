@@ -48,7 +48,7 @@ const Routers: React.FC = () => {
         }
       >
         <Route path="/" element={<Navigate to="/main" />} />
-        <Route path="/naver/callback" element={<NaverCallback />} />
+        {/* <Route path="/naver/callback" element={<NaverCallback />} /> */}
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />

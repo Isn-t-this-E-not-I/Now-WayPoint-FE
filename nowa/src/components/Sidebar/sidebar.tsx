@@ -415,7 +415,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   const { connectAndSubscribe, disconnect } = useChatWebSocket()
   const { setChatRooms, setChatRoomsInfo } = useChat()
 
-  const [token] = useState<string>(localStorage.getItem('token') || '')
+  const [token, setToken] = useState<string>(
+    localStorage.getItem('token') || ''
+  )
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
@@ -471,19 +473,25 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     }
   }, [activePage])
 
-  // 팔로잉 리스트 가져오기
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token')
+    if (storedToken) {
+      setToken(storedToken)
+    }
+  }, [])
+
   useEffect(() => {
     const fetchFollowingList = async () => {
-      const token = localStorage.getItem('token')
-      if (!token) return
-
+      if (!token) {
+        return
+      }
       try {
         const response = await axios.get(`${location}/follow/following`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
-        setFollowingList(response.data) // 팔로잉 리스트 설정
+        setFollowingList(response.data)
       } catch (error) {
         console.error('Failed to fetch following list:', error)
       }
@@ -493,7 +501,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   }, [])
 
   const handleDelete = () => {
-    // notifications에 데이터 제거
     deleteNotificationAll()
 
     // 알림 삭제를 위한 API 호출

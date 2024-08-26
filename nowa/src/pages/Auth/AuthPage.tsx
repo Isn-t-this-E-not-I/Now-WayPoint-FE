@@ -92,21 +92,20 @@ const AuthPage: React.FC = () => {
       console.error('Kakao login failed:', error)
     }
   }
-
-  const handleGoogleLoginSuccess = async () => {
+  const handleNaverLogin = async () => {
     try {
       localStorage.setItem('token', 'zzz')
-      window.location.href = `${location}/user/login/google`
+      window.location.href = `${location}/user/login/naver`
     } catch (error) {
-      console.error('google login failed:', error)
+      console.error('Kakao login failed:', error)
     }
   }
 
-  const handleNaverLogin = () => {
-    const state = Math.random().toString(36).substr(2, 11)
-    const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naver_Client_Id}&redirect_uri=${encodeURI(naver_Callback_URL)}&state=${state}`
-    window.location.href = naverAuthUrl
-  }
+  // const handleNaverLogin = () => {
+  //   const state = Math.random().toString(36).substr(2, 11)
+  //   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naver_Client_Id}&redirect_uri=${encodeURIComponent(naver_Callback_URL)}&state=${state}`
+  //   window.location.href = naverAuthUrl
+  // }
 
   const onToggleHide = () => {
     setHidePassword(!hidePassword)
@@ -250,10 +249,6 @@ const AuthPage: React.FC = () => {
                 }}
                 onClick={handleNaverLogin}
               >
-                {/* <img
-                  style={{ width: 20, height: 20 }}
-                  src="data:image/jpeg;base64,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"
-                ></img> */}
                 네이버 로그인
               </button>
 

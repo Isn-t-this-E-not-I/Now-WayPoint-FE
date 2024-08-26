@@ -10,9 +10,10 @@ const NaverCallback = () => {
   const state = params.get('state')
 
   useEffect(() => {
+    console.log(code)
+    console.log(state)
     const fetchFromBackend = async () => {
       try {
-        // 백엔드에 인증 코드를 전달
         const response = await fetch(`${locate}/user/login/naver`, {
           method: 'POST',
           headers: {
