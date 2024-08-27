@@ -101,12 +101,6 @@ const AuthPage: React.FC = () => {
     }
   }
 
-  // const handleNaverLogin = () => {
-  //   const state = Math.random().toString(36).substr(2, 11)
-  //   const naverAuthUrl = `https://nid.naver.com/oauth2.0/authorize?response_type=code&client_id=${naver_Client_Id}&redirect_uri=${encodeURIComponent(naver_Callback_URL)}&state=${state}`
-  //   window.location.href = naverAuthUrl
-  // }
-
   const onToggleHide = () => {
     setHidePassword(!hidePassword)
   }

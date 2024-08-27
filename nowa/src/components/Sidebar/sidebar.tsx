@@ -657,6 +657,20 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     }
   }
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isUploadModalOpen) {
+        setUploadModalOpen(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isUploadModalOpen])
+
   return (
     <Wrapper>
       <LeftSidebar>

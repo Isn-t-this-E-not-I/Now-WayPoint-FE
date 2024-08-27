@@ -10,8 +10,6 @@ const NaverCallback = () => {
   const state = params.get('state')
 
   useEffect(() => {
-    console.log(code)
-    console.log(state)
     const fetchFromBackend = async () => {
       try {
         const response = await fetch(`${locate}/user/login/naver`, {
