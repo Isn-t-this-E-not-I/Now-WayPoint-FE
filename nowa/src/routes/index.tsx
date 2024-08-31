@@ -19,7 +19,6 @@ import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage'
 import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage'
 import DistanceAddPage from '@/pages/Onboarding/DistanceAddPage'
 import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandler'
-import NaverCallback from '@/components/NaverCallBack/naverCallback'
 
 const Routers: React.FC = () => {
   return (
@@ -48,7 +47,6 @@ const Routers: React.FC = () => {
         }
       >
         <Route path="/" element={<Navigate to="/main" />} />
-        {/* <Route path="/naver/callback" element={<NaverCallback />} /> */}
         <Route path="/main" element={<MainPage />} />
         <Route path="/memberfind" element={<></>} />
         <Route path="/mypage" element={<MyPage />} />

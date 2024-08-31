@@ -36,8 +36,6 @@ const AuthPage: React.FC = () => {
   const [cookies, setCookie, removeCookie] = useCookies(['rememberedLoginId'])
   const [hidePassword, setHidePassword] = useState(true)
   const google_Client_Id = import.meta.env.VITE_APP_GOOGLE_KEY
-  const naver_Client_Id = import.meta.env.VITE_APP_NAVER_KEY
-  const naver_Callback_URL = import.meta.env.VITE_APP_NAVER_CALLBACK_URL
 
   const navigate = useNavigate()
 
