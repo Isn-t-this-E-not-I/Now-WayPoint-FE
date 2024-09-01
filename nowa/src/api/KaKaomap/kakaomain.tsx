@@ -180,7 +180,6 @@ const MainPage: React.FC = () => {
     const markers = await Promise.all(
       data.map(async (item) => {
         const [lng, lat] = item.locationTag.split(',').map(Number)
-        console.log('zzzzz', lat, lng)
         const position = new window.kakao.maps.LatLng(lat, lng)
 
         try {
