@@ -6,6 +6,7 @@ import {
   Post,
   deletePostById,
   likePostById,
+  getLikeListUsers,
 } from '@/services/detailContent'
 import {
   getCommentsByPostId,
@@ -28,7 +29,7 @@ import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
 
 interface DetailContentProps {
-  postId: Number
+  postId: number
   onClose?: () => void // 추가: 모달을 닫는 함수
 }
 
@@ -72,20 +73,23 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   >(null) // 대댓글 이모지 선택기 상태
   const emojiPickerRef = useRef<HTMLDivElement | null>(null)
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]) // 비디오 참조 저장
+  const [isLikeListOpen, setIsLikeListOpen] = useState(false)
+  const [isHoveringLikeList, setIsHoveringLikeList] = useState(false)
+  const [likedUsers, setLikedUsers] = useState<User[]>([])
 
   const handleCloseModal = () => {
     // 닫기 버튼
     setIsEditModalOpen(false)
   }
 
-  const [id, setId] = useState<Number>()
+  const [id, setId] = useState<number>()
 
   const fetchPostAndComments = async () => {
     try {
-      const postData = await getPostById(Number(postId))
+      const postData = await getPostById(postId)
       setPost(postData)
       setId(postData.id)
-      const commentsData = await getCommentsByPostId(Number(postId))
+      const commentsData = await getCommentsByPostId(postId)
       const parentComments = commentsData.filter((comment) => !comment.parentId)
       const sortedParentComments = parentComments.sort(
         (a, b) => b.likeCount - a.likeCount
@@ -137,7 +141,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   // 댓글 목록을 갱신하는 함수
   const fetchComments = async () => {
     try {
-      const commentsData = await getCommentsByPostId(Number(postId))
+      const commentsData = await getCommentsByPostId(postId)
       const parentComments = commentsData.filter((comment) => !comment.parentId)
       const sortedParentComments = parentComments.sort(
         (a, b) => b.likeCount - a.likeCount
@@ -163,7 +167,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   // 댓글을 삭제하는 함수
   const handleCommentDelete = async (commentId: number) => {
     try {
-      const result = await deleteCommentById(Number(postId), commentId)
+      const result = await deleteCommentById(postId, commentId)
       if (typeof result === 'string') {
         alert(result)
       } else {
@@ -180,7 +184,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     const confirmed = window.confirm('정말로 게시글을 삭제하시겠습니까?')
     if (confirmed) {
       try {
-        await deletePostById(Number(postId))
+        await deletePostById(postId)
         alert('게시글이 삭제되었습니다.')
         navigate('/mypage') // 삭제 후 메인 페이지로 리다이렉트
         if (onClose) {
@@ -202,7 +206,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       return
     }
     try {
-      await createComment(Number(postId), newComment)
+      await createComment(postId, newComment)
       await fetchComments()
       setNewComment('')
     } catch (error) {
@@ -222,7 +226,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       return
     }
     try {
-      await createComment(Number(postId), replyContent, parentCommentId)
+      await createComment(postId, replyContent, parentCommentId)
       await fetchComments()
       setReplyContent('')
       setReplyCommentId(null)
@@ -256,7 +260,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   // 게시글 좋아요를 토글하는 함수
   const handleLikeToggle = async () => {
     try {
-      await likePostById(Number(postId))
+      await likePostById(postId)
       setPost((prevPost) =>
         prevPost
           ? {
@@ -274,10 +278,54 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }
 
+  const handleLikeListToggle = async () => {
+    if (isLikeListOpen) {
+      // 이미 열려 있는 경우 닫기
+      setIsLikeListOpen(false)
+    } else {
+      // 열려 있지 않은 경우 사용자 목록을 가져오고 열기
+      try {
+        const users = await getLikeListUsers(postId)
+        setLikedUsers(users)
+        setIsLikeListOpen(true)
+      } catch (error) {
+        console.error('Failed to fetch liked users:', error)
+        alert('좋아요한 사용자 목록을 불러오는 데 실패했습니다.')
+      }
+    }
+  }
+
+  const handleMouseEnter = async () => {
+    if (!isLikeListOpen) {
+      try {
+        const users = await getLikeListUsers(postId)
+        setLikedUsers(users)
+        setIsLikeListOpen(true)
+      } catch (error) {
+        console.error('유저못가져왔음', error)
+      }
+    }
+  }
+
+  const handleMouseLeave = () => {
+    if (!isHoveringLikeList) {
+      setIsLikeListOpen(false)
+    }
+  }
+
+  const handleLikeListMouseEnter = () => {
+    setIsHoveringLikeList(true)
+  }
+
+  const handleLikeListMouseLeave = () => {
+    setIsHoveringLikeList(false)
+    setIsLikeListOpen(false)
+  }
+
   // 댓글 좋아요를 토글하는 함수
   const handleCommentLikeToggle = async (commentId: number) => {
     try {
-      await toggleCommentLike(Number(postId), commentId)
+      await toggleCommentLike(postId, commentId)
       await fetchComments()
     } catch (error) {
       console.error('Failed to like/unlike comment:', error)
@@ -620,7 +668,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     <div className="detail_container">
       <div id="detail_picture">
         <div id="detail_picture_item1">
-          {Array.isArray(post.mediaUrls) && post.mediaUrls.length > 0 ? (
+          {Array.isArray(post?.mediaUrls) && post.mediaUrls.length > 0 ? (
             <Carousel
               showThumbs={false}
               infiniteLoop={false}
@@ -782,7 +830,11 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
           )}
         </div>
 
-        <div id="detail_content_heart">
+        <div
+          id="detail_content_heart"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           <div id="detail_like_button" onClick={handleLikeToggle}>
             <img
               src={
@@ -797,6 +849,24 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
           <div id="detail_heart_write_date">
             {formatRelativeTime(post.createdAt)}
           </div>
+          {isLikeListOpen && (
+            <div
+              className="like-list"
+              onMouseEnter={handleLikeListMouseEnter}
+              onMouseLeave={handleLikeListMouseLeave}
+            >
+              {likedUsers.length > 0 ? (
+                likedUsers.map((user) => (
+                  <div key={user.id} className="like-list-item">
+                    <img src={user.profileImageUrl} alt={user.nickname} />
+                    <div>{user.nickname}</div>
+                  </div>
+                ))
+              ) : (
+                <div></div>
+              )}
+            </div>
+          )}
         </div>
         <div>
           <form id="detail_coment_write" onSubmit={handleCommentSubmit}>

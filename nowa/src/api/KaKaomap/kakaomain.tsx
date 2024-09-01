@@ -77,7 +77,7 @@ const MainPage: React.FC = () => {
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
-    currentLocationRef.current = { latitude, longitude } // 현재 위치 저장
+    currentLocationRef.current = { latitude, longitude }
 
     const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`

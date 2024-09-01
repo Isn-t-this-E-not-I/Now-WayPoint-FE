@@ -16,12 +16,7 @@ import {
   AiFillCaretDown,
   AiFillCaretUp,
 } from 'react-icons/ai'
-import Button from '../../components/Button/button'
-import {
-  GoogleOAuthProvider,
-  GoogleLogin,
-  CredentialResponse,
-} from '@react-oauth/google'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import CustomGoogleLoginButton from '../../hooks/useGoogleLoginHook'
 import './styles.css'
 
