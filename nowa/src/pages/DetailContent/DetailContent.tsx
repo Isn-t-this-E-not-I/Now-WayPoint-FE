@@ -830,12 +830,13 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
           )}
         </div>
 
-        <div
-          id="detail_content_heart"
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >
-          <div id="detail_like_button" onClick={handleLikeToggle}>
+        <div id="detail_content_heart">
+          <div
+            id="detail_like_button"
+            onClick={handleLikeToggle}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
             <img
               src={
                 post.likedByUser
@@ -845,26 +846,28 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               alt="좋아요"
             />
           </div>
-          <div id="detail_heart_count">{post.likeCount}</div>
+          <div
+            id="detail_heart_count"
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          >
+            {post.likeCount}
+          </div>
           <div id="detail_heart_write_date">
             {formatRelativeTime(post.createdAt)}
           </div>
-          {isLikeListOpen && (
+          {isLikeListOpen && likedUsers.length > 0 && (
             <div
               className="like-list"
               onMouseEnter={handleLikeListMouseEnter}
               onMouseLeave={handleLikeListMouseLeave}
             >
-              {likedUsers.length > 0 ? (
-                likedUsers.map((user) => (
-                  <div key={user.id} className="like-list-item">
-                    <img src={user.profileImageUrl} alt={user.nickname} />
-                    <div>{user.nickname}</div>
-                  </div>
-                ))
-              ) : (
-                <div></div>
-              )}
+              {likedUsers.map((user) => (
+                <div key={user.id} className="like-list-item">
+                  <img src={user.profileImageUrl} alt={user.nickname} />
+                  <div>{user.nickname}</div>
+                </div>
+              ))}
             </div>
           )}
         </div>

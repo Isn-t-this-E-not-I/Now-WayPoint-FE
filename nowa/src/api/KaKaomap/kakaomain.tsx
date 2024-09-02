@@ -291,7 +291,7 @@ const MainPage: React.FC = () => {
     if (isInitialized && client) {
       selectCategory(selectedCategory, selectedDistance)
     }
-  }, [isInitialized, client])
+  }, [isInitialized, client, selectedCategory, selectedDistance])
 
   useEffect(() => {
     if (map) {
