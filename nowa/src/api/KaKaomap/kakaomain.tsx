@@ -24,7 +24,7 @@ const MainPage: React.FC = () => {
   const [mapLevel, setMapLevel] = useState<number>(7)
   const [isInitialized, setIsInitialized] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
-  const [selectedDistance, setSelectedDistance] = useState<number>(10)
+  const [selectedDistance, setSelectedDistance] = useState<number>(30)
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
   const [isModalOpen, setModalOpen] = useState(false)
   const markersRef = useRef<any[]>([])
@@ -77,7 +77,7 @@ const MainPage: React.FC = () => {
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
-    currentLocationRef.current = { latitude, longitude } // 현재 위치 저장
+    currentLocationRef.current = { latitude, longitude }
 
     const script = document.createElement('script')
     script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
@@ -110,7 +110,34 @@ const MainPage: React.FC = () => {
         clustererRef.current = clusterer
 
         window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
-          setMapLevel(map.getLevel())
+          const currentLevel = map.getLevel()
+          setMapLevel(currentLevel)
+
+          let newDistance
+
+          switch (true) {
+            case currentLevel >= 1 && currentLevel <= 5:
+              newDistance = 10
+              break
+            case currentLevel >= 6 && currentLevel <= 7:
+              newDistance = 30
+              break
+            case currentLevel >= 8 && currentLevel <= 9:
+              newDistance = 50
+              break
+            case currentLevel >= 10 && currentLevel <= 11:
+              newDistance = 100
+              break
+            default:
+              newDistance = 1000
+              break
+          }
+
+          // 선택된 거리 업데이트
+          setSelectedDistance(newDistance)
+
+          // 마커 갱신
+          selectCategory(selectedCategory, newDistance)
         })
 
         setIsInitialized(true)
@@ -153,7 +180,6 @@ const MainPage: React.FC = () => {
     const markers = await Promise.all(
       data.map(async (item) => {
         const [lng, lat] = item.locationTag.split(',').map(Number)
-        console.log('zzzzz', lat, lng)
         const position = new window.kakao.maps.LatLng(lat, lng)
 
         try {
@@ -265,7 +291,7 @@ const MainPage: React.FC = () => {
     if (isInitialized && client) {
       selectCategory(selectedCategory, selectedDistance)
     }
-  }, [isInitialized, client])
+  }, [isInitialized, client, selectedCategory, selectedDistance])
 
   useEffect(() => {
     if (map) {
