@@ -25,17 +25,26 @@ const App: React.FC = () => {
   const [selectedPage, setSelectedPage] = useState<string>('main')
 
   return (
-    <WebSocketProvider>
-      <div style={{ display: 'flex', height: '100vh' }}>
-      <ChatProvider>
-        {!isNoSidebarPage && <Sidebar theme={'light'} />}
+    <>
+      {!isNoSidebarPage ? (
+          <WebSocketProvider>
+            <div style={{ display: 'flex', height: '100vh' }}>
+              <ChatProvider>
+                <Sidebar theme={'light'} />
+                <div style={{ flex: 1 }}>
+                  <Routers />
+                </div>
+              </ChatProvider>
+            </div>
+          </WebSocketProvider>
+      ) : (
+        // Sidebar가 없을 때는 TokenProvider, WebSocketProvider, ChatProvider 없이 Routers만 실행
         <div style={{ flex: 1 }}>
           <Routers />
         </div>
-      </ChatProvider>
-    </div>
-    </WebSocketProvider>
-  )
+      )}
+    </>
+  );
 }
 
 const AppWrapper: React.FC = () => {
