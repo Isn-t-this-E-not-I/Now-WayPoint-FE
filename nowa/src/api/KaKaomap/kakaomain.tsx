@@ -112,32 +112,6 @@ const MainPage: React.FC = () => {
         window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
           const currentLevel = map.getLevel()
           setMapLevel(currentLevel)
-
-          let newDistance
-
-          switch (true) {
-            case currentLevel >= 1 && currentLevel <= 5:
-              newDistance = 10
-              break
-            case currentLevel >= 6 && currentLevel <= 7:
-              newDistance = 30
-              break
-            case currentLevel >= 8 && currentLevel <= 9:
-              newDistance = 50
-              break
-            case currentLevel >= 10 && currentLevel <= 11:
-              newDistance = 100
-              break
-            default:
-              newDistance = 1000
-              break
-          }
-
-          // 선택된 거리 업데이트
-          setSelectedDistance(newDistance)
-
-          // 마커 갱신
-          selectCategory(selectedCategory, newDistance)
         })
 
         setIsInitialized(true)
@@ -192,16 +166,13 @@ const MainPage: React.FC = () => {
           markerContent.className = 'marker-with-pin'
           markerContent.innerHTML = `<img src="${markerImageSrc}" alt="marker">`
 
-          // 이미지 요소가 존재하는지 확인하고 클릭 이벤트 추가
           const imgElement = markerContent.querySelector('img')
           if (imgElement) {
             imgElement.addEventListener('click', () => {
               handleMarkerClick(item.id)
             })
-          } else {
           }
 
-          // CustomOverlay를 생성합니다.
           const marker = new window.kakao.maps.CustomOverlay({
             position: position,
             content: markerContent,

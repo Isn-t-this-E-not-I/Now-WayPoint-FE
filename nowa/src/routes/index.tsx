@@ -19,7 +19,6 @@ import LocationPermissionPage from '@/pages/Onboarding/LocationPermissionPage'
 import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage'
 import DistanceAddPage from '@/pages/Onboarding/DistanceAddPage'
 import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandler'
-import NaverCallback from '@/components/NaverCallBack/naverCallback'
 import { TokenProvider } from '@/components/checkToken/TokenProvider'
 
 const Routers: React.FC = () => {
