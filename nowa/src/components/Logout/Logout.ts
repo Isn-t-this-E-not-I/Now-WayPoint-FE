@@ -5,6 +5,7 @@ export const handleLogout = async (
   setLogoutModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   const token = localStorage.getItem('token')
+  const nickname = localStorage.getItem('nickname')
   try {
     await axios.post(
       'https://subdomain.now-waypoint.store:8080/api/user/logout',
@@ -18,11 +19,13 @@ export const handleLogout = async (
 
     await axios.post(
       'https://subdomain.now-waypoint.store:8080/api/follow/logoutInfo',
-      {},
+      {
+        nickname: nickname
+      },
       {
         headers: {
-          Authorization: `Bearer ${token}`,
-        },
+          'Content-Type': 'application/json'
+        }
       }
     )
 

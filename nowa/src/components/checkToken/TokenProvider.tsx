@@ -48,6 +48,17 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
             }
         } catch (error) {
             console.error('Error checking Authorization header:', error);
+            await axios.post(
+                'https://subdomain.now-waypoint.store:8080/api/follow/logoutInfo',
+                {
+                nickname: localStorage.getItem('nickname')
+                },
+                {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+                }
+            )
             localStorage.removeItem('token');
             setToken(null);
         } finally {
