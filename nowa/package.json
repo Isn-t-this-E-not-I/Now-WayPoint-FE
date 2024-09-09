@@ -8,9 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "postinstall": "husky install",
-    "format": "prettier --cache --write .",
-    "deploy": "vite build && aws s3 rm s3://now-way-point/ --recursive && aws s3 cp ./dist s3://now-way-point/ --recursive --acl public-read"
+    "postinstall": "husky install && npm install -g aws-cli",
+    "deploy": "vite build && aws s3 rm s3://now-way-point/ --recursive && aws s3 cp ./dist s3://now-way-point/ --recursive --acl public-read",
+    "format": "prettier --cache --write ."
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
