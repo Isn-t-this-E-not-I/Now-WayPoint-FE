@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '../../services/kakaomap'
 import { useLocation } from 'react-router-dom'
-import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
 import Select from '@/components/Select/select'
