@@ -434,7 +434,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   const handleNavigate = (page: string) => {
     if (activePage === page) {
-      setActivePage('') // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
+      setActivePage('')
     } else {
       setActivePage(page)
       if (page === 'main') {
@@ -639,6 +639,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
+    if (activePage === '') return null
+
     switch (activePage) {
       case 'main':
         return <MainSidebarPage />

@@ -28,7 +28,6 @@ const MainPage: React.FC = () => {
   const [isModalOpen, setModalOpen] = useState(false)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
-  const overlayRef = useRef<any>(null)
   const { client, selectContents } = useWebSocket()
   const currentLocationRef = useRef<{
     latitude: number
