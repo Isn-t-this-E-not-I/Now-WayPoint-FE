@@ -16,7 +16,12 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
+<<<<<<< HEAD
       external: ['@react-oauth/google'],
     },
+=======
+      // external: ['@react-oauth/google']
+    }
+>>>>>>> main
   },
 })

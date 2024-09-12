@@ -143,6 +143,31 @@ const NotificationPage: React.FC = () => {
 
   useEffect(() => {
     resetNotifyCount()
+
+    const changeReadNotification = async () => {
+      try {
+        const token = localStorage.getItem('token') // 토큰 가져오기
+        if (!token) {
+          throw new Error('No token found')
+        }
+
+        const response = await fetch(`${location}/notify/changeRead`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+      } catch (error) {
+        console.error('Failed to delete notification:', error)
+      }
+    }
+
+    changeReadNotification()
   }, [resetNotifyCount])
 
   useEffect(() => {
