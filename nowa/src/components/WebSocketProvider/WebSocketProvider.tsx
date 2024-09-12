@@ -111,8 +111,20 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
         const data: Notification[] = await response.json()
         setNotifications(data.sort((a, b) => b.id - a.id))
-        setNotifyCount(0)
+        // setNotifyCount(0)
         console.log(data)
+
+        const responseNotifyCount = await fetch(`${location}/notify/read`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        if (!responseNotifyCount.ok) throw new Error('Network response was not ok')
+    
+        const notifyCountData = await responseNotifyCount.json()
+        setNotifyCount(notifyCountData)  // 여기에 응답 데이터에 맞춰서 notifyCount 업데이트
+        console.log('notifyCount:', notifyCountData)
 
         const responseFollowContent = await fetch(`${location}/follow/list`, {
           headers: {
@@ -162,7 +174,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
                   comment: data.comment,
                 }
 
-                setNotifyCount((prev) => prev + 1)
+                setNotifyCount((prev) => prev + 0.5)
                 setNotifications((prev) =>
                   !prev.some((f) => f.id === newNotification.id)
                     ? [newNotification, ...prev]
