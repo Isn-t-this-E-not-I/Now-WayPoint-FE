@@ -174,7 +174,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
                   comment: data.comment,
                 }
 
-                setNotifyCount((prev) => prev + 0.5)
+                setNotifyCount((prev) => prev + 1)
                 setNotifications((prev) =>
                   !prev.some((f) => f.id === newNotification.id)
                     ? [newNotification, ...prev]
