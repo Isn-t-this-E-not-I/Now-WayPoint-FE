@@ -4,7 +4,6 @@ import axios from 'axios';
 interface TokenContextProps {
     token: string | null;
     setToken: (token: string | null) => void;
-    ensureToken: () => Promise<string | null>;
 }
 
 const TokenContext = createContext<TokenContextProps | undefined>(undefined);
@@ -23,13 +22,11 @@ interface TokenProviderProps {
 
 export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-    const [isTokenRefreshing, setIsTokenRefreshing] = useState<boolean>(false);
 
     const checkAuthorizationHeader = async (): Promise<void> => {
         const apiUrl = import.meta.env.VITE_APP_API;
 
         try {
-            setIsTokenRefreshing(true);
             const response = await axios.get(`${apiUrl}/user/auth`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -61,8 +58,6 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
             )
             localStorage.removeItem('token');
             setToken(null);
-        } finally {
-            setIsTokenRefreshing(false);
         }
     };
 
@@ -70,25 +65,9 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
         checkAuthorizationHeader();
     }, []);
 
-    // 토큰 갱신을 보장하는 함수 (await 사용으로 간단하게 변경)
-    const ensureToken = async (): Promise<string | null> => {
-        if (isTokenRefreshing) {
-            return new Promise((resolve) => {
-                const interval = setInterval(() => {
-                    if (!isTokenRefreshing) {
-                        clearInterval(interval);
-                        resolve(token);
-                    }
-                }, 100);
-            });
-        } else {
-            return token;
-        }
-    };
-
     return (
-        <TokenContext.Provider value={{ token, setToken, ensureToken }}>
-            {!isTokenRefreshing && children}
+        <TokenContext.Provider value={{ token, setToken}}>
+            {children}
         </TokenContext.Provider>
     );
 };
