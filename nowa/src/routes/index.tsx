@@ -42,11 +42,11 @@ const Routers: React.FC = () => {
       {/* Private routes wrapped with WebSocketProvider */}
       <Route
         element={
-          <TokenProvider>
             <WebSocketProvider>
-              <PrivateRoute />
+              <TokenProvider>
+                <PrivateRoute />
+              </TokenProvider>
             </WebSocketProvider>
-          </TokenProvider>
         }
       >
         <Route path="/" element={<Navigate to="/main" />} />
