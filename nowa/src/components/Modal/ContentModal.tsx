@@ -1,7 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Modal from '../Modal/modal'
 import DetailContent from '@/pages/DetailContent/DetailContent'
-import { styled } from 'styled-components'
 
 interface DetailContentModalProps {
   isOpen: boolean
@@ -16,6 +15,22 @@ const DetailContentModal: React.FC<DetailContentModalProps> = ({
   postId,
   showCloseButton = false,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen, onClose])
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} showCloseButton={showCloseButton}>
       {postId !== null && <DetailContent postId={postId} />}
