@@ -76,6 +76,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [isLikeListOpen, setIsLikeListOpen] = useState(false)
   const [isHoveringLikeList, setIsHoveringLikeList] = useState(false)
   const [likedUsers, setLikedUsers] = useState<User[]>([])
+  const [viewCount, setViewCount] = useState<number>(0) // 조회수
 
   const handleCloseModal = () => {
     // 닫기 버튼
@@ -88,6 +89,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     try {
       const postData = await getPostById(postId)
       setPost(postData)
+      setViewCount(postData.viewCount)  // 조회수
       setId(postData.id)
       const commentsData = await getCommentsByPostId(postId)
       const parentComments = commentsData.filter((comment) => !comment.parentId)
@@ -852,6 +854,10 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
             onMouseLeave={handleMouseLeave}
           >
             {post.likeCount}
+          </div>
+          {/* 조회수 추가 */}
+          <div id="detail_view_count">
+            조회수: {viewCount}
           </div>
           <div id="detail_heart_write_date">
             {formatRelativeTime(post.createdAt)}

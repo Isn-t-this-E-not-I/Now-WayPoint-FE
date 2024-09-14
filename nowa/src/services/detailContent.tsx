@@ -20,6 +20,7 @@ export interface Post {
   likeCount: number
   profileImageUrl: string
   likedByUser: boolean
+  viewCount: number // 조회수
 }
 
 const getCookieValue = (name: number): string | null => {
