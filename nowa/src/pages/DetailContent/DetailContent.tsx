@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import '@/styles/DetailContent/detailContent.css'
 import DropDown from '@/components/DropDown/dropDown'
+import { FaBookmark, FaRegBookmark } from 'react-icons/fa'
 import {
   getPostById,
   Post,
@@ -65,6 +66,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     new Set()
   ) // 댓글 확장 상태
   const [isContentExpanded, setIsContentExpanded] = useState<boolean>(false) // 글 내용 확장 상태 추가
+  const [isBookmarked, setIsBookmarked] = useState<boolean>(false)  // 북마크 상태
   const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false) // 댓글 이모지 선택기 상태
@@ -90,6 +92,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       const postData = await getPostById(postId)
       setPost(postData)
       setViewCount(postData.viewCount)  // 조회수
+      setIsBookmarked(postData.isBookmarked);
       setId(postData.id)
       const commentsData = await getCommentsByPostId(postId)
       const parentComments = commentsData.filter((comment) => !comment.parentId)
@@ -122,24 +125,83 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }
 
-  useEffect(() => {
-    fetchPostAndComments()
 
+  const fetchBookmarkStatus = async () => {
+    const apiUrl = import.meta.env.VITE_APP_API;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+  
+      const response = await fetch(`${apiUrl}/bookmarks/${postId}/status`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setIsBookmarked(data.isBookmarked); // 북마크 상태를 서버에서 받아옴
+      } else {
+        console.error(`Failed to fetch bookmark status: ${response.status}`, data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  const toggleBookmark = async () => {
+    const apiUrl = import.meta.env.VITE_APP_API;
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+  
+      const response = await fetch(`${apiUrl}/bookmarks/${postId}/toggle`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        setIsBookmarked((prev) => !prev); // 북마크 상태를 토글
+      } else {
+        console.error(`Failed to toggle bookmark: ${response.status}`, data);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
+  useEffect(() => {
+    fetchPostAndComments();
+    fetchBookmarkStatus(); // 컴포넌트 로드 시 북마크 상태 확인
+  
     const fetchUsers = async () => {
       try {
-        const usersData = await getAllUsers()
-        setUsers(usersData)
+        const usersData = await getAllUsers();
+        setUsers(usersData);
       } catch (error) {
-        console.error('Failed to fetch users data:', error)
+        console.error('Failed to fetch users data:', error);
       }
-    }
+    };
+  
+    fetchUsers();
+  
+    const user = getCurrentUser();
+    setCurrentUser(user);
+  }, [postId]);
 
-    fetchUsers()
-
-    const user = getCurrentUser()
-    setCurrentUser(user)
-  }, [postId])
-
+  
   // 댓글 목록을 갱신하는 함수
   const fetchComments = async () => {
     try {
@@ -797,22 +859,35 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
               </div>
             </div>
           </div>
-          {currentUser === post.nickname && (
-            <div id="detail_content_edit">
+          <div id="detail_content_edit" style={{ display: 'flex', alignItems: 'center' }}>
+            {isBookmarked ? (
+              <FaBookmark
+                size={24}
+                style={{ cursor: 'pointer', color: 'blue', marginRight: '10px' }}
+                onClick={toggleBookmark} // 북마크 토글 함수
+              />
+            ) : (
+              <FaRegBookmark
+                size={24}
+                style={{ cursor: 'pointer', color: 'gray', marginRight: '10px' }}
+                onClick={toggleBookmark} // 북마크 토글 함수
+              />
+            )}
+            {currentUser === post.nickname && (
               <DropDown
                 id={'detail_Dropdown'}
                 buttonText={con_Text}
                 items={con_drop}
                 onItemSelect={(item) => {
                   if (item === '게시글 삭제') {
-                    handlePostDelete()
+                    handlePostDelete();
                   } else if (item === '게시글 수정') {
-                    setIsEditModalOpen(true)
+                    setIsEditModalOpen(true);
                   }
                 }}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         <div id="detail_user_content">

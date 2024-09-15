@@ -65,7 +65,7 @@ const Description = styled.p`
 `
 
 const SectionTitle = styled.h2`
-  font-size: 20px;
+  font-size: 17px;
   margin-bottom: 20px;
 `
 
@@ -74,11 +74,24 @@ const NicknameTitle = styled.h3`
 `
 
 const SearchInput = styled.input`
-  width: 100%;
+  width: 94%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
+`
+const TabContainer = styled.div`
+  width: 94%;
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+`
+
+const Tab = styled.div<{ active: boolean }>`
+  padding: 10px 30px;
+  cursor: pointer;
+  border-bottom: ${(props) => (props.active ? '1px solid #000' : 'none')};
+  font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
 `
 
 interface Post {
@@ -126,6 +139,7 @@ const MyPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState('posts')
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]) // 북마크
   const [searchQuery, setSearchQuery] = useState('')
   const location = import.meta.env.VITE_APP_API
 
@@ -348,6 +362,28 @@ const MyPage: React.FC = () => {
     return <div>Failed to load user data</div>
   }
 
+  const fetchBookmarkedPosts = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      const response = await axios.get(`${location}/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      setBookmarkedPosts(response.data)
+    } catch (error) {
+      console.error('Failed to fetch bookmarks:', error)
+    }
+
+    useEffect(() => {
+      fetchUserData()
+      if (selectedTab === 'bookmarks') {
+        fetchBookmarkedPosts()
+      }
+    }, [selectedTab])
+  }
+
   return (
     <Container>
       <ProfileSection>
@@ -372,10 +408,28 @@ const MyPage: React.FC = () => {
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
+      <TabContainer>
+          <Tab active={selectedTab === 'posts'} onClick={() => setSelectedTab('posts')}>
+            게시글
+          </Tab>
+          <Tab active={selectedTab === 'bookmarks'} onClick={() => setSelectedTab('bookmarks')}>
+            북마크
+          </Tab>
+        </TabContainer>
         {selectedTab === 'posts' && (
           <>
-            <SectionTitle>게시글</SectionTitle>
+            {/* <SectionTitle>게시글</SectionTitle> */}
             <Posts posts={userInfo.posts} />
+          </>
+        )}
+        {selectedTab === 'bookmarks' && (
+          <>
+            {/* <SectionTitle>북마크</SectionTitle> */}
+            {bookmarkedPosts.length > 0 ? (
+              <Posts posts={bookmarkedPosts} />
+            ) : (
+              <div>북마크한 게시글이 없습니다</div>
+            )}
           </>
         )}
         {selectedTab === 'followings' && (
