@@ -459,12 +459,12 @@ const MyPage: React.FC = () => {
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <FollowList
+           <FollowList
               users={filteredFollowers}
               searchQuery={searchQuery}
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
-              showFollowButtons={false}
+              showFollowButtons={true}
             />
           </>
         )}

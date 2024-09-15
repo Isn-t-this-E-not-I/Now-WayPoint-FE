@@ -34,6 +34,7 @@ import MakeContent from '@/pages/MakeContent/makeContent'
 import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
 import Button from '../Button/button'
 import FollowList from '../FollowList/FollowList'
+import SideFollowList from '../FollowList/SidebarFollowList'
 import axios from 'axios'
 import defaultProfileImage from '../../../../defaultprofile.png'
 
@@ -839,12 +840,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         {/* FollowList 추가 */}
         <RecommendationTitle>팔로잉 목록</RecommendationTitle>
         <FollowListContainer>
-          <FollowList
+          <SideFollowList
             users={followingList}
             searchQuery={searchQuery}
-            onFollow={handleFollow}
-            onUnfollow={handleFollow} // 팔로우와 언팔로우 핸들러를 적절히 전달
-            showFollowButtons={false} // 팔로우 버튼을 표시
           />
         </FollowListContainer>
       </RightSection>
