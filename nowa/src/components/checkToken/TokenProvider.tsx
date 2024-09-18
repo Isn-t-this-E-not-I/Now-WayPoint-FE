@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom'
 
 interface TokenContextProps {
     token: string | null;
@@ -22,6 +23,7 @@ interface TokenProviderProps {
 
 export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+    const navigate = useNavigate();
 
     const checkAuthorizationHeader = async (): Promise<void> => {
         const apiUrl = import.meta.env.VITE_APP_API;
@@ -42,6 +44,7 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
             } else {
                 localStorage.removeItem('token');
                 setToken(null);
+                navigate("/auth")
             }
         } catch (error) {
             console.error('Error checking Authorization header:', error);
@@ -58,6 +61,7 @@ export const TokenProvider: React.FC<TokenProviderProps> = ({ children }) => {
             )
             localStorage.removeItem('token');
             setToken(null);
+            navigate("/auth")
         }
     };
 
