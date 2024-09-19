@@ -924,12 +924,14 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
         </div>
 
         {post && (
-          <KakaoShareButton
-            title={post.content.slice(0, 10) || '게시글'} // 글의 첫 30자를 제목으로 사용
-            description={post.content.slice(0, 50)} // 글의 첫 100자
-            imageUrl={post.mediaUrls[0] || ''} // 첫 번째 이미지 URL
-            linkUrl={generatePostUrl()} // 동적으로 생성된 링크 사용
-          />
+          <div id="detail_kakao_share">
+            <KakaoShareButton
+              title={post.content.slice(0, 10) || '게시글'}
+              description={post.content.slice(0, 50)}
+              imageUrl={post.mediaUrls[0] || ''}
+              linkUrl={generatePostUrl()}
+            />
+          </div>
         )}
 
         {isEmojiPickerOpen && (

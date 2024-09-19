@@ -54,7 +54,10 @@ const KakaoShareButton: React.FC<KakaoShareButtonProps> = ({
 
   return (
     <button onClick={shareKakao} id="kakao-share-btn">
-      카카오톡 공유하기
+      <img
+        src="https://cdn-icons-png.freepik.com/256/2111/2111466.png?ga=GA1.1.1373474384.1723176329&semt=ais_hybrid"
+        style={{ width: 25, height: 25 }}
+      ></img>
     </button>
   )
 }
