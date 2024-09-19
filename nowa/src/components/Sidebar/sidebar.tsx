@@ -420,7 +420,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   )
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
+  const { notifyCount, deleteNotificationAll, notifications, loginActive, setFollowList } = useWebSocket()
   const [isScrolled, setIsScrolled] = useState(false)
   const [followingList, setFollowingList] = useState<any[]>([]) // 팔로잉 리스트 상태 추가
 
@@ -492,6 +492,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           },
         })
         setFollowingList(response.data)
+        setFollowList(response.data)
       } catch (error) {
         console.error('Failed to fetch following list:', error)
       }
@@ -499,6 +500,12 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
     fetchFollowingList()
   }, [])
+
+  useEffect(() => {
+    setFollowingList(loginActive);
+    console.log(followingList);
+  }, [loginActive])
+  
 
   const handleDelete = () => {
     deleteNotificationAll()

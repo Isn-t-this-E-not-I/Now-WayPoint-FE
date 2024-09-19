@@ -78,7 +78,7 @@ const MainPage: React.FC = () => {
     currentLocationRef.current = { latitude, longitude }
 
     const script = document.createElement('script')
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=7428359e58a3e7f2291b25f32cd32b95&libraries=services,clusterer&autoload=false`
     script.onload = () => {
       window.kakao.maps.load(() => {
         const mapOption = {

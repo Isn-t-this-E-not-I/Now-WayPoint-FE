@@ -47,17 +47,24 @@ export interface selectContent {
   locationTag: string
 }
 
+export interface loginActive {
+  nickname : string,
+  active : string
+}
+
 interface WebSocketContextProps {
   client: Client | null
   notifications: Notification[]
   followContents: FollowContent[]
   selectContents: selectContent[]
+  loginActive : loginActive[]
   isLoading: boolean
   notifyCount: number
   getStompClient: () => Client | null
   resetNotifyCount: () => void
   deleteSocketNotification: (id: number) => void
   deleteNotificationAll: () => void
+  setFollowList: (data: loginActive[]) => void
 }
 
 const WebSocketContext = createContext<WebSocketContextProps>({
@@ -65,12 +72,14 @@ const WebSocketContext = createContext<WebSocketContextProps>({
   notifications: [],
   followContents: [],
   selectContents: [],
+  loginActive : [],
   isLoading: true,
   notifyCount: 0,
   getStompClient: () => null,
   resetNotifyCount: () => {},
   deleteSocketNotification: () => {},
   deleteNotificationAll: () => {},
+  setFollowList: () => {},
 })
 
 export const useWebSocket = () => useContext(WebSocketContext)
@@ -86,6 +95,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [followContents, setFollowContents] = useState<FollowContent[]>([])
   const [selectContents, setSelectContents] = useState<selectContent[]>([])
+  const [loginActive, setLoginActive] = useState<loginActive[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const clientRef = useRef<Client | null>(null)
   const location = import.meta.env.VITE_APP_API
@@ -174,7 +184,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
                   comment: data.comment,
                 }
 
-                setNotifyCount((prev) => prev + 0.5)
+                setNotifyCount((prev) => prev + 1)
                 setNotifications((prev) =>
                   !prev.some((f) => f.id === newNotification.id)
                     ? [newNotification, ...prev]
@@ -235,6 +245,22 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
                 setSelectContents(newSelectContents)
               }
             )
+
+            stompClient.subscribe(
+              `/queue/loginInfo/${localStorage.getItem('nickname') || ''}`,
+              (messageOutput: IMessage) => {
+                const data: loginActive = JSON.parse(messageOutput.body);
+          
+                setLoginActive((prevUsers) => {
+                  return prevUsers.map((user) => {
+                    if (user.nickname === data.nickname) {
+                      return { ...user, active: data.active };
+                    }
+                    return user;// 변경 없는 사용자
+                  });
+                });
+              }
+            );
 
             stompClient.subscribe(
               '/topic/category',
@@ -359,6 +385,10 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
     setNotifications([])
   }
 
+  const setFollowList = (data: React.SetStateAction<loginActive[]>) => {
+    setLoginActive(data)
+  }
+
   return (
     <WebSocketContext.Provider
       value={{
@@ -366,12 +396,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         notifications,
         followContents,
         selectContents,
+        loginActive,
         isLoading,
         notifyCount,
         getStompClient,
         resetNotifyCount,
         deleteSocketNotification,
         deleteNotificationAll,
+        setFollowList,
       }}
     >
       {children}
