@@ -163,7 +163,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     }
 
     // 기존 태그와 새로운 태그를 합쳐서 업데이트
-    const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 5)
+    const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 30)
     setTags(updatedTags)
     setContent(inputValue)
   }

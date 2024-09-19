@@ -18,7 +18,7 @@ import {
   User,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
 import TextArea from '@/components/TextArea/textArea'
 import Modal from '@/components/Modal/modal'
@@ -27,11 +27,18 @@ import 'react-responsive-carousel/lib/styles/carousel.min.css'
 import { styled } from 'styled-components'
 import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
+import KakaoShareButton from '@/components/KaKaoShare/kakaoshare'
 
 interface DetailContentProps {
   postId: number
   onClose?: () => void // 추가: 모달을 닫는 함수
 }
+
+// declare global {
+//   interface Window {
+//     Kakao: any
+//   }
+// }
 
 // 현재 로그인한 유저의 닉네임을 가져오는 함수
 const getCurrentUser = (): string | null => {
@@ -50,6 +57,8 @@ const CloseButton = styled.button`
 `
 
 const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
@@ -65,7 +74,6 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     new Set()
   ) // 댓글 확장 상태
   const [isContentExpanded, setIsContentExpanded] = useState<boolean>(false) // 글 내용 확장 상태 추가
-  const navigate = useNavigate()
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false) // 댓글 이모지 선택기 상태
   const [activeReplyEmojiPicker, setActiveReplyEmojiPicker] = useState<
@@ -83,6 +91,11 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   }
 
   const [id, setId] = useState<number>()
+
+  const generatePostUrl = () => {
+    const baseUrl = window.location.origin // 현재 도메인 가져오기
+    return `${baseUrl}/post/${postId}` // 동적으로 게시글 URL 생성
+  }
 
   const fetchPostAndComments = async () => {
     try {
@@ -701,7 +714,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                         height: 23,
                         transition: 'transform 0.3s ease',
                       }}
-                      src="https://cdn.discordapp.com/attachments/1255337590106619948/1271350509374017586/11181468.png?ex=66b704ed&is=66b5b36d&hm=dc0069dc038ae7c723d889c21777419aa1432f634403bb37987614b86467c43b&"
+                      src="https://cdn-icons-png.freepik.com/256/17212/17212714.png?ga=GA1.1.1373474384.1723176329"
                       alt="right"
                     />
                   </button>
@@ -733,7 +746,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
                         height: 23,
                         transition: 'transform 0.3s ease',
                       }}
-                      src="https://cdn.discordapp.com/attachments/1255337590106619948/1271348650995351563/11181468.png?ex=66b70332&is=66b5b1b2&hm=a8e512cd8a397e5cc3ecf1f04bdd6f235bd8feb8b57c00ae7f79646b87f5a9e2&"
+                      src="https://cdn-icons-png.freepik.com/256/17212/17212717.png?ga=GA1.1.1373474384.1723176329"
                       alt="left"
                     />
                   </button>
@@ -909,6 +922,16 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
             </button>
           </div>
         </div>
+
+        {post && (
+          <KakaoShareButton
+            title={post.content.slice(0, 10) || '게시글'} // 글의 첫 30자를 제목으로 사용
+            description={post.content.slice(0, 50)} // 글의 첫 100자
+            imageUrl={post.mediaUrls[0] || ''} // 첫 번째 이미지 URL
+            linkUrl={generatePostUrl()} // 동적으로 생성된 링크 사용
+          />
+        )}
+
         {isEmojiPickerOpen && (
           <div id="detail_write_picker">
             <Picker
