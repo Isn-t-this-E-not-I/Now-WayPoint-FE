@@ -12,6 +12,7 @@ import {
   NotificationsIcon,
   NowaIcon,
   ExitIcon,
+  SearchIcon,
 } from '../icons/icons'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
@@ -421,7 +422,13 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   )
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount, deleteNotificationAll, notifications } = useWebSocket()
+  const {
+    notifyCount,
+    deleteNotificationAll,
+    notifications,
+    loginActive,
+    setFollowList,
+  } = useWebSocket()
   const [isScrolled, setIsScrolled] = useState(false)
   const [followingList, setFollowingList] = useState<any[]>([]) // 팔로잉 리스트 상태 추가
 
@@ -435,7 +442,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   const handleNavigate = (page: string) => {
     if (activePage === page) {
-      setActivePage('') // 이미 활성화된 페이지를 다시 클릭하면 페이지를 닫음
+      setActivePage('')
     } else {
       setActivePage(page)
       if (page === 'main') {
@@ -493,6 +500,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           },
         })
         setFollowingList(response.data)
+        setFollowList(response.data)
       } catch (error) {
         console.error('Failed to fetch following list:', error)
       }
@@ -500,6 +508,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
     fetchFollowingList()
   }, [])
+
+  useEffect(() => {
+    setFollowingList(loginActive)
+    console.log(followingList)
+  }, [loginActive])
 
   const handleDelete = () => {
     deleteNotificationAll()
@@ -640,6 +653,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
   // 현재 활성된 페이지에 따라 콘텐츠 렌더링
   const renderContentPage = () => {
+    if (activePage === '') return null
+
     switch (activePage) {
       case 'main':
         return <MainSidebarPage />
@@ -706,7 +721,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
-          {notifyCount >= 1 && <Badge>{(notifyCount)}</Badge>}
+          {notifyCount >= 1 && <Badge>{notifyCount}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
           id="chat-icon"
@@ -728,6 +743,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <ChatIcon theme={theme} />
           <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
         </IconButtonWrapper>
+
+        <IconButtonWrapper
+          id="search-icon"
+          active={activePage === 'search'}
+          onClick={() => handleNavigate('search')}
+        >
+          <SearchIcon theme={theme} />
+          <IconSpan active={activePage === 'search'}>검색</IconSpan>
+        </IconButtonWrapper>
+
         <IconButtonWrapper
           id="contents-icon"
           active={activePage === 'contents'}

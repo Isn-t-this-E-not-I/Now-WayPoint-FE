@@ -20,6 +20,7 @@ import FriendAdditionPage from '@/pages/Onboarding/FriendAdditionPage'
 import DistanceAddPage from '@/pages/Onboarding/DistanceAddPage'
 import OAuth2RedirectHandler from '@/components/loginHandler/OAuth2RedirectHandler'
 import { TokenProvider } from '@/components/checkToken/TokenProvider'
+import DetailContentWrapper from '@/pages/DetailContent/detailContentWrapper'
 
 const Routers: React.FC = () => {
   return (
@@ -42,11 +43,11 @@ const Routers: React.FC = () => {
       {/* Private routes wrapped with WebSocketProvider */}
       <Route
         element={
-            <WebSocketProvider>
-              <TokenProvider>
-                <PrivateRoute />
-              </TokenProvider>
-            </WebSocketProvider>
+          <WebSocketProvider>
+            <TokenProvider>
+              <PrivateRoute />
+            </TokenProvider>
+          </WebSocketProvider>
         }
       >
         <Route path="/" element={<Navigate to="/main" />} />
@@ -82,6 +83,7 @@ const Routers: React.FC = () => {
         <Route path="/chatting/:chatRoomId" element={<ChattingPage />} />
         <Route path="/notification" element={<></>} />
         <Route path="/user/:nickname" element={<UserPage />} />
+        <Route path="/post/:postId" element={<DetailContentWrapper />} />
       </Route>
     </Routes>
   )
