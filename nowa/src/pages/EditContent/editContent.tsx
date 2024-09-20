@@ -242,18 +242,32 @@ const EditContent: React.FC<EditContentProps> = ({
   const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let inputValue = e.target.value
 
-    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
+    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣_]+)\s/g
     const newTags: string[] = []
     let match
+    let invalidTagFound = false
 
     while ((match = tagPattern.exec(inputValue)) !== null) {
-      newTags.push(match[1].trim())
+      const tag = match[1].trim()
+
+      if (tag.length > 30) {
+        alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+        invalidTagFound = true
+        break
+      } else {
+        newTags.push(tag)
+      }
+
       inputValue = inputValue.replace(match[0], ' ')
     }
 
-    const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 5)
-    setTags(updatedTags)
-    setContent(inputValue)
+    const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 31)
+    if (updatedTags.length > 30) {
+      alert('태그는 최대 30개까지 입력할 수 있습니다.')
+    } else if (!invalidTagFound) {
+      setTags(updatedTags)
+      setContent(inputValue)
+    }
   }
 
   const handleOptionChange = (selected: string) => {
