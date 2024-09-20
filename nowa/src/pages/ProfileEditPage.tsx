@@ -9,7 +9,6 @@ import defaultProfileImage from '../../../defaultprofile.png'
 import { updatePassword, uploadProfileImage } from '../api/userApi'
 import styled from 'styled-components';
 import { EditIcon } from '../components/icons/icons';
-import { getStompClient } from '@/websocket/chatWebSocket';
 
 
 const ProfileImageWrapper = styled.div`
@@ -53,16 +52,14 @@ const ProfileEditPage: React.FC = () => {
       profileImageUrl: string
       description: string
     }>(null)
-    const [chatRooms, setChatRooms] = useState([]);
     const navigate = useNavigate()
     const [description, setDescription] = useState('');
     const maxDescriptionLength = 150;
     let nickname = localStorage.getItem('nickname')
-    const token = localStorage.getItem('token');
   
     useEffect(() => {
       const fetchUserData = async () => {
-        // const token = localStorage.getItem('token')
+        const token = localStorage.getItem('token')
         if (!token) {
           navigate('/auth')
           return
@@ -88,24 +85,7 @@ const ProfileEditPage: React.FC = () => {
         }
       }
       fetchUserData()
-    }, [navigate, token])
-
-    // 사용자가 속한 채팅방 목록 가져오기
-    useEffect(() => {
-      const fetchChatRooms = async () => {
-        try {
-          const response = await axios.get(`${location}/api/chat/list`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          setChatRooms(response.data.chatRooms); // 채팅방 목록 저장
-        } catch (error) {
-          console.error('채팅방 목록을 가져오는 데 실패했습니다:', error);
-        }
-      };
-      fetchChatRooms();
-    }, [token]);
+    }, [navigate])
   
     const handleDescriptionChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
       const newDescription = e.target.value;
@@ -135,9 +115,6 @@ const ProfileEditPage: React.FC = () => {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('token')}`,
             },
-            // headers: {
-            //   Authorization: `Bearer ${token}`,
-            // },
           }
         )
         alert('프로필이 성공적으로 업데이트되었습니다.')
@@ -172,16 +149,6 @@ const ProfileEditPage: React.FC = () => {
   
     const handleDeleteAccount = async () => {
       try {
-        // 탈퇴 전 사용자가 속한 모든 채팅방에서 나가기
-        const stompClient = getStompClient();
-        if (stompClient && chatRooms.length > 0) { // stompClient가 null이 아닌지 확인
-          chatRooms.forEach((room: any) => {
-            const payload = { chatRoomId: room.chatRoomId }; 
-            stompClient.send("/app/chatRoom/leave", { 'Authorization': `Bearer ${token}` }, JSON.stringify(payload));
-          });
-        }
-
-        // 회원 탈퇴 API 호출
         await axios.post(
           `${location}/user/withdrawal`,
           {
@@ -194,7 +161,6 @@ const ProfileEditPage: React.FC = () => {
           }
         )
         setModalOpen(false)
-        localStorage.clear();
         navigate('/auth')
       } catch (error) {
         console.error('계정 삭제에 실패했습니다:', error)
