@@ -149,6 +149,51 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     setTags((prevTags) => prevTags.filter((t) => t !== tag))
   }
 
+  //동일한 해시태그 불가능
+  const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    let inputValue = e.target.value
+
+    // 태그가 공백 또는 문자열의 시작으로부터 시작하는지 확인
+    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣_]+)\s/g
+    const newTags: string[] = []
+    let match
+    let invalidTagFound = false
+
+    const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣]+/g)
+    if (currentTags) {
+      for (const tag of currentTags) {
+        if (tag.length > 31) {
+          invalidTagFound = true
+          alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+          break
+        }
+      }
+    }
+
+    while ((match = tagPattern.exec(inputValue)) !== null) {
+      const tag = match[1].trim()
+
+      if (tag.length > 31) {
+        invalidTagFound = true
+        alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+      } else {
+        newTags.push(tag)
+      }
+
+      inputValue = inputValue.replace(match[0], ' ')
+    }
+
+    const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 31)
+
+    if (updatedTags.length >= 30) {
+      alert('태그는 최대 30개까지 입력할 수 있습니다.')
+    } else {
+      setTags(updatedTags)
+      setContent(inputValue)
+    }
+  }
+
+  // //배열 동일한 태그 입력 가능
   // const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
   //   let inputValue = e.target.value
 
@@ -156,47 +201,42 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   //   const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
   //   const newTags: string[] = []
   //   let match
+  //   let invalidTagFound = false
+
+  //   const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣]+/g)
+  //   if (currentTags) {
+  //     for (const tag of currentTags) {
+  //       if (tag.length > 31) {
+  //         invalidTagFound = true
+  //         alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+  //         break
+  //       }
+  //     }
+  //   }
 
   //   while ((match = tagPattern.exec(inputValue)) !== null) {
-  //     newTags.push(match[1].trim())
+  //     const tag = match[1].trim()
+
+  //     if (tag.length > 31) {
+  //       invalidTagFound = true
+  //       alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+  //     } else {
+  //       newTags.push(tag)
+  //     }
+
   //     inputValue = inputValue.replace(match[0], ' ')
   //   }
 
   //   // 기존 태그와 새로운 태그를 합쳐서 업데이트
-  //   const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 31)
+  //   const combinedTags = [...tags, ...newTags]
 
-  //   if (updatedTags.length >= 30) {
+  //   if (combinedTags.length > 30) {
   //     alert('태그는 최대 30개까지 입력할 수 있습니다.')
-  //   } else {
-  //     setTags(updatedTags)
+  //   } else if (!invalidTagFound) {
+  //     setTags(combinedTags)
   //     setContent(inputValue)
   //   }
   // }
-
-  //배열 동일한 태그 입력 가능
-  const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-    let inputValue = e.target.value
-
-    // 태그가 공백 또는 문자열의 시작으로부터 시작하는지 확인
-    const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
-    const newTags: string[] = []
-    let match
-
-    while ((match = tagPattern.exec(inputValue)) !== null) {
-      newTags.push(match[1].trim())
-      inputValue = inputValue.replace(match[0], ' ')
-    }
-
-    // 기존 태그와 새로운 태그를 합쳐서 업데이트
-    const combinedTags = [...tags, ...newTags]
-
-    if (combinedTags.length > 30) {
-      alert('태그는 최대 30개까지 입력할 수 있습니다.')
-    } else {
-      setTags(combinedTags)
-      setContent(inputValue)
-    }
-  }
 
   const handleOptionChange = (selected: string) => {
     setSelectedOption(selected)
