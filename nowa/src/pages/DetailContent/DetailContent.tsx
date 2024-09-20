@@ -58,7 +58,6 @@ const CloseButton = styled.button`
 `
 
 const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
-  const navigate = useNavigate()
   const location = useLocation()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
