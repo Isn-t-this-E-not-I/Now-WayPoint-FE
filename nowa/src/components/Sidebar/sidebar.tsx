@@ -12,6 +12,7 @@ import {
   NotificationsIcon,
   NowaIcon,
   ExitIcon,
+  SearchIcon,
 } from '../icons/icons'
 import Search from '../Search/search'
 import NotificationPage from '../../pages/notificationPage'
@@ -420,7 +421,13 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   )
   const [allUsers, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const { notifyCount, deleteNotificationAll, notifications, loginActive, setFollowList } = useWebSocket()
+  const {
+    notifyCount,
+    deleteNotificationAll,
+    notifications,
+    loginActive,
+    setFollowList,
+  } = useWebSocket()
   const [isScrolled, setIsScrolled] = useState(false)
   const [followingList, setFollowingList] = useState<any[]>([]) // 팔로잉 리스트 상태 추가
 
@@ -502,10 +509,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   }, [])
 
   useEffect(() => {
-    setFollowingList(loginActive);
-    console.log(followingList);
+    setFollowingList(loginActive)
+    console.log(followingList)
   }, [loginActive])
-  
 
   const handleDelete = () => {
     deleteNotificationAll()
@@ -714,7 +720,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         >
           <NotificationsIcon theme={theme} />
           <IconSpan active={activePage === 'notifications'}>알림</IconSpan>
-          {notifyCount >= 1 && <Badge>{(notifyCount)}</Badge>}
+          {notifyCount >= 1 && <Badge>{notifyCount}</Badge>}
         </IconButtonWrapper>
         <IconButtonWrapper
           id="chat-icon"
@@ -736,6 +742,16 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           <ChatIcon theme={theme} />
           <IconSpan active={activePage === 'chat'}>메시지</IconSpan>
         </IconButtonWrapper>
+
+        <IconButtonWrapper
+          id="search-icon"
+          active={activePage === 'search'}
+          onClick={() => handleNavigate('search')}
+        >
+          <SearchIcon theme={theme} />
+          <IconSpan active={activePage === 'search'}>검색</IconSpan>
+        </IconButtonWrapper>
+
         <IconButtonWrapper
           id="contents-icon"
           active={activePage === 'contents'}
