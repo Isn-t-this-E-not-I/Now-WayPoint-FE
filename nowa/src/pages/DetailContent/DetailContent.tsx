@@ -157,8 +157,9 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
       });
   
       const data = await response.json();
+      console.log(data);
       if (response.ok) {
-        setIsBookmarked(data.isBookmarked); // 북마크 상태를 서버에서 받아옴
+        setIsBookmarked(data); // 북마크 상태를 서버에서 받아옴
       } else {
         console.error(`Failed to fetch bookmark status: ${response.status}`, data);
       }
@@ -183,12 +184,14 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
           'Content-Type': 'application/json',
         },
       });
+
+      const result = await response.text();
   
-      const data = await response.json();
       if (response.ok) {
         setIsBookmarked((prev) => !prev); // 북마크 상태를 토글
+        alert(result);
       } else {
-        console.error(`Failed to toggle bookmark: ${response.status}`, data);
+        console.error(`Failed to toggle bookmark: ${response.status}`, result);
       }
     } catch (error) {
       console.error('Error:', error);

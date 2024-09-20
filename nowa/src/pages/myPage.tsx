@@ -69,6 +69,7 @@ const SectionTitle = styled.h2`
   margin-bottom: 20px;
 `
 
+
 const NicknameTitle = styled.h3`
   font-size: 16px;
 `
@@ -80,6 +81,7 @@ const SearchInput = styled.input`
   border: 1px solid #ccc;
   border-radius: 8px;
 `
+
 const TabContainer = styled.div`
   width: 94%;
   display: flex;
@@ -154,8 +156,15 @@ const MyPage: React.FC = () => {
       const response = await axios.get(`${location}/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
-        },
+        },  
       })
+      console.log('안녕하세요');
+
+      console.log('Fetching bookmarked posts...')  // 콘솔 로그 추가
+      const response2 = await axios.get(`${location}/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      console.log(response2);
 
       const followingResponse = await axios.get(
         `${location}/follow/following`,
@@ -242,22 +251,42 @@ const MyPage: React.FC = () => {
     }
   }
 
+  const fetchBookmarkedPosts = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      console.log('Fetching bookmarked posts...')  // 콘솔 로그 추가
+      const response = await axios.get(`${location}/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      console.log('Bookmarked posts response:', response)  // 콘솔 로그 추가
+      setBookmarkedPosts(response.data)
+    } catch (error) {
+      console.error('Failed to fetch bookmarks:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserData()
+    fetchBookmarkedPosts()  // 마이페이지 진입 시 북마크 데이터를 호출
+  }, [])
+
   const handleFollow = async (nickname: string) => {
     const token = localStorage.getItem('token')
     if (!token) return
 
     try {
-
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/add`, {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ nickname }),
       })
-
 
       if (response.ok) {
         setUserInfo((prevUserInfo) => {
@@ -289,17 +318,15 @@ const MyPage: React.FC = () => {
     if (!token) return
 
     try {
-
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/cancel`, {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ nickname }),
       })
-
 
       if (response.ok) {
         setUserInfo((prevUserInfo) => {
@@ -332,10 +359,6 @@ const MyPage: React.FC = () => {
     }
   }
 
-  useEffect(() => {
-    fetchUserData()
-  }, [])
-
   const goToProfileEdit = () => {
     navigate('/mypage/profileEdit')
   }
@@ -362,28 +385,6 @@ const MyPage: React.FC = () => {
     return <div>Failed to load user data</div>
   }
 
-  const fetchBookmarkedPosts = async () => {
-    const token = localStorage.getItem('token')
-    if (!token) return
-
-    try {
-      const response = await axios.get(`${location}/bookmarks`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-
-      setBookmarkedPosts(response.data)
-    } catch (error) {
-      console.error('Failed to fetch bookmarks:', error)
-    }
-
-    useEffect(() => {
-      fetchUserData()
-      if (selectedTab === 'bookmarks') {
-        fetchBookmarkedPosts()
-      }
-    }, [selectedTab])
-  }
-
   return (
     <Container>
       <ProfileSection>
@@ -408,7 +409,7 @@ const MyPage: React.FC = () => {
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
-      <TabContainer>
+        <TabContainer>
           <Tab active={selectedTab === 'posts'} onClick={() => setSelectedTab('posts')}>
             게시글
           </Tab>
