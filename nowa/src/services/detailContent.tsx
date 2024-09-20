@@ -20,6 +20,8 @@ export interface Post {
   likeCount: number
   profileImageUrl: string
   likedByUser: boolean
+  viewCount: number // 조회수
+  isBookmarked: boolean; // 북마크 상태
 }
 
 const getCookieValue = (name: number): string | null => {
