@@ -159,7 +159,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     let match
     let invalidTagFound = false
 
-    const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣]+/g)
+    const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣_]+/g)
     if (currentTags) {
       for (const tag of currentTags) {
         if (tag.length > 31) {

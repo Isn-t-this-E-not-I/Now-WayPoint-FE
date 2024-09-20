@@ -247,10 +247,21 @@ const EditContent: React.FC<EditContentProps> = ({
     let match
     let invalidTagFound = false
 
+    const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣_]+/g)
+    if (currentTags) {
+      for (const tag of currentTags) {
+        if (tag.length > 31) {
+          invalidTagFound = true
+          alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+          return
+        }
+      }
+    }
+
     while ((match = tagPattern.exec(inputValue)) !== null) {
       const tag = match[1].trim()
 
-      if (tag.length > 30) {
+      if (tag.length > 31) {
         alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
         invalidTagFound = true
         break
@@ -262,7 +273,7 @@ const EditContent: React.FC<EditContentProps> = ({
     }
 
     const updatedTags = Array.from(new Set([...tags, ...newTags])).slice(0, 31)
-    if (updatedTags.length > 30) {
+    if (updatedTags.length > 31) {
       alert('태그는 최대 30개까지 입력할 수 있습니다.')
     } else if (!invalidTagFound) {
       setTags(updatedTags)
