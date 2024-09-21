@@ -36,9 +36,39 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     }
   }
 
-  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    handleFiles(event.target.files)
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = event.target.files
 
+    if (!selectedFiles) return
+
+    // 선택된 파일들의 해시값을 계산
+    const selectedFileHashes = await Promise.all(
+      Array.from(selectedFiles).map((file) => hashFile(file))
+    )
+
+    // 이미 업로드된 파일들의 해시값을 미리 계산
+    const uploadedFileHashes = await Promise.all(
+      files.map((file) => hashFile(file))
+    )
+
+    // 중복된 파일 확인
+    const duplicateFiles = Array.from(selectedFiles).filter((file, index) => {
+      const fileHash = selectedFileHashes[index]
+      return uploadedFileHashes.includes(fileHash)
+    })
+
+    // 중복된 파일이 있으면 경고 메시지 출력
+    if (duplicateFiles.length > 0) {
+      alert(
+        `이미 업로드된 파일입니다: ${duplicateFiles.map((f) => f.name).join(', ')}`
+      )
+      return
+    }
+
+    // 중복이 없는 파일만 처리
+    handleFiles(selectedFiles)
+
+    // 업로드 완료 후 파일 선택창 초기화
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -288,10 +318,50 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
   }
+  const hashFile = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer() // 파일의 내용을 ArrayBuffer로 읽음
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer) // SHA-256 해시값 생성
+    const hashArray = Array.from(new Uint8Array(hashBuffer)) // 해시값을 Uint8Array로 변환
+    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // 16진수 문자열로 변환
+  }
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
-    handleFiles(e.dataTransfer.files)
+    e.stopPropagation()
+
+    const droppedFiles = e.dataTransfer.files
+
+    // 파일이 있는지 확인
+    if (droppedFiles.length === 0) {
+      return
+    }
+
+    // 드래그된 파일들의 해시값을 미리 계산
+    const droppedFileHashes = await Promise.all(
+      Array.from(droppedFiles).map((file) => hashFile(file))
+    )
+
+    // 이미 업로드된 파일들의 해시값을 미리 계산
+    const uploadedFileHashes = await Promise.all(
+      files.map((file) => hashFile(file))
+    )
+
+    // 중복된 파일 확인
+    const duplicateFiles = Array.from(droppedFiles).filter((file, index) => {
+      const fileHash = droppedFileHashes[index]
+      return uploadedFileHashes.includes(fileHash)
+    })
+
+    // 중복된 파일이 있으면 경고 메시지 출력
+    if (duplicateFiles.length > 0) {
+      alert(
+        `이미 업로드된 파일입니다: ${duplicateFiles.map((f) => f.name).join(', ')}`
+      )
+      return
+    }
+
+    // 중복되지 않은 파일을 처리
+    handleFiles(droppedFiles)
   }
 
   const handlePreviewClick = (src: string) => {
