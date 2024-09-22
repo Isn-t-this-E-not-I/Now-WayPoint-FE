@@ -508,9 +508,9 @@ const UserPage: React.FC = () => {
           <Tab active={selectedTab === 'posts'} onClick={() => setSelectedTab('posts')}>
             게시글
           </Tab>
-          <Tab active={selectedTab === 'bookmarks'} onClick={() => setSelectedTab('bookmarks')}>
+          {/* <Tab active={selectedTab === 'bookmarks'} onClick={() => setSelectedTab('bookmarks')}>
             북마크
-          </Tab>
+          </Tab> */}
         </TabContainer>
         {selectedTab === 'posts' && (
           <>
