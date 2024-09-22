@@ -1,5 +1,6 @@
 /* 전체적인 컨테이너 조정 */
 .detail_container {
+  position: relative;
   display: flex;
   height: 100%;
   width: 60rem;
@@ -92,7 +93,7 @@
   position: relative;
   margin-top: 1.5px;
   border-top: 1px solid #ddd;
-  border-bottom: 1px solid #adadad;
+  border-bottom: 1px solid #ddd;
   padding-left: 15px;
   padding-top: 8px;
 }
@@ -121,8 +122,7 @@
 
 /* 게시글 댓글 */
 #detail_content_coment {
-  border-bottom: 1px solid #adadad;
-  box-shadow: inset 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  border-bottom: 1px solid #ddd;
   padding-bottom: 8px;
   overflow-y: scroll;
   scrollbar-width: none;
@@ -298,7 +298,7 @@
 /* 좋아요 칸 위치 조정 */
 #detail_content_heart {
   display: flex;
-  border-bottom: 1px solid #adadad;
+  border-bottom: 1px solid #ddd;
   font-size: 14px;
   padding-left: 15px;
 }
@@ -446,6 +446,12 @@ audio {
   width: 20px;
 }
 
+#detail_kakao_share {
+  position: absolute;
+  bottom: 0px;
+  right: 15px;
+}
+
 #detail_write_picker {
   position: absolute;
   bottom: 0px;
@@ -466,7 +472,7 @@ audio {
 
 #reply_comment_picker {
   position: absolute;
-  right: -330px;
+  right: -360px;
   bottom: 0px;
 }
 
@@ -518,4 +524,27 @@ audio {
   padding: 0;
   cursor: pointe;
   opacity: 0.8;
+}
+
+.like-list {
+  position: absolute;
+  bottom: 154px;
+  right: 20;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 100;
+  border-radius: 10px;
+}
+
+.like-list-item {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.like-list-item img {
+  height: 20px;
+  width: 20px;
+  margin-right: 5px;
+  border-radius: 50%;
 }

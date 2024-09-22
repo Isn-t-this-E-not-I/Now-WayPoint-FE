@@ -16,7 +16,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+  width: 67%;
   padding: 20px;
+  padding-top: 3rem;
+  margin-left: 15rem;
 `
 
 const ProfileSection = styled.div`
@@ -61,10 +64,11 @@ const StatItem = styled.div`
 
 const Description = styled.p`
   margin-top: 10px;
+  margin-bottom: 1rem;
 `
 
 const SectionTitle = styled.h2`
-  font-size: 20px;
+  font-size: 17x;
   margin-bottom: 20px;
 `
 
@@ -73,7 +77,7 @@ const NicknameTitle = styled.h3`
 `
 
 const SearchInput = styled.input`
-  width: 100%;
+  width: 94%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
@@ -84,6 +88,19 @@ const ButtonGroup = styled.div`
   /* 팔로우/언팔로우 버튼 & 메시지 버튼 간격 조절용으로 넣었습니다 */
   display: flex;
   gap: 10px; /* 간격을 추가 */
+`
+const TabContainer = styled.div`
+  width: 94%;
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+`
+
+const Tab = styled.div<{ active: boolean }>`
+  padding: 10px 30px;
+  cursor: pointer;
+  border-bottom: ${(props) => (props.active ? '1px solid #000' : 'none')};
+  font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
 `
 
 interface Post {
@@ -108,18 +125,21 @@ interface UserProfile {
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   followingsList: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   allUsers: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
 }
 
@@ -128,6 +148,7 @@ const UserPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState('posts')
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]) // 북마크
   const [searchQuery, setSearchQuery] = useState('')
   const location = import.meta.env.VITE_APP_API
   const locations = useLocation()
@@ -142,7 +163,6 @@ const UserPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Fetching user data...')
       const response = await axios.get(
         `${location}/user?nickname=${nickname}`,
         {
@@ -151,11 +171,9 @@ const UserPage: React.FC = () => {
           },
         }
       )
-      console.log('User API Response:', response)
 
       const userData = response.data
 
-      console.log(`Fetching following data for ${nickname}...`)
       const followingResponse = await axios.get(
         `${location}/follow/following?nickname=${nickname}`,
         {
@@ -164,9 +182,7 @@ const UserPage: React.FC = () => {
           },
         }
       )
-      console.log('Following API Response:', followingResponse)
 
-      console.log(`Fetching follower data for ${nickname}...`)
       const followerResponse = await axios.get(
         `${location}/follow/follower?nickname=${nickname}`,
         {
@@ -175,15 +191,12 @@ const UserPage: React.FC = () => {
           },
         }
       )
-      console.log('Follower API Response:', followerResponse)
 
-      console.log('Fetching all users...')
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('All Users API Response:', allUsersResponse)
 
       const allUsers = allUsersResponse.data.map((user: any) => ({
         isFollowing: followingResponse.data.some(
@@ -217,19 +230,21 @@ const UserPage: React.FC = () => {
         posts: postsWithCommentCounts,
         followersList: followerResponse.data
           ? followerResponse.data.map((user: any) => ({
-            isFollowing: true,
-            name: user.name,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl || defaultProfileImage,
-          }))
+              isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
+            }))
           : [],
         followingsList: followingResponse.data
           ? followingResponse.data.map((user: any) => ({
-            isFollowing: true,
-            name: user.name,
-            nickname: user.nickname,
-            profileImageUrl: user.profileImageUrl || defaultProfileImage,
-          }))
+              isFollowing: true,
+              name: user.name,
+              nickname: user.nickname,
+              profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
+            }))
           : [],
         allUsers,
       })
@@ -330,11 +345,11 @@ const UserPage: React.FC = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      const followingData = response.data;
+      })
+      const followingData = response.data
       setIsFollowing(
         followingData.some((user: any) => user.nickname === nickname)
-      );
+      )
     } catch (error) {
       console.error('Failed to check if following:', error)
     }
@@ -408,16 +423,16 @@ const UserPage: React.FC = () => {
 
     // 웹소켓 연결
     if (getStompClient() == null) {
-      connectAndSubscribe();
+      connectAndSubscribe()
     }
 
     // 기존 채팅방 목록 가져오기
-    const data = await fetchChatRooms(token);
-    const chatRooms = data.chatRooms;
-    const chatRoomsInfo = data.chatRoomsInfo;
+    const data = await fetchChatRooms(token)
+    const chatRooms = data.chatRooms
+    const chatRoomsInfo = data.chatRoomsInfo
 
-    setChatRooms(chatRooms);
-    setChatRoomsInfo(chatRoomsInfo);
+    setChatRooms(chatRooms)
+    setChatRoomsInfo(chatRoomsInfo)
 
     const stompClient = getStompClient()
 
@@ -427,9 +442,31 @@ const UserPage: React.FC = () => {
           destination: '/app/chatRoom/create',
           headers: { Authorization: `Bearer ${token}` },
           body: JSON.stringify(payload),
-        });
+        })
       }
-    }, 50);
+    }, 50)
+  }
+
+  const fetchBookmarkedPosts = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      const response = await axios.get(`${location}/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      setBookmarkedPosts(response.data)
+    } catch (error) {
+      console.error('Failed to fetch bookmarks:', error)
+    }
+
+    useEffect(() => {
+      fetchUserData()
+      if (selectedTab === 'bookmarks') {
+        fetchBookmarkedPosts()
+      }
+    }, [selectedTab])
   }
 
   return (
@@ -467,10 +504,28 @@ const UserPage: React.FC = () => {
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
+      <TabContainer>
+          <Tab active={selectedTab === 'posts'} onClick={() => setSelectedTab('posts')}>
+            게시글
+          </Tab>
+          {/* <Tab active={selectedTab === 'bookmarks'} onClick={() => setSelectedTab('bookmarks')}>
+            북마크
+          </Tab> */}
+        </TabContainer>
         {selectedTab === 'posts' && (
           <>
-            <SectionTitle>게시글</SectionTitle>
+            {/* <SectionTitle>게시글</SectionTitle> */}
             <Posts posts={userInfo.posts} />
+          </>
+        )}
+        {selectedTab === 'bookmarks' && (
+          <>
+            {/* <SectionTitle>북마크</SectionTitle> */}
+            {bookmarkedPosts.length > 0 ? (
+              <Posts posts={bookmarkedPosts} />
+            ) : (
+              <div>북마크한 게시글이 없습니다</div>
+            )}
           </>
         )}
         {selectedTab === 'followings' && (

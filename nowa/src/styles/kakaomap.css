@@ -1,15 +1,14 @@
-#category-select {
+#main_select_box {
   position: absolute;
   top: 20px;
-  left: 400px;
-  z-index: 2;
+  right: 300px;
+  z-index: 200;
+  display: flex;
 }
 
+#category-select,
 #distance-select {
-  position: absolute;
-  top: 20px;
-  left: 510px;
-  z-index: 2;
+  width: 7rem;
 }
 
 .categoryButtons {
@@ -18,7 +17,6 @@
   border: 1px solid #ccc;
   padding: 10px;
   border-radius: 10px;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   width: 60px;
   height: 30px;
@@ -126,12 +124,12 @@
 /* 줌 인 아웃 */
 .custom_zoomcontrol {
   position: absolute;
-  top: 40%;
-  right: 40px;
-  z-index: 2;
+  top: 44%;
+  right: 300px;
+  z-index: 40;
   background-color: #fff;
   border: 1px solid #ccc;
-  border-radius: 3px;
+  border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
@@ -175,12 +173,12 @@
 .marker-with-pin::after {
   content: '';
   position: absolute;
-  bottom: -10px; /* Adjust as needed */
+  bottom: -10px;
   left: 50%;
   transform: translateX(-50%);
   width: 0;
   height: 0;
   border-left: 10px solid transparent;
   border-right: 10px solid transparent;
-  border-top: 13px solid black; /* Adjust the color as needed */
+  border-top: 13px solid black;
 }

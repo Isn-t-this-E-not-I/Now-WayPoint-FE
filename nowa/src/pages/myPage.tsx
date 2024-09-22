@@ -13,7 +13,10 @@ const Container = styled.div`
   justify-content: center;
   align-items: flex-start;
   height: 100vh;
+  width: 67%;
   padding: 20px;
+  padding-top: 3rem;
+  margin-left: 15rem;
 `
 
 const ProfileSection = styled.div`
@@ -58,23 +61,39 @@ const StatItem = styled.div`
 
 const Description = styled.p`
   margin-top: 10px;
+  margin-bottom: 1rem;
 `
 
 const SectionTitle = styled.h2`
-  font-size: 20px;
+  font-size: 17px;
   margin-bottom: 20px;
 `
+
 
 const NicknameTitle = styled.h3`
   font-size: 16px;
 `
 
 const SearchInput = styled.input`
-  width: 100%;
+  width: 94%;
   padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #ccc;
   border-radius: 8px;
+`
+
+const TabContainer = styled.div`
+  width: 94%;
+  display: flex;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+`
+
+const Tab = styled.div<{ active: boolean }>`
+  padding: 10px 30px;
+  cursor: pointer;
+  border-bottom: ${(props) => (props.active ? '1px solid #000' : 'none')};
+  font-weight: ${(props) => (props.active ? 'bold' : 'normal')};
 `
 
 interface Post {
@@ -99,18 +118,21 @@ interface UserProfile {
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   followingsList: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
   allUsers: {
     isFollowing: boolean
     name: string
     nickname: string
     profileImageUrl: string
+    active: string
   }[]
 }
 
@@ -119,13 +141,14 @@ const MyPage: React.FC = () => {
   const [userInfo, setUserInfo] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [selectedTab, setSelectedTab] = useState('posts')
+  const [bookmarkedPosts, setBookmarkedPosts] = useState<Post[]>([]) // 북마크
   const [searchQuery, setSearchQuery] = useState('')
   const location = import.meta.env.VITE_APP_API
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token')
     if (!token) {
-      navigate('/login')
+      navigate('/auth')
       return
     }
 
@@ -133,9 +156,15 @@ const MyPage: React.FC = () => {
       const response = await axios.get(`${location}/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
-        },
+        },  
       })
-      console.log('User API Response:', response)
+      console.log('안녕하세요');
+
+      console.log('Fetching bookmarked posts...')  // 콘솔 로그 추가
+      const response2 = await axios.get(`${location}/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      console.log(response2);
 
       const followingResponse = await axios.get(
         `${location}/follow/following`,
@@ -145,21 +174,18 @@ const MyPage: React.FC = () => {
           },
         }
       )
-      console.log('Following API Response:', followingResponse)
 
       const followerResponse = await axios.get(`${location}/follow/follower`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('Follower API Response:', followerResponse)
 
       const allUsersResponse = await axios.get(`${location}/user/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      console.log('All Users API Response:', allUsersResponse)
 
       const postsWithCommentCounts = await Promise.all(
         response.data.posts.map(async (post: any) => {
@@ -189,6 +215,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
         followingsList: followingResponse.data
@@ -197,6 +224,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
         allUsers: allUsersResponse.data
@@ -211,6 +239,7 @@ const MyPage: React.FC = () => {
               name: user.name,
               nickname: user.nickname,
               profileImageUrl: user.profileImageUrl || defaultProfileImage,
+              active: user.active,
             }))
           : [],
       })
@@ -222,27 +251,44 @@ const MyPage: React.FC = () => {
     }
   }
 
+  const fetchBookmarkedPosts = async () => {
+    const token = localStorage.getItem('token')
+    if (!token) return
+
+    try {
+      console.log('Fetching bookmarked posts...')  // 콘솔 로그 추가
+      const response = await axios.get(`${location}/bookmarks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+
+      console.log('Bookmarked posts response:', response)  // 콘솔 로그 추가
+      setBookmarkedPosts(response.data)
+    } catch (error) {
+      console.error('Failed to fetch bookmarks:', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchUserData()
+    fetchBookmarkedPosts()  // 마이페이지 진입 시 북마크 데이터를 호출
+  }, [])
+
   const handleFollow = async (nickname: string) => {
     const token = localStorage.getItem('token')
     if (!token) return
 
     try {
-      console.log('Follow request sent to API with nickname:', nickname)
-
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/add`, {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ nickname }),
       })
 
-      console.log('Follow API response:', response)
-
       if (response.ok) {
-        console.log('Successfully followed user:', nickname)
         setUserInfo((prevUserInfo) => {
           if (!prevUserInfo) return prevUserInfo
           return {
@@ -272,22 +318,17 @@ const MyPage: React.FC = () => {
     if (!token) return
 
     try {
-      console.log('Unfollow request sent to API with nickname:', nickname)
-
       const location = import.meta.env.VITE_APP_API
       const response = await fetch(`${location}/follow/cancel`, {
         method: 'PUT',
         headers: {
-          'Authorization': 'Bearer ' + token,
+          Authorization: 'Bearer ' + token,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ nickname }),
       })
 
-      console.log('Unfollow API response:', response)
-
       if (response.ok) {
-        console.log('Successfully unfollowed user:', nickname)
         setUserInfo((prevUserInfo) => {
           if (!prevUserInfo) return prevUserInfo
           return {
@@ -317,10 +358,6 @@ const MyPage: React.FC = () => {
       console.error('Error:', error)
     }
   }
-
-  useEffect(() => {
-    fetchUserData()
-  }, [])
 
   const goToProfileEdit = () => {
     navigate('/mypage/profileEdit')
@@ -372,10 +409,28 @@ const MyPage: React.FC = () => {
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
+        <TabContainer>
+          <Tab active={selectedTab === 'posts'} onClick={() => setSelectedTab('posts')}>
+            게시글
+          </Tab>
+          <Tab active={selectedTab === 'bookmarks'} onClick={() => setSelectedTab('bookmarks')}>
+            북마크
+          </Tab>
+        </TabContainer>
         {selectedTab === 'posts' && (
           <>
-            <SectionTitle>게시글</SectionTitle>
+            {/* <SectionTitle>게시글</SectionTitle> */}
             <Posts posts={userInfo.posts} />
+          </>
+        )}
+        {selectedTab === 'bookmarks' && (
+          <>
+            {/* <SectionTitle>북마크</SectionTitle> */}
+            {bookmarkedPosts.length > 0 ? (
+              <Posts posts={bookmarkedPosts} />
+            ) : (
+              <div>북마크한 게시글이 없습니다</div>
+            )}
           </>
         )}
         {selectedTab === 'followings' && (
@@ -405,12 +460,12 @@ const MyPage: React.FC = () => {
               value={searchQuery}
               onChange={handleSearchChange}
             />
-            <FollowList
+           <FollowList
               users={filteredFollowers}
               searchQuery={searchQuery}
               onFollow={handleFollow}
               onUnfollow={handleUnfollow}
-              showFollowButtons={false}
+              showFollowButtons={true}
             />
           </>
         )}

@@ -69,13 +69,13 @@ const SubmitButton = styled.button<{ $themeMode: string }>`
   margin-left: 380px;
   border-radius: 5px;
   cursor: pointer;
-  color: ${(props) => (props.$themeMode === 'dark' ? '#f7f7f7' : '#2d2e2f')};
+  color: ${(props) => (props.$themeMode === 'dark' ? '#f7f7f7' : '#f7f7f7')};
   background-color: ${(props) =>
-    props.$themeMode === 'dark' ? '#444' : 'lightblue'};
+    props.$themeMode === 'dark' ? '#444' : '#9269b2'};
 
   &:hover {
-    color: #2d2e2f;
-    background-color: #ffeb6b;
+    color: #f7f7f7;
+    background-color: #7a5597;
   }
   margin-top: 10px;
 `

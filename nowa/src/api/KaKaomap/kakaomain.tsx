@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '../../services/kakaomap'
 import { useLocation } from 'react-router-dom'
-import { Client, IMessage } from '@stomp/stompjs'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
 import Select from '@/components/Select/select'
@@ -24,12 +23,11 @@ const MainPage: React.FC = () => {
   const [mapLevel, setMapLevel] = useState<number>(7)
   const [isInitialized, setIsInitialized] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL')
-  const [selectedDistance, setSelectedDistance] = useState<number>(10)
+  const [selectedDistance, setSelectedDistance] = useState<number>(30)
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
   const [isModalOpen, setModalOpen] = useState(false)
   const markersRef = useRef<any[]>([])
   const clustererRef = useRef<any>(null)
-  const overlayRef = useRef<any>(null)
   const { client, selectContents } = useWebSocket()
   const currentLocationRef = useRef<{
     latitude: number
@@ -77,10 +75,10 @@ const MainPage: React.FC = () => {
   }
 
   const initializeMap = (latitude: number, longitude: number) => {
-    currentLocationRef.current = { latitude, longitude } // 현재 위치 저장
+    currentLocationRef.current = { latitude, longitude }
 
     const script = document.createElement('script')
-    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=2e253b59d2cc8f52b94e061355413a9e&libraries=services,clusterer&autoload=false`
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?appkey=7428359e58a3e7f2291b25f32cd32b95&libraries=services,clusterer&autoload=false`
     script.onload = () => {
       window.kakao.maps.load(() => {
         const mapOption = {
@@ -110,7 +108,8 @@ const MainPage: React.FC = () => {
         clustererRef.current = clusterer
 
         window.kakao.maps.event.addListener(map, 'zoom_changed', () => {
-          setMapLevel(map.getLevel())
+          const currentLevel = map.getLevel()
+          setMapLevel(currentLevel)
         })
 
         setIsInitialized(true)
@@ -165,17 +164,13 @@ const MainPage: React.FC = () => {
           markerContent.className = 'marker-with-pin'
           markerContent.innerHTML = `<img src="${markerImageSrc}" alt="marker">`
 
-          // 이미지 요소가 존재하는지 확인하고 클릭 이벤트 추가
           const imgElement = markerContent.querySelector('img')
           if (imgElement) {
             imgElement.addEventListener('click', () => {
               handleMarkerClick(item.id)
             })
-          } else {
-            console.warn('Marker image element not found')
           }
 
-          // CustomOverlay를 생성합니다.
           const marker = new window.kakao.maps.CustomOverlay({
             position: position,
             content: markerContent,
@@ -185,7 +180,6 @@ const MainPage: React.FC = () => {
           markersRef.current.push(marker)
           return marker
         } catch (error) {
-          console.error('Error creating marker:', error)
           return null
         }
       })
@@ -251,9 +245,7 @@ const MainPage: React.FC = () => {
             initializeMap(latitude, longitude)
             setLocate(`${longitude},${latitude}`)
             localStorage.setItem('locate', `${longitude},${latitude}`)
-          } catch (error) {
-            console.error('지도 초기화 실패:', error)
-          }
+          } catch (error) {}
         },
         (error) => {
           console.error('위치 정보를 가져오는데 실패했습니다:', error)
@@ -268,7 +260,7 @@ const MainPage: React.FC = () => {
     if (isInitialized && client) {
       selectCategory(selectedCategory, selectedDistance)
     }
-  }, [isInitialized, client])
+  }, [isInitialized, client, selectedCategory, selectedDistance])
 
   useEffect(() => {
     if (map) {
@@ -277,18 +269,25 @@ const MainPage: React.FC = () => {
   }, [selectContents, map])
 
   useEffect(() => {
-    if (map && data.length > 0) {
+    if (map && data.length >= 0) {
       addMarkers(map, data)
     }
   }, [data, map])
 
   const selectCategory = (category: string, distance: number) => {
     if (client) {
+      setData([])
+      markersRef.current.forEach((marker) => marker.setMap(null))
+      markersRef.current = []
+      if (clustererRef.current) {
+        clustererRef.current.clear()
+      }
+
       client.publish({
         destination: '/app/main/category',
         body: JSON.stringify({ category: category, distance: distance }),
       })
-      // 카테고리 선택 시 지도의 확대/축소 레벨 고정
+
       if (map && currentLocationRef.current) {
         const { latitude, longitude } = currentLocationRef.current
         map.setLevel(mapLevel, {
@@ -296,7 +295,7 @@ const MainPage: React.FC = () => {
         })
       }
     } else {
-      console.error('Not connected to WebSocket')
+      console.error('웹소켓 끊어졌어요')
     }
   }
 
@@ -310,7 +309,7 @@ const MainPage: React.FC = () => {
     setSelectedDistance(newDistance)
 
     // 거리에 따라 mapLevel 설정
-    let newMapLevel = 7 // 기본 레벨
+    let newMapLevel = 7
     switch (newDistance) {
       case 10:
         newMapLevel = 3
@@ -354,22 +353,24 @@ const MainPage: React.FC = () => {
         <button onClick={zoomOut}>-</button>
       </div>
 
-      <div id="category-select">
-        <Select
-          options={categoryOptions}
-          classN="category-select"
-          value={selectedCategory}
-          onChange={handleCategoryChange}
-        />
-      </div>
+      <div id="main_select_box">
+        <div id="category-select">
+          <Select
+            options={categoryOptions}
+            classN="category-select"
+            value={selectedCategory}
+            onChange={handleCategoryChange}
+          />
+        </div>
 
-      <div id="distance-select">
-        <Select
-          options={distanceOptions}
-          classN="distance-select"
-          value={selectedDistance.toString()}
-          onChange={handleDistanceChange}
-        />
+        <div id="distance-select">
+          <Select
+            options={distanceOptions}
+            classN="distance-select"
+            value={selectedDistance.toString()}
+            onChange={handleDistanceChange}
+          />
+        </div>
       </div>
 
       {selectedPostId !== null && (

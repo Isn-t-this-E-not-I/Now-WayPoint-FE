@@ -24,7 +24,7 @@ const DropDown: React.FC<DropDownProps> = ({
         </div>
         <ul
           tabIndex={0}
-          className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow"
+          className="dropdown-content menu bg-white rounded-box z-[1] w-32 p-2 shadow"
         >
           {items.map((item, index) => (
             <li key={index}>

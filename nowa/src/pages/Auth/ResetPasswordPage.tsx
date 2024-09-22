@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { resetPassword } from '../api/userApi'
-import TextInput from '../components/TextInput/textInput'
+import { resetPassword } from '../../api/userApi'
+import TextInput from '../../components/TextInput/textInput'
 import { useNavigate } from 'react-router-dom'
 
 const ResetPasswordPage = () => {
@@ -13,7 +13,7 @@ const ResetPasswordPage = () => {
     try {
       const data = await resetPassword(userId, newPassword)
       setMessage('비밀번호가 성공적으로 재설정되었습니다.')
-      setTimeout(() => navigate('/login'), 2000) // 재설정 후 로그인 페이지로 리다이렉트
+      setTimeout(() => navigate('/auth'), 2000) // 재설정 후 로그인 페이지로 리다이렉트
     } catch (error) {
       setMessage('비밀번호 재설정에 실패했습니다.')
       console.error('비밀번호 재설정 실패:', error)

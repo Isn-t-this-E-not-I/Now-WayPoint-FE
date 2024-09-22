@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TextInput from '../components/TextInput/textInput';
-import { register, login, sendVerificationCode, verifyCode, checkLoginId } from '../api/userApi';
-import Button from '../components/Button/button';
+import TextInput from '../../components/TextInput/textInput';
+import { register, login, sendVerificationCode, verifyCode, checkLoginId } from '../../api/userApi';
+import Button from '../../components/Button/button';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
 
@@ -103,14 +103,11 @@ const RegisterPage: React.FC = () => {
   const handleVerifyCode = async () => {
     const email = `${emailUser}@${emailDomain}` //*
     try {
-      console.log(authNumber, email);
       const response = await verifyCode( authNumber, email );
-      console.log(response);
       if (response.message === 'authorized') {
         alert('인증에 성공했습니다');
       } else {
         alert('인증에 실패했습니다');
-        console.log('인증 실패: ' + response);
       }
     } catch (error) {
       console.error('Verification error:', (error as any).message || error);
@@ -124,7 +121,6 @@ const handleRegister = async () => {
   const email = `${emailUser}@${emailDomain}`;
   try {
     const response = await register({ loginId, email, password, name, nickname });
-    console.log(response);
     if (response.data === 'ok') {
       try {
         alert('회원가입에 성공했습니다');
@@ -135,7 +131,7 @@ const handleRegister = async () => {
       } catch (loginError) {
         console.error('자동 로그인 실패:', loginError);
         alert('자동 로그인에 실패했습니다. 로그인 페이지로 이동합니다.');
-        navigate('/login');
+        navigate('/auth');
       }
     } else {
       alert('회원가입 실패: ' + response)
@@ -154,7 +150,6 @@ const handleRegister = async () => {
 
     try {
       const response = await checkLoginId(loginId)
-      console.log(response)
       if (response === '가능한 아이디입니다.') {
         setLoginMessage('사용 가능한 아이디입니다.')
       } else {
@@ -328,7 +323,7 @@ const handleRegister = async () => {
         )}
         <button
           className="btn btn-outline w-full mt-4"
-          onClick={() => navigate('/login')}
+          onClick={() => navigate('/auth')}
         >
           로그인 페이지로
         </button>

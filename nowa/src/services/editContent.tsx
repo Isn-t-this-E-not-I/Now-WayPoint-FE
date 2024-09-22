@@ -28,7 +28,6 @@ export const getPostById = async (postId: number): Promise<Post> => {
         Authorization: `Bearer ${token}`,
       },
     })
-    console.log(response)
 
     return response.data
   } catch (error) {
@@ -79,7 +78,6 @@ export const updateContent = async (
       category: category,
       removeMedia: removeMedia,
     }
-    console.log(removeMedia)
 
     formData.append(
       'data',

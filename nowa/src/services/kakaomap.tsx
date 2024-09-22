@@ -5,7 +5,6 @@ const API_BASE_URL = import.meta.env.VITE_APP_API
 export const getKakaoApiData = async (address: string): Promise<any> => {
   const token = localStorage.getItem('token')
   // const token = getCookieValue('Authorization')
-  console.log(token)
   if (!token) {
     throw new Error('Authorization token not found')
   }

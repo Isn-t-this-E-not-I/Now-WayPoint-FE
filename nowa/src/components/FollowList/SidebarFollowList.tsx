@@ -1,5 +1,6 @@
+// SideFollowList.tsx
+
 import React from 'react'
-import Button from '../../components/Button/button'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
@@ -7,24 +8,23 @@ interface LoginActiveProps {
   active: boolean
 }
 
-const FollowListWrapper = styled.div`
+const SideFollowListWrapper = styled.div`
   display: flex;
-  flex-wrap: wrap;  /* 줄 바꿈 허용 */
+  flex-direction: column;
   justify-content: flex-start;
-  margin-left: -0.3rem;
   max-height: 80vh;
   overflow-y: scroll;
   scrollbar-width: none;
   -ms-overflow-style: none;
 `
 
-const FollowItem = styled.div`
+const SideFollowItem = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  width: calc(50% - 20px);  /* 두 개의 아이템이 한 줄에 들어가도록 설정 */
-  box-sizing: border-box;  /* 패딩과 너비가 겹치지 않도록 설정 */
+  width: 100%;
+  box-sizing: border-box;
   margin-bottom: 10px;
 `
 
@@ -39,7 +39,7 @@ const ProfileImage = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin-right: 10px;
+  margin-right: 15px;
 `
 
 const FollowDetails = styled.div`
@@ -77,12 +77,7 @@ const LoginActiveContainer = styled.div`
   margin: 0 auto;
 `
 
-const CCC = styled.div`
-  width: 40px;
-  height: 40px;
-`
-
-interface FollowListProps {
+interface SideFollowListProps {
   users: {
     isFollowing: boolean
     name: string
@@ -91,15 +86,11 @@ interface FollowListProps {
     active: string
   }[]
   searchQuery: string
-  onFollow: (nickname: string) => void
-  onUnfollow: (nickname: string) => void
 }
 
-const UserFollowList: React.FC<FollowListProps> = ({
+const SideFollowList: React.FC<SideFollowListProps> = ({
   users,
   searchQuery,
-  onFollow,
-  onUnfollow,
 }) => {
   const navigate = useNavigate()
 
@@ -114,9 +105,9 @@ const UserFollowList: React.FC<FollowListProps> = ({
   }
 
   return (
-    <FollowListWrapper>
+    <SideFollowListWrapper>
       {filteredList.map((user, index) => (
-        <FollowItem key={index}>
+        <SideFollowItem key={index}>
           <FollowName onClick={() => handleProfileClick(user.nickname)}>
             <ProfileImage
               src={user.profileImageUrl || '/defaultprofile.png'}
@@ -130,20 +121,10 @@ const UserFollowList: React.FC<FollowListProps> = ({
               <UserName>@{user.name}</UserName>
             </FollowDetails>
           </FollowName>
-          <Button
-            className={user.isFollowing ? 'btn-secondary' : 'btn-primary'}
-            onClick={() =>
-              user.isFollowing
-                ? onUnfollow(user.nickname)
-                : onFollow(user.nickname)
-            }
-          >
-            {user.isFollowing ? '언팔로우' : '팔로우'}
-          </Button>
-        </FollowItem>
+        </SideFollowItem>
       ))}
-    </FollowListWrapper>
+    </SideFollowListWrapper>
   )
 }
 
-export default UserFollowList
+export default SideFollowList

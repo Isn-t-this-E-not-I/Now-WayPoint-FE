@@ -2,6 +2,12 @@ import axios from 'axios'
 
 const API_URL = import.meta.env.VITE_APP_API
 
+export interface User {
+  id: number
+  nickname: string
+  profileImageUrl: string
+}
+
 export interface Post {
   id: number
   content: string
@@ -14,6 +20,8 @@ export interface Post {
   likeCount: number
   profileImageUrl: string
   likedByUser: boolean
+  viewCount: number // 조회수
+  isBookmarked: boolean; // 북마크 상태
 }
 
 const getCookieValue = (name: number): string | null => {
@@ -26,7 +34,6 @@ const getCookieValue = (name: number): string | null => {
 const getPostById = async (postId: number): Promise<Post> => {
   const token = localStorage.getItem('token')
 
-  console.log(postId)
   if (!token) {
     throw new Error('Authorization token not found')
   }
@@ -38,7 +45,6 @@ const getPostById = async (postId: number): Promise<Post> => {
       },
     })
 
-    console.log(response.data.hashtags)
     return response.data
   } catch (error) {
     console.error('Error fetching the post data:', error)
@@ -88,4 +94,25 @@ const likePostById = async (postId: number): Promise<void> => {
   }
 }
 
-export { getPostById, deletePostById, likePostById }
+const getLikeListUsers = async (postId: Number): Promise<User[]> => {
+  const token = localStorage.getItem('token')
+
+  if (!token) {
+    throw new Error('Authorization token not found')
+  }
+
+  try {
+    const response = await axios.get(`${API_URL}/posts/${postId}/likes`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error fetching liked users:', error)
+    throw error
+  }
+}
+
+export { getPostById, deletePostById, likePostById, getLikeListUsers }
