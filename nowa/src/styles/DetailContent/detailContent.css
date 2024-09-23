@@ -446,6 +446,12 @@ audio {
   width: 20px;
 }
 
+#detail_kakao_share {
+  position: absolute;
+  bottom: 0px;
+  right: 15px;
+}
+
 #detail_write_picker {
   position: absolute;
   bottom: 0px;
