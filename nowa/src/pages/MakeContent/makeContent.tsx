@@ -197,6 +197,8 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       if (tag.length > 31) {
         invalidTagFound = true
         alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
+      } else if (newTags.includes(tag) || tags.includes(tag)) {
+        alert(`동일한 태그가 이미 존재합니다: ${tag}`)
       } else {
         newTags.push(tag)
       }
