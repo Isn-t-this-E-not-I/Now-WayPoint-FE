@@ -12,14 +12,14 @@ const App: React.FC = () => {
   const location = useLocation()
   const noSidebarPaths = [
     '/auth',
-    '/login', 
-    '/register', 
-    '/find-id', 
+    '/login',
+    '/register',
+    '/find-id',
     '/find-password',
     '/onboarding/location-permission',
     '/onboarding/friend-addition',
-    '/onboarding/distance-add'
-  ] // Sidebar가 보이지 않아야 하는 경로
+    '/onboarding/distance-add',
+  ]
 
   const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
   const [selectedPage, setSelectedPage] = useState<string>('main')
@@ -27,24 +27,23 @@ const App: React.FC = () => {
   return (
     <>
       {!isNoSidebarPage ? (
-          <WebSocketProvider>
-            <div style={{ display: 'flex', height: '100vh' }}>
-              <ChatProvider>
-                <Sidebar theme={'light'} />
-                <div style={{ flex: 1 }}>
-                  <Routers />
-                </div>
-              </ChatProvider>
-            </div>
-          </WebSocketProvider>
+        <WebSocketProvider>
+          <div style={{ display: 'flex', height: '100vh' }}>
+            <ChatProvider>
+              <Sidebar theme={'light'} />
+              <div style={{ flex: 1 }}>
+                <Routers />
+              </div>
+            </ChatProvider>
+          </div>
+        </WebSocketProvider>
       ) : (
-        // Sidebar가 없을 때는 TokenProvider, WebSocketProvider, ChatProvider 없이 Routers만 실행
         <div style={{ flex: 1 }}>
           <Routers />
         </div>
       )}
     </>
-  );
+  )
 }
 
 const AppWrapper: React.FC = () => {

@@ -7,6 +7,7 @@ import { uploadContent } from '@/services/makeContent'
 import { useNavigate } from 'react-router-dom'
 import Picker from '@emoji-mart/react'
 import data from '@emoji-mart/data'
+import DraggableFile from '@/components/DragFile/dragFile' // 새로 만들 DraggableFile 컴포넌트
 
 interface MakeContentProps {
   onClose: () => void
@@ -36,28 +37,20 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     }
   }
 
-  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files
-
     if (!selectedFiles) return
 
-    // 선택된 파일들의 해시값을 계산
-    const selectedFileHashes = await Promise.all(
-      Array.from(selectedFiles).map((file) => hashFile(file))
+    // 이름, 크기, 마지막 수정 시간을 기준으로 중복 체크
+    const duplicateFiles = Array.from(selectedFiles).filter((file) =>
+      files.some(
+        (existingFile) =>
+          existingFile.name === file.name &&
+          existingFile.size === file.size &&
+          existingFile.lastModified === file.lastModified
+      )
     )
 
-    // 이미 업로드된 파일들의 해시값을 미리 계산
-    const uploadedFileHashes = await Promise.all(
-      files.map((file) => hashFile(file))
-    )
-
-    // 중복된 파일 확인
-    const duplicateFiles = Array.from(selectedFiles).filter((file, index) => {
-      const fileHash = selectedFileHashes[index]
-      return uploadedFileHashes.includes(fileHash)
-    })
-
-    // 중복된 파일이 있으면 경고 메시지 출력
     if (duplicateFiles.length > 0) {
       alert(
         `이미 업로드된 파일입니다: ${duplicateFiles.map((f) => f.name).join(', ')}`
@@ -65,104 +58,103 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       return
     }
 
-    // 중복이 없는 파일만 처리
+    // 중복되지 않은 파일들을 처리
     handleFiles(selectedFiles)
 
-    // 업로드 완료 후 파일 선택창 초기화
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
   }
 
-  const handleFiles = (files: FileList | null) => {
-    if (files) {
-      const currentFileCount = files.length + previewSrcs.length
-      if (currentFileCount > 10) {
-        alert('최대 10개의 파일만 업로드할 수 있습니다.')
-        return
-      }
+  const handleFiles = (fileList: FileList | null) => {
+    if (fileList) {
+      const newPreviewSrcs: string[] = []
+      const validFiles: File[] = []
 
-      const validFileArray: File[] = []
-      const invalidFileNames: string[] = []
+      const filePromises = Array.from(fileList).map((file, index) => {
+        return new Promise<void>((resolve) => {
+          if (
+            (selectedOption === 'PHOTO' && file.type.startsWith('image/')) ||
+            (selectedOption === 'VIDEO' &&
+              (file.type === 'video/mp4' || file.type === 'video/x-msvideo')) ||
+            (selectedOption === 'MP3' && file.type === 'audio/mpeg')
+          ) {
+            validFiles.push(file)
 
-      Array.from(files).forEach((file) => {
-        if (selectedOption === 'PHOTO' && file.type.startsWith('image/')) {
-          validFileArray.push(file)
-        } else if (
-          selectedOption === 'VIDEO' &&
-          (file.type === 'video/mp4' || file.type === 'video/x-msvideo')
-        ) {
-          validFileArray.push(file)
-        } else if (selectedOption === 'MP3' && file.type === 'audio/mpeg') {
-          validFileArray.push(file)
-        } else {
-          invalidFileNames.push(file.name)
-        }
+            // 이미지 파일 처리
+            if (file.type.startsWith('image/')) {
+              const reader = new FileReader()
+              reader.readAsDataURL(file)
+              reader.onloadend = () => {
+                if (reader.result) {
+                  newPreviewSrcs[index] = reader.result as string
+                }
+                resolve() // 파일 읽기가 끝나면 resolve 호출
+              }
+            }
+            // 비디오 파일 처리
+            else if (file.type.startsWith('video/')) {
+              generateThumbnail(file, index, newPreviewSrcs)
+                .then(() => resolve())
+                .catch(() => resolve())
+            } else if (file.type.startsWith('audio/')) {
+              newPreviewSrcs[index] = file.name
+              resolve() // 오디오 파일 처리 완료 후 resolve
+            }
+          } else {
+            resolve() // 유효하지 않은 파일은 바로 resolve
+          }
+        })
       })
 
-      if (invalidFileNames.length > 0) {
-        alert(
-          `다음 파일 형식은 허용되지 않습니다: ${invalidFileNames.join(', ')}`
-        )
-      }
-
-      setFiles((prevFiles) => [...prevFiles, ...validFileArray])
-
-      validFileArray.forEach((file) => {
-        if (file.type.startsWith('video/')) {
-          generateThumbnail(file)
-        } else if (file.type.startsWith('audio/')) {
-          setPreviewSrcs((prevSrcs) => {
-            const fileName =
-              file.name.split('/').pop()?.split('.')[0] || file.name
-            const newSrcs = [...prevSrcs, fileName]
-            setSelectedImage(newSrcs[newSrcs.length - 1])
-            return newSrcs
-          })
-        } else {
-          const reader = new FileReader()
-          reader.readAsDataURL(file)
-          reader.onloadend = () => {
-            if (reader.result) {
-              setPreviewSrcs((prevSrcs) => {
-                const newSrcs = [...prevSrcs, reader.result as string]
-                setSelectedImage(newSrcs[newSrcs.length - 1])
-                return newSrcs
-              })
-            }
-          }
-        }
+      // 모든 파일이 처리된 후 한 번에 상태를 업데이트
+      Promise.all(filePromises).then(() => {
+        setFiles((prevFiles) => [...prevFiles, ...validFiles])
+        setPreviewSrcs((prevSrcs) => [...prevSrcs, ...newPreviewSrcs])
       })
     }
   }
 
-  const generateThumbnail = (file: File) => {
-    const video = document.createElement('video')
-    video.src = URL.createObjectURL(file)
-    video.currentTime = 1
-    video.addEventListener('loadeddata', () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = video.videoWidth
-      canvas.height = video.videoHeight
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-        const thumbnail = canvas.toDataURL('image/png')
-        setPreviewSrcs((prevSrcs) => {
-          const newSrcs = [...prevSrcs, thumbnail]
-          setSelectedImage(newSrcs[newSrcs.length - 1])
-          return newSrcs
-        })
-      }
-      URL.revokeObjectURL(video.src)
+  const generateThumbnail = (
+    file: File,
+    index: number,
+    previewArray: string[]
+  ): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video')
+      video.src = URL.createObjectURL(file)
+      video.currentTime = 1
+
+      video.addEventListener('loadeddata', () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = video.videoWidth
+        canvas.height = video.videoHeight
+        const ctx = canvas.getContext('2d')
+
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+          const thumbnail = canvas.toDataURL('image/png')
+          previewArray[index] = thumbnail
+
+          // 성공적으로 완료되면 resolve 호출
+          resolve()
+        } else {
+          // 캔버스 컨텍스트를 가져오지 못한 경우 reject 호출
+          reject(new Error('Failed to create thumbnail'))
+        }
+
+        URL.revokeObjectURL(video.src)
+      })
+
+      video.onerror = () => reject(new Error('Failed to load video'))
     })
   }
 
   const handleRemoveFile = (index: number) => {
-    const removedSrc = previewSrcs[index]
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
     setPreviewSrcs((prevSrcs) => prevSrcs.filter((_, i) => i !== index))
-    if (selectedImage === removedSrc) {
+
+    if (selectedImage === previewSrcs[index]) {
       setSelectedImage(null)
     }
   }
@@ -179,7 +171,6 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     setTags((prevTags) => prevTags.filter((t) => t !== tag))
   }
 
-  //동일한 해시태그 불가능
   const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     let inputValue = e.target.value
 
@@ -222,51 +213,6 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       setContent(inputValue)
     }
   }
-
-  // //배열 동일한 태그 입력 가능
-  // const handleContentChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
-  //   let inputValue = e.target.value
-
-  //   // 태그가 공백 또는 문자열의 시작으로부터 시작하는지 확인
-  //   const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣]+)\s/g
-  //   const newTags: string[] = []
-  //   let match
-  //   let invalidTagFound = false
-
-  //   const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣]+/g)
-  //   if (currentTags) {
-  //     for (const tag of currentTags) {
-  //       if (tag.length > 31) {
-  //         invalidTagFound = true
-  //         alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
-  //         break
-  //       }
-  //     }
-  //   }
-
-  //   while ((match = tagPattern.exec(inputValue)) !== null) {
-  //     const tag = match[1].trim()
-
-  //     if (tag.length > 31) {
-  //       invalidTagFound = true
-  //       alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
-  //     } else {
-  //       newTags.push(tag)
-  //     }
-
-  //     inputValue = inputValue.replace(match[0], ' ')
-  //   }
-
-  //   // 기존 태그와 새로운 태그를 합쳐서 업데이트
-  //   const combinedTags = [...tags, ...newTags]
-
-  //   if (combinedTags.length > 30) {
-  //     alert('태그는 최대 30개까지 입력할 수 있습니다.')
-  //   } else if (!invalidTagFound) {
-  //     setTags(combinedTags)
-  //     setContent(inputValue)
-  //   }
-  // }
 
   const handleOptionChange = (selected: string) => {
     setSelectedOption(selected)
@@ -318,49 +264,35 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
   }
-  const hashFile = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer() // 파일의 내용을 ArrayBuffer로 읽음
-    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer) // SHA-256 해시값 생성
-    const hashArray = Array.from(new Uint8Array(hashBuffer)) // 해시값을 Uint8Array로 변환
-    return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('') // 16진수 문자열로 변환
-  }
 
-  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.stopPropagation()
 
     const droppedFiles = e.dataTransfer.files
 
-    // 파일이 있는지 확인
     if (droppedFiles.length === 0) {
       return
     }
 
-    // 드래그된 파일들의 해시값을 미리 계산
-    const droppedFileHashes = await Promise.all(
-      Array.from(droppedFiles).map((file) => hashFile(file))
+    // 중복 파일 필터링
+    const duplicateFiles = Array.from(droppedFiles).filter((file) =>
+      files.some(
+        (existingFile) =>
+          existingFile.name === file.name &&
+          existingFile.size === file.size &&
+          existingFile.lastModified === file.lastModified
+      )
     )
 
-    // 이미 업로드된 파일들의 해시값을 미리 계산
-    const uploadedFileHashes = await Promise.all(
-      files.map((file) => hashFile(file))
-    )
-
-    // 중복된 파일 확인
-    const duplicateFiles = Array.from(droppedFiles).filter((file, index) => {
-      const fileHash = droppedFileHashes[index]
-      return uploadedFileHashes.includes(fileHash)
-    })
-
-    // 중복된 파일이 있으면 경고 메시지 출력
     if (duplicateFiles.length > 0) {
       alert(
-        `이미 업로드된 파일입니다: ${duplicateFiles.map((f) => f.name).join(', ')}`
+        `이미 업로드된 파일이 있습니다: ${duplicateFiles.map((f) => f.name).join(', ')}`
       )
       return
     }
 
-    // 중복되지 않은 파일을 처리
+    // 중복되지 않은 파일만 처리
     handleFiles(droppedFiles)
   }
 
@@ -376,6 +308,25 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
   const addEmoji = (emoji: { native: string }) => {
     setContent(content + emoji.native)
   }
+
+  const moveFile = (dragIndex: number, hoverIndex: number) => {
+    const draggedFile = files[dragIndex]
+    const updatedFiles = [...files]
+    updatedFiles.splice(dragIndex, 1)
+    updatedFiles.splice(hoverIndex, 0, draggedFile)
+    setFiles(updatedFiles)
+
+    const draggedPreview = previewSrcs[dragIndex]
+    const updatedPreviews = [...previewSrcs]
+    updatedPreviews.splice(dragIndex, 1)
+    updatedPreviews.splice(hoverIndex, 0, draggedPreview)
+    setPreviewSrcs(updatedPreviews)
+  }
+
+  useEffect(() => {
+    // 파일 순서가 변경되었는지 콘솔에서 확인
+    console.log('Updated file order:', files)
+  }, [files]) // files 상태가 변경될 때마다 실행
 
   useEffect(() => {
     // 미리보기가 삭제될 때 큰 미리보기를 업데이트합니다.
@@ -454,33 +405,15 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
 
             <div id="upload_preview_container">
               {previewSrcs.map((src, index) => (
-                <div
+                <DraggableFile
                   key={index}
-                  className="file_preview_wrapper"
-                  onClick={() => handlePreviewClick(src)}
-                >
-                  <div className="image_preview_wrapper">
-                    {selectedOption === 'MP3' && !src.startsWith('data:') ? (
-                      <div className="audio_preview">{src}</div>
-                    ) : (
-                      <img
-                        id="image_preview"
-                        src={src}
-                        alt={`Image Preview ${index + 1}`}
-                        onContextMenu={handleContextMenu}
-                      />
-                    )}
-                    <button
-                      className="remove_image_button"
-                      onClick={() => handleRemoveFile(index)}
-                    >
-                      <img
-                        src="https://www.iconarchive.com/download/i103472/paomedia/small-n-flat/sign-delete.1024.png"
-                        alt="Remove Icon"
-                      />
-                    </button>
-                  </div>
-                </div>
+                  index={index}
+                  src={src}
+                  moveFile={moveFile}
+                  handleRemoveFile={handleRemoveFile}
+                  handlePreviewClick={handlePreviewClick}
+                  selectedOption={selectedOption}
+                />
               ))}
             </div>
           </div>
@@ -532,7 +465,6 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
                 id="make_imoji"
                 onClick={() => setShowPicker(!showPicker)}
               >
-                {showPicker ? '' : ''}{' '}
                 <img
                   src="https://cdn-icons-png.flaticon.com/128/3129/3129275.png"
                   alt="이모티콘"

@@ -38,6 +38,8 @@ import FollowList from '../FollowList/FollowList'
 import SideFollowList from '../FollowList/SidebarFollowList'
 import axios from 'axios'
 import defaultProfileImage from '../../../../defaultprofile.png'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 interface SidebarProps {
   theme: 'light' | 'dark'
@@ -865,10 +867,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         {/* FollowList 추가 */}
         <RecommendationTitle>팔로잉 목록</RecommendationTitle>
         <FollowListContainer>
-          <SideFollowList
-            users={followingList}
-            searchQuery={searchQuery}
-          />
+          <SideFollowList users={followingList} searchQuery={searchQuery} />
         </FollowListContainer>
       </RightSection>
       {isUploadModalOpen && (
@@ -879,7 +878,9 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
           disableOverlayClick={true}
         >
           <div>
-            <MakeContent onClose={() => setUploadModalOpen(false)} />
+            <DndProvider backend={HTML5Backend}>
+              <MakeContent onClose={() => setUploadModalOpen(false)} />
+            </DndProvider>
           </div>
         </Modal>
       )}
