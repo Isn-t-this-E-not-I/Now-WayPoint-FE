@@ -481,27 +481,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
   }, [])
 
   useEffect(() => {
-    const fetchFollowingList = async () => {
-      if (!token) {
-        return
-      }
-      try {
-        const response = await axios.get(`${location}/follow/following`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        setFollowingList(response.data)
-        setFollowList(response.data)
-      } catch (error) {
-        console.error('Failed to fetch following list:', error)
-      }
-    }
-
-    fetchFollowingList()
-  }, [])
-
-  useEffect(() => {
     setFollowingList(loginActive);
     console.log(followingList);
   }, [loginActive])
@@ -592,6 +571,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             },
           }
         )
+        setFollowingList(followingResponse.data)
+        setFollowList(followingResponse.data)
 
         const followingNicknames = followingResponse.data.map(
           (user: any) => user.nickname
