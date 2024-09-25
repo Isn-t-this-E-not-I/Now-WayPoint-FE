@@ -453,6 +453,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         if (getStompClient() == null) {
           connectAndSubscribe()
         }
+        const token = localStorage.getItem('token') || '';
         fetchChatRooms(token).then((data) => {
           const chatRooms = data.chatRooms
           const chatRoomsInfo = data.chatRoomsInfo
