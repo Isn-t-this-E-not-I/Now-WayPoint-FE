@@ -810,7 +810,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <RightSection>
         {userInfo && (
           <ProfileContainer>
-            <ProfileImage src={userInfo.profileImageUrl} alt="Profile" />
+            <ProfileImage src={userInfo.profileImageUrl} alt="Profile" onClick={() => navigate('/myPage')}/>
             <UserInfo>
               <Nickname>{userInfo.nickname}</Nickname>
               <LoginId>{userInfo.loginId}</LoginId>
