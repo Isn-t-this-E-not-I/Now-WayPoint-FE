@@ -455,6 +455,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         if (getStompClient() == null) {
           connectAndSubscribe()
         }
+        const token = localStorage.getItem('token') || '';
         fetchChatRooms(token).then((data) => {
           const chatRooms = data.chatRooms
           const chatRoomsInfo = data.chatRoomsInfo
@@ -488,27 +489,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     if (storedToken) {
       setToken(storedToken)
     }
-  }, [])
-
-  useEffect(() => {
-    const fetchFollowingList = async () => {
-      if (!token) {
-        return
-      }
-      try {
-        const response = await axios.get(`${location}/follow/following`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        setFollowingList(response.data)
-        setFollowList(response.data)
-      } catch (error) {
-        console.error('Failed to fetch following list:', error)
-      }
-    }
-
-    fetchFollowingList()
   }, [])
 
   useEffect(() => {
@@ -601,6 +581,8 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
             },
           }
         )
+        setFollowingList(followingResponse.data)
+        setFollowList(followingResponse.data)
 
         const followingNicknames = followingResponse.data.map(
           (user: any) => user.nickname

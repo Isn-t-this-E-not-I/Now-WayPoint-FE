@@ -191,7 +191,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
 
       if (response.ok) {
         setIsBookmarked((prev) => !prev) // 북마크 상태를 토글
-        alert(result)
+        // alert(result);
       } else {
         console.error(`Failed to toggle bookmark: ${response.status}`, result)
       }
