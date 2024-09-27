@@ -16,10 +16,12 @@ jobs:
         with:
           node-version: '18.16.0'
 
-      - name: Install dependencies
+      - name: Install npm dependencies
+        working-directory: ./nowa
         run: npm install
 
-      - name: Build static file
+      - name: Build project
+        working-directory: ./nowa
         run: npm run build
 
       - name: Configure AWS Credentials
