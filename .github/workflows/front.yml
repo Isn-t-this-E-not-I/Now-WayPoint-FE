@@ -37,6 +37,6 @@ jobs:
           aws s3 cp \
           --recursive \
           --region ap-northeast-2 \
-          dist/build s3://now-way-point/
+          nowa/build s3://now-way-point/
 
 
