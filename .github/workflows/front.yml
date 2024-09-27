@@ -26,7 +26,7 @@ jobs:
 
       - name: Build
         working-directory: nowa
-        run: npm run dev 
+        run: npm run build
 
       - name: Deploy
         working-directory: nowa
@@ -35,9 +35,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 cp \
-            --recursive \
-            --region ap-northeast-2 \
-            dist s3://now-way-point/
+          vite build && aws s3 rm s3://now-way-point/ --recursive && aws s3 cp ./dist s3://now-way-point/ --recursive --acl public-read
 
 
 
