@@ -28,15 +28,11 @@ jobs:
         working-directory: nowa
         run: npm run build 
 
-      - name: Check build directory
-        working-directory: nowa
-        run: ls -R build
-
       - name: Deploy
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: |
+        run: 
           aws s3 cp 
             --recursive 
             --region ap-northeast-2 
