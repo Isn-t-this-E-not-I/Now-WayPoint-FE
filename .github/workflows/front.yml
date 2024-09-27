@@ -31,12 +31,13 @@ jobs:
       - name: Deploy
         working-directory: nowa
         env:
-         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 cp \
-          --recursive \
-          --region ap-northeast-2 \
-          nowa/build s3://now-way-point/
+            --recursive \
+            --region ap-northeast-2 \
+            dist s3://now-way-point/
+
 
 
