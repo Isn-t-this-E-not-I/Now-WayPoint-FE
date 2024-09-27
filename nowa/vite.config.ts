@@ -16,7 +16,8 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      // external: ['@react-oauth/google']
+      input: 'index.html', // 명시적으로 index.html 파일을 설정
     },
+    outDir: 'dist',
   },
 })
