@@ -30,7 +30,7 @@ jobs:
       - name: Check if server is running
         run: |
           sleep 10  # 서버가 시작될 때까지 잠시 대기
-          curl -I http://localhost:3000  # 서버 상태 확인 (포트 번호는 dev 설정에 맞게 변경)
+          curl -I http://localhost:5173  # 서버 상태 확인 (포트 번호는 dev 설정에 맞게 변경)
         if: success()
 
       - name: Configure AWS credentials
