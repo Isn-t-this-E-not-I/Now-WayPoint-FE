@@ -13,6 +13,8 @@ jobs:
 
       - name: Setup node
         uses: actions/setup-node@v2
+        with:
+          node-version: '18'
 
       - name: Install dependencies
         run: npm install
@@ -28,4 +30,4 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: Deploy static site to S3 bucket
-        run: aws s3 sync ./build s3://now-way-point/
+        run: aws s3 sync ./build s3://S3 버킷 이름
