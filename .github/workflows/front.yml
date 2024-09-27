@@ -36,6 +36,6 @@ jobs:
           aws-region: ap-northeast-2
       
       - name: Upload to S3
+        working-directory: nowa
         run: |
-          aws s3 sync \
-            ./build s3://now-way-point/
+          aws s3 sync ./build s3://now-way-point/ --region ap-northeast-2
