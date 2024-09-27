@@ -26,7 +26,7 @@ jobs:
 
       - name: Build
         working-directory: nowa
-        run: npm run build 
+        run: npm run dev 
 
       - name: Deploy
         working-directory: nowa
