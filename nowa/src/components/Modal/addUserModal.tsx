@@ -50,19 +50,6 @@ const Form = styled.form`
   gap: 10px;
 `
 
-const Label = styled.label`
-  font-weight: bold;
-  margin-top: 20px;
-`
-
-const Input = styled.input`
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-top: -4px;
-  margin-bottom: -10px;
-`
-
 const SubmitButton = styled.button<{ $themeMode: string }>`
   padding: 8px;
   width: 80px;
@@ -149,14 +136,14 @@ const AddUserModal: React.FC<InviteModalProps> = ({
   theme,
   showCloseButton = true,
 }) => {
-  const [allUsers, setAllUsers] = useState<any[]>([])
+  const [, setAllUsers] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [searchResults, setSearchResults] = useState<User[]>([])
   const [selectedFriends, setSelectedFriends] = useState<User[]>([])
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value)
-  }
+  // const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setSearchQuery(e.target.value)
+  // }
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {

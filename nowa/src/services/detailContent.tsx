@@ -21,14 +21,7 @@ export interface Post {
   profileImageUrl: string
   likedByUser: boolean
   viewCount: number // 조회수
-  isBookmarked: boolean; // 북마크 상태
-}
-
-const getCookieValue = (name: number): string | null => {
-  const value = `; ${document.cookie}`
-  const parts = value.split(`; ${name}=`)
-  if (parts.length === 2) return parts.pop()?.split(';').shift() ?? null
-  return null
+  isBookmarked: boolean // 북마크 상태
 }
 
 const getPostById = async (postId: number): Promise<Post> => {

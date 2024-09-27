@@ -34,7 +34,6 @@ import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
 import { useWebSocket } from '../WebSocketProvider/WebSocketProvider'
 import Button from '../Button/button'
-import FollowList from '../FollowList/FollowList'
 import SideFollowList from '../FollowList/SidebarFollowList'
 import axios from 'axios'
 import defaultProfileImage from '../../../../defaultprofile.png'
@@ -207,13 +206,13 @@ const RecommendationItem = styled.li`
   width: 100%;
 `
 
-const ShowMoreText = styled.div<{ visible: boolean }>`
-  display: ${({ visible }) => (visible ? 'block' : 'none')};
-  text-align: center;
-  font-size: 14px;
-  color: #888;
-  margin-top: 10px;
-`
+// const ShowMoreText = styled.div<{ visible: boolean }>`
+//   display: ${({ visible }) => (visible ? 'block' : 'none')};
+//   text-align: center;
+//   font-size: 14px;
+//   color: #888;
+//   margin-top: 10px;
+// `
 
 const FollowButton = styled.button`
   margin-left: auto;
@@ -431,7 +430,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
     loginActive,
     setFollowList,
   } = useWebSocket()
-  const [isScrolled, setIsScrolled] = useState(false)
+  const [, setIsScrolled] = useState(false)
   const [followingList, setFollowingList] = useState<any[]>([]) // 팔로잉 리스트 상태 추가
 
   const nickname = localStorage.getItem('nickname')
@@ -455,7 +454,7 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
         if (getStompClient() == null) {
           connectAndSubscribe()
         }
-        const token = localStorage.getItem('token') || '';
+        const token = localStorage.getItem('token') || ''
         fetchChatRooms(token).then((data) => {
           const chatRooms = data.chatRooms
           const chatRoomsInfo = data.chatRoomsInfo
@@ -810,7 +809,11 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
       <RightSection>
         {userInfo && (
           <ProfileContainer>
-            <ProfileImage src={userInfo.profileImageUrl} alt="Profile" onClick={() => navigate('/myPage')}/>
+            <ProfileImage
+              src={userInfo.profileImageUrl}
+              alt="Profile"
+              onClick={() => navigate('/myPage')}
+            />
             <UserInfo>
               <Nickname>{userInfo.nickname}</Nickname>
               <LoginId>{userInfo.loginId}</LoginId>

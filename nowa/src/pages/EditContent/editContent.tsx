@@ -121,7 +121,7 @@ const EditContent: React.FC<EditContentProps> = ({
 
       setNewFiles((prevFiles) => [...prevFiles, ...validFileArray])
 
-      validFileArray.forEach((file, index) => {
+      validFileArray.forEach((file) => {
         if (file.type.startsWith('video/')) {
           generateThumbnail(file)
         } else if (file.type.startsWith('audio/')) {
@@ -296,30 +296,7 @@ const EditContent: React.FC<EditContentProps> = ({
       return
     }
 
-    // const isValid = previewSrcs.every((url, index) => {
-    //   const isExistingUrl = index < existingUrls.length
-    //   if (isExistingUrl) {
-    //     if (selectedOption === 'PHOTO') {
-    //       return /\.(jpg|jpeg|png|gif)$/i.test(url)
-    //     } else if (selectedOption === 'VIDEO') {
-    //       return /\.(mp4|avi)$/i.test(url)
-    //     } else if (selectedOption === 'MP3') {
-    //       return /\.(mp3)$/i.test(url)
-    //     }
-    //   } else {
-    //     const file = newFiles[index - existingUrls.length]
-    //     if (selectedOption === 'PHOTO') {
-    //       return file.type.startsWith('image/')
-    //     } else if (selectedOption === 'VIDEO') {
-    //       return file.type === 'video/mp4' || file.type === 'video/x-msvideo'
-    //     } else if (selectedOption === 'MP3') {
-    //       return file.type === 'audio/mpeg'
-    //     }
-    //   }
-    //   return false
-    // })
-
-    const isValid = previewSrcs.every((url, index) => {
+    const isValid = previewSrcs.every((_url, index) => {
       const isExistingUrl = index < existingUrls.length
 
       // 기존 파일 URL은 이미 올바른 형식이라고 가정

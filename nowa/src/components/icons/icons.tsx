@@ -1,7 +1,6 @@
-import React from 'react'
 import styled from 'styled-components'
 
-const getColor = (theme: 'light' | 'dark', active: boolean, color?: string) =>
+const getColor = (theme: 'light' | 'dark', _active: boolean, color?: string) =>
   color ? color : theme === 'dark' ? '#F8FAFF' : '#2D2E2F'
 
 const IconWrapper = styled.div`

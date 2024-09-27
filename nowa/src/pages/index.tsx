@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 
 if (typeof window !== 'undefined') {
-  window.global = window;
+  window.global = window
 }
 
 const IndexPage: React.FC = () => {

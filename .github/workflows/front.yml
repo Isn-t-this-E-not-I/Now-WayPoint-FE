@@ -1,48 +1,41 @@
-name: build and deploy
-
-on:
-  push:
+name: React build
+on: 
+  push: 
     branches:
-      - main
+      - actionTest
 
 jobs:
   build:
-    name: react build & deploy
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-
+    runs-on: ubuntu-latest
     steps:
-      - name: checkout Github Action
-        uses: actions/checkout@v3
+      - name: Checkout source code. 
+        uses: actions/checkout@main
 
-      - name: Get npm cache directory
-        id: npm-cache-dir
-        run: |
-          echo "::set-output name=dir::$(npm config get cache)"
-      - uses: actions/cache@v3
-        id: npm-cache
+      - name: Cache node modules 
+        uses: actions/cache@v1
         with:
-          path: ${{ steps.npm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: node_modules 
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
 
-      - name: install npm dependencies
-        run: npm install
+      - name: Install Dependencies
+        working-directory: nowa
+        run: npm install 
 
-      - name: react build
+      - name: Build
+        working-directory: nowa
         run: npm run build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: Upload to S3
+      - name: Deploy
+        working-directory: nowa
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws s3 sync \
-            ./build s3://now-way-point/
+          aws s3 rm s3://now-way-point/ --recursive --region ap-northeast-2
+          aws s3 cp dist s3://now-way-point/ --recursive --acl public-read --region ap-northeast-2
+
+
+

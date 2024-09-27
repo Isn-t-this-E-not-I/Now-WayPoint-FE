@@ -29,7 +29,7 @@ import Modal from '../Modal/modal'
 import AllUserList from '../FollowList/AllUserList'
 import fetchAllUsers from '@/data/fetchAllUsers'
 import { handleLogout } from '../Logout/Logout'
-import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
+// import { WebSocketProvider } from '../WebSocketProvider/WebSocketProvider'
 import FollowContentsPage from '@/pages/FollowContentsPage'
 import MainSidebarPage from '@/pages/MainSidebarPage'
 import MakeContent from '@/pages/MakeContent/makeContent'
@@ -200,29 +200,29 @@ const SearchInput = styled.input`
   border-radius: 8px;
 `
 
-const LogoutDropdown = styled.div`
-  position: absolute;
-  top: 15px;
-  left: 40px;
-  width: 200px;
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 10;
-  transition: transform 0.5s ease;
+// const LogoutDropdown = styled.div`
+//   position: absolute;
+//   top: 15px;
+//   left: 40px;
+//   width: 200px;
+//   background-color: white;
+//   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+//   padding: 10px;
+//   border-radius: 8px;
+//   z-index: 10;
+//   transition: transform 0.5s ease;
 
-  h3 {
-    margin: 0 0 10px 0;
-  }
+//   h3 {
+//     margin: 0 0 10px 0;
+//   }
 
-  button {
-    margin: auto 15px;
-    &:hover {
-      transform: scale(1.2);
-    }
-  }
-`
+//   button {
+//     margin: auto 15px;
+//     &:hover {
+//       transform: scale(1.2);
+//     }
+//   }
+// `
 
 const Badge = styled.span`
   position: absolute;
@@ -557,10 +557,6 @@ const Sidebar: React.FC<SidebarProps> = ({ theme }) => {
 
 export default Sidebar
 
-
-
-
-
 // import React, { useState, useEffect } from 'react';
 // import { useCookies } from 'react-cookie';
 // import { login, register, sendLoginInfo } from '../../api/userApi';
@@ -736,7 +732,6 @@ export default Sidebar
 //   );
 // };
 
-
 // interface RegisterFormProps {
 //   handleRegister: (loginId: string, password: string, email: string, nickname: string) => void;
 // }
@@ -809,9 +804,6 @@ export default Sidebar
 // };
 
 // export default AuthPage;
-
-
-
 
 // import React, { useState, useEffect } from 'react';
 // import { useNavigate } from 'react-router-dom';
@@ -954,10 +946,10 @@ export default Sidebar
 //               {searchResults.map((user: User) => (
 //                 <li key={user.nickname} className="flex items-center justify-between p-4 bg-blue-50 rounded-lg mb-2">
 //                   <div className="flex items-center">
-//                     <img 
-//                       src={user.profileImageUrl} 
-//                       alt={user.name} 
-//                       className="w-10 h-10 rounded-full mr-4" 
+//                     <img
+//                       src={user.profileImageUrl}
+//                       alt={user.name}
+//                       className="w-10 h-10 rounded-full mr-4"
 //                     />
 //                       <p className="text-black">{user.nickname}</p>
 //                       <p className="text-gray-500 ml-0.5">({user.name})</p>
@@ -988,10 +980,10 @@ export default Sidebar
 //                   {selectedFriends.map((friend: User) => (
 //                     <li key={friend.nickname} className="flex items-center justify-between p-4 bg-blue-100 rounded-lg mb-2">
 //                       <div className="flex items-center">
-//                         <img 
-//                           src={friend.profileImageUrl} 
-//                           alt={friend.name} 
-//                           className="w-10 h-10 rounded-full mr-4" 
+//                         <img
+//                           src={friend.profileImageUrl}
+//                           alt={friend.name}
+//                           className="w-10 h-10 rounded-full mr-4"
 //                         />
 //                           <p className="text-black">{friend.nickname}</p>
 //                           <p className="text-gray-500 ml-0.5">({friend.name})</p>
@@ -1013,8 +1005,6 @@ export default Sidebar
 // };
 
 // export default FriendAdditionPage;
-
-
 
 // import React, { useState, useEffect } from 'react'
 // import { useNavigate } from 'react-router-dom'

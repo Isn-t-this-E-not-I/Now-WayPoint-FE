@@ -1,4 +1,3 @@
-import React from 'react'
 import Maps from '@/api/KaKaomap/kakaomain'
 
 const Main = () => {
