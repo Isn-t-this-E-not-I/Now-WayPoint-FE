@@ -475,6 +475,7 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
               <div id="imoji_box_box">
                 {showPicker && <Picker data={data} onEmojiSelect={addEmoji} />}
               </div>
+              123456
             </div>
           </div>
         </div>
