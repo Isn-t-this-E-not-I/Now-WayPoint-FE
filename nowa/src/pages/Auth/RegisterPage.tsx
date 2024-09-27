@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import TextInput from '../../components/TextInput/textInput';
-import { register, login, sendVerificationCode, verifyCode, checkLoginId } from '../../api/userApi';
-import Button from '../../components/Button/button';
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
+import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import TextInput from '../../components/TextInput/textInput'
+import {
+  register,
+  login,
+  sendVerificationCode,
+  verifyCode,
+  checkLoginId,
+} from '../../api/userApi'
+import Button from '../../components/Button/button'
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai'
+import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai'
 
 const RegisterPage: React.FC = () => {
   const [loginId, setLoginId] = useState('')
@@ -23,7 +29,7 @@ const RegisterPage: React.FC = () => {
   const [nickname, setNickname] = useState('')
   const [authNumber, setAuthNumber] = useState('')
   const [receivedCode, setReceivedCode] = useState('')
-  const [verificationVisible, setVerificationVisible] = useState(false)
+  const [, setVerificationVisible] = useState(false)
   const [loginMessage, setLoginMessage] = useState('')
   const [passwordMessage, setPasswordMessage] = useState('')
   const [nicknameMessage, setNicknameMessage] = useState('')
@@ -103,44 +109,50 @@ const RegisterPage: React.FC = () => {
   const handleVerifyCode = async () => {
     const email = `${emailUser}@${emailDomain}` //*
     try {
-      const response = await verifyCode( authNumber, email );
+      const response = await verifyCode(authNumber, email)
       if (response.message === 'authorized') {
-        alert('인증에 성공했습니다');
+        alert('인증에 성공했습니다')
       } else {
-        alert('인증에 실패했습니다');
+        alert('인증에 실패했습니다')
       }
     } catch (error) {
-      console.error('Verification error:', (error as any).message || error);
-      alert('서버 에러가 발생했습니다.');
+      console.error('Verification error:', (error as any).message || error)
+      alert('서버 에러가 발생했습니다.')
     }
-  };
+  }
 
   // src/pages/RegisterPage.tsx (update handleRegister function)
 
-const handleRegister = async () => {
-  const email = `${emailUser}@${emailDomain}`;
-  try {
-    const response = await register({ loginId, email, password, name, nickname });
-    if (response.data === 'ok') {
-      try {
-        alert('회원가입에 성공했습니다');
-        const loginResponse = await login({ loginId, password });
-        localStorage.setItem('token', loginResponse.token);
-        localStorage.setItem('nickname', loginResponse.nickname);
-        navigate('/onboarding/location-permission'); // Redirect to location permission page
-      } catch (loginError) {
-        console.error('자동 로그인 실패:', loginError);
-        alert('자동 로그인에 실패했습니다. 로그인 페이지로 이동합니다.');
-        navigate('/auth');
+  const handleRegister = async () => {
+    const email = `${emailUser}@${emailDomain}`
+    try {
+      const response = await register({
+        loginId,
+        email,
+        password,
+        name,
+        nickname,
+      })
+      if (response.data === 'ok') {
+        try {
+          alert('회원가입에 성공했습니다')
+          const loginResponse = await login({ loginId, password })
+          localStorage.setItem('token', loginResponse.token)
+          localStorage.setItem('nickname', loginResponse.nickname)
+          navigate('/onboarding/location-permission') // Redirect to location permission page
+        } catch (loginError) {
+          console.error('자동 로그인 실패:', loginError)
+          alert('자동 로그인에 실패했습니다. 로그인 페이지로 이동합니다.')
+          navigate('/auth')
+        }
+      } else {
+        alert('회원가입 실패: ' + response)
       }
-    } else {
-      alert('회원가입 실패: ' + response)
+    } catch (error) {
+      console.error('Registration error:', (error as any).message || error)
+      alert('서버 에러가 발생했습니다.')
     }
-  } catch (error) {
-    console.error('Registration error:', (error as any).message || error);
-    alert('서버 에러가 발생했습니다.');
   }
-}
 
   const handleCheckLoginId = async () => {
     if (!isLoginIdValid(loginId)) {

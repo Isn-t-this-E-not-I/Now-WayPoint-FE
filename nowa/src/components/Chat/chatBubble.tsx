@@ -8,7 +8,7 @@ interface ChatBubbleProps {
   time: string
   message: string
   footer: string
-  onAvatarClick?: () => void;
+  onAvatarClick?: () => void
 }
 
 const BubbleWrapper = styled.div<{ alignment: 'start' | 'end' }>`
@@ -47,11 +47,11 @@ const Header = styled.div`
   font-weight: bold;
 `
 
-const Time = styled.time`
-  font-size: 12px;
-  color: #666;
-  margin-left: 5px;
-`
+// const Time = styled.time`
+//   font-size: 12px;
+//   color: #666;
+//   margin-left: 5px;
+// `
 
 const Bubble = styled.div<{ alignment: 'start' | 'end' }>`
   background-color: ${({ alignment }) =>

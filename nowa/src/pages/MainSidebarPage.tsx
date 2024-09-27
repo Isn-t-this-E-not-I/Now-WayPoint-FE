@@ -5,7 +5,7 @@ import {
 } from '@/components/WebSocketProvider/WebSocketProvider'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
-import moment from 'moment-timezone'
+// import moment from 'moment-timezone'
 import DetailContentModal from '@/components/Modal/ContentModal'
 import { SyncLoader } from 'react-spinners'
 import NoFollowContentsImage from '../assets/ezgif.com-gif-maker (2).gif'

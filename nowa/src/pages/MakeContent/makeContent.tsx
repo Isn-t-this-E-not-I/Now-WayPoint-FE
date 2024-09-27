@@ -178,13 +178,11 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
     const tagPattern = /(?:^|\s)(#[a-zA-Z0-9가-힣_]+)\s/g
     const newTags: string[] = []
     let match
-    let invalidTagFound = false
 
     const currentTags = inputValue.match(/#[a-zA-Z0-9가-힣_]+/g)
     if (currentTags) {
       for (const tag of currentTags) {
         if (tag.length > 31) {
-          invalidTagFound = true
           alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
           break
         }
@@ -195,7 +193,6 @@ const MakeContent: React.FC<MakeContentProps> = ({ onClose }) => {
       const tag = match[1].trim()
 
       if (tag.length > 31) {
-        invalidTagFound = true
         alert(`태그는 최대 30글자까지 입력할 수 있습니다: ${tag}`)
       } else if (newTags.includes(tag) || tags.includes(tag)) {
         alert(`동일한 태그가 이미 존재합니다: ${tag}`)

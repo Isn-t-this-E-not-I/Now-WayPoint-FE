@@ -164,23 +164,23 @@ const MissingChatSpan = styled.span`
   z-index: 1000;
 `
 
-const NewMessageButton = styled.button<{ show: boolean }>`
-  position: absolute;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 10px 20px;
-  background-color: rgba(248, 250, 255, 0.7);
-  color: #151515;
-  border: 1px solid;
-  border-radius: 4px;
-  cursor: pointer;
-  display: ${(props) => (props.show ? 'block' : 'none')};
+// const NewMessageButton = styled.button<{ show: boolean }>`
+//   position: absolute;
+//   bottom: 80px;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   padding: 10px 20px;
+//   background-color: rgba(248, 250, 255, 0.7);
+//   color: #151515;
+//   border: 1px solid;
+//   border-radius: 4px;
+//   cursor: pointer;
+//   display: ${(props) => (props.show ? 'block' : 'none')};
 
-  &:hover {
-    background-color: #f8faff;
-  }
-`
+//   &:hover {
+//     background-color: #f8faff;
+//   }
+// `
 
 const StyledButton = styled(Button)`
   background-color: #9269b2;
@@ -202,8 +202,7 @@ const StyledButton = styled(Button)`
 
 const ChattingPage: React.FC = () => {
   const { chatRoomId } = useParams<{ chatRoomId: string }>()
-  const { chatRooms, messages, setChatRooms, setChatRoomsInfo, setMessages } =
-    useChat()
+  const { chatRooms, messages, setMessages } = useChat()
   const { theme } = useApp()
   const token = localStorage.getItem('token') || ''
   const nickname = localStorage.getItem('nickname') || ''
@@ -407,14 +406,14 @@ const ChattingPage: React.FC = () => {
   }
 
   // 프로필 이미지를 결정하는 부분 수정
-  let displayProfileImages: string[] = []
-  if (chatRoom.userResponses.length === 1) {
-    displayProfileImages = ['default_profile_image_url'] // 1명일 경우 디폴트 이미지 설정
-  } else {
-    displayProfileImages = chatRoom.userResponses
-      .filter((user) => user.userNickname !== nickname)
-      .map((user) => user.profileImageUrl || 'default_profile_image_url') // 프로필 이미지가 없는 경우 디폴트 이미지 설정
-  }
+  // let displayProfileImages: string[] = []
+  // if (chatRoom.userResponses.length === 1) {
+  //   displayProfileImages = ['default_profile_image_url'] // 1명일 경우 디폴트 이미지 설정
+  // } else {
+  //   displayProfileImages = chatRoom.userResponses
+  //     .filter((user) => user.userNickname !== nickname)
+  //     .map((user) => user.profileImageUrl || 'default_profile_image_url') // 프로필 이미지가 없는 경우 디폴트 이미지 설정
+  // }
 
   // 채팅방 이름 결정 및 프로필 이미지 설정
   let displayName: string

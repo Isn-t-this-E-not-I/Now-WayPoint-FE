@@ -1,6 +1,3 @@
-import React from 'react'
-import { useGoogleLogin } from '@react-oauth/google'
-
 const CustomGoogleLoginButton = () => {
   const location = import.meta.env.VITE_APP_API
   const handleGoogleLogin = async () => {

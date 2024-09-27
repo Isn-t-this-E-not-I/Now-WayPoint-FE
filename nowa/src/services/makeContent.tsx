@@ -25,8 +25,8 @@ export const uploadContent = async (
   )
 
   // FormData의 내용을 확인하는 코드
-  for (let [key, value] of formData.entries()) {
-  }
+  // for (let [key, value] of formData.entries()) {
+  // }
 
   try {
     const result = await fetch(`${API_BASE_URL}/posts`, {

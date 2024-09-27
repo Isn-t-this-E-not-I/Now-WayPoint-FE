@@ -1,5 +1,3 @@
-import React from 'react'
-
 const CustomNaverLoginButton = () => {
   const naver_Client_Id = import.meta.env.VITE_APP_NAVER_KEY
   const naver_Callback_URL = import.meta.env.VITE_APP_NAVER_CALLBACK_URL
