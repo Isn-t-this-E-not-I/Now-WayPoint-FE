@@ -8,8 +8,10 @@ on:
 jobs:
   build:
     name: react build & deploy
-    runs-on: windows-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
       - name: checkout Github Action
