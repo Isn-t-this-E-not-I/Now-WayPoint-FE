@@ -15,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - name: checkout Github Action
+      - name: Checkout Github Action
         uses: actions/checkout@v3
 
       - name: Setup Node.js
@@ -35,10 +35,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - name: install npm dependencies
+      - name: Install npm dependencies
         run: npm install
 
-      - name: react build
+      - name: React build
         run: npm run build
 
       - name: Configure AWS credentials
@@ -48,7 +48,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-2
 
+      - name: Install aws-cli locally
+        run: npm install aws-cli --save-dev
+
       - name: Upload to S3
         run: |
-          aws s3 sync \
+          npx aws s3 sync \
             ./build s3://now-way-point/
