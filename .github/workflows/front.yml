@@ -38,3 +38,11 @@ jobs:
             --recursive 
             --region ap-northeast-2 
             build s3://now-way-point/
+
+      - name: Check current directory
+        run: pwd
+
+      - name: List files
+        run: ls -R
+
+
