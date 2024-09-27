@@ -17,6 +17,11 @@ jobs:
       - name: checkout Github Action
         uses: actions/checkout@v3
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: "18"
+
       - name: Get npm cache directory
         id: npm-cache-dir
         run: |
