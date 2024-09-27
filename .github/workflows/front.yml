@@ -35,4 +35,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Deploy to S3
+        working-directory: nowa
         run: aws s3 sync build/ s3://now-way-point/ --delete
+
