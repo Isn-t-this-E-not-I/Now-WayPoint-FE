@@ -95,10 +95,40 @@ const SideFollowList: React.FC<SideFollowListProps> = ({
   const navigate = useNavigate()
 
   const filteredList = searchQuery
-    ? users.filter((user) =>
-        user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : users
+    ? users
+        .filter((user) =>
+          user.nickname.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => {
+          // active에 따른 정렬
+          if (a.active === 'true' && b.active !== 'true') return -1
+          if (a.active !== 'true' && b.active === 'true') return 1
+
+          // 같은 active 상태일 경우 한글, 영어 순서로 정렬
+          const isAEnglish = /^[a-zA-Z]/.test(a.nickname)
+          const isBEnglish = /^[a-zA-Z]/.test(b.nickname)
+
+          if (isAEnglish && !isBEnglish) return 1 // 영어를 뒤로 보냄
+          if (!isAEnglish && isBEnglish) return -1 // 한글을 앞으로 보냄
+
+          // 같은 언어일 경우 사전순 정렬
+          return a.nickname.localeCompare(b.nickname)
+        })
+    : users.sort((a, b) => {
+        // active에 따른 정렬
+        if (a.active === 'true' && b.active !== 'true') return -1
+        if (a.active !== 'true' && b.active === 'true') return 1
+
+        // 같은 active 상태일 경우 한글, 영어 순서로 정렬
+        const isAEnglish = /^[a-zA-Z]/.test(a.nickname)
+        const isBEnglish = /^[a-zA-Z]/.test(b.nickname)
+
+        if (isAEnglish && !isBEnglish) return 1 // 영어를 뒤로 보냄
+        if (!isAEnglish && isBEnglish) return -1 // 한글을 앞으로 보냄
+
+        // 같은 언어일 경우 사전순 정렬
+        return a.nickname.localeCompare(b.nickname)
+      })
 
   const handleProfileClick = (nickname: string) => {
     navigate(`/user/${nickname}?tab=posts`)
