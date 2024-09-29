@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import { GrFormNext } from 'react-icons/gr';
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import styled from 'styled-components'
+import { GrFormNext } from 'react-icons/gr'
 import './styles.css'
 
 const Container = styled.div`
   display: flex;
-`;
+`
 
 const Overlay = styled.div<{ targetRect: DOMRect | null }>`
   position: fixed;
@@ -16,9 +16,9 @@ const Overlay = styled.div<{ targetRect: DOMRect | null }>`
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
   z-index: 1000;
-  
-  ${({ targetRect }) => 
-    targetRect && 
+
+  ${({ targetRect }) =>
+    targetRect &&
     `
     &::before {
       content: '';
@@ -32,24 +32,23 @@ const Overlay = styled.div<{ targetRect: DOMRect | null }>`
       border-radius: 10px;
     }
   `}
-`;
+`
 
-const OverlayMessage = styled.div<{ targetRect: DOMRect | null }>`
-  position: fixed;
-  top: ${({ targetRect }) => (targetRect ? targetRect.top : '50%')}px;
-  left: ${({ targetRect }) => (targetRect ? targetRect.right + 10 : '50%')}px;
-  background: white;
-  padding: 23px;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1001;
-`;
-
+// const OverlayMessage = styled.div<{ targetRect: DOMRect | null }>`
+//   position: fixed;
+//   top: ${({ targetRect }) => (targetRect ? targetRect.top : '50%')}px;
+//   left: ${({ targetRect }) => (targetRect ? targetRect.right + 10 : '50%')}px;
+//   background: white;
+//   padding: 23px;
+//   border-radius: 8px;
+//   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+//   z-index: 1001;
+// `;
 
 const SiteGuidePage: React.FC = () => {
-  const navigate = useNavigate();
-  const [step, setStep] = useState(0);
-  const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  const navigate = useNavigate()
+  const [step, setStep] = useState(0)
+  const [targetRect, setTargetRect] = useState<DOMRect | null>(null)
 
   const steps = [
     {
@@ -87,106 +86,107 @@ const SiteGuidePage: React.FC = () => {
       description: '마이페이지에서 회원 정보를 수정할 수 있습니다',
       target: '#mypage-icon',
     },
-  ];
+  ]
 
   useEffect(() => {
-    const currentStep = steps[step];
+    const currentStep = steps[step]
     if (currentStep) {
-      const targetElement = document.querySelector(currentStep.target);
+      const targetElement = document.querySelector(currentStep.target)
       if (targetElement) {
-        setTargetRect(targetElement.getBoundingClientRect());
+        setTargetRect(targetElement.getBoundingClientRect())
       }
     }
-  }, [step]);
+  }, [step])
 
   const handleNext = () => {
     if (step < steps.length - 1) {
-      setStep(step + 1);
+      setStep(step + 1)
     } else {
-      navigate('/main'); // 마지막 단계에서 /main으로 이동
+      navigate('/main') // 마지막 단계에서 /main으로 이동
     }
-  };
+  }
 
   const handleClose = () => {
-    setStep(-1);
-  };
+    setStep(-1)
+  }
 
   const handleOverlayClick = (event: React.MouseEvent) => {
     if (targetRect) {
-      const { clientX, clientY } = event;
+      const { clientX, clientY } = event
       if (
         clientX >= targetRect.left &&
         clientX <= targetRect.right &&
         clientY >= targetRect.top &&
         clientY <= targetRect.bottom
       ) {
-        handleNext();
+        handleNext()
       }
     }
-  };
+  }
 
-  useEffect(() => { // 엔터 키프레스 추가
+  useEffect(() => {
+    // 엔터 키프레스 추가
     const handleKeyPress = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
-        handleNext();
+        handleNext()
       }
-    };
+    }
 
-    window.addEventListener('keydown', handleKeyPress);
+    window.addEventListener('keydown', handleKeyPress)
     return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [step]);
+      window.removeEventListener('keydown', handleKeyPress)
+    }
+  }, [step])
 
-  const currentStep = step >= 0 && step < steps.length ? steps[step] : null;
+  const currentStep = step >= 0 && step < steps.length ? steps[step] : null
 
-//   return (
-//     <Container>
-//       {currentStep && (
-//         <>
-//         <Overlay targetRect={targetRect} onClick={handleOverlayClick} />
-//         <OverlayMessage targetRect={targetRect}>
-//           {/* <h3>{currentStep.title}</h3> */}
-//           <p>{currentStep.description}</p>
-//           <button onClick={handleNext}>
-//             <GrFormNext size={24}/>
-//           </button>
-//           {/* <button onClick={handleClose}>Close</button> */}
-//         </OverlayMessage>
-//         </>
-//       )}
-//     </Container>
-//   );
-// };
+  //   return (
+  //     <Container>
+  //       {currentStep && (
+  //         <>
+  //         <Overlay targetRect={targetRect} onClick={handleOverlayClick} />
+  //         <OverlayMessage targetRect={targetRect}>
+  //           {/* <h3>{currentStep.title}</h3> */}
+  //           <p>{currentStep.description}</p>
+  //           <button onClick={handleNext}>
+  //             <GrFormNext size={24}/>
+  //           </button>
+  //           {/* <button onClick={handleClose}>Close</button> */}
+  //         </OverlayMessage>
+  //         </>
+  //       )}
+  //     </Container>
+  //   );
+  // };
 
-// export default SiteGuidePage;
+  // export default SiteGuidePage;
 
-return (
-  <Container>
-    {currentStep && (
-      <>
-        <Overlay targetRect={targetRect} onClick={handleOverlayClick} />
-        
-        <div 
-          className="bubble" 
-          style={{
-            position: 'fixed',
-            top: targetRect ? targetRect.top - 20 : '50%',
-            left: targetRect ? targetRect.right + 30 : '50%',
-            zIndex: 1001,
-          }}
-        >
-          <p>{currentStep.description}</p>
-          <button onClick={handleNext}>
-            <GrFormNext size={24} />
-          </button>
-        </div>
-        
-        <button onClick={handleClose}>Close</button>
-      </>
-    )}
-  </Container>
-);
-};
+  return (
+    <Container>
+      {currentStep && (
+        <>
+          <Overlay targetRect={targetRect} onClick={handleOverlayClick} />
 
-export default SiteGuidePage;
+          <div
+            className="bubble"
+            style={{
+              position: 'fixed',
+              top: targetRect ? targetRect.top - 20 : '50%',
+              left: targetRect ? targetRect.right + 30 : '50%',
+              zIndex: 1001,
+            }}
+          >
+            <p>{currentStep.description}</p>
+            <button onClick={handleNext}>
+              <GrFormNext size={24} />
+            </button>
+          </div>
+
+          <button onClick={handleClose}>Close</button>
+        </>
+      )}
+    </Container>
+  )
+}
+
+export default SiteGuidePage

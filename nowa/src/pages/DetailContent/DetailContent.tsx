@@ -19,7 +19,7 @@ import {
   User,
 } from '@/services/comments'
 import { getAddressFromCoordinates } from '@/services/getAddress'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
 import TextArea from '@/components/TextArea/textArea'
 import Modal from '@/components/Modal/modal'
@@ -58,7 +58,7 @@ const CloseButton = styled.button`
 `
 
 const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
-  const location = useLocation()
+  // const location = useLocation()
   const [post, setPost] = useState<Post | null>(null)
   const [comments, setComments] = useState<Comment[]>([])
   const [address, setAddress] = useState<string>('')
@@ -76,7 +76,7 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
   const [isContentExpanded, setIsContentExpanded] = useState<boolean>(false) // 글 내용 확장 상태 추가
   const [isBookmarked, setIsBookmarked] = useState<boolean>(false) // 북마크 상태
   const navigate = useNavigate()
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+  // const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
   const [isEmojiPickerOpen, setIsEmojiPickerOpen] = useState<boolean>(false) // 댓글 이모지 선택기 상태
   const [activeReplyEmojiPicker, setActiveReplyEmojiPicker] = useState<
     number | null
@@ -359,22 +359,22 @@ const DetailContent: React.FC<DetailContentProps> = ({ postId, onClose }) => {
     }
   }
 
-  const handleLikeListToggle = async () => {
-    if (isLikeListOpen) {
-      // 이미 열려 있는 경우 닫기
-      setIsLikeListOpen(false)
-    } else {
-      // 열려 있지 않은 경우 사용자 목록을 가져오고 열기
-      try {
-        const users = await getLikeListUsers(postId)
-        setLikedUsers(users)
-        setIsLikeListOpen(true)
-      } catch (error) {
-        console.error('Failed to fetch liked users:', error)
-        alert('좋아요한 사용자 목록을 불러오는 데 실패했습니다.')
-      }
-    }
-  }
+  // const handleLikeListToggle = async () => {
+  //   if (isLikeListOpen) {
+  //     // 이미 열려 있는 경우 닫기
+  //     setIsLikeListOpen(false)
+  //   } else {
+  //     // 열려 있지 않은 경우 사용자 목록을 가져오고 열기
+  //     try {
+  //       const users = await getLikeListUsers(postId)
+  //       setLikedUsers(users)
+  //       setIsLikeListOpen(true)
+  //     } catch (error) {
+  //       console.error('Failed to fetch liked users:', error)
+  //       alert('좋아요한 사용자 목록을 불러오는 데 실패했습니다.')
+  //     }
+  //   }
+  // }
 
   const handleMouseEnter = async () => {
     if (!isLikeListOpen) {

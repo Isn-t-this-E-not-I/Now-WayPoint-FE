@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { BrowserRouter, useLocation } from 'react-router-dom'
 import Routers from './routes'
@@ -22,7 +22,7 @@ const App: React.FC = () => {
   ]
 
   const isNoSidebarPage = noSidebarPaths.includes(location.pathname)
-  const [selectedPage, setSelectedPage] = useState<string>('main')
+  // const [selectedPage, setSelectedPage] = useState<string>('main')
 
   return (
     <>

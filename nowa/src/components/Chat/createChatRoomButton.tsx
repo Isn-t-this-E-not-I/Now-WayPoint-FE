@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { CreateChatButtonIcon } from '../icons/icons'
 import useModal from '@/hooks/modal'

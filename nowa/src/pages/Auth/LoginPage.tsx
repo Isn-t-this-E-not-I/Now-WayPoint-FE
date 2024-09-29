@@ -10,7 +10,7 @@ import image from '@/assets/loginImage.png'
 const LoginPage: React.FC = () => {
   const [loginId, setLoginId] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [nickname, setNickname] = useState('')
+  const [, setNickname] = useState('')
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const location = import.meta.env.VITE_APP_API

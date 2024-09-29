@@ -153,10 +153,10 @@ const UserPage: React.FC = () => {
   const location = import.meta.env.VITE_APP_API
   const locations = useLocation()
   const [isFollowing, setIsFollowing] = useState(false)
-  const { connectAndSubscribe, disconnect } = useChatWebSocket()
+  const { connectAndSubscribe } = useChatWebSocket()
   const { setChatRooms, setChatRoomsInfo } = useChat()
-  const stompClient = getStompClient()
-  const payload = [nickname]
+  // const stompClient = getStompClient()
+  // const payload = [nickname]
 
   const fetchUserData = async () => {
     const token = localStorage.getItem('token')
@@ -453,7 +453,7 @@ const UserPage: React.FC = () => {
 
     try {
       const response = await axios.get(`${location}/bookmarks`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       })
 
       setBookmarkedPosts(response.data)
@@ -504,8 +504,11 @@ const UserPage: React.FC = () => {
         </ProfileInfo>
       </ProfileSection>
       <ContentSection>
-      <TabContainer>
-          <Tab active={selectedTab === 'posts'} onClick={() => setSelectedTab('posts')}>
+        <TabContainer>
+          <Tab
+            active={selectedTab === 'posts'}
+            onClick={() => setSelectedTab('posts')}
+          >
             게시글
           </Tab>
           {/* <Tab active={selectedTab === 'bookmarks'} onClick={() => setSelectedTab('bookmarks')}>

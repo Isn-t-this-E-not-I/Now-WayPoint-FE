@@ -9,7 +9,7 @@ interface LoginActiveProps {
 
 const FollowListWrapper = styled.div`
   display: flex;
-  flex-wrap: wrap;  /* 줄 바꿈 허용 */
+  flex-wrap: wrap; /* 줄 바꿈 허용 */
   justify-content: flex-start;
   margin-left: -0.3rem;
   max-height: 80vh;
@@ -23,8 +23,8 @@ const FollowItem = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 10px;
-  width: calc(50% - 20px);  /* 두 개의 아이템이 한 줄에 들어가도록 설정 */
-  box-sizing: border-box;  /* 패딩과 너비가 겹치지 않도록 설정 */
+  width: calc(50% - 20px); /* 두 개의 아이템이 한 줄에 들어가도록 설정 */
+  box-sizing: border-box; /* 패딩과 너비가 겹치지 않도록 설정 */
   margin-bottom: 10px;
 `
 
@@ -75,11 +75,6 @@ const LoginActiveContainer = styled.div`
   background-color: white;
   border-radius: 50%;
   margin: 0 auto;
-`
-
-const CCC = styled.div`
-  width: 40px;
-  height: 40px;
 `
 
 interface FollowListProps {

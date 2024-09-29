@@ -24,7 +24,7 @@ const AuthPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login')
   const [loginId, setLoginId] = useState<string>('')
   const [password, setPassword] = useState<string>('')
-  const [nickname, setNickname] = useState('')
+  const [, setNickname] = useState('')
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [error, setError] = useState<string>('')
   const location = import.meta.env.VITE_APP_API
@@ -256,7 +256,7 @@ interface RegisterFormProps {
   setActiveTab: (tab: 'login' | 'register') => void
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = ({ setActiveTab }) => {
+const RegisterForm: React.FC<RegisterFormProps> = ({}) => {
   const [loginId, setLoginId] = useState('')
   const [emailUser, setEmailUser] = useState('')
   const [emailDomain, setEmailDomain] = useState('gmail.com')
@@ -273,7 +273,7 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ setActiveTab }) => {
   const [nickname, setNickname] = useState('')
   const [authNumber, setAuthNumber] = useState('')
   const [receivedCode, setReceivedCode] = useState('')
-  const [verificationVisible, setVerificationVisible] = useState(false)
+  const [, setVerificationVisible] = useState(false)
   const [loginMessage, setLoginMessage] = useState('')
   const [passwordMessage, setPasswordMessage] = useState('')
   const [nicknameMessage, setNicknameMessage] = useState('')

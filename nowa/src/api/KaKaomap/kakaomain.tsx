@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { getKakaoApiData } from '../../services/kakaomap'
-import { useLocation } from 'react-router-dom'
+// import { useLocation } from 'react-router-dom'
 import '@/styles/kakaomap.css'
 import { useWebSocket } from '@/components/WebSocketProvider/WebSocketProvider'
 import Select from '@/components/Select/select'
@@ -14,10 +14,10 @@ declare global {
 
 const MainPage: React.FC = () => {
   const mapContainer = useRef<HTMLDivElement>(null)
-  const location = useLocation()
-  const [token, setToken] = useState(localStorage.getItem('token'))
-  const [nickname, setNickname] = useState(localStorage.getItem('nickname'))
-  const [locate, setLocate] = useState('')
+  // const location = useLocation()
+  const [, setToken] = useState(localStorage.getItem('token'))
+  const [, setNickname] = useState(localStorage.getItem('nickname'))
+  const [, setLocate] = useState('')
   const [data, setData] = useState<any[]>([])
   const [map, setMap] = useState<any>(null)
   const [mapLevel, setMapLevel] = useState<number>(7)
@@ -140,7 +140,7 @@ const MainPage: React.FC = () => {
     })
   }
 
-  const addMarkers = async (map: any, data: any[]) => {
+  const addMarkers = async (_map: any, data: any[]) => {
     // 기존 마커 삭제
     if (clustererRef.current) {
       clustererRef.current.clear()
